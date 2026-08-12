@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircle2, Download, Library, PackageCheck } from "lucide-react";
+import { Clock, Download, Library, PackageCheck } from "lucide-react";
 import { useSyncExternalStore } from "react";
 import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -63,10 +63,13 @@ export default function OrderSuccessPage() {
       >
         <div className="flex flex-col items-center text-center">
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-2">
-            <CheckCircle2 size={24} className="text-success" />
+            <Clock size={24} className="text-warning" />
           </span>
-          <h1 className="mt-4 text-2xl font-semibold tracking-tight">Pembelian berhasil.</h1>
-          <p className="mt-1.5 text-sm text-fg-muted">Terima kasih! Aplikasi Anda siap diunduh.</p>
+          <h1 className="mt-4 text-2xl font-semibold tracking-tight">Pembayaran sedang diproses.</h1>
+          <p className="mt-1.5 text-sm text-fg-muted">
+            Terima kasih! Kami memverifikasi pembayaran Anda. Aplikasi akan masuk ke koleksi setelah
+            terverifikasi.
+          </p>
         </div>
 
         <dl className="mt-6 divide-y divide-border rounded-lg border border-border bg-surface-2 px-4 text-sm">

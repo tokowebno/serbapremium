@@ -28,6 +28,7 @@ export function CheckoutForm({ initialSlug }: { initialSlug?: string }) {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [qrisDone, setQrisDone] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
 
   // Item beli-langsung dari ?app=slug (dibaca server, diteruskan via prop).
@@ -75,11 +76,18 @@ export function CheckoutForm({ initialSlug }: { initialSlug?: string }) {
     if (!name.trim()) nextErrors.name = "Nama lengkap wajib diisi.";
     if (!email.trim() || !/^\S+@\S+\.\S+$/.test(email)) nextErrors.email = "Alamat email tidak valid.";
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length === 0) setStep(2);
+    if (Object.keys(nextErrors).length > 0) return;
+    setLoading(true);
+    // Sedikit jeda agar terasa sedang memproses data pembeli.
+    setTimeout(() => {
+      setLoading(false);
+      setStep(2);
+    }, 700);
   };
 
   const completePayment = () => {
-    if (!qrisDone) return;
+    if (!qrisDone || loading) return;
+    setLoading(true);
     const order = {
       id: `TK-${Date.now().toString().slice(-6)}`,
       date: new Date().toISOString().slice(0, 10),
@@ -95,10 +103,12 @@ export function CheckoutForm({ initialSlug }: { initialSlug?: string }) {
     items.forEach((i) => library.add(i.appId));
     cart.clear();
     toast.push({
-      title: "Pembayaran berhasil",
-      description: "Aplikasi Anda sudah masuk ke koleksi.",
+      title: "Pembayaran sedang diproses",
+      description: "Kami memverifikasi pembayaran Anda. Aplikasi masuk ke koleksi setelah terverifikasi.",
     });
-    router.push("/pembayaran/berhasil");
+    setTimeout(() => {
+      router.push("/pembayaran/berhasil");
+    }, 1200);
   };
 
   return (
@@ -175,8 +185,9 @@ export function CheckoutForm({ initialSlug }: { initialSlug?: string }) {
                 />
               </Field>
               <div className="mt-2 flex justify-end">
-                <Button onClick={goNext}>
-                  Lanjut ke Pembayaran <ArrowRight size={16} />
+                <Button onClick={goNext} disabled={loading}>
+                  {loading ? "Memproses…" : "Lanjut ke Pembayaran"}
+                  {!loading && <ArrowRight size={16} />}
                 </Button>
               </div>
             </div>
@@ -227,10 +238,10 @@ export function CheckoutForm({ initialSlug }: { initialSlug?: string }) {
                 </Button>
                 <Button
                   onClick={completePayment}
-                  disabled={!qrisDone}
+                  disabled={!qrisDone || loading}
                   className="flex-1 sm:flex-none"
                 >
-                  Selesaikan Pembayaran
+                  {loading ? "Memproses…" : "Selesaikan Pembayaran"}
                 </Button>
               </div>
             </div>
