@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, CheckCircle2, CreditCard, Landmark, ShoppingBag, Wallet } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, CreditCard, Landmark, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
@@ -13,12 +13,12 @@ import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import type { CartItem } from "@/types";
 
-type PaymentMethod = "transfer" | "kartu" | "ewallet";
+type PaymentMethod = "transfer" | "kartu" | "qris";
 
 const methods: Array<{ value: PaymentMethod; label: string }> = [
   { value: "transfer", label: "Transfer Bank" },
   { value: "kartu", label: "Kartu Kredit" },
-  { value: "ewallet", label: "e-Wallet" },
+  { value: "qris", label: "QRIS" },
 ];
 
 const steps = ["Informasi", "Pembayaran", "Konfirmasi"];
@@ -39,6 +39,7 @@ export function CheckoutForm({ initialSlug }: { initialSlug?: string }) {
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCvc, setCardCvc] = useState("");
   const [transferDone, setTransferDone] = useState(false);
+  const [qrisDone, setQrisDone] = useState(false);
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
 
   // Item beli-langsung dari ?app=slug (dibaca server, diteruskan via prop).
@@ -82,7 +83,7 @@ export function CheckoutForm({ initialSlug }: { initialSlug?: string }) {
   };
 
   const completePayment = () => {
-    if (method === "transfer" && !transferDone) return;
+    if ((method === "transfer" && !transferDone) || (method === "qris" && !qrisDone)) return;
     const order = {
       id: "TK-84521",
       date: new Date().toISOString().slice(0, 10),
@@ -281,15 +282,32 @@ export function CheckoutForm({ initialSlug }: { initialSlug?: string }) {
                 </div>
               )}
 
-              {method === "ewallet" && (
+              {method === "qris" && (
                 <div className="flex flex-col items-center gap-3 py-2">
-                  <div className="flex h-40 w-40 flex-col items-center justify-center gap-2 rounded-lg bg-surface-3">
-                    <Wallet size={28} className="text-fg-faint" strokeWidth={1.5} />
-                    <span className="text-xs font-medium text-fg-faint">QR pembayaran</span>
+                  <div className="relative overflow-hidden rounded-lg border border-border bg-surface p-3 shadow-sm">
+                    {/* ponytail: QRIS asli kamu — taruh di public/qris.png, placeholder dipakai sebelum ada */}
+                    <img
+                      src="/qris.png"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = "/qris-placeholder.svg";
+                      }}
+                      alt="Kode QRIS Tokono — pindai dengan aplikasi e-wallet atau m-banking"
+                      className="h-48 w-48 object-contain"
+                    />
                   </div>
-                  <p className="text-[13px] leading-5 text-fg-muted">
-                    Pindai kode QR dengan aplikasi e-wallet Anda, lalu selesaikan pembayaran.
+                  <p className="max-w-xs text-center text-[13px] leading-5 text-fg-muted">
+                    Pindai kode QRIS dengan aplikasi e-wallet atau m-banking, lalu selesaikan
+                    pembayaran sesuai total.
                   </p>
+                  {qrisDone ? (
+                    <p className="flex items-center gap-1.5 text-[13px] font-medium text-success">
+                      <CheckCircle2 size={14} /> Pembayaran Anda tercatat.
+                    </p>
+                  ) : (
+                    <Button className="w-full" onClick={() => setQrisDone(true)}>
+                      Saya Sudah Bayar
+                    </Button>
+                  )}
                 </div>
               )}
 
@@ -299,7 +317,7 @@ export function CheckoutForm({ initialSlug }: { initialSlug?: string }) {
                 </Button>
                 <Button
                   onClick={completePayment}
-                  disabled={method === "transfer" && !transferDone}
+                  disabled={(method === "transfer" && !transferDone) || (method === "qris" && !qrisDone)}
                   className="flex-1 sm:flex-none"
                 >
                   Selesaikan Pembayaran
