@@ -53,7 +53,7 @@ export default function HomePage() {
 
   return (
     <>
-      <section className="tk-container grid items-center gap-16 pt-40 pb-24 lg:grid-cols-2">
+      <section className="glass-backdrop relative tk-container grid items-center gap-16 pt-40 pb-24 lg:grid-cols-2">
         <div className="max-w-xl">
           <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">Temukan aplikasi yang tepat.</h1>
           <p className="mt-5 max-w-md text-[17px] leading-7 text-fg-muted">

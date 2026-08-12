@@ -6,7 +6,7 @@ import { formatDate } from "@/lib/utils";
 
 export function ReviewCard({ review }: { review: Review }) {
   return (
-    <article className="flex flex-col gap-2.5 rounded-xl border border-border bg-surface p-5">
+    <article className="glass-card flex flex-col gap-2.5 rounded-xl p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2.5">
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-2 text-[13px] font-semibold">

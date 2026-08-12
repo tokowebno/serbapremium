@@ -90,7 +90,7 @@ export default async function AppDetailPage({ params }: Props) {
         <ProductTabs slug={app.slug} reviews={reviews} />
 
         <aside className="hidden lg:block">
-          <div className="sticky top-28 rounded-xl border border-border bg-surface p-5 shadow-sm">
+          <div className="glass-card sticky top-28 rounded-xl p-5">
             <div className="flex items-center gap-3">
               <AppIcon icon={app.icon} size="sm" />
               <p className="text-sm leading-tight font-semibold">{app.name}</p>

@@ -24,7 +24,7 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
     >
       <Link
         href={`/aplikasi/${app.slug}`}
-        className="flex h-full flex-col rounded-xl border border-border bg-surface p-5 shadow-sm transition-all duration-300 hover:border-border-strong hover:shadow-md"
+        className="glass-card glass-card-hover flex h-full flex-col rounded-xl p-5"
       >
         <div className="flex items-start justify-between">
           <AppIcon icon={app.icon} size="lg" />

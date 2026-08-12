@@ -16,7 +16,7 @@ export function CategoryCard({
     <Link
       href={`/kategori/${category.slug}`}
       className={cn(
-        "group flex flex-col gap-3 rounded-xl border border-border bg-surface p-5 shadow-sm transition-all duration-300 hover:border-border-strong hover:shadow-md",
+        "glass-card glass-card-hover group flex flex-col gap-3 rounded-xl p-5",
         className,
       )}
     >
