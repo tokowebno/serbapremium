@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowLeft, ArrowRight, CheckCircle2, CreditCard, Landmark, ShoppingBag, Wallet } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -67,10 +67,6 @@ export default function CheckoutPage() {
   const items: CartItem[] = cart.items.length > 0 ? cart.items : directItem ? [directItem] : [];
   const subtotal = items.reduce((s, i) => s + i.price, 0);
 
-  useEffect(() => {
-    if (hydrated && items.length === 0) router.replace("/keranjang");
-  }, [hydrated, items.length, router]);
-
   if (!hydrated) return null;
 
   if (items.length === 0) {
@@ -78,8 +74,9 @@ export default function CheckoutPage() {
       <div className="tk-container pt-28 pb-20">
         <EmptyState
           icon={ShoppingBag}
-          title="Mengalihkan ke keranjang"
-          description="Keranjang Anda kosong. Anda akan dialihkan ke halaman keranjang."
+          title="Belum ada item untuk dibeli."
+          description="Pilih aplikasi yang Anda inginkan, lalu tekan Beli Sekarang untuk checkout langsung."
+          action={{ label: "Jelajahi Aplikasi", href: "/aplikasi" }}
         />
       </div>
     );

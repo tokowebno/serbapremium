@@ -9,7 +9,6 @@ import { Rating } from "@/components/ui/rating";
 import { Price } from "@/components/ui/price";
 import { PlatformList } from "@/components/ui/platform-badge";
 import { SectionHeader } from "@/components/ui/empty-state";
-import { AppGallery } from "@/components/storefront/app-gallery";
 import { AppGrid } from "@/components/storefront/app-grid";
 import { AddToCartButton } from "@/components/storefront/add-to-cart";
 import { ProductTabs } from "@/components/storefront/product-tabs";
@@ -39,11 +38,8 @@ export default async function AppDetailPage({ params }: Props) {
 
   return (
     <div className="tk-container pt-28 pb-20">
-      {/* Galeri + informasi utama */}
-      <div className="grid gap-10 lg:grid-cols-2">
-        <AppGallery slug={app.slug} />
-
-        <div>
+      {/* Informasi utama produk */}
+      <div className="max-w-3xl">
           <div className="flex items-center gap-4">
             <AppIcon icon={app.icon} size="xl" />
             <div className="min-w-0">
@@ -83,10 +79,9 @@ export default async function AppDetailPage({ params }: Props) {
             <AddToCartButton slug={app.slug} size="lg" />
           </div>
         </div>
-      </div>
 
-      {/* Tab info + sidebar CTA sticky */}
-      <div className="mt-14 grid gap-10 lg:grid-cols-[1fr_300px]">
+        {/* Tab info + sidebar CTA sticky */}
+        <div className="mt-14 grid gap-10 lg:grid-cols-[1fr_300px]">
         <ProductTabs slug={app.slug} reviews={reviews} />
 
         <aside className="hidden lg:block">
