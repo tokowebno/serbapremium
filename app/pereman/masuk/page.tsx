@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Lock } from "lucide-react";
@@ -8,6 +9,14 @@ import { Field, Input } from "@/components/ui/form";
 import { useToast } from "@/components/ui/toast";
 
 export default function PeremanMasukPage() {
+  return (
+    <Suspense>
+      <MasukForm />
+    </Suspense>
+  );
+}
+
+function MasukForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const toast = useToast();
