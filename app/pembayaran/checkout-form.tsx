@@ -11,7 +11,18 @@ import { CheckoutSummary } from "@/components/storefront/checkout-summary";
 import { useCart, useLibrary } from "@/components/storefront/providers";
 import { useToast } from "@/components/ui/toast";
 import { cn, formatRupiah } from "@/lib/utils";
+import { supabase, supabaseReady } from "@/lib/supabase";
 import type { CartItem } from "@/types";
+
+/** Simpan pesanan ke Supabase (tabel orders). Gagal diam-diam — bukan blokir checkout. */
+async function saveOrderToDb(order: Record<string, unknown>) {
+  if (!supabaseReady) return;
+  try {
+    await supabase.from("orders").insert(order);
+  } catch {
+    /* database tidak tersedia — checkout tetap jalan */
+  }
+}
 
 type PaymentMethod = "qris";
 
@@ -88,8 +99,9 @@ export function CheckoutForm({ initialSlug }: { initialSlug?: string }) {
   const completePayment = () => {
     if (!qrisDone || loading) return;
     setLoading(true);
+    const orderId = `TK-${Date.now().toString().slice(-6)}`;
     const order = {
-      id: `TK-${Date.now().toString().slice(-6)}`,
+      id: orderId,
       date: new Date().toISOString().slice(0, 10),
       items: items.map((i) => ({ name: i.name, platform: i.platform })),
       total: totalBayar,
@@ -100,6 +112,18 @@ export function CheckoutForm({ initialSlug }: { initialSlug?: string }) {
     } catch {
       /* penyimpanan penuh — abaikan */
     }
+    // Simpan pesanan ke database supaya bisa dicek lewat nomor pesanan.
+    saveOrderToDb({
+      id: orderId,
+      user_name: name,
+      items: items.map((i) => ({ appId: i.appId, name: i.name, platform: i.platform, price: i.price })),
+      subtotal,
+      discount: 0,
+      total: totalBayar,
+      payment_status: "menunggu",
+      order_status: "diproses",
+      date: new Date().toISOString().slice(0, 10),
+    });
     items.forEach((i) => library.add(i.appId));
     cart.clear();
     toast.push({

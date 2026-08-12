@@ -50,6 +50,7 @@ export function Footer() {
           <h3 className="text-[13px] font-semibold tracking-wide text-fg">Bantuan</h3>
           <ul className="mt-3 space-y-2">
             <li><Link className="text-sm text-fg-muted transition-colors hover:text-fg" href="/keranjang">Keranjang</Link></li>
+            <li><Link className="text-sm text-fg-muted transition-colors hover:text-fg" href="/cek-pesanan">Cek Pesanan</Link></li>
             <li><Link className="text-sm text-fg-muted transition-colors hover:text-fg" href="/akun/koleksi">Koleksi Saya</Link></li>
             <li><Link className="text-sm text-fg-muted transition-colors hover:text-fg" href="/promo">Promo</Link></li>
           </ul>

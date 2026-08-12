@@ -12,6 +12,7 @@ const navLinks = [
   { label: "Aplikasi", href: "/aplikasi" },
   { label: "Kategori", href: "/aplikasi" },
   { label: "Promo", href: "/promo" },
+  { label: "Cek Pesanan", href: "/cek-pesanan" },
 ];
 
 export function Navbar() {
