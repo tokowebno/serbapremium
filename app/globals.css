@@ -28,10 +28,10 @@
   --ring: rgba(18, 105, 79, 0.35);
   --overlay: rgba(23, 22, 19, 0.45);
 
-  --glass-bg: rgba(255, 255, 255, 0.68);
-  --glass-border: rgba(255, 255, 255, 0.65);
-  --glass-shadow: 0 8px 32px rgba(27, 26, 23, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  --glass-strong-bg: rgba(255, 255, 255, 0.88);
+  --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.22) 100%);
+  --glass-border: rgba(255, 255, 255, 0.55);
+  --glass-shadow: 0 8px 32px rgba(27, 26, 23, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.65), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+  --glass-strong-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.6) 100%);
 
   --shadow-sm: 0 1px 2px rgba(27, 26, 23, 0.05);
   --shadow-md: 0 2px 8px rgba(27, 26, 23, 0.05), 0 8px 24px rgba(27, 26, 23, 0.06);
@@ -64,10 +64,10 @@
   --ring: rgba(59, 160, 127, 0.4);
   --overlay: rgba(10, 10, 8, 0.6);
 
-  --glass-bg: rgba(26, 26, 23, 0.62);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  --glass-strong-bg: rgba(26, 26, 23, 0.88);
+  --glass-bg: linear-gradient(135deg, rgba(40, 40, 36, 0.58) 0%, rgba(26, 26, 23, 0.34) 100%);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+  --glass-strong-bg: linear-gradient(135deg, rgba(40, 40, 36, 0.88) 0%, rgba(26, 26, 23, 0.72) 100%);
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
@@ -182,29 +182,61 @@
 }
 
 @utility glass {
+  position: relative;
   background: var(--glass-bg);
   -webkit-backdrop-filter: blur(24px) saturate(1.8);
   backdrop-filter: blur(24px) saturate(1.8);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
+
+  /* Kilau specular — cahaya melengkung seperti kaca lengkung iOS. */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(120% 55% at 50% -12%, rgba(255, 255, 255, 0.38) 0%, transparent 52%);
+    pointer-events: none;
+  }
 }
 
 @utility glass-strong {
+  position: relative;
   background: var(--glass-strong-bg);
   -webkit-backdrop-filter: blur(32px) saturate(1.8);
   backdrop-filter: blur(32px) saturate(1.8);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(120% 55% at 50% -12%, rgba(255, 255, 255, 0.45) 0%, transparent 52%);
+    pointer-events: none;
+  }
 }
 
 /* Kartu kaca untuk produk & panel — blur lebih hidup, highlight halus di tepi. */
 @utility glass-card {
+  position: relative;
   background: var(--glass-bg);
   -webkit-backdrop-filter: blur(20px) saturate(1.6);
   backdrop-filter: blur(20px) saturate(1.6);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
   transition: box-shadow 0.3s var(--ease-smooth), transform 0.3s var(--ease-smooth), border-color 0.3s var(--ease-smooth);
+
+  /* Kilau specular melengkung di tepi atas. */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(120% 55% at 50% -12%, rgba(255, 255, 255, 0.3) 0%, transparent 52%);
+    pointer-events: none;
+  }
 }
 
 @utility glass-card-hover {
@@ -221,6 +253,13 @@
   }
 }
 
+/* Sheen lebih redup di mode gelap — kilau putih kuat terlihat menyilaukan di permukaan gelap. */
+.dark .glass::before,
+.dark .glass-strong::before,
+.dark .glass-card::before {
+  background: radial-gradient(120% 55% at 50% -12%, rgba(255, 255, 255, 0.1) 0%, transparent 52%);
+}
+
 @utility scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: var(--border-strong) transparent;
@@ -234,9 +273,10 @@
    Restrained: warna redup, posisi tetap, tidak bergerak. */
 @utility glass-backdrop {
   background:
-    radial-gradient(38% 32% at 18% 30%, color-mix(in srgb, var(--accent) 16%, transparent) 0%, transparent 100%),
-    radial-gradient(30% 26% at 82% 18%, color-mix(in srgb, var(--star) 12%, transparent) 0%, transparent 100%),
-    radial-gradient(34% 30% at 60% 82%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, transparent 100%);
+    radial-gradient(42% 36% at 16% 28%, color-mix(in srgb, var(--accent) 22%, transparent) 0%, transparent 100%),
+    radial-gradient(34% 30% at 84% 14%, color-mix(in srgb, var(--star) 16%, transparent) 0%, transparent 100%),
+    radial-gradient(38% 34% at 62% 85%, color-mix(in srgb, var(--accent) 14%, transparent) 0%, transparent 100%),
+    radial-gradient(28% 26% at 92% 70%, color-mix(in srgb, var(--discount) 8%, transparent) 0%, transparent 100%);
 }
 
 @utility no-scrollbar {

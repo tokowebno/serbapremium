@@ -72,7 +72,7 @@ export default function HomePage() {
         <HeroVisual />
       </section>
 
-      <section className="tk-container py-16">
+      <section className="glass-backdrop tk-container py-16">
         <SectionHeader
           eyebrow="Koleksi"
           title="Aplikasi Pilihan"
