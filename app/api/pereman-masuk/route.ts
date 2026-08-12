@@ -12,12 +12,12 @@ export async function POST(request: Request) {
   const email = body.email?.trim() ?? "";
   const password = body.password ?? "";
 
-  if (!verifyCredentials(email, password)) {
+  if (!(await verifyCredentials(email, password))) {
     return NextResponse.json({ error: "Email atau kata sandi salah." }, { status: 401 });
   }
 
   const res = NextResponse.json({ ok: true });
-  res.cookies.set(sessionCookieName(), signSession(), {
+  res.cookies.set(sessionCookieName(), await signSession(), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
