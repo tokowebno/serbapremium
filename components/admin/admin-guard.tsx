@@ -15,6 +15,11 @@ export function AdminGuard({ children }: { children: ReactNode }) {
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
+    // Halaman masuk bebas dari guard — tidak perlu sesi.
+    if (pathname === "/pereman/masuk") {
+      setChecked(true);
+      return;
+    }
     let cancelled = false;
     fetch("/api/pereman-cek")
       .then((r) => r.json())
