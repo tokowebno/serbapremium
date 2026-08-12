@@ -86,7 +86,7 @@ export default function HomePage() {
         <AppGrid slugs={featured.map((a) => a.slug)} />
       </section>
 
-      <section className="tk-container py-16">
+      <section className="glass-backdrop tk-container py-16">
         <SectionHeader
           eyebrow="Kategori"
           title="Jelajahi Kategori"
@@ -100,12 +100,12 @@ export default function HomePage() {
       </section>
 
       {banners.length > 0 && (
-        <section className="tk-container py-16">
+        <section className="glass-backdrop tk-container py-16">
           <PromoBanner banner={banners[0]} />
         </section>
       )}
 
-      <section className="tk-container py-16">
+      <section className="glass-backdrop tk-container py-16">
         <SectionHeader
           eyebrow="Terbaru"
           title="Aplikasi Baru"
