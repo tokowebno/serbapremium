@@ -174,6 +174,11 @@ export function CheckoutForm({ initialSlug }: { initialSlug?: string }) {
                   autoComplete="tel"
                 />
               </Field>
+              <div className="mt-2 flex justify-end">
+                <Button onClick={goNext}>
+                  Lanjut ke Pembayaran <ArrowRight size={16} />
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="flex flex-col gap-4">
