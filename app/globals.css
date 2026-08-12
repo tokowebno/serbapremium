@@ -1,0 +1,214 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================================
+   TOKONO DESIGN TOKENS
+   ============================================================ */
+
+:root {
+  --bg: #f6f5f2;
+  --surface: #ffffff;
+  --surface-2: #efeeea;
+  --surface-3: #e6e5e0;
+  --fg: #1b1a17;
+  --fg-muted: #6e6b63;
+  --fg-faint: #9c9990;
+  --border: rgba(27, 26, 23, 0.09);
+  --border-strong: rgba(27, 26, 23, 0.18);
+  --accent: #12694f;
+  --accent-hover: #0e5a43;
+  --accent-fg: #ffffff;
+  --accent-soft: rgba(18, 105, 79, 0.1);
+  --discount: #b3402a;
+  --discount-soft: rgba(179, 64, 42, 0.1);
+  --success: #1d7a4f;
+  --warning: #a06a12;
+  --danger: #b3402a;
+  --ring: rgba(18, 105, 79, 0.35);
+  --overlay: rgba(23, 22, 19, 0.45);
+
+  --glass-bg: rgba(255, 255, 255, 0.68);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-shadow: 0 8px 32px rgba(27, 26, 23, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --glass-strong-bg: rgba(255, 255, 255, 0.88);
+
+  --shadow-sm: 0 1px 2px rgba(27, 26, 23, 0.05);
+  --shadow-md: 0 2px 8px rgba(27, 26, 23, 0.05), 0 8px 24px rgba(27, 26, 23, 0.06);
+  --shadow-lg: 0 4px 16px rgba(27, 26, 23, 0.07), 0 16px 48px rgba(27, 26, 23, 0.1);
+
+  --star: #d9a03c;
+
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.dark {
+  --bg: #131311;
+  --surface: #1a1a17;
+  --surface-2: #22221e;
+  --surface-3: #2b2b26;
+  --fg: #ecebe7;
+  --fg-muted: #a6a39b;
+  --fg-faint: #76736b;
+  --border: rgba(236, 235, 231, 0.1);
+  --border-strong: rgba(236, 235, 231, 0.2);
+  --accent: #3ba07f;
+  --accent-hover: #4cb392;
+  --accent-fg: #06251a;
+  --accent-soft: rgba(59, 160, 127, 0.14);
+  --discount: #d1684f;
+  --discount-soft: rgba(209, 104, 79, 0.14);
+  --success: #3fae7f;
+  --warning: #c9952e;
+  --danger: #d1684f;
+  --ring: rgba(59, 160, 127, 0.4);
+  --overlay: rgba(10, 10, 8, 0.6);
+
+  --glass-bg: rgba(26, 26, 23, 0.62);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --glass-strong-bg: rgba(26, 26, 23, 0.88);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.35), 0 16px 48px rgba(0, 0, 0, 0.45);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-faint: var(--fg-faint);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-discount: var(--discount);
+  --color-discount-soft: var(--discount-soft);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-ring: var(--ring);
+  --color-overlay: var(--overlay);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+
+  --ease-smooth: var(--ease-smooth);
+
+  --color-star: var(--star);
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+
+@utility tk-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 1200px;
+  padding-inline: 1.25rem;
+  @media (min-width: 640px) {
+    padding-inline: 1.5rem;
+  }
+}
+
+@utility glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  backdrop-filter: blur(18px) saturate(1.5);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+@utility glass-strong {
+  background: var(--glass-strong-bg);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  backdrop-filter: blur(24px) saturate(1.5);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
