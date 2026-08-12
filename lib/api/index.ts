@@ -16,9 +16,8 @@ import type {
   Review,
   UserAccount,
 } from "@/types";
-import { apps } from "@/lib/mock/apps";
+import { getProducts, getCategories } from "@/lib/data-cache";
 import { popularityOf } from "@/lib/mock/apps";
-import { categories } from "@/lib/mock/categories";
 import { developers } from "@/lib/mock/developers";
 import { reviews } from "@/lib/mock/reviews";
 import { orders as mockOrders } from "@/lib/mock/orders";
@@ -72,7 +71,7 @@ function sortApps(list: App[], sort?: SortKey): App[] {
 export const api = {
   apps: {
     list(filter: AppFilter = {}): App[] {
-      let result = apps;
+      let result = getProducts();
       if (filter.q) {
         const q = filter.q.toLowerCase();
         result = result.filter(
@@ -91,30 +90,30 @@ export const api = {
       return sortApps(result, filter.sort);
     },
     getBySlug(slug: string): App | undefined {
-      return apps.find((a) => a.slug === slug);
+      return getProducts().find((a) => a.slug === slug);
     },
     featured(): App[] {
       // Unggulan dengan stok tersedia di depan, stok habis di belakang.
-      return sortApps(apps.filter((a) => a.isFeatured), "popularitas");
+      return sortApps(getProducts().filter((a) => a.isFeatured), "popularitas");
     },
     /** Produk yang sedang masuk promo aktif (via promotions). */
     promo(): App[] {
       const active = mockPromotions.filter((p) => p.status === "aktif");
       const ids = new Set(active.flatMap((p) => p.appIds));
-      return apps.filter((a) => ids.has(a.id) && a.stock > 0);
+      return getProducts().filter((a) => ids.has(a.id) && a.stock > 0);
     },
     newArrivals(limit = 6): App[] {
-      return sortApps(apps.filter((a) => a.isNew || a.isFeatured), "terbaru").slice(0, limit);
+      return sortApps(getProducts().filter((a) => a.isNew || a.isFeatured), "terbaru").slice(0, limit);
     },
     byCategory(categoryId: string): App[] {
-      return apps.filter((a) => a.categoryId === categoryId);
+      return getProducts().filter((a) => a.categoryId === categoryId);
     },
     byDeveloper(developerId: string): App[] {
-      return apps.filter((a) => a.developerId === developerId);
+      return getProducts().filter((a) => a.developerId === developerId);
     },
     related(app: App, limit = 4): App[] {
-      const sameCat = apps.filter((a) => a.id !== app.id && a.categoryId === app.categoryId);
-      const rest = apps.filter((a) => a.id !== app.id && a.categoryId !== app.categoryId);
+      const sameCat = getProducts().filter((a) => a.id !== app.id && a.categoryId === app.categoryId);
+      const rest = getProducts().filter((a) => a.id !== app.id && a.categoryId !== app.categoryId);
       return [...sameCat, ...rest].slice(0, limit);
     },
     search(q: string, limit = 8): App[] {
@@ -124,13 +123,13 @@ export const api = {
 
   categories: {
     list(): Category[] {
-      return categories;
+      return getCategories();
     },
     getBySlug(slug: string): Category | undefined {
-      return categories.find((c) => c.slug === slug);
+      return getCategories().find((c) => c.slug === slug);
     },
     withCount(): Array<Category & { count: number }> {
-      return categories.map((c) => ({ ...c, count: apps.filter((a) => a.categoryId === c.id).length }));
+      return getCategories().map((c) => ({ ...c, count: getProducts().filter((a) => a.categoryId === c.id).length }));
     },
   },
 
@@ -198,10 +197,10 @@ export const api = {
       return mockUsers.filter((u) => u.role === "pengguna").length;
     },
     appsCount(): number {
-      return apps.length;
+      return getProducts().length;
     },
     downloads(): number {
-      return apps.reduce((sum, a) => sum + a.downloads, 0);
+      return getProducts().reduce((sum, a) => sum + a.downloads, 0);
     },
   },
 
@@ -234,17 +233,17 @@ export const api = {
       });
     },
     topApps(limit = 6): Array<{ name: string; value: number }> {
-      return [...apps]
+      return [...getProducts()]
         .sort((a, b) => b.downloads - a.downloads)
         .slice(0, limit)
         .map((a) => ({ name: a.name, value: a.downloads }));
     },
     topCategories(limit = 6): Array<{ name: string; value: number }> {
       const map = new Map<string, number>();
-      for (const a of apps) map.set(a.categoryId, (map.get(a.categoryId) ?? 0) + a.downloads);
+      for (const a of getProducts()) map.set(a.categoryId, (map.get(a.categoryId) ?? 0) + a.downloads);
       return [...map.entries()]
         .map(([id, value]) => ({
-          name: categories.find((c) => c.id === id)?.name ?? id,
+          name: getCategories().find((c) => c.id === id)?.name ?? id,
           value,
         }))
         .sort((a, b) => b.value - a.value)
