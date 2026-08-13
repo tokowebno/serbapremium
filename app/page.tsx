@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import { api } from "@/lib/api";
 import { ButtonLink } from "@/components/ui/button";
 import { SectionHeader } from "@/components/ui/empty-state";
-import { CategoryCard } from "@/components/storefront/category-card";
 import { AppGrid } from "@/components/storefront/app-grid";
 import { PromoBanner } from "@/components/storefront/promo-banner";
 import { Hero } from "@/components/storefront/hero";
-import { CategoryMarquee } from "@/components/storefront/category-marquee";
+import { CategoryShelf } from "@/components/storefront/category-shelf";
 import { Reveal } from "@/components/ui/reveal";
 
 export const metadata: Metadata = {
@@ -17,24 +16,22 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   const featured = api.apps.featured().slice(0, 4);
-  const categories = api
-    .categories.withCount()
-    .filter((c) => c.count > 0)
-    .slice(0, 8);
-  const banners = api.banners.active();
   const newArrivals = api.apps.newArrivals(4);
+  const banners = api.banners.active();
 
   return (
     <>
       <Hero />
 
-      <div className="tk-container">
+      {/* Kategori — floating system control */}
+      <section className="tk-container pb-16">
         <Reveal>
-          <CategoryMarquee />
+          <CategoryShelf />
         </Reveal>
-      </div>
+      </section>
 
-      <section className="ambient-bg tk-container py-16">
+      {/* Aplikasi Pilihan */}
+      <section className="tk-container py-12">
         <SectionHeader
           eyebrow="Koleksi"
           title="Aplikasi Pilihan"
@@ -48,30 +45,17 @@ export default function HomePage() {
         <AppGrid slugs={featured.map((a) => a.slug)} />
       </section>
 
-      <section className="ambient-bg tk-container py-16">
-        <SectionHeader
-          eyebrow="Kategori"
-          title="Jelajahi Kategori"
-          description="Temukan aplikasi berdasarkan kebutuhan Anda."
-        />
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
-          {categories.map((c, i) => (
-            <Reveal key={c.id} delay={i * 0.05}>
-              <CategoryCard category={c} count={c.count} />
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
+      {/* Promo */}
       {banners.length > 0 && (
-        <section className="ambient-bg tk-container py-16">
+        <section className="tk-container py-12">
           <Reveal>
             <PromoBanner banner={banners[0]} />
           </Reveal>
         </section>
       )}
 
-      <section className="ambient-bg tk-container py-16">
+      {/* Aplikasi Baru */}
+      <section className="tk-container py-12 pb-24">
         <SectionHeader
           eyebrow="Terbaru"
           title="Aplikasi Baru"

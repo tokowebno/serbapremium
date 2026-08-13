@@ -24,19 +24,19 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
     >
       <Link
         href={`/aplikasi/${app.slug}`}
-        className="content-card content-card-hover flex h-full flex-col rounded-[var(--radius-lg)] p-5"
+        className="content-card content-card-hover flex h-full flex-col overflow-hidden rounded-[var(--radius-lg)] p-5"
       >
-        {/* Ikon + wishlist */}
-        <div className="flex items-start justify-between">
+        {/* Focal: icon besar dengan environmental glow */}
+        <div className="relative flex items-start justify-between">
           <motion.div
-            whileHover={{ scale: 1.05, rotate: -2 }}
+            whileHover={{ scale: 1.04, rotate: -2 }}
             transition={{ type: "spring", stiffness: 350, damping: 22 }}
             className="relative"
           >
             <AppIcon icon={app.icon} size="lg" />
             <span
-              className="pointer-events-none absolute -inset-3 rounded-2xl opacity-0 blur-xl transition-opacity duration-[var(--dur-slow)] group-hover:opacity-40"
-              style={{ background: `radial-gradient(circle, ${app.icon.from}30, transparent 70%)` }}
+              className="pointer-events-none absolute -inset-3 rounded-2xl opacity-0 blur-xl transition-opacity duration-[var(--dur-slow)] group-hover:opacity-45"
+              style={{ background: `radial-gradient(circle, ${app.icon.from}38, transparent 70%)` }}
             />
           </motion.div>
           <motion.button
@@ -46,7 +46,7 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
               toggle(app.id);
             }}
             aria-label={wished ? "Hapus dari daftar keinginan" : "Tambahkan ke daftar keinginan"}
-            className="rounded-full p-2 text-fg-faint transition-colors duration-[var(--dur-base)] hover:text-discount"
+            className="mat-func flex h-8 w-8 items-center justify-center rounded-full text-fg-faint transition-colors duration-[var(--dur-base)] hover:text-discount"
           >
             <motion.span
               key={wished ? "w" : "n"}
@@ -55,7 +55,7 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
               transition={{ type: "spring", stiffness: 500, damping: 20 }}
               className="block"
             >
-              <Heart size={17} fill={wished ? "currentColor" : "none"} className={wished ? "text-discount" : ""} />
+              <Heart size={15} fill={wished ? "currentColor" : "none"} className={wished ? "text-discount" : ""} />
             </motion.span>
           </motion.button>
         </div>
@@ -69,10 +69,10 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
               className="shrink-0 translate-x-0.5 text-fg-faint opacity-0 transition-all duration-[var(--dur-base)] group-hover:translate-x-0 group-hover:opacity-100"
             />
           </div>
-          <p className="mt-0.5 truncate text-[13px] text-fg-muted">{app.tagline}</p>
+          <p className="mt-0.5 line-clamp-1 text-[13px] text-fg-muted">{app.tagline}</p>
         </div>
 
-        {/* Rating */}
+        {/* Metadata */}
         <div className="mt-3 flex items-center gap-2">
           <Rating value={app.rating} showValue={false} size={12} />
           <span className="text-xs text-fg-muted tabular-nums">
@@ -99,8 +99,8 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
           )}
         </div>
 
-        {/* Harga */}
-        <div className="mt-4 flex items-baseline justify-between border-t border-border pt-3.5">
+        {/* Harga + aksi */}
+        <div className="mt-auto flex items-baseline justify-between border-t border-border pt-3.5">
           <Price value={app.price} original={app.originalPrice} size="sm" />
           <span className="translate-x-1 text-[13px] font-medium text-accent opacity-0 transition-all duration-[var(--dur-base)] ease-[var(--ease-out)] group-hover:translate-x-0 group-hover:opacity-100">
             Lihat detail

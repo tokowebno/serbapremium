@@ -64,6 +64,34 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
   --mat-strong-blur: 36px;
 
+  /* Dark tinted & elevated */
+  --mat-tint-bg:
+    linear-gradient(150deg, color-mix(in srgb, var(--accent) 30%, rgba(32, 32, 28, 0.8)) 0%, color-mix(in srgb, var(--accent) 18%, rgba(24, 24, 21, 0.7)) 100%);
+  --mat-tint-border: color-mix(in srgb, var(--accent) 35%, rgba(255, 255, 255, 0.14));
+  --mat-tint-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --mat-elev-bg: linear-gradient(150deg, rgba(36, 36, 32, 0.94) 0%, rgba(28, 28, 25, 0.9) 100%);
+  --mat-elev-border: rgba(255, 255, 255, 0.14);
+  --mat-elev-shadow: 0 2px 6px rgba(0, 0, 0, 0.55), 0 24px 64px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+  /* Material Tinted — active/selected state (menyerap warna aksen) */
+  --mat-tint-bg:
+    linear-gradient(150deg, color-mix(in srgb, var(--accent) 16%, rgba(255, 255, 255, 0.7)) 0%, color-mix(in srgb, var(--accent) 10%, rgba(255, 255, 255, 0.5)) 100%);
+  --mat-tint-border: color-mix(in srgb, var(--accent) 25%, rgba(255, 255, 255, 0.7));
+  --mat-tint-shadow:
+    0 1px 2px color-mix(in srgb, var(--accent) 20%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --mat-tint-blur: 24px;
+
+  /* Material Elevated — dialog/sheet/popover level tertinggi */
+  --mat-elev-bg:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.86) 100%);
+  --mat-elev-border: rgba(255, 255, 255, 0.95);
+  --mat-elev-shadow:
+    0 2px 6px rgba(26, 25, 23, 0.06),
+    0 24px 64px rgba(26, 25, 23, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  --mat-elev-blur: 40px;
+
   /* Konten — kartu standard (permukaan, bukan kaca) */
   --content-shadow: 0 1px 2px rgba(26, 25, 23, 0.04), 0 4px 16px rgba(26, 25, 23, 0.05);
 
@@ -301,6 +329,44 @@
   }
 }
 
+/* Material Tinted — active/selected state */
+@utility mat-tinted {
+  position: relative;
+  background: var(--mat-tint-bg);
+  -webkit-backdrop-filter: blur(var(--mat-tint-blur)) saturate(1.9);
+  backdrop-filter: blur(var(--mat-tint-blur)) saturate(1.9);
+  border: 1px solid var(--mat-tint-border);
+  box-shadow: var(--mat-tint-shadow);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(130% 60% at 50% -14%, rgba(255, 255, 255, 0.35) 0%, transparent 55%);
+    pointer-events: none;
+  }
+}
+
+/* Material Elevated — dialog/sheet/popover */
+@utility mat-elevated {
+  position: relative;
+  background: var(--mat-elev-bg);
+  -webkit-backdrop-filter: blur(var(--mat-elev-blur)) saturate(1.8);
+  backdrop-filter: blur(var(--mat-elev-blur)) saturate(1.8);
+  border: 1px solid var(--mat-elev-border);
+  box-shadow: var(--mat-elev-shadow);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(130% 60% at 50% -14%, rgba(255, 255, 255, 0.5) 0%, transparent 55%);
+    pointer-events: none;
+  }
+}
+
 /* Kartu konten — permukaan halus dengan depth, bukan kaca */
 @utility content-card {
   background: var(--surface);
@@ -351,12 +417,13 @@
   }
 }
 
-/* Backdrop ambient — warna lingkungan lembut di belakang konten */
+/* Backdrop ambient — lingkungan lembut, depth berlapis */
 @utility ambient-bg {
   background:
-    radial-gradient(42% 36% at 16% 22%, color-mix(in srgb, var(--accent) 14%, transparent) 0%, transparent 100%),
-    radial-gradient(30% 26% at 84% 12%, color-mix(in srgb, var(--star) 10%, transparent) 0%, transparent 100%),
-    radial-gradient(36% 32% at 68% 88%, color-mix(in srgb, var(--accent) 9%, transparent) 0%, transparent 100%);
+    radial-gradient(46% 40% at 12% 18%, color-mix(in srgb, var(--accent) 12%, transparent) 0%, transparent 100%),
+    radial-gradient(34% 30% at 88% 8%, color-mix(in srgb, var(--star) 9%, transparent) 0%, transparent 100%),
+    radial-gradient(40% 36% at 70% 92%, color-mix(in srgb, var(--accent) 8%, transparent) 0%, transparent 100%),
+    radial-gradient(26% 24% at 95% 62%, color-mix(in srgb, var(--discount) 6%, transparent) 0%, transparent 100%);
 }
 
 /* Glass backdrop lama → ambient */
