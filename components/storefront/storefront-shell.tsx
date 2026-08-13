@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { Navbar } from "./navbar";
 import { Footer } from "./footer";
 import { CursorGlow } from "./cursor-glow";
-import { IntroScroll } from "./intro-scroll";
 
 /**
  * Membungkus storefront dengan navbar + footer,
@@ -20,7 +19,6 @@ export function StorefrontShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <IntroScroll />
       <CursorGlow />
       <Navbar />
       <main className="flex-1">
