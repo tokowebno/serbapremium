@@ -12,6 +12,7 @@ import { SectionHeader } from "@/components/ui/empty-state";
 import { AppGrid } from "@/components/storefront/app-grid";
 import { AddToCartButton } from "@/components/storefront/add-to-cart";
 import { ProductTabs } from "@/components/storefront/product-tabs";
+import { ProductStats } from "@/components/storefront/product-stats";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -58,6 +59,8 @@ export default async function AppDetailPage({ params }: Props) {
           <div className="mt-4">
             <Rating value={app.rating} count={app.ratingCount} size={15} />
           </div>
+
+          <ProductStats downloads={app.downloads} ratingCount={app.ratingCount} stock={app.stock} />
 
           <p className="mt-4 text-[15px] font-medium">{app.tagline}</p>
           <p className="mt-3 text-[15px] leading-7 text-fg-muted">{app.description}</p>

@@ -6,6 +6,7 @@ import { CategoryCard } from "@/components/storefront/category-card";
 import { AppGrid } from "@/components/storefront/app-grid";
 import { PromoBanner } from "@/components/storefront/promo-banner";
 import { Hero } from "@/components/storefront/hero";
+import { CategoryMarquee } from "@/components/storefront/category-marquee";
 import { Reveal } from "@/components/ui/reveal";
 
 export const metadata: Metadata = {
@@ -26,6 +27,12 @@ export default function HomePage() {
   return (
     <>
       <Hero />
+
+      <div className="tk-container">
+        <Reveal>
+          <CategoryMarquee />
+        </Reveal>
+      </div>
 
       <section className="glass-backdrop tk-container py-16">
         <SectionHeader

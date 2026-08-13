@@ -83,7 +83,7 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
 
         <div className="mt-4 flex items-baseline justify-between border-t border-border pt-4">
           <Price value={app.price} original={app.originalPrice} size="sm" />
-          <span className="text-[13px] font-medium text-accent opacity-0 transition-opacity group-hover:opacity-100">
+          <span className="translate-x-1 text-[13px] font-medium text-accent opacity-0 transition-all duration-300 ease-smooth group-hover:translate-x-0 group-hover:opacity-100">
             Lihat detail
           </span>
         </div>

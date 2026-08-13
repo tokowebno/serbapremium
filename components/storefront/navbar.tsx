@@ -60,9 +60,10 @@ export function Navbar() {
                   <Link
                     key={l.label}
                     href={l.href}
-                    className="rounded-md px-3 py-1.5 text-[13.5px] font-medium text-fg-muted transition-colors hover:text-fg"
+                    className="group relative rounded-md px-3 py-1.5 text-[13.5px] font-medium text-fg-muted transition-colors hover:text-fg"
                   >
                     {l.label}
+                    <span className="absolute inset-x-3 -bottom-0.5 h-px origin-left scale-x-0 bg-accent transition-transform duration-300 ease-smooth group-hover:scale-x-100" />
                   </Link>
                 ))}
               </div>
