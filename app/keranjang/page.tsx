@@ -30,7 +30,7 @@ export default function CartPage() {
 
   return (
     <div className="tk-container pt-28 pb-20">
-      <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Keranjang</h1>
+      <h1 className="text-[26px] font-semibold tracking-[-0.025em] sm:text-3xl">Keranjang</h1>
 
       <div className="mt-8 grid items-start gap-8 lg:grid-cols-[1fr_360px]">
         <div className="divide-y divide-border rounded-xl border border-border bg-surface p-6 shadow-sm">

@@ -33,43 +33,48 @@ export default async function PengembangPage({ params }: Props) {
 
   return (
     <div className="tk-container pt-28 pb-20">
-      <header className="flex flex-col gap-6 sm:flex-row sm:items-start">
-        <AppIcon icon={developer.logo} size="xl" />
-        <div className="max-w-2xl">
-          <h1 className="text-3xl font-semibold tracking-tight">{developer.name}</h1>
-          <p className="mt-2 text-[15px] leading-7 text-fg-muted">{developer.description}</p>
-          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-fg-muted">
-            <a
-              href={developer.website}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 transition-colors hover:text-fg"
-            >
-              <Globe size={15} />
-              Situs web
-            </a>
-            <span className="inline-flex items-center gap-1.5">
-              <MapPin size={15} />
-              {developer.location}
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <CalendarDays size={15} />
-              Bergabung {formatDate(developer.joinDate)}
-            </span>
+      <header className="ambient-bg relative overflow-hidden rounded-[var(--radius-xl)] p-8 sm:p-10">
+        <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start">
+          <div className="mat-func shrink-0 rounded-[var(--radius-lg)] p-2">
+            <AppIcon icon={developer.logo} size="xl" />
+          </div>
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold tracking-[0.16em] text-fg-muted uppercase">Pengembang</p>
+            <h1 className="mt-1 text-3xl font-semibold tracking-[-0.025em] sm:text-4xl">{developer.name}</h1>
+            <p className="mt-2 text-[15px] leading-7 text-fg-muted">{developer.description}</p>
+            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-fg-muted">
+              <a
+                href={developer.website}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 transition-colors hover:text-fg"
+              >
+                <Globe size={15} />
+                Situs web
+              </a>
+              <span className="inline-flex items-center gap-1.5">
+                <MapPin size={15} />
+                {developer.location}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <CalendarDays size={15} />
+                Bergabung {formatDate(developer.joinDate)}
+              </span>
+            </div>
           </div>
         </div>
       </header>
 
-      <div className="mt-10 grid max-w-md grid-cols-3 gap-3">
-        <div className="rounded-xl border border-border bg-surface p-4">
+      <div className="mt-8 grid max-w-md grid-cols-3 gap-3">
+        <div className="content-card rounded-[var(--radius-lg)] p-4">
           <p className="text-xl font-semibold tracking-tight tabular-nums">{apps.length}</p>
           <p className="mt-0.5 text-[13px] text-fg-muted">Aplikasi</p>
         </div>
-        <div className="rounded-xl border border-border bg-surface p-4">
+        <div className="content-card rounded-[var(--radius-lg)] p-4">
           <p className="text-xl font-semibold tracking-tight tabular-nums">{formatCompact(totalDownloads)}</p>
           <p className="mt-0.5 text-[13px] text-fg-muted">Unduhan</p>
         </div>
-        <div className="rounded-xl border border-border bg-surface p-4">
+        <div className="content-card rounded-[var(--radius-lg)] p-4">
           <p className="text-xl font-semibold tracking-tight tabular-nums">
             {apps.length > 0
               ? avgRating.toLocaleString("id-ID", { minimumFractionDigits: 1, maximumFractionDigits: 1 })

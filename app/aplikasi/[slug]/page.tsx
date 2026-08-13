@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ChevronRight } from "lucide-react";
 import { api } from "@/lib/api";
 import { AppIcon } from "@/components/ui/app-icon";
 import { Badge } from "@/components/ui/badge";
@@ -39,30 +40,52 @@ export default async function AppDetailPage({ params }: Props) {
 
   return (
     <div className="tk-container pt-28 pb-20">
-      {/* Informasi utama produk */}
-      <div className="max-w-3xl">
-          <div className="flex items-center gap-4">
-            <AppIcon icon={app.icon} size="xl" />
-            <div className="min-w-0">
-              <h1 className="text-3xl font-semibold tracking-tight">{app.name}</h1>
-              {developer && (
-                <Link
-                  href={`/pengembang/${developer.slug}`}
-                  className="mt-0.5 inline-block text-sm text-fg-muted transition-colors hover:text-fg"
-                >
-                  {developer.name}
-                </Link>
-              )}
+      {/* Breadcrumb */}
+      <nav aria-label="Breadcrumb" className="mb-8 flex items-center gap-1.5 text-[13px] text-fg-muted">
+        <Link href="/" className="transition-colors hover:text-fg">
+          Beranda
+        </Link>
+        <ChevronRight size={13} className="text-fg-faint" />
+        <Link href="/aplikasi" className="transition-colors hover:text-fg">
+          Aplikasi
+        </Link>
+        <ChevronRight size={13} className="text-fg-faint" />
+        <span className="font-medium text-fg">{app.name}</span>
+      </nav>
+
+      {/* Identity hero */}
+      <header className="ambient-bg relative overflow-hidden rounded-[var(--radius-xl)] p-8 sm:p-10">
+        <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center">
+          <div className="mat-func w-fit shrink-0 rounded-[var(--radius-lg)] p-2.5">
+            <AppIcon icon={app.icon} size="2xl" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold tracking-[0.16em] text-fg-muted uppercase">
+              {api.categories.getBySlug(app.categoryId)?.name ?? "Aplikasi"}
+            </p>
+            <h1 className="mt-1 text-3xl font-semibold tracking-[-0.03em] sm:text-[40px] sm:leading-[1.1]">
+              {app.name}
+            </h1>
+            {developer && (
+              <Link
+                href={`/pengembang/${developer.slug}`}
+                className="mt-1.5 inline-block text-sm text-fg-muted transition-colors hover:text-fg"
+              >
+                {developer.name}
+              </Link>
+            )}
+            <div className="mt-3">
+              <Rating value={app.rating} count={app.ratingCount} size={15} />
             </div>
           </div>
+        </div>
+      </header>
 
-          <div className="mt-4">
-            <Rating value={app.rating} count={app.ratingCount} size={15} />
-          </div>
-
+      {/* Informasi utama produk */}
+      <div className="mt-8 max-w-3xl">
           <ProductStats downloads={app.downloads} ratingCount={app.ratingCount} stock={app.stock} />
 
-          <p className="mt-4 text-[15px] font-medium">{app.tagline}</p>
+          <p className="mt-5 text-[15px] font-medium">{app.tagline}</p>
           <p className="mt-3 text-[15px] leading-7 text-fg-muted">{app.description}</p>
 
           <div className="mt-5 flex flex-wrap items-center gap-3">

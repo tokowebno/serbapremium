@@ -17,11 +17,14 @@ export default function PromoPage() {
 
   return (
     <div className="tk-container pt-28 pb-20">
-      <header className="pb-10">
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Promo</h1>
-        <p className="mt-2 max-w-xl text-[15px] leading-6 text-fg-muted">
-          Penawaran terbatas untuk aplikasi pilihan. Harga kembali normal setelah periode promo berakhir.
-        </p>
+      <header className="ambient-bg relative overflow-hidden rounded-[var(--radius-xl)] p-8 sm:p-10">
+        <div className="relative">
+          <p className="text-xs font-semibold tracking-[0.16em] text-fg-muted uppercase">Promo</p>
+          <h1 className="mt-1 text-3xl font-semibold tracking-[-0.025em] sm:text-4xl">Penawaran Terbatas</h1>
+          <p className="mt-2 max-w-xl text-[15px] leading-6 text-fg-muted">
+            Penawaran terbatas untuk aplikasi pilihan. Harga kembali normal setelah periode promo berakhir.
+          </p>
+        </div>
       </header>
 
       {banners.length > 0 && (

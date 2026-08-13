@@ -55,7 +55,7 @@ export default function CekPesananPage() {
   return (
     <div className="tk-container pt-28 pb-20">
       <div className="mx-auto max-w-xl">
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Cek Pesanan</h1>
+        <h1 className="text-[26px] font-semibold tracking-[-0.025em] sm:text-3xl">Cek Pesanan</h1>
         <p className="mt-2 text-sm leading-6 text-fg-muted">
           Masukkan nomor pesanan Anda (contoh: TK-123456) untuk melihat status pembayaran dan pesanan.
         </p>
