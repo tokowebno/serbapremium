@@ -10,43 +10,79 @@ import { StaggerWords, easeOut } from "@/components/ui/reveal";
 
 function HeroVisual() {
   const apps = api.apps.featured().slice(0, 3);
-  // Layangan sangat halus (6 detik, ±7px) — tenang, bukan gerakan mencolok.
   return (
-    <div className="relative hidden h-[380px] lg:block" aria-hidden="true">
+    <div className="relative hidden h-[420px] lg:block" aria-hidden="true">
+      {/* Depth: artwork blur di belakang */}
+      <div
+        className="absolute top-1/2 left-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-60 blur-3xl"
+        style={{
+          background: `radial-gradient(circle, ${apps[0].icon.from}33 0%, transparent 70%)`,
+        }}
+      />
+
+      {/* Floating surfaces dengan hubungan spatial */}
       <motion.div
-        animate={{ y: [0, -7, 0] }}
-        transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.35, ease: easeOut }}
+        className="absolute top-8 left-4"
       >
-        <div className="absolute top-6 left-6 -rotate-[9deg]">
-          <AppIcon icon={apps[0].icon} size="2xl" />
-        </div>
+        <motion.div
+          animate={{ y: [0, -6, 0] }}
+          transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
+          className="-rotate-6"
+        >
+          <div className="mat-clear rounded-2xl p-3">
+            <AppIcon icon={apps[0].icon} size="xl" />
+          </div>
+        </motion.div>
       </motion.div>
+
       <motion.div
-        animate={{ y: [0, -10, 0] }}
-        transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.5, ease: easeOut }}
+        className="absolute top-0 left-52"
       >
-        <div className="absolute top-0 left-44 rotate-[7deg]">
-          <AppIcon icon={apps[1].icon} size="2xl" />
-        </div>
+        <motion.div
+          animate={{ y: [0, -9, 0] }}
+          transition={{ duration: 7.2, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
+          className="rotate-6"
+        >
+          <div className="mat-func rounded-2xl p-3">
+            <AppIcon icon={apps[1].icon} size="xl" />
+          </div>
+        </motion.div>
       </motion.div>
+
       <motion.div
-        animate={{ y: [0, -6, 0] }}
-        transition={{ duration: 5.8, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.65, ease: easeOut }}
+        className="absolute top-56 left-28"
       >
-        <div className="absolute top-52 left-24 -rotate-[3deg]">
-          <AppIcon icon={apps[2].icon} size="2xl" />
-        </div>
+        <motion.div
+          animate={{ y: [0, -5, 0] }}
+          transition={{ duration: 5.8, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
+          className="-rotate-3"
+        >
+          <div className="mat-clear rounded-2xl p-3">
+            <AppIcon icon={apps[2].icon} size="xl" />
+          </div>
+        </motion.div>
       </motion.div>
+
+      {/* Kartu info mengambang */}
       <motion.div
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.5, ease: easeOut }}
-        className="absolute right-0 bottom-6"
+        transition={{ duration: 0.7, delay: 0.8, ease: easeOut }}
+        className="absolute right-0 bottom-8"
       >
         <motion.div
           animate={{ y: [0, -5, 0] }}
           transition={{ duration: 6.8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className="glass flex items-center gap-3 rounded-xl px-4 py-3 shadow-lg"
+          className="mat-func flex items-center gap-3 rounded-2xl px-4 py-3"
         >
           <AppIcon icon={apps[0].icon} size="sm" />
           <div>
@@ -64,9 +100,12 @@ function HeroVisual() {
 
 export function Hero() {
   return (
-    <section className="glass-backdrop relative tk-container grid items-center gap-16 pt-40 pb-24 lg:grid-cols-2">
+    <section className="ambient-bg relative tk-container grid items-center gap-14 pt-40 pb-24 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
       <div className="max-w-xl">
-        <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+        <p className="mb-4 text-xs font-semibold tracking-[0.16em] text-fg-muted uppercase">
+          Marketplace aplikasi premium
+        </p>
+        <h1 className="text-[42px] leading-[1.08] font-semibold tracking-[-0.03em] sm:text-6xl">
           <StaggerWords text="Temukan aplikasi yang tepat." />
         </h1>
         <motion.p
@@ -81,7 +120,7 @@ export function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 0.65, ease: easeOut }}
+          transition={{ duration: 0.55, delay: 0.62, ease: easeOut }}
           className="mt-8 flex flex-wrap items-center gap-3"
         >
           <ButtonLink href="/aplikasi" size="lg">

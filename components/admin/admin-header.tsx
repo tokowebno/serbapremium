@@ -15,8 +15,8 @@ export function AdminPageHeader({
   return (
     <div className={cn("mb-8 flex flex-wrap items-end justify-between gap-4", className)}>
       <div>
-        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">{title}</h1>
-        {description && <p className="mt-1 text-sm text-fg-muted">{description}</p>}
+        <h1 className="text-[26px] font-semibold tracking-[-0.025em]">{title}</h1>
+        {description && <p className="mt-1.5 text-sm text-fg-muted">{description}</p>}
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
     </div>

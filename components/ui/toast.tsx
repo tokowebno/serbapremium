@@ -60,7 +60,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.97 }}
                 transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-                className="glass-strong pointer-events-auto flex items-start gap-3 rounded-lg p-3.5 shadow-lg"
+                className="mat-strong pointer-events-auto flex items-start gap-3 rounded-[var(--radius-lg)] p-3.5 shadow-[var(--elev-3)]"
               >
                 <Icon
                   size={18}

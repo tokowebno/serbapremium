@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Heart } from "lucide-react";
+import { ArrowUpRight, Heart } from "lucide-react";
 import Link from "next/link";
 import type { App } from "@/types";
 import { AppIcon } from "@/components/ui/app-icon";
@@ -16,19 +16,28 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 14 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.35, delay: Math.min(index * 0.04, 0.3), ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.45, delay: Math.min(index * 0.05, 0.3), ease: [0.22, 1, 0.36, 1] }}
       className="group relative"
     >
       <Link
         href={`/aplikasi/${app.slug}`}
-        className="glass-card glass-card-hover flex h-full flex-col rounded-xl p-5"
+        className="content-card content-card-hover flex h-full flex-col rounded-[var(--radius-lg)] p-5"
       >
+        {/* Ikon + wishlist */}
         <div className="flex items-start justify-between">
-          <motion.div whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 400, damping: 22 }}>
+          <motion.div
+            whileHover={{ scale: 1.05, rotate: -2 }}
+            transition={{ type: "spring", stiffness: 350, damping: 22 }}
+            className="relative"
+          >
             <AppIcon icon={app.icon} size="lg" />
+            <span
+              className="pointer-events-none absolute -inset-3 rounded-2xl opacity-0 blur-xl transition-opacity duration-[var(--dur-slow)] group-hover:opacity-40"
+              style={{ background: `radial-gradient(circle, ${app.icon.from}30, transparent 70%)` }}
+            />
           </motion.div>
           <motion.button
             whileTap={{ scale: 0.85 }}
@@ -37,7 +46,7 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
               toggle(app.id);
             }}
             aria-label={wished ? "Hapus dari daftar keinginan" : "Tambahkan ke daftar keinginan"}
-            className="rounded-full p-2 text-fg-faint transition-colors hover:text-discount"
+            className="rounded-full p-2 text-fg-faint transition-colors duration-[var(--dur-base)] hover:text-discount"
           >
             <motion.span
               key={wished ? "w" : "n"}
@@ -51,11 +60,19 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
           </motion.button>
         </div>
 
+        {/* Info */}
         <div className="mt-4">
-          <h3 className="text-[15px] font-semibold tracking-tight">{app.name}</h3>
-          <p className="text-[13px] text-fg-muted">{app.tagline}</p>
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="truncate text-[15px] font-semibold tracking-tight">{app.name}</h3>
+            <ArrowUpRight
+              size={15}
+              className="shrink-0 translate-x-0.5 text-fg-faint opacity-0 transition-all duration-[var(--dur-base)] group-hover:translate-x-0 group-hover:opacity-100"
+            />
+          </div>
+          <p className="mt-0.5 truncate text-[13px] text-fg-muted">{app.tagline}</p>
         </div>
 
+        {/* Rating */}
         <div className="mt-3 flex items-center gap-2">
           <Rating value={app.rating} showValue={false} size={12} />
           <span className="text-xs text-fg-muted tabular-nums">
@@ -70,6 +87,7 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
           </span>
         </div>
 
+        {/* Platform */}
         <div className="mt-3 flex flex-wrap gap-1.5">
           {app.platforms.slice(0, 3).map((p) => (
             <PlatformBadge key={p} platform={p} />
@@ -81,9 +99,10 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
           )}
         </div>
 
-        <div className="mt-4 flex items-baseline justify-between border-t border-border pt-4">
+        {/* Harga */}
+        <div className="mt-4 flex items-baseline justify-between border-t border-border pt-3.5">
           <Price value={app.price} original={app.originalPrice} size="sm" />
-          <span className="translate-x-1 text-[13px] font-medium text-accent opacity-0 transition-all duration-300 ease-smooth group-hover:translate-x-0 group-hover:opacity-100">
+          <span className="translate-x-1 text-[13px] font-medium text-accent opacity-0 transition-all duration-[var(--dur-base)] ease-[var(--ease-out)] group-hover:translate-x-0 group-hover:opacity-100">
             Lihat detail
           </span>
         </div>

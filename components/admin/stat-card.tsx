@@ -19,7 +19,7 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "flex items-start justify-between gap-4 rounded-xl border border-border bg-surface p-5 shadow-sm",
+        "flex items-start justify-between gap-4 rounded-[var(--radius-lg)] border border-border bg-surface p-5 shadow-[var(--elev-1)]",
         className,
       )}
     >

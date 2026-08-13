@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Loader2 } from "lucide-react";
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
@@ -6,21 +7,22 @@ type Variant = "primary" | "secondary" | "ghost" | "glass" | "danger";
 type Size = "sm" | "md" | "lg";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-lg font-medium whitespace-nowrap transition-all duration-200 select-none active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50";
+  "relative inline-flex items-center justify-center gap-2 rounded-full font-medium whitespace-nowrap select-none transition-all duration-[var(--dur-base)] ease-[var(--ease-out)] active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]";
 
 const variants: Record<Variant, string> = {
-  primary: "btn-shine bg-accent text-accent-fg shadow-sm hover:bg-accent-hover",
+  primary:
+    "btn-shine bg-accent text-accent-fg shadow-[var(--elev-1)] hover:bg-accent-hover hover:shadow-[var(--elev-2)]",
   secondary:
-    "bg-surface text-fg border border-border-strong/70 shadow-sm hover:bg-surface-2",
-  ghost: "text-fg-muted hover:text-fg hover:bg-surface-2",
-  glass: "glass text-fg hover:brightness-[1.03]",
-  danger: "bg-discount text-white shadow-sm hover:opacity-90",
+    "bg-[var(--mat-func-bg)] border border-[var(--mat-func-border)] text-fg shadow-[var(--elev-1)] backdrop-blur-xl hover:bg-[color-mix(in_srgb,var(--surface)_88%,transparent)] hover:border-[var(--border-strong)] hover:shadow-[var(--elev-2)]",
+  ghost: "text-fg-muted hover:text-fg hover:bg-surface-2/70",
+  glass: "mat-func text-fg hover:brightness-[1.03]",
+  danger: "bg-[var(--discount)] text-white shadow-[var(--elev-1)] hover:opacity-90",
 };
 
 const sizes: Record<Size, string> = {
-  sm: "h-8 px-3 text-[13px]",
-  md: "h-10 px-4 text-sm",
-  lg: "h-12 px-5 text-[15px]",
+  sm: "h-8 px-3.5 text-[13px]",
+  md: "h-10 px-5 text-sm",
+  lg: "h-12 px-6 text-[15px]",
 };
 
 const squareSizes: Record<Size, string> = {
@@ -33,6 +35,7 @@ interface ButtonBaseProps {
   variant?: Variant;
   size?: Size;
   square?: boolean;
+  loading?: boolean;
   className?: string;
 }
 
@@ -44,21 +47,70 @@ export interface ButtonLinkProps extends ButtonBaseProps, ComponentProps<typeof 
   href: string;
 }
 
-export function Button({ variant = "primary", size = "md", square, className, ...props }: ButtonProps) {
+export function Button({
+  variant = "primary",
+  size = "md",
+  square,
+  loading,
+  disabled,
+  className,
+  children,
+  ...props
+}: ButtonProps) {
   return (
     <button
       className={cn(base, variants[variant], square ? squareSizes[size] : sizes[size], className)}
+      disabled={disabled || loading}
       {...props}
-    />
+    >
+      {loading && <Loader2 size={size === "sm" ? 14 : 16} className="animate-spin" />}
+      {children}
+    </button>
   );
 }
 
-export function ButtonLink({ variant = "primary", size = "md", square, className, ...props }: ButtonLinkProps) {
+export function ButtonLink({
+  variant = "primary",
+  size = "md",
+  square,
+  loading,
+  className,
+  children,
+  ...props
+}: ButtonLinkProps) {
   return (
     <Link
       className={cn(base, variants[variant], square ? squareSizes[size] : sizes[size], className)}
+      aria-disabled={loading}
       {...props}
-    />
+    >
+      {loading && <Loader2 size={size === "sm" ? 14 : 16} className="animate-spin" />}
+      {children}
+    </Link>
+  );
+}
+
+/** Tombol ikon floating — kontrol kaca bulat untuk aksi kecil. */
+export function IconButton({
+  label,
+  size = "md",
+  className,
+  children,
+  ...props
+}: ComponentProps<"button"> & { label: string; size?: Size }) {
+  return (
+    <button
+      aria-label={label}
+      title={label}
+      className={cn(
+        "mat-func inline-flex items-center justify-center rounded-full text-fg-muted transition-all duration-[var(--dur-base)] ease-[var(--ease-out)] hover:text-fg hover:shadow-[var(--elev-2)] active:scale-95",
+        size === "sm" ? "h-8 w-8" : size === "lg" ? "h-11 w-11" : "h-10 w-10",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </button>
   );
 }
 

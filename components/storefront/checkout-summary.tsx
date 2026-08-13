@@ -15,7 +15,7 @@ export function CheckoutSummary({
   showItems?: boolean;
 }) {
   return (
-    <div className="glass-card rounded-xl p-6">
+    <div className="content-card rounded-[var(--radius-lg)] p-6">
       <h2 className="text-[15px] font-semibold tracking-tight">Ringkasan Pembelian</h2>
 
       {showItems && (

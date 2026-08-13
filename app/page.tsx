@@ -34,7 +34,7 @@ export default function HomePage() {
         </Reveal>
       </div>
 
-      <section className="glass-backdrop tk-container py-16">
+      <section className="ambient-bg tk-container py-16">
         <SectionHeader
           eyebrow="Koleksi"
           title="Aplikasi Pilihan"
@@ -48,7 +48,7 @@ export default function HomePage() {
         <AppGrid slugs={featured.map((a) => a.slug)} />
       </section>
 
-      <section className="glass-backdrop tk-container py-16">
+      <section className="ambient-bg tk-container py-16">
         <SectionHeader
           eyebrow="Kategori"
           title="Jelajahi Kategori"
@@ -64,14 +64,14 @@ export default function HomePage() {
       </section>
 
       {banners.length > 0 && (
-        <section className="glass-backdrop tk-container py-16">
+        <section className="ambient-bg tk-container py-16">
           <Reveal>
             <PromoBanner banner={banners[0]} />
           </Reveal>
         </section>
       )}
 
-      <section className="glass-backdrop tk-container py-16">
+      <section className="ambient-bg tk-container py-16">
         <SectionHeader
           eyebrow="Terbaru"
           title="Aplikasi Baru"

@@ -136,13 +136,13 @@ export function AdminSidebar() {
   return (
     <>
       {/* Desktop */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 bg-[#191916] lg:block">{nav}</aside>
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 bg-[#131312] lg:block">{nav}</aside>
 
       {/* Mobile drawer */}
       {open && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-overlay" onClick={() => setOpen(false)} aria-hidden="true" />
-          <aside className="absolute inset-y-0 left-0 w-64 bg-[#191916] shadow-lg">
+          <aside className="absolute inset-y-0 left-0 w-64 bg-[#131312] shadow-lg">
             <button
               onClick={() => setOpen(false)}
               aria-label="Tutup menu"

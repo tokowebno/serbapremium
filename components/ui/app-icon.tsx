@@ -30,7 +30,7 @@ export function AppIcon({
     return (
       <span
         className={cn(
-          "relative inline-flex shrink-0 items-center justify-center overflow-hidden bg-surface shadow-sm",
+          "relative inline-flex shrink-0 items-center justify-center overflow-hidden bg-surface shadow-[var(--elev-1)] ring-1 ring-border/50",
           rounded && "rounded-[22%]",
           className,
         )}
@@ -54,7 +54,7 @@ export function AppIcon({
   const iconSize = Math.round(px * 0.44);
   return (
     <span
-      className={cn("relative inline-flex shrink-0 items-center justify-center shadow-sm", rounded && "rounded-[22%]", className)}
+      className={cn("relative inline-flex shrink-0 items-center justify-center shadow-[var(--elev-1)] ring-1 ring-black/5", rounded && "rounded-[22%]", className)}
       style={{
         width: px,
         height: px,
@@ -62,6 +62,8 @@ export function AppIcon({
       }}
       aria-hidden="true"
     >
+      {/* highlight atas — kesan kaca pada ikon */}
+      <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-[inherit] bg-gradient-to-b from-white/25 to-transparent" />
       <Icon size={iconSize} className="text-white/90" strokeWidth={1.75} />
     </span>
   );

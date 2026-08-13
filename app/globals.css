@@ -2,54 +2,100 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ============================================================
-   TOKONO DESIGN TOKENS
-   ============================================================ */
+/* ════════════════════════════════════════════════════════════
+   TOKONO — DESIGN TOKENS
+   Sistem visual: material berjenjang + elevation + gerak fisik.
+   ════════════════════════════════════════════════════════════ */
 
 :root {
-  --bg: #f6f5f2;
+  /* Warna dasar — warm neutral, bukan putih murni */
+  --bg: #f4f3f0;
+  --bg-deep: #ebeae5;
   --surface: #ffffff;
-  --surface-2: #efeeea;
-  --surface-3: #e6e5e0;
-  --fg: #1b1a17;
-  --fg-muted: #6e6b63;
-  --fg-faint: #9c9990;
-  --border: rgba(27, 26, 23, 0.09);
-  --border-strong: rgba(27, 26, 23, 0.18);
+  --surface-2: #f0efeb;
+  --surface-3: #e7e6e1;
+  --fg: #1a1917;
+  --fg-muted: #6d6a62;
+  --fg-faint: #9a978e;
+  --border: rgba(26, 25, 23, 0.08);
+  --border-strong: rgba(26, 25, 23, 0.16);
   --accent: #12694f;
   --accent-hover: #0e5a43;
   --accent-fg: #ffffff;
-  --accent-soft: rgba(18, 105, 79, 0.1);
+  --accent-soft: rgba(18, 105, 79, 0.09);
   --discount: #b3402a;
   --discount-soft: rgba(179, 64, 42, 0.1);
   --success: #1d7a4f;
   --warning: #a06a12;
   --danger: #b3402a;
   --ring: rgba(18, 105, 79, 0.35);
-  --overlay: rgba(23, 22, 19, 0.45);
-
-  --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.22) 100%);
-  --glass-border: rgba(255, 255, 255, 0.55);
-  --glass-shadow: 0 8px 32px rgba(27, 26, 23, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.65), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
-  --glass-strong-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.6) 100%);
-
-  --shadow-sm: 0 1px 2px rgba(27, 26, 23, 0.05);
-  --shadow-md: 0 2px 8px rgba(27, 26, 23, 0.05), 0 8px 24px rgba(27, 26, 23, 0.06);
-  --shadow-lg: 0 4px 16px rgba(27, 26, 23, 0.07), 0 16px 48px rgba(27, 26, 23, 0.1);
-
+  --overlay: rgba(22, 21, 18, 0.4);
   --star: #d9a03c;
 
-  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  /* ═══ MATERIAL SYSTEM ═══
+     Layered: gradient tint + blur + saturate + brightness + edge light. */
+
+  /* Material Fungsional — navbar, toolbar, dialog, control */
+  --mat-func-bg:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.5) 55%, rgba(255, 255, 255, 0.62) 100%);
+  --mat-func-border: rgba(255, 255, 255, 0.7);
+  --mat-func-shadow:
+    0 1px 1px rgba(26, 25, 23, 0.04),
+    0 8px 24px rgba(26, 25, 23, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -1px 0 rgba(26, 25, 23, 0.04);
+  --mat-func-blur: 28px;
+
+  /* Material Jernih — di atas visual/media, translucency tinggi */
+  --mat-clear-bg: linear-gradient(160deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.16));
+  --mat-clear-border: rgba(255, 255, 255, 0.45);
+  --mat-clear-shadow:
+    0 2px 12px rgba(26, 25, 23, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  --mat-clear-blur: 22px;
+
+  /* Material Kuat — popover, sheet, dropdown (lebih opak, pasti terbaca) */
+  --mat-strong-bg:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.78) 100%);
+  --mat-strong-border: rgba(255, 255, 255, 0.85);
+  --mat-strong-shadow:
+    0 2px 4px rgba(26, 25, 23, 0.05),
+    0 16px 48px rgba(26, 25, 23, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --mat-strong-blur: 36px;
+
+  /* Konten — kartu standard (permukaan, bukan kaca) */
+  --content-shadow: 0 1px 2px rgba(26, 25, 23, 0.04), 0 4px 16px rgba(26, 25, 23, 0.05);
+
+  /* Elevation */
+  --elev-1: 0 1px 2px rgba(26, 25, 23, 0.05);
+  --elev-2: 0 2px 8px rgba(26, 25, 23, 0.06), 0 8px 24px rgba(26, 25, 23, 0.07);
+  --elev-3: 0 4px 16px rgba(26, 25, 23, 0.08), 0 16px 48px rgba(26, 25, 23, 0.12);
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-pill: 999px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 140ms;
+  --dur-base: 240ms;
+  --dur-slow: 420ms;
 }
 
 .dark {
-  --bg: #131311;
-  --surface: #1a1a17;
-  --surface-2: #22221e;
-  --surface-3: #2b2b26;
+  --bg: #121211;
+  --bg-deep: #0d0d0c;
+  --surface: #1a1a18;
+  --surface-2: #232320;
+  --surface-3: #2d2d29;
   --fg: #ecebe7;
-  --fg-muted: #a6a39b;
-  --fg-faint: #76736b;
+  --fg-muted: #a3a098;
+  --fg-faint: #737067;
   --border: rgba(236, 235, 231, 0.1);
   --border-strong: rgba(236, 235, 231, 0.2);
   --accent: #3ba07f;
@@ -62,20 +108,36 @@
   --warning: #c9952e;
   --danger: #d1684f;
   --ring: rgba(59, 160, 127, 0.4);
-  --overlay: rgba(10, 10, 8, 0.6);
+  --overlay: rgba(8, 8, 6, 0.62);
+  --star: #e3b45c;
 
-  --glass-bg: linear-gradient(135deg, rgba(40, 40, 36, 0.58) 0%, rgba(26, 26, 23, 0.34) 100%);
-  --glass-border: rgba(255, 255, 255, 0.09);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 -1px 0 rgba(255, 255, 255, 0.03);
-  --glass-strong-bg: linear-gradient(135deg, rgba(40, 40, 36, 0.88) 0%, rgba(26, 26, 23, 0.72) 100%);
-
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.35), 0 16px 48px rgba(0, 0, 0, 0.45);
+  /* Dark material — layered blacks dengan pantulan warna redup */
+  --mat-func-bg:
+    linear-gradient(150deg, rgba(38, 38, 34, 0.72) 0%, rgba(24, 24, 22, 0.5) 55%, rgba(30, 30, 27, 0.62) 100%);
+  --mat-func-border: rgba(255, 255, 255, 0.1);
+  --mat-func-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.4),
+    0 8px 24px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+  --mat-clear-bg: linear-gradient(160deg, rgba(30, 30, 27, 0.5), rgba(20, 20, 18, 0.2));
+  --mat-clear-border: rgba(255, 255, 255, 0.09);
+  --mat-clear-shadow: 0 2px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --mat-strong-bg: linear-gradient(150deg, rgba(34, 34, 30, 0.92) 0%, rgba(26, 26, 23, 0.85) 100%);
+  --mat-strong-border: rgba(255, 255, 255, 0.12);
+  --mat-strong-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.5),
+    0 16px 48px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --content-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.35);
+  --elev-1: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --elev-2: 0 2px 8px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.4);
+  --elev-3: 0 4px 16px rgba(0, 0, 0, 0.4), 0 16px 48px rgba(0, 0, 0, 0.55);
 }
 
 @theme inline {
   --color-bg: var(--bg);
+  --color-bg-deep: var(--bg-deep);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-surface-3: var(--surface-3);
@@ -95,27 +157,29 @@
   --color-danger: var(--danger);
   --color-ring: var(--ring);
   --color-overlay: var(--overlay);
+  --color-star: var(--star);
 
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
+  /* Font: system stack ala Apple — tanpa download font */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
 
   --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --radius-xl: 24px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
 
-  --shadow-sm: var(--shadow-sm);
-  --shadow-md: var(--shadow-md);
-  --shadow-lg: var(--shadow-lg);
+  --shadow-sm: var(--elev-1);
+  --shadow-md: var(--elev-2);
+  --shadow-lg: var(--elev-3);
 
-  --ease-smooth: var(--ease-smooth);
-
-  --color-star: var(--star);
+  --ease-smooth: var(--ease-out);
 }
 
-/* ============================================================
+/* ════════════════════════════════════════════════════════════
    BASE
-   ============================================================ */
+   ════════════════════════════════════════════════════════════ */
 
 @layer base {
   * {
@@ -124,6 +188,7 @@
 
   html {
     scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
@@ -131,8 +196,10 @@
     color: var(--fg);
     font-family: var(--font-sans);
     font-size: 15px;
-    line-height: 1.6;
+    line-height: 1.55;
+    letter-spacing: -0.006em;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     overflow-x: clip;
   }
@@ -142,12 +209,9 @@
     color: var(--accent-fg);
   }
 
-  h1,
-  h2,
-  h3,
-  h4 {
+  h1, h2, h3, h4 {
     text-wrap: balance;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.022em;
     font-weight: 600;
   }
 
@@ -157,9 +221,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
+    *, *::before, *::after {
       animation-duration: 0.01ms !important;
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
@@ -167,9 +229,9 @@
   }
 }
 
-/* ============================================================
-   UTILITIES
-   ============================================================ */
+/* ════════════════════════════════════════════════════════════
+   MATERIAL UTILITIES
+   ════════════════════════════════════════════════════════════ */
 
 @utility tk-container {
   margin-inline: auto;
@@ -181,60 +243,102 @@
   }
 }
 
+/* Material Fungsional — navbar, toolbar, dialog, floating control */
+@utility mat-func {
+  position: relative;
+  background: var(--mat-func-bg);
+  -webkit-backdrop-filter: blur(var(--mat-func-blur)) saturate(1.8) brightness(1.05);
+  backdrop-filter: blur(var(--mat-func-blur)) saturate(1.8) brightness(1.05);
+  border: 1px solid var(--mat-func-border);
+  box-shadow: var(--mat-func-shadow);
+
+  /* Refraksi: kilau specular melengkung di tepi atas */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(130% 60% at 50% -14%, rgba(255, 255, 255, 0.4) 0%, transparent 55%);
+    pointer-events: none;
+  }
+}
+
+/* Material Jernih — di atas visual/media */
+@utility mat-clear {
+  position: relative;
+  background: var(--mat-clear-bg);
+  -webkit-backdrop-filter: blur(var(--mat-clear-blur)) saturate(1.7);
+  backdrop-filter: blur(var(--mat-clear-blur)) saturate(1.7);
+  border: 1px solid var(--mat-clear-border);
+  box-shadow: var(--mat-clear-shadow);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(130% 60% at 50% -14%, rgba(255, 255, 255, 0.3) 0%, transparent 55%);
+    pointer-events: none;
+  }
+}
+
+/* Material Kuat — popover, sheet, dropdown */
+@utility mat-strong {
+  position: relative;
+  background: var(--mat-strong-bg);
+  -webkit-backdrop-filter: blur(var(--mat-strong-blur)) saturate(1.8);
+  backdrop-filter: blur(var(--mat-strong-blur)) saturate(1.8);
+  border: 1px solid var(--mat-strong-border);
+  box-shadow: var(--mat-strong-shadow);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(130% 60% at 50% -14%, rgba(255, 255, 255, 0.45) 0%, transparent 55%);
+    pointer-events: none;
+  }
+}
+
+/* Kartu konten — permukaan halus dengan depth, bukan kaca */
+@utility content-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--content-shadow);
+  transition: box-shadow 0.25s var(--ease-out), transform 0.25s var(--ease-out), border-color 0.25s var(--ease-out);
+}
+
+@utility content-card-hover {
+  &:hover {
+    border-color: var(--border-strong);
+    box-shadow: var(--elev-2);
+    transform: translateY(-2px);
+  }
+}
+
+/* Alias lama → material baru (kompatibilitas, upgrade otomatis) */
 @utility glass {
-  position: relative;
-  background: var(--glass-bg);
-  -webkit-backdrop-filter: blur(24px) saturate(1.8);
-  backdrop-filter: blur(24px) saturate(1.8);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-
-  /* Kilau specular — cahaya melengkung seperti kaca lengkung iOS. */
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(120% 55% at 50% -12%, rgba(255, 255, 255, 0.38) 0%, transparent 52%);
-    pointer-events: none;
-  }
+  @apply mat-func;
 }
-
 @utility glass-strong {
-  position: relative;
-  background: var(--glass-strong-bg);
-  -webkit-backdrop-filter: blur(32px) saturate(1.8);
-  backdrop-filter: blur(32px) saturate(1.8);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(120% 55% at 50% -12%, rgba(255, 255, 255, 0.45) 0%, transparent 52%);
-    pointer-events: none;
-  }
+  @apply mat-strong;
 }
-
-/* Kartu kaca untuk produk & panel — blur lebih hidup, highlight halus di tepi. */
 @utility glass-card {
   position: relative;
-  background: var(--glass-bg);
-  -webkit-backdrop-filter: blur(20px) saturate(1.6);
-  backdrop-filter: blur(20px) saturate(1.6);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-  transition: box-shadow 0.3s var(--ease-smooth), transform 0.3s var(--ease-smooth), border-color 0.3s var(--ease-smooth);
+  background: var(--mat-func-bg);
+  -webkit-backdrop-filter: blur(22px) saturate(1.6);
+  backdrop-filter: blur(22px) saturate(1.6);
+  border: 1px solid var(--mat-func-border);
+  box-shadow: var(--mat-func-shadow);
+  transition: box-shadow 0.25s var(--ease-out), transform 0.25s var(--ease-out), border-color 0.25s var(--ease-out);
 
-  /* Kilau specular melengkung di tepi atas. */
   &::before {
     content: "";
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: radial-gradient(120% 55% at 50% -12%, rgba(255, 255, 255, 0.3) 0%, transparent 52%);
+    background: radial-gradient(130% 60% at 50% -14%, rgba(255, 255, 255, 0.32) 0%, transparent 55%);
     pointer-events: none;
   }
 }
@@ -242,18 +346,33 @@
 @utility glass-card-hover {
   &:hover {
     border-color: var(--border-strong);
-    box-shadow: 0 12px 40px rgba(27, 26, 23, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    box-shadow: var(--elev-2);
     transform: translateY(-2px);
   }
 }
 
-.dark .glass-card-hover {
-  &:hover {
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  }
+/* Backdrop ambient — warna lingkungan lembut di belakang konten */
+@utility ambient-bg {
+  background:
+    radial-gradient(42% 36% at 16% 22%, color-mix(in srgb, var(--accent) 14%, transparent) 0%, transparent 100%),
+    radial-gradient(30% 26% at 84% 12%, color-mix(in srgb, var(--star) 10%, transparent) 0%, transparent 100%),
+    radial-gradient(36% 32% at 68% 88%, color-mix(in srgb, var(--accent) 9%, transparent) 0%, transparent 100%);
 }
 
-/* Kilau menyapu di tombol primary saat hover — halus, transform-only. */
+/* Glass backdrop lama → ambient */
+@utility glass-backdrop {
+  @apply ambient-bg;
+}
+
+/* Sheen redup di dark mode */
+.dark .mat-func::before,
+.dark .mat-strong::before,
+.dark .mat-clear::before,
+.dark .glass-card::before {
+  background: radial-gradient(130% 60% at 50% -14%, rgba(255, 255, 255, 0.08) 0%, transparent 55%);
+}
+
+/* Kilau menyapu tombol primary — halus, transform-only */
 .btn-shine {
   position: relative;
   overflow: hidden;
@@ -266,21 +385,14 @@
   left: -60%;
   width: 40%;
   height: 100%;
-  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.32), transparent);
   transform: skewX(-20deg);
-  transition: transform 0.7s var(--ease-smooth);
+  transition: transform 0.7s var(--ease-out);
   pointer-events: none;
 }
 
 .btn-shine:hover::after {
   transform: translateX(320%) skewX(-20deg);
-}
-
-/* Sheen lebih redup di mode gelap — kilau putih kuat terlihat menyilaukan di permukaan gelap. */
-.dark .glass::before,
-.dark .glass-strong::before,
-.dark .glass-card::before {
-  background: radial-gradient(120% 55% at 50% -12%, rgba(255, 255, 255, 0.1) 0%, transparent 52%);
 }
 
 @utility scrollbar-thin {
@@ -292,16 +404,6 @@
   text-wrap: balance;
 }
 
-/* Aksen lembut di belakang elemen kaca — membuat blur terasa hidup.
-   Restrained: warna redup, posisi tetap, tidak bergerak. */
-@utility glass-backdrop {
-  background:
-    radial-gradient(42% 36% at 16% 28%, color-mix(in srgb, var(--accent) 22%, transparent) 0%, transparent 100%),
-    radial-gradient(34% 30% at 84% 14%, color-mix(in srgb, var(--star) 16%, transparent) 0%, transparent 100%),
-    radial-gradient(38% 34% at 62% 85%, color-mix(in srgb, var(--accent) 14%, transparent) 0%, transparent 100%),
-    radial-gradient(28% 26% at 92% 70%, color-mix(in srgb, var(--discount) 8%, transparent) 0%, transparent 100%);
-}
-
 @utility no-scrollbar {
   scrollbar-width: none;
   &::-webkit-scrollbar {
@@ -309,7 +411,7 @@
   }
 }
 
-/* Marquee — strip berjalan horizontal. Transform-only, berhenti saat hover. */
+/* Marquee — strip berjalan horizontal, berhenti saat hover */
 @keyframes tk-marquee {
   from {
     transform: translateX(0);
@@ -322,7 +424,7 @@
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: tk-marquee 32s linear infinite;
+  animation: tk-marquee 36s linear infinite;
 }
 
 .marquee:hover .marquee-track {

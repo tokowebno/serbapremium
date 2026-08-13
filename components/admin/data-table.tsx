@@ -22,7 +22,7 @@ export function DataTable<T>({ columns, rows, empty }: { columns: Column<T>[]; r
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
+    <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface shadow-[var(--elev-1)]">
       {/* Desktop */}
       <table className="hidden w-full text-sm md:table">
         <thead>

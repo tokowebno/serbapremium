@@ -97,11 +97,11 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
             role="dialog"
             aria-modal="true"
             aria-label="Pencarian"
-            className="glass-strong relative w-full max-w-xl overflow-hidden rounded-xl shadow-lg"
+            className="mat-strong relative w-full max-w-xl overflow-hidden rounded-[var(--radius-xl)] shadow-[var(--elev-3)]"
             initial={{ opacity: 0, y: -8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
-            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="flex items-center gap-3 border-b border-border px-5 py-4">
               <Search size={18} className="shrink-0 text-fg-muted" />

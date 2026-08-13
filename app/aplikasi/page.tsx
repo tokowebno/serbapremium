@@ -48,7 +48,7 @@ export default async function AplikasiPage({
   });
 
   return (
-    <div className="glass-backdrop tk-container pt-28 pb-20">
+    <div className="ambient-bg tk-container pt-28 pb-20">
       <div className="grid gap-10 lg:grid-cols-[264px_1fr]">
         <aside className="hidden lg:block">
           <div className="sticky top-28 max-h-[calc(100dvh-8rem)] overflow-y-auto pr-1 scrollbar-thin">

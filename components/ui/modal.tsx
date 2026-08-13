@@ -61,11 +61,11 @@ export function Modal({
             aria-modal="true"
             aria-label={title}
             tabIndex={-1}
-            className={cn("glass-strong relative w-full rounded-xl p-6 shadow-lg outline-none", width)}
-            initial={{ opacity: 0, y: 16, scale: 0.98 }}
+            className={cn("mat-strong relative w-full rounded-[var(--radius-xl)] p-6 shadow-[var(--elev-3)] outline-none", width)}
+            initial={{ opacity: 0, y: 18, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.98 }}
-            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            exit={{ opacity: 0, y: 18, scale: 0.98 }}
+            transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="mb-4 flex items-center justify-between gap-4">
               {title && <h2 className="text-lg font-semibold tracking-tight">{title}</h2>}

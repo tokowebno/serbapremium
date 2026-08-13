@@ -46,12 +46,12 @@ export function SectionHeader({
   className?: string;
 }) {
   return (
-    <Reveal className={`mb-8 flex flex-wrap items-end justify-between gap-4 ${className ?? ""}`}>
+    <Reveal className={`mb-10 flex flex-wrap items-end justify-between gap-4 ${className ?? ""}`}>
       <div className="max-w-xl">
         {eyebrow && (
-          <p className="mb-2 text-xs font-semibold tracking-[0.14em] text-fg-muted uppercase">{eyebrow}</p>
+          <p className="mb-2 text-xs font-semibold tracking-[0.16em] text-fg-muted uppercase">{eyebrow}</p>
         )}
-        <h2 className="text-2xl font-semibold tracking-tight sm:text-[28px]">{title}</h2>
+        <h2 className="text-[26px] font-semibold tracking-[-0.025em] sm:text-[32px]">{title}</h2>
         {description && <p className="mt-2 text-[15px] leading-6 text-fg-muted">{description}</p>}
       </div>
       {action}

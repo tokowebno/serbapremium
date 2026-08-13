@@ -54,8 +54,8 @@ export function Drawer({
             aria-modal="true"
             aria-label={title}
             className={cn(
-              "glass-strong fixed flex flex-col shadow-lg",
-              isBottom ? "inset-x-0 bottom-0 rounded-t-xl" : "inset-y-0 right-0 w-[min(400px,92vw)] rounded-l-xl",
+              "mat-strong fixed flex flex-col shadow-[var(--elev-3)]",
+              isBottom ? "inset-x-0 bottom-0 rounded-t-[var(--radius-xl)]" : "inset-y-0 right-0 w-[min(400px,92vw)] rounded-l-[var(--radius-xl)]",
               className,
             )}
             initial={

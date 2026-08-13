@@ -16,12 +16,12 @@ export function CategoryCard({
     <Link
       href={`/kategori/${category.slug}`}
       className={cn(
-        "glass-card glass-card-hover group flex flex-col gap-3 rounded-xl p-5",
+        "content-card content-card-hover group flex flex-col gap-3.5 rounded-[var(--radius-lg)] p-5",
         className,
       )}
     >
-      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-surface-2 transition-colors group-hover:bg-accent-soft">
-        <Icon size={20} strokeWidth={1.75} className="text-fg-muted transition-colors group-hover:text-accent" />
+      <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-surface-2 transition-colors duration-[var(--dur-base)] group-hover:bg-accent-soft">
+        <Icon size={20} strokeWidth={1.75} className="text-fg-muted transition-colors duration-[var(--dur-base)] group-hover:text-accent" />
       </span>
       <div>
         <h3 className="text-[15px] font-semibold tracking-tight">{category.name}</h3>

@@ -2,7 +2,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 const controlClass =
-  "w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-sm text-fg placeholder:text-fg-faint shadow-sm transition-colors focus:border-accent/50 focus:outline-none";
+  "w-full rounded-xl border border-border bg-surface/70 px-3.5 py-2.5 text-sm text-fg placeholder:text-fg-faint shadow-[var(--elev-1)] backdrop-blur-md transition-all duration-[var(--dur-base)] ease-[var(--ease-out)] focus:border-accent/50 focus:bg-surface focus:shadow-[var(--elev-2)] focus:outline-none";
 
 export function Input({ className, ...props }: ComponentProps<"input">) {
   return <input className={cn(controlClass, className)} {...props} />;
@@ -61,14 +61,14 @@ export function Switch({
       aria-label={label}
       onClick={() => onChange(!checked)}
       className={cn(
-        "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200",
+        "relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-[var(--dur-base)]",
         checked ? "bg-accent" : "bg-surface-3",
       )}
     >
       <span
         className={cn(
-          "inline-block h-4.5 w-4.5 transform rounded-full bg-white shadow-sm transition-transform duration-200",
-          checked ? "translate-x-[22px]" : "translate-x-[3px]",
+          "inline-block h-5 w-5 transform rounded-full bg-white shadow-[var(--elev-1)] transition-transform duration-[var(--dur-base)] ease-[var(--ease-spring)]",
+          checked ? "translate-x-[26px]" : "translate-x-[4px]",
         )}
       />
     </button>
