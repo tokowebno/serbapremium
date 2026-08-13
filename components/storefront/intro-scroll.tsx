@@ -141,7 +141,8 @@ function IntroScenes({ onFinish }: { onFinish: () => void }) {
 export function IntroScroll() {
   const reduce = useReducedMotion();
   const pathname = usePathname();
-  const [phase, setPhase] = useState<"loading" | "intro" | "done">("loading");
+  // Dimulai "intro" agar render server & client identik (hindari hydration mismatch).
+  const [phase, setPhase] = useState<"intro" | "done">("intro");
 
   useEffect(() => {
     if (reduce || pathname !== "/") {
@@ -151,12 +152,10 @@ export function IntroScroll() {
     try {
       if (sessionStorage.getItem("tokono:intro") === "1") {
         setPhase("done");
-        return;
       }
     } catch {
       /* abaikan */
     }
-    setPhase("intro");
   }, [reduce, pathname]);
 
   const finish = () => {
