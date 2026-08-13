@@ -253,6 +253,29 @@
   }
 }
 
+/* Kilau menyapu di tombol primary saat hover — halus, transform-only. */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: skewX(-20deg);
+  transition: transform 0.7s var(--ease-smooth);
+  pointer-events: none;
+}
+
+.btn-shine:hover::after {
+  transform: translateX(320%) skewX(-20deg);
+}
+
 /* Sheen lebih redup di mode gelap — kilau putih kuat terlihat menyilaukan di permukaan gelap. */
 .dark .glass::before,
 .dark .glass-strong::before,

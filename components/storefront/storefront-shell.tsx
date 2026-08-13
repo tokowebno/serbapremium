@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { Navbar } from "./navbar";
 import { Footer } from "./footer";
+import { CursorGlow } from "./cursor-glow";
 
 /**
  * Membungkus storefront dengan navbar + footer,
@@ -18,6 +19,7 @@ export function StorefrontShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      <CursorGlow />
       <Navbar />
       <main className="flex-1">
         <AnimatePresence mode="wait" initial={false}>
