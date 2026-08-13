@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { MotionConfig } from "framer-motion";
 import type { Platform } from "@/types";
 import type { App } from "@/types";
 import { ToastProvider } from "@/components/ui/toast";
@@ -223,7 +224,9 @@ export function Providers({ children }: { children: ReactNode }) {
         <CartContext.Provider value={cartValue}>
           <WishlistContext.Provider value={wishlistValue}>
             <LibraryContext.Provider value={libraryValue}>
-              <ToastProvider>{children}</ToastProvider>
+              <MotionConfig reducedMotion="user">
+                <ToastProvider>{children}</ToastProvider>
+              </MotionConfig>
             </LibraryContext.Provider>
           </WishlistContext.Provider>
         </CartContext.Provider>

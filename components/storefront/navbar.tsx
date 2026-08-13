@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
 import { Heart, Moon, Search, ShoppingBag, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useCart, useTheme, useWishlist } from "./providers";
 import { SearchDialog } from "./search-dialog";
 import { cn } from "@/lib/utils";
+import { easeOut } from "@/components/ui/reveal";
 
 const navLinks = [
   { label: "Beranda", href: "/" },
@@ -32,7 +34,12 @@ export function Navbar() {
   return (
     <>
       <header className="fixed inset-x-0 top-0 z-40">
-        <div className="tk-container">
+        <motion.div
+          initial={{ opacity: 0, y: -14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: easeOut }}
+          className="tk-container"
+        >
           <nav
             aria-label="Navigasi utama"
             className={cn(
@@ -90,11 +97,20 @@ export function Navbar() {
                 className="relative rounded-full p-2 text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
               >
                 <Heart size={17} />
-                {ids.length > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-accent-fg">
-                    {ids.length}
-                  </span>
-                )}
+                <AnimatePresence>
+                  {ids.length > 0 && (
+                    <motion.span
+                      key={ids.length}
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.5, opacity: 0 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 24 }}
+                      className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-accent-fg"
+                    >
+                      {ids.length}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
               </Link>
 
               <Link
@@ -103,15 +119,24 @@ export function Navbar() {
                 className="relative rounded-full p-2 text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
               >
                 <ShoppingBag size={17} />
-                {count > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-accent-fg">
-                    {count}
-                  </span>
-                )}
+                <AnimatePresence>
+                  {count > 0 && (
+                    <motion.span
+                      key={count}
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.5, opacity: 0 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 24 }}
+                      className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-accent-fg"
+                    >
+                      {count}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
               </Link>
             </div>
           </nav>
-        </div>
+        </motion.div>
       </header>
 
       <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />

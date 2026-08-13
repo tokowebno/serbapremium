@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { api } from "@/lib/api";
+import { Reveal } from "@/components/ui/reveal";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -7,7 +8,7 @@ export function Footer() {
 
   return (
     <footer className="mt-24 border-t border-border bg-surface">
-      <div className="tk-container grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
+      <Reveal className="tk-container grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <Link href="/" className="flex items-center gap-2" aria-label="Tokono — Beranda">
             <span className="flex h-6 w-6 items-center justify-center rounded-[7px] bg-fg">
@@ -58,7 +59,7 @@ export function Footer() {
             Seluruh aplikasi adalah contoh fiktif untuk keperluan demo.
           </p>
         </div>
-      </div>
+      </Reveal>
 
       <div className="border-t border-border">
         <div className="tk-container flex flex-wrap items-center justify-between gap-2 py-5">

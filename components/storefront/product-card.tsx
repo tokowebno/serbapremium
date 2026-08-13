@@ -27,8 +27,11 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
         className="glass-card glass-card-hover flex h-full flex-col rounded-xl p-5"
       >
         <div className="flex items-start justify-between">
-          <AppIcon icon={app.icon} size="lg" />
-          <button
+          <motion.div whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 400, damping: 22 }}>
+            <AppIcon icon={app.icon} size="lg" />
+          </motion.div>
+          <motion.button
+            whileTap={{ scale: 0.85 }}
             onClick={(e) => {
               e.preventDefault();
               toggle(app.id);
@@ -36,8 +39,16 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
             aria-label={wished ? "Hapus dari daftar keinginan" : "Tambahkan ke daftar keinginan"}
             className="rounded-full p-2 text-fg-faint transition-colors hover:text-discount"
           >
-            <Heart size={17} fill={wished ? "currentColor" : "none"} className={wished ? "text-discount" : ""} />
-          </button>
+            <motion.span
+              key={wished ? "w" : "n"}
+              initial={{ scale: 0.6 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 500, damping: 20 }}
+              className="block"
+            >
+              <Heart size={17} fill={wished ? "currentColor" : "none"} className={wished ? "text-discount" : ""} />
+            </motion.span>
+          </motion.button>
         </div>
 
         <div className="mt-4">

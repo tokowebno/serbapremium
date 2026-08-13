@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { ButtonLink } from "./button";
+import { Reveal } from "./reveal";
 
 export function EmptyState({
   icon: Icon,
@@ -45,7 +46,7 @@ export function SectionHeader({
   className?: string;
 }) {
   return (
-    <div className={`mb-8 flex flex-wrap items-end justify-between gap-4 ${className ?? ""}`}>
+    <Reveal className={`mb-8 flex flex-wrap items-end justify-between gap-4 ${className ?? ""}`}>
       <div className="max-w-xl">
         {eyebrow && (
           <p className="mb-2 text-xs font-semibold tracking-[0.14em] text-fg-muted uppercase">{eyebrow}</p>
@@ -54,6 +55,6 @@ export function SectionHeader({
         {description && <p className="mt-2 text-[15px] leading-6 text-fg-muted">{description}</p>}
       </div>
       {action}
-    </div>
+    </Reveal>
   );
 }
