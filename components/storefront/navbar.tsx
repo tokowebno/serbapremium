@@ -13,7 +13,7 @@ import { easeOut } from "@/components/ui/reveal";
 const navLinks = [
   { label: "Beranda", href: "/" },
   { label: "Aplikasi", href: "/aplikasi" },
-  { label: "Kategori", href: "/aplikasi" },
+  { label: "Kategori", href: "/kategori" },
   { label: "Promo", href: "/promo" },
   { label: "Cek Pesanan", href: "/cek-pesanan" },
 ];
