@@ -106,7 +106,7 @@
         "transform": "lodash/{{member}}"
       }
     },
-    "outputFileTracingRoot": "/home/tino/Documents/random/tokono",
+    "outputFileTracingRoot": "/home/tino/Documents/webku/tokono",
     "enablePrerenderSourceMaps": true,
     "cacheComponents": false,
     "cacheLife": {
@@ -321,13 +321,13 @@
     "htmlLimitedBots": "[\\w-]+-Google|Google-[\\w-]+|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti|googleweblight",
     "bundlePagesRouterDependencies": false,
     "configFileName": "next.config.ts",
-    "repoRoot": "/home/tino/Documents/random/tokono",
+    "repoRoot": "/home/tino/Documents/webku/tokono",
     "turbopack": {
-      "root": "/home/tino/Documents/random/tokono"
+      "root": "/home/tino/Documents/webku/tokono"
     },
     "distDirRoot": ".next"
   },
-  "appDir": "/home/tino/Documents/random/tokono",
+  "appDir": "/home/tino/Documents/webku/tokono",
   "relativeAppDir": "",
   "files": [
     ".next/package.json",

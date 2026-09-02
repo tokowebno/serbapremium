@@ -143,6 +143,12 @@
       "namedRegex": "^/aplikasi(?:/)?$"
     },
     {
+      "page": "/cek-pesanan",
+      "regex": "^/cek\\-pesanan(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/cek\\-pesanan(?:/)?$"
+    },
+    {
       "page": "/daftar",
       "regex": "^/daftar(?:/)?$",
       "routeKeys": {},
@@ -159,6 +165,12 @@
       "regex": "^/icon\\.svg(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/icon\\.svg(?:/)?$"
+    },
+    {
+      "page": "/kategori",
+      "regex": "^/kategori(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/kategori(?:/)?$"
     },
     {
       "page": "/keranjang",
