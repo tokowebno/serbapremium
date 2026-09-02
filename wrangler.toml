@@ -1,8 +1,0 @@
-name = "serbapremium"
-compatibility_date = "2024-09-23"
-compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = ".open-next"
-
-[vars]
-NEXT_PUBLIC_SUPABASE_URL = "https://mxkgyxiwbavoxiqeivom.supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14a2d5eGl3YmF2b3hpcWVpdm9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzMzk3NDAsImV4cCI6MjEwMzkxNTc0MH0.Z3aEBO_gFP--fO5eXXsuad2Vk7cETxwfseHdq92zydg"
