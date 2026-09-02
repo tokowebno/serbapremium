@@ -5,10 +5,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Check, Globe, X } from "lucide-react";
 import { LanguageCode } from "@/lib/i18n/dictionaries";
 
-const languages: Array<{ code: LanguageCode; name: string; local: string; flag: string }> = [
-  { code: "id", name: "Bahasa Indonesia", local: "Indonesia", flag: "🇮🇩" },
-  { code: "en", name: "English", local: "United States / UK", flag: "🇬🇧" },
-  { code: "zh", name: "简体中文", local: "Chinese (Simplified)", flag: "🇨🇳" },
+const languages: Array<{ code: LanguageCode; name: string; local: string; flag: string; currency: string }> = [
+  { code: "id", name: "Bahasa Indonesia", local: "Mata Uang Rupiah (IDR Rp)", flag: "🇮🇩", currency: "IDR" },
+  { code: "en", name: "English", local: "US Dollar Currency (USD $)", flag: "🇬🇧", currency: "USD" },
+  { code: "zh", name: "简体中文", local: "美元结算 (USD $)", flag: "🇨🇳", currency: "USD" },
 ];
 
 export function LanguageSelector() {
@@ -21,6 +21,16 @@ export function LanguageSelector() {
       setCurrentLang(cookieMatch[1] as LanguageCode);
     }
 
+    // Cek apakah sudah pernah memilih bahasa sebelumnya
+    const chosen = localStorage.getItem("serbapremium:lang-chosen") || localStorage.getItem("tokono:lang-chosen");
+    if (!chosen) {
+      // Buka popup bahasa saat pertama kali mengunjungi web
+      const timer = setTimeout(() => {
+        setIsOpen(true);
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+
     const handleOpen = () => setIsOpen(true);
     window.addEventListener("open-language-selector", handleOpen);
     return () => window.removeEventListener("open-language-selector", handleOpen);
@@ -31,9 +41,15 @@ export function LanguageSelector() {
     document.cookie = `serbapremium-lang=${code}; path=/; expires=${expires}; SameSite=Lax;`;
     document.cookie = `tokono-lang=${code}; path=/; expires=${expires}; SameSite=Lax;`;
     localStorage.setItem("serbapremium:lang", code);
+    localStorage.setItem("serbapremium:lang-chosen", "true");
     localStorage.setItem("tokono:lang-chosen", "true");
     setIsOpen(false);
     window.location.reload();
+  };
+
+  const handleClose = () => {
+    localStorage.setItem("serbapremium:lang-chosen", "true");
+    setIsOpen(false);
   };
 
   return (
@@ -41,12 +57,12 @@ export function LanguageSelector() {
       {isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <motion.div
-            className="absolute inset-0 bg-overlay"
+            className="absolute inset-0 bg-overlay backdrop-blur-xs"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            onClick={() => setIsOpen(false)}
+            onClick={handleClose}
             aria-hidden="true"
           />
 
@@ -54,11 +70,11 @@ export function LanguageSelector() {
             role="dialog"
             aria-modal="true"
             aria-label="Pilih Bahasa / Select Language"
-            className="relative w-full max-w-md rounded-lg border-2 border-border bg-surface p-6 shadow-[8px_8px_0px_var(--shadow-color)] sm:p-7"
-            initial={{ opacity: 0, scale: 0.96, y: 12 }}
+            className="relative w-full max-w-md rounded-xl border-2 border-border bg-surface p-6 shadow-[8px_8px_0px_var(--shadow-color)] sm:p-7"
+            initial={{ opacity: 0, scale: 0.94, y: 14 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 12 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
+            exit={{ opacity: 0, scale: 0.94, y: 14 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
           >
             <div className="flex items-start justify-between border-b-2 border-border pb-4">
               <div className="flex items-center gap-2.5">
@@ -66,14 +82,14 @@ export function LanguageSelector() {
                   <Globe size={18} strokeWidth={2.5} />
                 </span>
                 <div>
-                  <h2 className="text-lg font-black tracking-tight text-fg">Pilih Bahasa</h2>
-                  <p className="text-xs font-bold text-fg-muted">Select your preferred language</p>
+                  <h2 className="text-lg font-black tracking-tight text-fg">Pilih Bahasa / Language</h2>
+                  <p className="text-xs font-bold text-fg-muted">Select your language & preferred currency</p>
                 </div>
               </div>
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={handleClose}
                 aria-label="Tutup"
-                className="rounded-md border-2 border-border bg-surface-2 p-1.5 text-fg transition-colors hover:bg-discount hover:text-white"
+                className="rounded-md border-2 border-border bg-surface-2 p-1.5 text-fg transition-colors hover:bg-discount hover:text-white shadow-[1px_1px_0px_var(--shadow-color)]"
               >
                 <X size={16} strokeWidth={2.5} />
               </button>
@@ -98,7 +114,7 @@ export function LanguageSelector() {
                       </div>
                     </div>
                     {active && (
-                      <span className="flex h-6 w-6 items-center justify-center rounded-xs border border-border bg-black text-white">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-xs border border-border bg-black text-white shadow-[1px_1px_0px_var(--shadow-color)]">
                         <Check size={14} strokeWidth={3} />
                       </span>
                     )}

@@ -91,7 +91,13 @@ export const api = {
       return sortApps(result, filter.sort);
     },
     getBySlug(slug: string): App | undefined {
-      return getProducts().find((a) => a.slug === slug);
+      return getProducts().find(
+        (a) =>
+          a.slug === slug ||
+          a.id === slug ||
+          (slug === "chatgpt-plus" && a.slug.includes("chatgpt-plus")) ||
+          (slug === "chatgpt-plus-apple-pay" && a.slug.includes("chatgpt"))
+      );
     },
     getById(id: string): App | undefined {
       return getProducts().find((a) => a.id === id || a.slug === id);

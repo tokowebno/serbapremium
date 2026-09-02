@@ -112,6 +112,17 @@ export default async function AppDetailPage({ params }: Props) {
             </h3>
             <p className="mt-2 text-[14.5px] font-medium leading-relaxed text-fg-muted">{app.description}</p>
 
+            <div className="mt-4 flex items-center gap-2.5 rounded-md border-2 border-border bg-accent/20 p-3 text-xs font-black text-fg shadow-[2px_2px_0px_var(--shadow-color)]">
+              <ShieldCheck size={18} className="text-success shrink-0" strokeWidth={2.5} />
+              <span>
+                {lang === "en"
+                  ? "⭐ Full Warranty Guaranteed: 100% replacement and support throughout the active duration."
+                  : lang === "zh"
+                  ? "⭐ 全程全额质保承诺：在有效使用期内享 100% 极速补发或全额售后保障。"
+                  : "⭐ Full Garansi Selama Masa Aktif: Jaminan ganti baru atau perbaikan 100% selama periode berlangganan."}
+              </span>
+            </div>
+
             <div className="mt-5 flex flex-wrap items-center gap-2.5 border-t-2 border-border pt-4">
               <PlatformList platforms={app.platforms} />
               <Badge tone="neutral">{t.product.version || "Versi"} {app.version}</Badge>

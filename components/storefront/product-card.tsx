@@ -6,17 +6,23 @@ import Link from "next/link";
 import type { App } from "@/types";
 import { AppIcon } from "@/components/ui/app-icon";
 import { Rating } from "@/components/ui/rating";
-import { Price } from "@/components/ui/price";
 import { PlatformBadge } from "@/components/ui/platform-badge";
 import { useWishlist } from "./providers";
 import { useTranslation } from "./i18n-provider";
 import { getLocalizedApp } from "@/lib/i18n/product-translations";
+import { formatPrice } from "@/lib/utils";
 
 export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
   const { has, toggle } = useWishlist();
   const { lang, t } = useTranslation();
   const wished = has(app.id);
   const localized = getLocalizedApp(app, lang);
+
+  // Cari harga termurah dari variasi (jika ada)
+  const minPrice =
+    app.variants && app.variants.length > 0
+      ? Math.min(...app.variants.map((v) => v.price))
+      : app.price;
 
   return (
     <motion.div
@@ -67,10 +73,7 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
 
           {/* Rating & Stock */}
           <div className="mt-3 flex items-center gap-2">
-            <Rating value={app.rating} showValue={false} size={13} />
-            <span className="text-xs font-bold tabular-nums text-fg">
-              {app.rating.toLocaleString(lang === "en" ? "en-US" : "id-ID", { minimumFractionDigits: 1 })}
-            </span>
+            <Rating value={app.rating} showValue={true} size={13} />
             <span
               className={`rounded-xs border border-border px-1.5 py-0.2 text-[10px] font-black uppercase shadow-[1px_1px_0px_var(--shadow-color)] ${
                 app.stock > 0
@@ -97,14 +100,21 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
           </div>
         </div>
 
-        {/* Harga & Aksi Bawah */}
-        <div className="mt-4 flex items-baseline justify-between border-t-2 border-border pt-3.5">
-          <Price value={app.price} original={app.originalPrice} size="sm" />
+        {/* Harga & Aksi Bawah: Mulai dari minPrice tanpa harga coret di card */}
+        <div className="mt-4 flex items-end justify-between border-t-2 border-border pt-3.5">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-black uppercase tracking-wider text-fg-muted">
+              {lang === "en" ? "Starts from" : lang === "zh" ? "起价" : "Mulai dari"}
+            </span>
+            <span className="text-base font-black tracking-tight tabular-nums text-fg">
+              {formatPrice(minPrice, lang)}
+            </span>
+          </div>
           <Link
             href={`/aplikasi/${app.slug}`}
-            className="rounded-sm border-1.5 border-border bg-accent-yellow px-2.5 py-1 text-xs font-black text-black shadow-[1.5px_1.5px_0px_var(--shadow-color)] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[2.5px_2.5px_0px_var(--shadow-color)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+            className="rounded-sm border-1.5 border-border bg-accent-yellow px-3 py-1 text-xs font-black text-black shadow-[1.5px_1.5px_0px_var(--shadow-color)] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[2.5px_2.5px_0px_var(--shadow-color)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
           >
-            {t.product.viewDetail || "Detail"}
+            {t.product.viewDetail || "Lihat Detail"}
           </Link>
         </div>
       </div>
