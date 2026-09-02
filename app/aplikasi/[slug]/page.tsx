@@ -46,42 +46,43 @@ export default async function AppDetailPage({ params }: Props) {
   const related = api.apps.related(rawApp, 4);
 
   return (
-    <div className="tk-container pt-28 pb-20">
+    <div className="tk-container pt-20 sm:pt-28 pb-20 sm:pb-24">
       {/* Breadcrumb */}
-      <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-xs font-bold text-fg-muted">
+      <nav aria-label="Breadcrumb" className="mb-4 sm:mb-6 flex items-center gap-1.5 text-xs font-bold text-fg-muted overflow-x-auto whitespace-nowrap pb-1">
         <Link href="/" className="transition-colors hover:text-fg">
           {t.navbar.home}
         </Link>
-        <ChevronRight size={13} strokeWidth={3} className="text-fg-muted" />
+        <ChevronRight size={13} strokeWidth={3} className="text-fg-muted shrink-0" />
         <Link href="/aplikasi" className="transition-colors hover:text-fg">
           {t.navbar.apps}
         </Link>
-        <ChevronRight size={13} strokeWidth={3} className="text-fg-muted" />
-        <span className="rounded-xs border border-border bg-surface-2 px-1.5 py-0.5 text-fg font-black">
+        <ChevronRight size={13} strokeWidth={3} className="text-fg-muted shrink-0" />
+        <span className="rounded-xs border border-border bg-surface-2 px-1.5 py-0.5 text-fg font-black truncate max-w-[160px] sm:max-w-none">
           {app.name}
         </span>
       </nav>
 
       {/* Main Grid: Info Kiri + Selector Varian Kanan */}
-      <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
+      <div className="grid grid-cols-1 items-start gap-6 sm:gap-8 lg:grid-cols-12">
         {/* Kolom Kiri: Identity Header + Description + Stats + Tabs */}
-        <div className="flex flex-col gap-6 lg:col-span-7">
+        <div className="flex flex-col gap-5 sm:gap-6 lg:col-span-7">
           {/* Identity Header */}
-          <header className="rounded-lg border-2 border-border bg-surface p-6 sm:p-8 shadow-[5px_5px_0px_var(--shadow-color)]">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+          <header className="rounded-md sm:rounded-lg border-2 border-border bg-surface p-4 sm:p-8 shadow-[3px_3px_0px_var(--shadow-color)] sm:shadow-[5px_5px_0px_var(--shadow-color)]">
+            <div className="flex flex-row items-center gap-4 sm:gap-5">
               <div className="w-fit shrink-0">
-                <AppIcon icon={app.icon} size="2xl" />
+                <AppIcon icon={app.icon} size="xl" className="sm:hidden" />
+                <AppIcon icon={app.icon} size="2xl" className="hidden sm:block" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="mb-1.5 flex flex-wrap items-center gap-2">
-                  <span className="rounded-xs border border-border bg-accent-yellow px-2 py-0.5 text-[10px] font-black uppercase text-black shadow-[1px_1px_0px_var(--shadow-color)]">
+                <div className="mb-1 flex flex-wrap items-center gap-1.5 sm:gap-2">
+                  <span className="rounded-xs border border-border bg-accent-yellow px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] font-black uppercase text-black shadow-[1px_1px_0px_var(--shadow-color)]">
                     {category?.name ?? "Aplikasi"}
                   </span>
-                  <span className="inline-flex items-center gap-1 text-xs font-bold text-success">
-                    <ShieldCheck size={14} strokeWidth={2.5} /> {t.product.warranty || "Garansi Resmi"}
+                  <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-bold text-success">
+                    <ShieldCheck size={13} strokeWidth={2.5} /> {t.product.warranty || "Garansi Resmi"}
                   </span>
                 </div>
-                <h1 className="text-2xl font-black tracking-tight text-fg sm:text-[34px] sm:leading-tight">
+                <h1 className="text-lg sm:text-[34px] font-black tracking-tight text-fg leading-tight truncate sm:whitespace-normal">
                   {app.name}
                 </h1>
                 {developer && (

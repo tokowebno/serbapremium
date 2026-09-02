@@ -135,7 +135,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
   };
 
   return (
-    <div className="rounded-lg border-2 border-border bg-surface p-5 sm:p-6 shadow-[5px_5px_0px_var(--shadow-color)]">
+    <div className="rounded-md sm:rounded-lg border-2 border-border bg-surface p-4 sm:p-6 shadow-[3px_3px_0px_var(--shadow-color)] sm:shadow-[5px_5px_0px_var(--shadow-color)]">
       {/* Header */}
       <div className="flex items-center justify-between border-b-2 border-border pb-3.5">
         <div>

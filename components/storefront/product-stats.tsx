@@ -32,11 +32,11 @@ export function ProductStats({
   ];
 
   return (
-    <div className="mt-5 grid grid-cols-3 gap-3">
+    <div className="mt-4 sm:mt-5 grid grid-cols-3 gap-1.5 sm:gap-3">
       {items.map((s) => (
-        <div key={s.label} className="rounded-md border-2 border-border bg-surface px-4 py-3 shadow-[2px_2px_0px_var(--shadow-color)]">
-          <p className="text-[11px] font-black tracking-wider text-fg-muted uppercase">{s.label}</p>
-          <p className="mt-0.5 text-lg font-black tracking-tight tabular-nums text-fg">{s.value}</p>
+        <div key={s.label} className="rounded-md border-1.5 sm:border-2 border-border bg-surface px-2 sm:px-4 py-2 sm:py-3 shadow-[1.5px_1.5px_0px_var(--shadow-color)] sm:shadow-[2px_2px_0px_var(--shadow-color)] text-center sm:text-left">
+          <p className="text-[9px] sm:text-[11px] font-black tracking-wider text-fg-muted uppercase truncate">{s.label}</p>
+          <p className="mt-0.5 text-xs sm:text-lg font-black tracking-tight tabular-nums text-fg truncate">{s.value}</p>
         </div>
       ))}
     </div>

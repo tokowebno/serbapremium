@@ -288,57 +288,57 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
   return (
     <div>
       {/* Stepper Progress Bar */}
-      <div className="flex items-center justify-between border-b-2 border-border pb-5">
+      <div className="flex items-center justify-between border-b-2 border-border pb-3 sm:pb-5 gap-1">
         {steps.map(({ n, label }, i) => {
           const active = step === n;
           const done = step > n;
           return (
-            <div key={n} className="flex items-center gap-2">
+            <div key={n} className="flex items-center gap-1 sm:gap-2">
               <button
                 type="button"
                 onClick={() => {
                   if (done) setStep(n as 1 | 2);
                 }}
-                className={`flex items-center gap-1.5 rounded-sm border-2 px-2.5 py-1 text-xs font-black transition-all ${
+                className={`flex items-center gap-1 sm:gap-1.5 rounded-sm border-1.5 sm:border-2 px-1.5 sm:px-2.5 py-1 text-[10px] sm:text-xs font-black transition-all ${
                   active
-                    ? "border-border bg-accent text-black shadow-[2px_2px_0px_var(--shadow-color)]"
+                    ? "border-border bg-accent text-black shadow-[1.5px_1.5px_0px_var(--shadow-color)] sm:shadow-[2px_2px_0px_var(--shadow-color)]"
                     : done
                     ? "border-border bg-surface text-fg shadow-[1px_1px_0px_var(--shadow-color)] cursor-pointer"
                     : "border-border/40 bg-surface-2 text-fg-muted opacity-60 cursor-default"
                 }`}
               >
-                <span className={`flex h-4.5 w-4.5 items-center justify-center rounded-xs text-[10px] font-black ${active || done ? "bg-black text-white" : "bg-border text-fg-muted"}`}>
-                  {done ? <Check size={11} strokeWidth={3} /> : n}
+                <span className={`flex h-4 w-4 sm:h-4.5 sm:w-4.5 items-center justify-center rounded-xs text-[9px] sm:text-[10px] font-black ${active || done ? "bg-black text-white" : "bg-border text-fg-muted"}`}>
+                  {done ? <Check size={10} strokeWidth={3} /> : n}
                 </span>
-                <span>{label}</span>
+                <span className="truncate max-w-[65px] sm:max-w-none">{label}</span>
               </button>
-              {i < steps.length - 1 && <span className="text-fg-muted text-xs font-bold">→</span>}
+              {i < steps.length - 1 && <span className="text-fg-muted text-[10px] sm:text-xs font-bold">→</span>}
             </div>
           );
         })}
       </div>
 
-      <div className="mt-8 grid items-start gap-8 lg:grid-cols-[1fr_360px]">
+      <div className="mt-6 sm:mt-8 grid items-start gap-6 sm:gap-8 lg:grid-cols-[1fr_360px]">
         {/* Kolom Kiri */}
-        <section className="rounded-xl border-2 border-border bg-surface p-6 shadow-[4px_4px_0px_var(--shadow-color)]">
+        <section className="rounded-md sm:rounded-xl border-2 border-border bg-surface p-4 sm:p-6 shadow-[3px_3px_0px_var(--shadow-color)] sm:shadow-[4px_4px_0px_var(--shadow-color)]">
           {step === 1 ? (
             /* STEP 1: PILIH METODE PEMBAYARAN + DATA PEMBELI */
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-4 sm:gap-5">
               <div>
                 <span className="rounded-xs border border-border bg-accent px-2 py-0.5 text-[10px] font-black uppercase text-black shadow-[1px_1px_0px_var(--shadow-color)]">
                   {lang === "en" ? "STEP 1" : lang === "zh" ? "步骤 1" : "LANGKAH 1"}
                 </span>
-                <h2 className="mt-1.5 text-lg font-black tracking-tight text-fg">
+                <h2 className="mt-1 text-base sm:text-lg font-black tracking-tight text-fg">
                   {lang === "en" ? "Buyer Information & Payment Method" : lang === "zh" ? "选择付款方式与填写信息" : "Informasi Pembeli & Metode Pembayaran"}
                 </h2>
               </div>
 
               {/* Pilihan Metode Pembayaran dengan Logo Asli QRIS / BNB / TRON */}
               <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-wider text-fg-muted">
+                <label className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-fg-muted">
                   {lang === "en" ? "Select Payment Method" : lang === "zh" ? "选择付款方式" : "Metode Pembayaran"}
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
                   {(["qris", "usdt_bnb", "usdt_tron"] as PaymentMethod[]).map((method) => {
                     const info = PAYMENT_INFO[method];
                     const active = paymentMethod === method;
@@ -347,10 +347,10 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
                         key={method}
                         type="button"
                         onClick={() => setPaymentMethod(method)}
-                        className={`relative flex flex-col justify-between rounded-lg border-2 p-3.5 text-left transition-all duration-150 ${
+                        className={`relative flex flex-col justify-between rounded-md sm:rounded-lg border-2 p-3 sm:p-3.5 text-left transition-all duration-150 ${
                           active
-                            ? "border-border bg-accent text-black font-black shadow-[4px_4px_0px_var(--shadow-color)] -translate-x-0.5 -translate-y-0.5"
-                            : "border-border bg-surface text-fg hover:bg-surface-2 shadow-[2px_2px_0px_var(--shadow-color)]"
+                            ? "border-border bg-accent text-black font-black shadow-[3px_3px_0px_var(--shadow-color)] sm:shadow-[4px_4px_0px_var(--shadow-color)] -translate-x-0.5 -translate-y-0.5"
+                            : "border-border bg-surface text-fg hover:bg-surface-2 shadow-[1.5px_1.5px_0px_var(--shadow-color)] sm:shadow-[2px_2px_0px_var(--shadow-color)]"
                         }`}
                       >
                         <div className="flex items-center justify-between w-full mb-2">
