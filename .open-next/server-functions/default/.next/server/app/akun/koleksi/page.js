@@ -14,7 +14,7 @@ R.c("server/chunks/ssr/_15d94i2._.js")
 R.c("server/chunks/ssr/node_modules_next_dist_client_components_0p8s4lh._.js")
 R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_unauthorized_0l_sp0x.js")
 R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_global-error_0q-w892.js")
-R.c("server/chunks/ssr/_01l00_h._.js")
+R.c("server/chunks/ssr/app_akun_0iq79m0._.js")
 R.c("server/chunks/ssr/_next-internal_server_app_akun_koleksi_page_actions_1ct8tck.js")
 R.m(25826)
 module.exports=R.m(25826).exports

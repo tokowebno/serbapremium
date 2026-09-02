@@ -1,7 +1,8 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/form";
@@ -22,14 +23,16 @@ interface OrderResult {
 
 export default function CekPesananPage() {
   const { lang, t } = useTranslation();
-  const [code, setCode] = useState("");
+  const searchParams = useSearchParams();
+  const queryId = searchParams?.get("id") || searchParams?.get("orderId") || "";
+
+  const [code, setCode] = useState(queryId);
   const [result, setResult] = useState<OrderResult | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const cari = async (e: FormEvent) => {
-    e.preventDefault();
-    const id = code.trim().toUpperCase();
+  const fetchOrder = async (orderId: string) => {
+    const id = orderId.trim().toUpperCase();
     if (!id) return;
     setLoading(true);
     setNotFound(false);
@@ -52,6 +55,18 @@ export default function CekPesananPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    if (queryId) {
+      setCode(queryId);
+      fetchOrder(queryId);
+    }
+  }, [queryId]);
+
+  const cari = (e: FormEvent) => {
+    e.preventDefault();
+    fetchOrder(code);
   };
 
   return (

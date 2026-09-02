@@ -1,19 +1,19 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, CheckCircle2, Copy, Check, ShoppingBag, Zap, ShieldCheck } from "lucide-react";
-import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { ArrowRight, Check, CheckCircle2, Copy, ShieldCheck, Zap, AlertCircle, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { api } from "@/lib/api";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field, Input } from "@/components/ui/form";
-import { CheckoutSummary } from "@/components/storefront/checkout-summary";
-import { useCart, useLibrary } from "@/components/storefront/providers";
-import { useToast } from "@/components/ui/toast";
-import { formatPrice } from "@/lib/utils";
+import { useAuth, useCart, useLibrary } from "@/components/storefront/providers";
+import { api } from "@/lib/api";
 import { supabase, supabaseReady } from "@/lib/supabase";
+import { useHydrated } from "@/lib/use-hydrated";
+import { formatPrice } from "@/lib/utils";
 import { useTranslation } from "@/components/storefront/i18n-provider";
-import type { CartItem, Platform, App } from "@/types";
+import type { Platform } from "@/types";
 
 export type PaymentMethod = "qris" | "usdt_bnb" | "usdt_tron";
 
@@ -22,6 +22,7 @@ const PAYMENT_INFO: Record<PaymentMethod, {
   network: string;
   address?: string;
   badge: string;
+  icon: string;
 }> = {
   qris: {
     name: {
@@ -31,6 +32,7 @@ const PAYMENT_INFO: Record<PaymentMethod, {
     },
     network: "BCA, Mandiri, BRI, BNI, GoPay, OVO, Dana, ShopeePay",
     badge: "IDR QRIS",
+    icon: "/logos/qris-square.svg",
   },
   usdt_bnb: {
     name: {
@@ -41,6 +43,7 @@ const PAYMENT_INFO: Record<PaymentMethod, {
     network: "BNB Smart Chain (BEP-20 / BSC)",
     address: "0x141b43fCDb8D17c09e7b4235b2527309db674A27",
     badge: "USDT BEP-20",
+    icon: "/logos/bnb.svg",
   },
   usdt_tron: {
     name: {
@@ -51,6 +54,7 @@ const PAYMENT_INFO: Record<PaymentMethod, {
     network: "TRON (TRC-20)",
     address: "TQTpRn6j1Pfwf38xP8CxqxJi18YX4v8Wcm",
     badge: "USDT TRC-20",
+    icon: "/logos/tron.svg",
   },
 };
 
@@ -64,209 +68,228 @@ async function saveOrderToDb(order: Record<string, unknown>) {
   }
 }
 
-export function CheckoutForm({
-  initialSlug,
-  initialApp,
-  customTitle,
-  customPrice,
-  customPlatform,
-}: {
+interface CheckoutFormProps {
   initialSlug?: string;
-  initialApp?: App;
   customTitle?: string;
   customPrice?: number;
   customPlatform?: string;
-}) {
-  const router = useRouter();
-  const cart = useCart();
-  const library = useLibrary();
-  const toast = useToast();
-  const { lang, t } = useTranslation();
+}
 
+interface CheckoutItem {
+  id: string;
+  name: string;
+  price: number;
+  platform: string;
+}
+
+export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlatform }: CheckoutFormProps) {
+  const { lang, t } = useTranslation();
+  const router = useRouter();
+  const hydrated = useHydrated();
+
+  const { items: cartItems, clear: clearCart } = useCart();
+  const { add: addToLibrary } = useLibrary();
+  const { user } = useAuth();
+
+  // Multi-step form: Step 1 = Pilih Metode + Data, Step 2 = Instruksi Pembayaran + Kode Unik
   const [step, setStep] = useState<1 | 2>(1);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+
+  // Form states
+  const [name, setName] = useState(user?.name ?? "");
+  const [email, setEmail] = useState(user?.email ?? "");
   const [phone, setPhone] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(lang === "id" ? "qris" : "usdt_bnb");
-  const [qrisDone, setQrisDone] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
-  const [isAmountCopied, setIsAmountCopied] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("qris");
+
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
+  const [copied, setCopied] = useState(false);
+  const [isAmountCopied, setIsAmountCopied] = useState(false);
+  const [qrisDone, setQrisDone] = useState(false);
+  const [usdtDone, setUsdtDone] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Kode unik 3 digit acak agar mudah diverifikasi (misal: 123)
+  const [uniqueCode] = useState(() => Math.floor(Math.random() * 800 + 100));
 
   useEffect(() => {
-    if (lang !== "id" && paymentMethod === "qris") {
-      setPaymentMethod("usdt_bnb");
+    if (user) {
+      if (!name) setName(user.name);
+      if (!email) setEmail(user.email);
     }
-  }, [lang]);
+  }, [user, name, email]);
 
-  const steps = [
-    lang === "en" ? "1. Information" : lang === "zh" ? "1. 填写信息" : "1. Informasi",
-    lang === "en" ? "2. Payment" : lang === "zh" ? "2. 付款转账" : "2. Pembayaran",
-    lang === "en" ? "3. Confirmation" : lang === "zh" ? "3. 完成确认" : "3. Konfirmasi",
-  ];
-
-  // Item beli-langsung dari ?app=slug
-  let directItem: CartItem | null = null;
-  const targetApp =
-    initialApp ||
-    (initialSlug ? api.apps.getBySlug(initialSlug) || api.apps.getById(initialSlug) : undefined);
-
-  if (targetApp && !cart.items.some((i) => i.appId === targetApp.id)) {
-    const finalPlatform: Platform =
-      (customPlatform && targetApp.platforms.includes(customPlatform as Platform))
-        ? (customPlatform as Platform)
-        : targetApp.platforms[0] || "Web";
-
-    directItem = {
-      appId: targetApp.id,
-      name: customTitle || targetApp.name,
-      icon: targetApp.icon,
-      platform: finalPlatform,
-      price: customPrice !== undefined && customPrice > 0 ? customPrice : targetApp.price,
-    };
+  // Siapkan daftar item checkout
+  let itemsToCheckout: CheckoutItem[] = [];
+  if (customTitle && customPrice !== undefined) {
+    itemsToCheckout = [
+      {
+        id: initialSlug || "custom-item",
+        name: customTitle,
+        price: customPrice,
+        platform: customPlatform || "Web",
+      },
+    ];
+  } else if (initialSlug) {
+    const app = api.apps.getBySlug(initialSlug);
+    if (app) {
+      itemsToCheckout = [
+        {
+          id: app.id,
+          name: app.name,
+          price: app.price,
+          platform: customPlatform || app.platforms[0] || "Web",
+        },
+      ];
+    }
+  } else {
+    itemsToCheckout = cartItems.map((c) => ({
+      id: c.appId,
+      name: c.name,
+      price: c.price,
+      platform: c.platform,
+    }));
   }
 
-  const rawItems: CartItem[] = cart.items.length > 0 ? cart.items : directItem ? [directItem] : [];
-  const items: CartItem[] = rawItems.map((item) => {
-    if (directItem && item.appId === directItem.appId && (customTitle || customPrice !== undefined)) {
-      return {
-        ...item,
-        name: customTitle || item.name,
-        price: customPrice !== undefined && customPrice > 0 ? customPrice : item.price,
-      };
+  const subtotal = itemsToCheckout.reduce((sum, item) => sum + item.price, 0);
+  const totalBayar = subtotal + (paymentMethod === "qris" ? uniqueCode : 0);
+
+  const copyAddress = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* ignore */
     }
-    return item;
-  });
+  };
 
-  const subtotal = items.reduce((s, i) => s + i.price, 0);
+  const copyAmount = async (amount: number) => {
+    try {
+      await navigator.clipboard.writeText(amount.toString());
+      setIsAmountCopied(true);
+      setTimeout(() => setIsAmountCopied(false), 2000);
+    } catch {
+      /* ignore */
+    }
+  };
 
-  // Kode unik 3 digit (001–999)
-  const [uniqueCode] = useState(() => {
-    const seed = (subtotal * 7 + items.length * 13 + Date.now()) % 999;
-    return String(seed + 1).padStart(3, "0");
-  });
-  const totalBayar = subtotal + (paymentMethod === "qris" ? Number(uniqueCode) : 0);
+  const validateForm = () => {
+    if (!name.trim()) {
+      setErrorMessage(lang === "en" ? "Please enter your full name." : lang === "zh" ? "请输入您的姓名。" : "Harap masukkan nama lengkap Anda.");
+      return false;
+    }
+    if (!email.trim() || !email.includes("@")) {
+      setErrorMessage(lang === "en" ? "Please enter a valid email address." : lang === "zh" ? "请输入有效的电子邮件地址。" : "Harap masukkan alamat email yang valid.");
+      return false;
+    }
+    setErrorMessage("");
+    return true;
+  };
 
-  if (items.length === 0) {
+  const goNext = () => {
+    if (!validateForm()) return;
+    setStep(2);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const finishCheckout = async () => {
+    if (!validateForm()) {
+      setStep(1);
+      return;
+    }
+
+    setLoading(true);
+
+    const orderId = `SP-${Date.now().toString().slice(-6)}`;
+    const nowIso = new Date().toISOString();
+
+    const orderRecord = {
+      id: orderId,
+      user_id: "guest",
+      user_name: name.trim(),
+      user_email: email.trim(),
+      user_phone: phone.trim() || null,
+      payment_method: paymentMethod,
+      total: totalBayar,
+      payment_status: "menunggu",
+      order_status: "diproses",
+      date: nowIso,
+      items: itemsToCheckout.map((item) => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        platform: item.platform,
+      })),
+    };
+
+    try {
+      await saveOrderToDb(orderRecord);
+
+      itemsToCheckout.forEach((item) => {
+        addToLibrary(item.id);
+      });
+
+      if (!initialSlug) {
+        clearCart();
+      }
+
+      const receipt = {
+        id: orderId,
+        date: nowIso,
+        items: itemsToCheckout.map((item) => ({
+          name: item.name,
+          platform: item.platform,
+        })),
+        total: totalBayar,
+        customer: {
+          name: name.trim(),
+          email: email.trim(),
+        },
+      };
+
+      sessionStorage.setItem("serbapremium:last-order", JSON.stringify(receipt));
+      sessionStorage.setItem("tokono:last-order", JSON.stringify(receipt));
+
+      router.push("/pembayaran/berhasil");
+    } catch {
+      setErrorMessage(lang === "en" ? "Failed to create order. Please try again." : lang === "zh" ? "创建订单失败，请重试。" : "Gagal membuat pesanan. Silakan coba lagi.");
+      setLoading(false);
+    }
+  };
+
+  if (!hydrated) return null;
+
+  if (itemsToCheckout.length === 0) {
     return (
-      <div className="tk-container pt-28 pb-20">
-        <EmptyState
-          icon={ShoppingBag}
-          title={lang === "en" ? "No items in cart." : lang === "zh" ? "暂无待结算商品。" : "Belum ada item untuk dibeli."}
-          description={lang === "en" ? "Select the app you want, then click Buy Now." : lang === "zh" ? "请选择您心仪的应用，然后点击 立即购买。" : "Pilih aplikasi yang Anda inginkan, lalu tekan Beli Sekarang untuk checkout langsung."}
-          action={{ label: lang === "en" ? "Explore Apps" : lang === "zh" ? "浏览应用" : "Jelajahi Aplikasi", href: "/aplikasi" }}
-        />
-      </div>
+      <EmptyState
+        icon={Zap}
+        title={lang === "en" ? "Checkout is empty" : lang === "zh" ? "结账单为空" : "Tidak ada item untuk dibayar"}
+        description={lang === "en" ? "Select apps from our catalog or cart to proceed." : lang === "zh" ? "请从应用目录或购物车中选择要购买的商品。" : "Pilih aplikasi dari katalog atau keranjang untuk melanjutkan pembayaran."}
+        action={{ label: lang === "en" ? "Explore Catalog" : lang === "zh" ? "浏览应用目录" : "Jelajahi Katalog", href: "/aplikasi" }}
+      />
     );
   }
 
-  const goNext = () => {
-    const nextErrors: typeof errors = {};
-    if (!name.trim()) nextErrors.name = lang === "en" ? "Full name is required." : lang === "zh" ? "请填写您的姓名。" : "Nama lengkap wajib diisi.";
-    if (!email.trim() || !/^\S+@\S+\.\S+$/.test(email)) nextErrors.email = lang === "en" ? "Valid email address is required for license delivery." : lang === "zh" ? "请填写有效邮箱。" : "Alamat email tidak valid.";
-    setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setStep(2);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }, 400);
-  };
-
-  const copyAddress = (addr?: string) => {
-    if (!addr) return;
-    navigator.clipboard.writeText(addr);
-    setIsCopied(true);
-    toast.push({
-      title: lang === "en" ? "USDT Address copied!" : lang === "zh" ? "USDT 钱包地址已复制！" : "Alamat USDT disalin!",
-      tone: "info",
-    });
-    setTimeout(() => setIsCopied(false), 2000);
-  };
-
-  const copyAmount = (amount: number) => {
-    navigator.clipboard.writeText(String(amount));
-    setIsAmountCopied(true);
-    toast.push({
-      title: lang === "en" ? "Exact payment amount copied!" : lang === "zh" ? "精确转账金额已复制！" : "Nominal transfer disalin!",
-      description: `Rp ${amount.toLocaleString("id-ID")} (${lang === "en" ? "includes unique code" : "termasuk kode unik"})`,
-      tone: "success",
-    });
-    setTimeout(() => setIsAmountCopied(false), 2000);
-  };
-
-  const completePayment = () => {
-    if (!qrisDone || loading) {
-      toast.push({
-        title: lang === "en" ? "Please complete transfer & confirm" : lang === "zh" ? "请先点击 我已完成支付" : "Mohon klik tombol Saya Sudah Bayar terlebih dahulu",
-        tone: "info",
-      });
-      return;
-    }
-    setLoading(true);
-    const orderId = `TK-${Date.now().toString().slice(-6)}`;
-    const order = {
-      id: orderId,
-      date: new Date().toISOString().slice(0, 10),
-      items: items.map((i) => ({ name: i.name, platform: i.platform })),
-      total: totalBayar,
-      uniqueCode,
-      paymentMethod,
-    };
-    try {
-      sessionStorage.setItem("tokono:last-order", JSON.stringify(order));
-      sessionStorage.setItem("serbapremium:last-order", JSON.stringify(order));
-    } catch {
-      /* storage full */
-    }
-    saveOrderToDb({
-      id: orderId,
-      user_name: name,
-      customer_email: email,
-      customer_phone: phone,
-      items: items.map((i) => ({ appId: i.appId, name: i.name, platform: i.platform, price: i.price })),
-      subtotal,
-      discount: 0,
-      total: totalBayar,
-      payment_method: paymentMethod,
-      payment_status: "menunggu",
-      order_status: "diproses",
-      date: new Date().toISOString().slice(0, 10),
-    });
-    items.forEach((i) => library.add(i.appId));
-    cart.clear();
-    toast.push({
-      title: lang === "en" ? "Payment is being processed" : lang === "zh" ? "正在处理支付" : "Pembayaran sedang diproses",
-      description: lang === "en" ? "We are verifying your payment. Apps will be added to your collection." : lang === "zh" ? "我们正在核验您的付款，应用核验后将存入您的收藏。" : "Kami memverifikasi pembayaran Anda. Aplikasi masuk ke koleksi setelah terverifikasi.",
-    });
-    setTimeout(() => {
-      router.push("/pembayaran/berhasil");
-    }, 800);
-  };
+  const steps = [
+    { n: 1, label: lang === "en" ? "Buyer & Method" : lang === "zh" ? "信息与方式" : "Metode & Data" },
+    { n: 2, label: lang === "en" ? "Transfer & Code" : lang === "zh" ? "转账与核验" : "Transfer & Kode Unik" },
+    { n: 3, label: lang === "en" ? "Done" : lang === "zh" ? "完成" : "Selesai" },
+  ];
 
   return (
-    <div className="tk-container pt-28 pb-20">
-      {/* Title */}
-      <h1 className="text-2xl font-black tracking-tight sm:text-3xl text-fg">
-        {lang === "en" ? "Payment" : lang === "zh" ? "支付结算" : "Pembayaran"}
-      </h1>
-
-      {/* Indikator Langkah */}
-      <div className="mt-6 flex items-center gap-3">
-        {steps.map((label, i) => {
-          const n = (i + 1) as 1 | 2 | 3;
-          const active = n === step;
-          const done = n < step;
+    <div>
+      {/* Stepper Progress Bar */}
+      <div className="flex items-center justify-between border-b-2 border-border pb-5">
+        {steps.map(({ n, label }, i) => {
+          const active = step === n;
+          const done = step > n;
           return (
-            <div key={label} className="flex items-center gap-2">
+            <div key={n} className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => {
-                  if (done) setStep(1);
+                  if (done) setStep(n as 1 | 2);
                 }}
-                className={`flex items-center gap-2 rounded-md border-2 px-3 py-1.5 text-xs font-black transition-all ${
+                className={`flex items-center gap-1.5 rounded-sm border-2 px-2.5 py-1 text-xs font-black transition-all ${
                   active
                     ? "border-border bg-accent text-black shadow-[2px_2px_0px_var(--shadow-color)]"
                     : done
@@ -300,12 +323,12 @@ export function CheckoutForm({
                 </h2>
               </div>
 
-              {/* Pilihan Metode Pembayaran */}
+              {/* Pilihan Metode Pembayaran dengan Logo Asli QRIS / BNB / TRON */}
               <div className="space-y-2">
                 <label className="text-xs font-black uppercase tracking-wider text-fg-muted">
                   {lang === "en" ? "Select Payment Method" : lang === "zh" ? "选择付款方式" : "Metode Pembayaran"}
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {(["qris", "usdt_bnb", "usdt_tron"] as PaymentMethod[]).map((method) => {
                     const info = PAYMENT_INFO[method];
                     const active = paymentMethod === method;
@@ -314,17 +337,28 @@ export function CheckoutForm({
                         key={method}
                         type="button"
                         onClick={() => setPaymentMethod(method)}
-                        className={`rounded-md border-2 p-3 text-left transition-all duration-100 ${
+                        className={`relative flex flex-col justify-between rounded-lg border-2 p-3.5 text-left transition-all duration-150 ${
                           active
-                            ? "border-border bg-accent text-black font-black shadow-[3px_3px_0px_var(--shadow-color)] -translate-x-0.5 -translate-y-0.5"
-                            : "border-border bg-surface text-fg hover:bg-surface-2 shadow-[1.5px_1.5px_0px_var(--shadow-color)]"
+                            ? "border-border bg-accent text-black font-black shadow-[4px_4px_0px_var(--shadow-color)] -translate-x-0.5 -translate-y-0.5"
+                            : "border-border bg-surface text-fg hover:bg-surface-2 shadow-[2px_2px_0px_var(--shadow-color)]"
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs font-black uppercase">{info.badge}</p>
-                          {active && <Check size={14} strokeWidth={3} className="text-black" />}
+                        <div className="flex items-center justify-between w-full mb-2">
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={info.icon}
+                              alt={info.badge}
+                              className="h-7 w-7 rounded-sm object-contain border border-border/40 bg-white p-0.5 shadow-[1px_1px_0px_var(--shadow-color)]"
+                            />
+                            <span className="text-xs font-black uppercase tracking-tight">{info.badge}</span>
+                          </div>
+                          {active && (
+                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-black text-white shadow-[1px_1px_0px_var(--shadow-color)]">
+                              <Check size={12} strokeWidth={3} />
+                            </span>
+                          )}
                         </div>
-                        <p className="text-[11px] font-semibold opacity-85 mt-1">
+                        <p className="text-[11px] font-bold opacity-80 line-clamp-2">
                           {info.name[lang] || info.name.id}
                         </p>
                       </button>
@@ -343,31 +377,41 @@ export function CheckoutForm({
                     placeholder={lang === "en" ? "Your full name" : lang === "zh" ? "您的姓名" : "Nama Anda"}
                     autoComplete="name"
                   />
-                  {errors.name && <p className="text-xs font-bold text-discount">{errors.name}</p>}
                 </Field>
 
-                <Field label="Email" htmlFor="email">
+                <Field
+                  label={lang === "en" ? "Email Address (Account/License delivery)" : lang === "zh" ? "电子邮箱（接收授权与凭据）" : "Alamat Email (Pengiriman Lisensi/Akun)"}
+                  htmlFor="email-address"
+                >
                   <Input
-                    id="email"
+                    id="email-address"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="nama@email.com"
                     autoComplete="email"
                   />
-                  {errors.email && <p className="text-xs font-bold text-discount">{errors.email}</p>}
                 </Field>
 
-                <Field label={lang === "en" ? "Phone / WhatsApp" : lang === "zh" ? "手机号 / WhatsApp" : "No. HP"} hint={lang === "en" ? "Optional — for proof of purchase." : lang === "zh" ? "可选 — 用于发送购买凭证。" : "Opsional — untuk mengirim bukti pembelian."} htmlFor="no-hp">
+                <Field
+                  label={lang === "en" ? "WhatsApp / Phone (Optional)" : lang === "zh" ? "手机号 / WhatsApp（选填）" : "No. HP / WhatsApp (Opsional)"}
+                  htmlFor="phone-number"
+                >
                   <Input
-                    id="no-hp"
+                    id="phone-number"
+                    type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="08xxxxxxxxxx"
-                    inputMode="tel"
+                    placeholder="08123456789"
                     autoComplete="tel"
                   />
                 </Field>
+
+                {errorMessage && (
+                  <div className="flex items-center gap-2 rounded-md border-2 border-discount bg-discount/10 p-3 text-xs font-bold text-discount">
+                    <AlertCircle size={15} /> {errorMessage}
+                  </div>
+                )}
               </div>
 
               <div className="mt-2 flex justify-end">
@@ -381,13 +425,20 @@ export function CheckoutForm({
             /* STEP 2: DETAIL PEMBAYARAN, KODE UNIK, QRIS / USDT */
             <div className="flex flex-col gap-5">
               <div className="flex items-center justify-between border-b-2 border-border pb-3">
-                <div>
-                  <span className="rounded-xs border border-border bg-accent px-2 py-0.5 text-[10px] font-black uppercase text-black shadow-[1px_1px_0px_var(--shadow-color)]">
-                    {PAYMENT_INFO[paymentMethod].badge}
-                  </span>
-                  <h2 className="mt-1 text-lg font-black tracking-tight text-fg">
-                    {paymentMethod === "qris" ? "Pembayaran QRIS" : `Pembayaran ${PAYMENT_INFO[paymentMethod].badge}`}
-                  </h2>
+                <div className="flex items-center gap-3">
+                  <img
+                    src={PAYMENT_INFO[paymentMethod].icon}
+                    alt={PAYMENT_INFO[paymentMethod].badge}
+                    className="h-9 w-9 rounded-md object-contain border-2 border-border bg-white p-1 shadow-[2px_2px_0px_var(--shadow-color)]"
+                  />
+                  <div>
+                    <span className="rounded-xs border border-border bg-accent px-2 py-0.5 text-[10px] font-black uppercase text-black shadow-[1px_1px_0px_var(--shadow-color)]">
+                      {PAYMENT_INFO[paymentMethod].badge}
+                    </span>
+                    <h2 className="mt-0.5 text-lg font-black tracking-tight text-fg">
+                      {paymentMethod === "qris" ? "Pembayaran QRIS" : `Pembayaran ${PAYMENT_INFO[paymentMethod].badge}`}
+                    </h2>
+                  </div>
                 </div>
                 <button
                   type="button"
@@ -455,76 +506,118 @@ export function CheckoutForm({
                 <>
                   <div className="rounded-lg border-2 border-border bg-surface-2 p-4 shadow-[2px_2px_0px_var(--shadow-color)]">
                     <p className="text-xs font-black uppercase text-fg-muted">
-                      {lang === "en" ? "Total USDT to transfer" : lang === "zh" ? "应付 USDT 总额" : "Total Nominal USDT"}
+                      {lang === "en" ? "Total USDT amount to send" : lang === "zh" ? "应付 USDT 数量" : "Total USDT yang harus dikirim"}
                     </p>
-                    <p className="text-3xl font-black tracking-tight text-fg tabular-nums mt-0.5">
-                      ${(totalBayar / 16000).toFixed(2)} USDT
-                    </p>
-                    <p className="text-xs font-bold text-fg-muted mt-1">
-                      Rate: 1 USDT ≈ Rp 16.000 ({formatPrice(totalBayar, lang)})
+                    <p className="mt-1 text-3xl font-black tracking-tight text-fg tabular-nums">
+                      {formatPrice(totalBayar, lang)}
                     </p>
                   </div>
 
-                  <div className="rounded-lg border-2 border-border bg-surface p-4 shadow-[2px_2px_0px_var(--shadow-color)] space-y-2">
-                    <p className="text-xs font-black uppercase text-fg-muted">
-                      {lang === "en" ? "Wallet Address" : "Alamat Wallet"} ({PAYMENT_INFO[paymentMethod].badge}):
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <input
-                        readOnly
-                        value={PAYMENT_INFO[paymentMethod].address}
-                        className="w-full rounded-sm border border-border bg-surface-2 px-3 py-2 font-mono text-xs font-bold text-fg outline-none select-all"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => copyAddress(PAYMENT_INFO[paymentMethod].address)}
-                        className="flex h-9 shrink-0 items-center gap-1.5 rounded-sm border-2 border-border bg-accent px-3 text-xs font-black text-black shadow-[1.5px_1.5px_0px_var(--shadow-color)] hover:bg-accent-hover active:translate-x-0.5 active:translate-y-0.5"
-                      >
-                        {isCopied ? <Check size={14} strokeWidth={3} /> : <Copy size={14} strokeWidth={2.5} />}
-                        {isCopied ? "Disalin" : "Salin"}
-                      </button>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-xs font-black uppercase text-fg-muted">Jaringan Transfer</p>
+                      <p className="mt-1 font-mono text-sm font-black text-fg">
+                        {PAYMENT_INFO[paymentMethod].network}
+                      </p>
                     </div>
-                    <p className="text-xs font-bold text-fg-muted">
-                      Jaringan: <span className="rounded-xs border border-border bg-accent-soft px-1.5 py-0.2 text-fg font-black">{PAYMENT_INFO[paymentMethod].network}</span>
-                    </p>
-                  </div>
 
-                  <div className="w-full pt-2">
-                    {qrisDone ? (
-                      <div className="flex items-center justify-center gap-2 rounded-md border-2 border-border bg-accent/20 p-3 text-sm font-black text-fg shadow-[2px_2px_0px_var(--shadow-color)]">
-                        <CheckCircle2 size={18} className="text-success" /> Transfer USDT telah dikonfirmasi.
+                    <div>
+                      <p className="text-xs font-black uppercase text-fg-muted">Alamat Wallet Penerima</p>
+                      <div className="mt-1.5 flex items-center gap-2">
+                        <Input
+                          readOnly
+                          value={PAYMENT_INFO[paymentMethod].address ?? ""}
+                          className="font-mono text-xs font-bold"
+                        />
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => copyAddress(PAYMENT_INFO[paymentMethod].address ?? "")}
+                        >
+                          {copied ? <Check size={14} /> : <Copy size={14} />}
+                          {copied ? "Tersalin" : "Salin"}
+                        </Button>
                       </div>
-                    ) : (
-                      <Button size="lg" className="w-full" onClick={() => setQrisDone(true)}>
-                        Saya Sudah Transfer USDT
-                      </Button>
-                    )}
+                    </div>
+
+                    <div className="pt-2">
+                      {usdtDone ? (
+                        <div className="flex items-center justify-center gap-2 rounded-md border-2 border-border bg-accent/20 p-3 text-sm font-black text-fg shadow-[2px_2px_0px_var(--shadow-color)]">
+                          <CheckCircle2 size={18} className="text-success" /> Transfer USDT Anda tercatat.
+                        </div>
+                      ) : (
+                        <Button size="lg" className="w-full" onClick={() => setUsdtDone(true)}>
+                          Saya Sudah Transfer USDT
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </>
               )}
 
-              {/* Tombol Aksi Bawah */}
-              <div className="mt-2 flex items-center justify-between gap-3 border-t-2 border-border pt-4">
-                <Button variant="secondary" onClick={() => setStep(1)}>
-                  <ArrowLeft size={16} /> {lang === "en" ? "Back" : lang === "zh" ? "返回" : "Kembali"}
+              {errorMessage && (
+                <div className="flex items-center gap-2 rounded-md border-2 border-discount bg-discount/10 p-3 text-xs font-bold text-discount">
+                  <AlertCircle size={15} /> {errorMessage}
+                </div>
+              )}
+
+              <div className="mt-4 flex flex-col sm:flex-row gap-3">
+                <Button variant="secondary" size="lg" onClick={() => setStep(1)} className="sm:w-1/3">
+                  ← Kembali
                 </Button>
-                <Button
-                  size="lg"
-                  onClick={completePayment}
-                  disabled={!qrisDone || loading}
-                  className="flex-1 sm:flex-none"
-                >
-                  <Zap size={16} strokeWidth={3} className="fill-current" />
-                  {loading ? (lang === "en" ? "Processing…" : lang === "zh" ? "处理中…" : "Memproses…") : (lang === "en" ? "Complete Payment" : lang === "zh" ? "完成支付" : "Selesaikan Pembayaran")}
+                <Button size="lg" onClick={finishCheckout} disabled={loading} className="flex-1">
+                  {loading ? (lang === "en" ? "Confirming Order…" : lang === "zh" ? "确认订单中…" : "Mengonfirmasi Pesanan…") : (lang === "en" ? "Complete Order 🚀" : lang === "zh" ? "完成订单 🚀" : "Selesaikan Pembayaran 🚀")}
                 </Button>
               </div>
             </div>
           )}
         </section>
 
-        {/* Kolom Kanan */}
-        <aside>
-          <CheckoutSummary items={items} subtotal={subtotal} discount={0} />
+        {/* Kolom Kanan — Ringkasan Pesanan */}
+        <aside className="space-y-4">
+          <div className="rounded-xl border-2 border-border bg-surface p-6 shadow-[4px_4px_0px_var(--shadow-color)]">
+            <h2 className="border-b-2 border-border pb-3 text-base font-black tracking-tight text-fg">
+              {lang === "en" ? "Order Summary" : lang === "zh" ? "订单明细" : "Ringkasan Pesanan"}
+            </h2>
+
+            <ul className="mt-4 divide-y-2 divide-border">
+              {itemsToCheckout.map((item) => (
+                <li key={item.id + item.platform} className="flex items-center justify-between gap-3 py-3 text-sm">
+                  <div className="min-w-0">
+                    <p className="truncate font-black text-fg">{item.name}</p>
+                    <p className="text-xs font-bold text-fg-muted">{item.platform}</p>
+                  </div>
+                  <span className="font-black tabular-nums text-fg shrink-0">
+                    {formatPrice(item.price, lang)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            <dl className="mt-4 space-y-2 border-t-2 border-border pt-4 text-xs font-bold">
+              <div className="flex justify-between text-fg-muted">
+                <dt>{lang === "en" ? "Subtotal" : lang === "zh" ? "小计" : "Subtotal"}</dt>
+                <dd className="tabular-nums">{formatPrice(subtotal, lang)}</dd>
+              </div>
+
+              {paymentMethod === "qris" && (
+                <div className="flex justify-between text-accent-blue dark:text-accent font-black">
+                  <dt>{lang === "en" ? "Unique Code" : lang === "zh" ? "唯一验证码" : "Kode Unik Verifikasi"}</dt>
+                  <dd className="tabular-nums">+{uniqueCode}</dd>
+                </div>
+              )}
+
+              <div className="flex justify-between border-t-2 border-border pt-3 text-base font-black text-fg">
+                <dt>{lang === "en" ? "Total Payment" : lang === "zh" ? "支付总额" : "Total Bayar"}</dt>
+                <dd className="tabular-nums">{formatPrice(totalBayar, lang)}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div className="flex items-center gap-2 rounded-lg border-2 border-border bg-surface-2 p-3 text-xs font-bold text-fg-muted shadow-[2px_2px_0px_var(--shadow-color)]">
+            <ShieldCheck size={18} className="text-success shrink-0" />
+            <span>Garansi 100% uang kembali jika lisensi atau akun bermasalah.</span>
+          </div>
         </aside>
       </div>
     </div>
