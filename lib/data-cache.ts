@@ -91,12 +91,21 @@ export async function syncFromSupabase(): Promise<boolean> {
           return getBrandKey(p.name + " " + p.slug) === mockKey;
         });
         if (!dbMatch) return mock;
+        const variants = (mock.variants && mock.variants.length > 0) ? mock.variants : dbMatch.variants;
+        const stock = variants && variants.length > 0
+          ? variants.reduce((sum, v) => sum + (v.stock || 0), 0)
+          : (dbMatch.stock > 0 ? dbMatch.stock : mock.stock);
+
         return {
           ...mock,
           ...dbMatch,
           id: mock.id,
           slug: mock.slug,
-          variants: (dbMatch.variants && dbMatch.variants.length > 0) ? dbMatch.variants : (mock.variants && mock.variants.length > 0) ? mock.variants : undefined,
+          name: mock.name,
+          tagline: mock.tagline,
+          description: mock.description,
+          variants,
+          stock,
           icon: {
             ...mock.icon,
             ...dbMatch.icon,

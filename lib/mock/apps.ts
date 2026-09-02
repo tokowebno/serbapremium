@@ -135,34 +135,38 @@ export function brandLogo(name: string): string {
 
 export const popularRank = [
   "ChatGPT Plus Apple Pay",
-  "Gemini AI Pro",
   "Claude AI Pro",
+  "DeepSeek API",
+  "Gemini AI Pro",
+  "Perplexity AI Pro",
+  "Cursor AI Pro",
+  "Grok Super AI",
+  "ElevenLabs Voice AI",
+  "Runway Gen-3 AI Pro",
+  "Leonardo AI Pro",
+  "Lovable AI Pro",
+  "Manus AI Pro",
+  "HeyGen AI Video Pro",
+  "QuillBot Premium",
+  "Gamma App Pro",
   "Spotify Premium",
   "Netflix Premium 4K",
   "YouTube Premium",
   "Disney+ Hotstar",
   "Canva Pro",
   "CapCut Pro",
-  "Cursor AI Pro",
   "Notion Plus",
   "VPN Premium All-in-One",
   "Super Duolingo",
   "Coursera Plus",
   "Microsoft 365 Personal",
-  "Perplexity AI Pro",
-  "ElevenLabs Voice AI",
   "Discord Nitro",
   "Roblox 1,000 Robux",
   "Steam Wallet & Account",
   "Supabase Pro",
   "Replit Core Cloud",
-  "Runway Gen-3 AI Pro",
-  "Leonardo AI Pro",
   "Figma Pro",
   "LinkedIn Premium Career",
-  "Grok Super AI",
-  "Lovable AI Pro",
-  "Manus AI Pro",
   "Instagram Followers & Likes HQ",
   "TikTok Followers & Views",
   "Prime Video Premium",
@@ -171,9 +175,6 @@ export const popularRank = [
   "Paramount+ Premium",
   "Cloudflare Warp+ Unlimited",
   "Framer Pro",
-  "Gamma App Pro",
-  "HeyGen AI Video Pro",
-  "QuillBot Premium",
   "Zoom Pro",
   "CamScanner Premium HD",
   "Railway Hobby Cloud",
@@ -187,13 +188,19 @@ export const popularRank = [
 export function popularityOf(name: string): number {
   const clean = name.toLowerCase();
 
+  // Prioritas utama untuk 4 AI teratas tanpa ambigu
+  if (clean.includes("chatgpt") || clean.includes("gpt")) return 0;
+  if (clean.includes("claude")) return 1;
+  if (clean.includes("deepseek")) return 2;
+  if (clean.includes("gemini")) return 3;
+
   // 1. Cek dari custom order admin terlebih dahulu (jika ada)
   if (Array.isArray(customOrder) && customOrder.length > 0) {
     const idx = customOrder.findIndex((p: string) => {
       const target = p.toLowerCase();
       return clean === target || clean.startsWith(target) || target.startsWith(clean) || clean.includes(target);
     });
-    if (idx !== -1) return idx;
+    if (idx !== -1) return idx + 4;
   }
 
   // 2. Fallback ke default popularRank
@@ -203,7 +210,7 @@ export function popularityOf(name: string): number {
   });
 
   // Jika tidak ketemu di keduanya, taruh di paling bawah
-  const offset = Array.isArray(customOrder) ? customOrder.length : 0;
+  const offset = (Array.isArray(customOrder) ? customOrder.length : 0) + 4;
   return idx === -1 ? offset + popularRank.length + 10 : offset + idx;
 }
 

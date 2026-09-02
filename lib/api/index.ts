@@ -63,10 +63,18 @@ function sortApps(list: App[], sort?: SortKey): App[] {
       break;
     default:
       // Populer = peringkat kurasi (produk yang paling sering dibeli), lalu stok.
-      sorted.sort((a, b) => popularityOf(a.name) - popularityOf(b.name) || b.stock - a.stock);
+      sorted.sort((a, b) => {
+        const diff = popularityOf(a.name) - popularityOf(b.name);
+        if (diff !== 0) return diff;
+        return b.stock - a.stock;
+      });
   }
   // Produk stok habis selalu di akhir daftar, apa pun mode urutannya.
-  return sorted.sort((a, b) => Number(b.stock > 0) - Number(a.stock > 0));
+  return sorted.sort((a, b) => {
+    const aStock = a.stock > 0 ? 1 : 0;
+    const bStock = b.stock > 0 ? 1 : 0;
+    return bStock - aStock;
+  });
 }
 
 export const api = {
