@@ -58,18 +58,12 @@ export function Hero() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: 0.15 }}
-            className="mt-5 sm:mt-8 flex flex-row items-center justify-center gap-2 sm:gap-4"
+            className="mt-5 sm:mt-8 flex items-center justify-center gap-2.5 sm:gap-4 max-w-sm sm:max-w-none mx-auto"
           >
-            <ButtonLink href="/aplikasi" size="sm" className="sm:hidden flex-1 justify-center">
-              {t.hero.exploreBtn} <ArrowRight size={14} strokeWidth={2.5} />
+            <ButtonLink href="/aplikasi" size="md" className="flex-1 sm:flex-none justify-center">
+              {t.hero.exploreBtn} <ArrowRight size={15} strokeWidth={2.5} />
             </ButtonLink>
-            <ButtonLink href="/aplikasi" size="lg" className="hidden sm:inline-flex">
-              {t.hero.exploreBtn} <ArrowRight size={17} strokeWidth={2.5} />
-            </ButtonLink>
-            <ButtonLink href="/promo" size="sm" variant="glass" className="sm:hidden flex-1 justify-center">
-              {t.hero.promoBtn} 🔥
-            </ButtonLink>
-            <ButtonLink href="/promo" size="lg" variant="glass" className="hidden sm:inline-flex">
+            <ButtonLink href="/promo" size="md" variant="glass" className="flex-1 sm:flex-none justify-center">
               {t.hero.promoBtn} 🔥
             </ButtonLink>
           </motion.div>
@@ -106,8 +100,7 @@ export function Hero() {
                   href={`/aplikasi/${app.slug}`}
                   className="group flex items-center gap-2 sm:gap-3 rounded-md border-1.5 sm:border-2 border-border bg-surface p-2 sm:p-3 sm:pr-5 shadow-[2px_2px_0px_var(--shadow-color)] sm:shadow-[3px_3px_0px_var(--shadow-color)] transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_var(--shadow-color)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
                 >
-                  <AppIcon icon={app.icon} size="sm" className="sm:hidden shrink-0" />
-                  <AppIcon icon={app.icon} size="md" className="hidden sm:block shrink-0" />
+                  <AppIcon icon={app.icon} size="sm" className="shrink-0" />
                   <div className="text-left min-w-0 flex-1">
                     <p className="text-[11.5px] sm:text-[14px] leading-tight font-black text-fg truncate group-hover:text-accent-blue dark:group-hover:text-accent">
                       {localized.name}

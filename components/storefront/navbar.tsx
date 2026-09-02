@@ -100,17 +100,15 @@ export function Navbar() {
             </div>
 
             {/* Kontrol kanan */}
-            <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               {/* Search button */}
               <button
                 onClick={() => setSearchOpen(true)}
-                className="flex h-9 items-center gap-2 rounded-sm border-2 border-border bg-surface-2 px-3 text-[13px] font-bold text-fg-muted shadow-[2px_2px_0px_var(--shadow-color)] transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-surface hover:text-fg hover:shadow-[3px_3px_0px_var(--shadow-color)] sm:w-40 sm:justify-between lg:w-44"
+                className="flex h-8 sm:h-9 items-center gap-1.5 sm:gap-2 rounded-xs sm:rounded-sm border-1.5 sm:border-2 border-border bg-surface-2 px-2 sm:px-3 text-xs font-bold text-fg-muted shadow-[1.5px_1.5px_0px_var(--shadow-color)] sm:shadow-[2px_2px_0px_var(--shadow-color)] transition-all duration-100 hover:bg-surface hover:text-fg sm:w-40 sm:justify-between lg:w-44"
                 aria-label={t.navbar.search}
               >
-                <span className="flex items-center gap-2">
-                  <Search size={15} strokeWidth={2.5} className="text-fg" />
-                  <span className="hidden sm:inline">{t.navbar.search}</span>
-                </span>
+                <Search size={14} strokeWidth={2.5} className="text-fg" />
+                <span className="hidden sm:inline text-xs">{t.navbar.search}</span>
                 <kbd className="hidden rounded-xs border border-border bg-surface px-1 py-0.2 text-[10px] font-mono text-fg font-black sm:inline">
                   /
                 </kbd>
@@ -121,9 +119,9 @@ export function Navbar() {
                 onClick={openLanguageSelector}
                 aria-label={t.navbar.selectLanguage}
                 title={t.navbar.selectLanguage}
-                className="flex h-9 items-center gap-1.5 rounded-sm border-2 border-border bg-surface px-2.5 text-xs font-black text-fg shadow-[2px_2px_0px_var(--shadow-color)] transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-surface-2 hover:shadow-[3px_3px_0px_var(--shadow-color)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                className="flex h-8 sm:h-9 items-center gap-1 rounded-xs sm:rounded-sm border-1.5 sm:border-2 border-border bg-surface px-2 sm:px-2.5 text-[11px] sm:text-xs font-black text-fg shadow-[1.5px_1.5px_0px_var(--shadow-color)] sm:shadow-[2px_2px_0px_var(--shadow-color)] transition-all duration-100 hover:bg-surface-2 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
               >
-                <Globe size={14} strokeWidth={2.5} />
+                <Globe size={13} strokeWidth={2.5} />
                 <span>{langFlags[lang] || "🌐"}</span>
               </button>
 
@@ -131,16 +129,16 @@ export function Navbar() {
               <button
                 onClick={toggle}
                 aria-label={theme === "dark" ? t.navbar.lightMode : t.navbar.darkMode}
-                className="flex h-9 w-9 items-center justify-center rounded-sm border-2 border-border bg-surface text-fg shadow-[2px_2px_0px_var(--shadow-color)] transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-surface-2 hover:shadow-[3px_3px_0px_var(--shadow-color)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xs sm:rounded-sm border-1.5 sm:border-2 border-border bg-surface text-fg shadow-[1.5px_1.5px_0px_var(--shadow-color)] sm:shadow-[2px_2px_0px_var(--shadow-color)] transition-all duration-100 hover:bg-surface-2 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
               >
-                {theme === "dark" ? <Sun size={17} strokeWidth={2.5} /> : <Moon size={17} strokeWidth={2.5} />}
+                {theme === "dark" ? <Sun size={15} strokeWidth={2.5} /> : <Moon size={15} strokeWidth={2.5} />}
               </button>
 
               {/* Wishlist */}
               <Link
                 href="/akun/keinginan"
                 aria-label={t.navbar.wishlist}
-                className="relative flex h-9 w-9 items-center justify-center rounded-sm border-2 border-border bg-surface text-fg shadow-[2px_2px_0px_var(--shadow-color)] transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-surface-2 hover:shadow-[3px_3px_0px_var(--shadow-color)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                className="hidden sm:flex relative h-9 w-9 items-center justify-center rounded-sm border-2 border-border bg-surface text-fg shadow-[2px_2px_0px_var(--shadow-color)] transition-all duration-100 hover:bg-surface-2 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
               >
                 <Heart size={17} strokeWidth={2.5} />
                 <AnimatePresence>
@@ -162,7 +160,7 @@ export function Navbar() {
               <Link
                 href="/keranjang"
                 aria-label={t.navbar.cart}
-                className="relative flex h-9 w-9 items-center justify-center rounded-sm border-2 border-border bg-accent text-accent-fg shadow-[2px_2px_0px_var(--shadow-color)] transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-accent-hover hover:shadow-[3px_3px_0px_var(--shadow-color)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                className="hidden sm:flex relative h-9 w-9 items-center justify-center rounded-sm border-2 border-border bg-accent text-accent-fg shadow-[2px_2px_0px_var(--shadow-color)] transition-all duration-100 hover:bg-accent-hover active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
               >
                 <ShoppingBag size={17} strokeWidth={2.5} />
                 <AnimatePresence>

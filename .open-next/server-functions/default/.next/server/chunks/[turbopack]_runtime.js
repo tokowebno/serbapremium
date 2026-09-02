@@ -816,8 +816,8 @@ module.exports = (sourcePath)=>({
     switch(chunkPath) {
       case "server/chunks/ssr/[root-of-the-server]__0hjj019._.js": return require("/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/chunks/ssr/[root-of-the-server]__0hjj019._.js");
       case "server/chunks/ssr/[root-of-the-server]__0kq5gw5._.js": return require("/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/chunks/ssr/[root-of-the-server]__0kq5gw5._.js");
-      case "server/chunks/ssr/[root-of-the-server]__0ywwvel._.js": return require("/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/chunks/ssr/[root-of-the-server]__0ywwvel._.js");
       case "server/chunks/ssr/[root-of-the-server]__112mz-6._.js": return require("/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/chunks/ssr/[root-of-the-server]__112mz-6._.js");
+      case "server/chunks/ssr/[root-of-the-server]__1rf83va._.js": return require("/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/chunks/ssr/[root-of-the-server]__1rf83va._.js");
       case "server/chunks/ssr/[turbopack]_runtime.js": return require("/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/chunks/ssr/[turbopack]_runtime.js");
       case "server/chunks/ssr/_0-5so7e._.js": return require("/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/chunks/ssr/_0-5so7e._.js");
       case "server/chunks/ssr/_02hc66u._.js": return require("/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/chunks/ssr/_02hc66u._.js");

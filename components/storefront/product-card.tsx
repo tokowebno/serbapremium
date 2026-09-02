@@ -36,8 +36,7 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
         {/* Header card: Icon + Wishlist button */}
         <div className="flex items-start justify-between gap-2">
           <Link href={`/aplikasi/${app.slug}`} className="block transition-transform duration-100 group-hover:scale-105">
-            <AppIcon icon={app.icon} size="md" className="sm:hidden" />
-            <AppIcon icon={app.icon} size="lg" className="hidden sm:block" />
+            <AppIcon icon={app.icon} size="md" />
           </Link>
           <button
             type="button"
@@ -74,8 +73,7 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
 
           {/* Rating & Stock */}
           <div className="mt-2 sm:mt-3 flex flex-wrap items-center gap-1 sm:gap-2">
-            <Rating value={app.rating} showValue={true} size={11} className="sm:hidden" />
-            <Rating value={app.rating} showValue={true} size={13} className="hidden sm:flex" />
+            <Rating value={app.rating} showValue={true} size={11} />
             <span
               className={`rounded-xs border border-border px-1 py-0.2 text-[9px] sm:text-[10px] font-black uppercase shadow-[1px_1px_0px_var(--shadow-color)] ${
                 app.stock > 0

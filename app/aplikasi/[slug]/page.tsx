@@ -70,8 +70,7 @@ export default async function AppDetailPage({ params }: Props) {
           <header className="rounded-md sm:rounded-lg border-2 border-border bg-surface p-4 sm:p-8 shadow-[3px_3px_0px_var(--shadow-color)] sm:shadow-[5px_5px_0px_var(--shadow-color)]">
             <div className="flex flex-row items-center gap-4 sm:gap-5">
               <div className="w-fit shrink-0">
-                <AppIcon icon={app.icon} size="xl" className="sm:hidden" />
-                <AppIcon icon={app.icon} size="2xl" className="hidden sm:block" />
+                <AppIcon icon={app.icon} size="xl" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="mb-1 flex flex-wrap items-center gap-1.5 sm:gap-2">
