@@ -1,9 +1,9 @@
-globalThis.openNextDebug = false;globalThis.openNextVersion = "4.1.0";globalThis.nextVersion = "16.3.0";
+globalThis.openNextDebug = false;globalThis.openNextVersion = "4.1.0";globalThis.nextVersion = "15.1.7";
 
 // node_modules/@opennextjs/cloudflare/dist/api/durable-objects/bucket-cache-purge.js
 import { DurableObject } from "cloudflare:workers";
 
-// node_modules/@opennextjs/aws/dist/utils/error.js
+// node_modules/@opennextjs/cloudflare/node_modules/@opennextjs/aws/dist/utils/error.js
 function isOpenNextError(e) {
   try {
     return "__openNextInternal" in e;
@@ -12,7 +12,7 @@ function isOpenNextError(e) {
   }
 }
 
-// node_modules/@opennextjs/aws/dist/adapters/logger.js
+// node_modules/@opennextjs/cloudflare/node_modules/@opennextjs/aws/dist/adapters/logger.js
 function debug(...args) {
   if (globalThis.openNextDebug) {
     console.log(...args);
