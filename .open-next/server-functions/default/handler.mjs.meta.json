@@ -3895,7 +3895,7 @@
       "format": "cjs"
     },
     ".open-next/server-functions/default/node_modules/next/dist/server/load-manifest.external.js": {
-      "bytes": 344252,
+      "bytes": 345603,
       "imports": [
         {
           "path": "path",
@@ -9796,7 +9796,7 @@
       "format": "esm"
     },
     ".open-next/server-functions/default/index.mjs": {
-      "bytes": 91517,
+      "bytes": 92680,
       "imports": [
         {
           "path": "node:module",
@@ -11227,7 +11227,7 @@
           "bytesInOutput": 474
         },
         ".open-next/server-functions/default/node_modules/next/dist/server/load-manifest.external.js": {
-          "bytesInOutput": 300947
+          "bytesInOutput": 302042
         },
         ".open-next/cloudflare-templates/shims/throw.js": {
           "bytesInOutput": 215
@@ -12109,10 +12109,10 @@
           "bytesInOutput": 5074
         },
         ".open-next/server-functions/default/index.mjs": {
-          "bytesInOutput": 64417
+          "bytesInOutput": 65512
         }
       },
-      "bytes": 5258227
+      "bytes": 5260417
     }
   }
 }
