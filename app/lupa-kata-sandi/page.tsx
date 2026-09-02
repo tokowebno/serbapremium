@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Zap } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { GlassCard } from "@/components/ui/glass-card";
 import { Field, Input } from "@/components/ui/form";
 import { useToast } from "@/components/ui/toast";
 
@@ -28,18 +27,20 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="flex min-h-[100dvh] items-center justify-center px-5 pt-32 pb-20">
-      <GlassCard className="w-full max-w-sm p-8">
+      <div className="w-full max-w-sm rounded-lg border-2 border-border bg-surface p-8 shadow-[6px_6px_0px_var(--shadow-color)]">
         <div className="flex flex-col items-center text-center">
-          <span className="flex h-10 w-10 items-center justify-center rounded-[11px] bg-fg">
-            <span className="block h-5 w-5 rounded-[5px] border-2 border-bg" />
+          <span className="flex h-11 w-11 items-center justify-center rounded-sm border-2 border-border bg-accent text-black shadow-[2px_2px_0px_var(--shadow-color)]">
+            <Zap size={22} strokeWidth={2.8} className="fill-current" />
           </span>
-          <p className="mt-3 text-lg font-semibold tracking-tight">Tokono</p>
-          <h1 className="mt-4 text-xl font-semibold tracking-tight">Lupa Kata Sandi</h1>
-          <p className="mt-1 text-sm text-fg-muted">Masukkan email Anda, kami akan kirim tautan pemulihan.</p>
+          <p className="mt-3 text-lg font-black tracking-tighter uppercase text-fg">
+            SERBA<span className="text-accent-blue dark:text-accent">PREMIUM</span>
+          </p>
+          <h1 className="mt-2 text-xl font-black tracking-tight text-fg">Lupa Kata Sandi</h1>
+          <p className="mt-1 text-xs font-medium text-fg-muted">Masukkan email Anda untuk menerima tautan pemulihan.</p>
         </div>
 
         <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4" noValidate>
-          <Field label="Email" htmlFor="email">
+          <Field label="Alamat Email Akun" htmlFor="email">
             <Input
               id="email"
               type="email"
@@ -48,21 +49,21 @@ export default function ForgotPasswordPage() {
               placeholder="nama@email.com"
               autoComplete="email"
             />
-            {error && <p className="text-xs text-discount">{error}</p>}
+            {error && <p className="text-xs font-bold text-discount">{error}</p>}
           </Field>
 
           <Button type="submit" className="mt-1 w-full">
-            Kirim Tautan
+            Kirim Tautan Pemulihan
           </Button>
 
           <Link
             href="/masuk"
-            className="flex items-center justify-center gap-1.5 text-[13px] font-medium text-accent hover:text-accent-hover"
+            className="flex items-center justify-center gap-1.5 text-xs font-bold text-accent-blue dark:text-accent hover:underline"
           >
-            <ArrowLeft size={14} /> Kembali ke halaman masuk
+            <ArrowLeft size={14} strokeWidth={2.5} /> Kembali ke halaman masuk
           </Link>
         </form>
-      </GlassCard>
+      </div>
     </div>
   );
 }

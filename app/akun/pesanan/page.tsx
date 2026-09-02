@@ -28,13 +28,13 @@ export default function PesananPage() {
         const app = api.apps.getBySlug(entry.appId);
         if (!app) return null;
         return (
-          <article key={entry.appId} className="rounded-xl border border-border bg-surface p-5 shadow-sm">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
+          <article key={entry.appId} className="rounded-lg border-2 border-border bg-surface p-5 shadow-[4px_4px_0px_var(--shadow-color)]">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-border pb-3">
               <div>
-                <p className="font-mono text-sm font-medium tracking-tight">
-                  {`TK-${entry.appId.slice(0, 6).toUpperCase()}`}
+                <p className="font-mono text-sm font-black tracking-tight text-fg">
+                  {`SP-${entry.appId.slice(0, 6).toUpperCase()}`}
                 </p>
-                <p className="text-[13px] text-fg-muted">{formatDate(entry.purchasedAt)}</p>
+                <p className="text-xs font-bold text-fg-muted">{formatDate(entry.purchasedAt)}</p>
               </div>
               <div className="flex items-center gap-2">
                 <StatusBadge status="dibayar" />
@@ -42,22 +42,22 @@ export default function PesananPage() {
               </div>
             </div>
 
-            <ul className="divide-y divide-border">
-              <li className="flex items-center gap-3.5 py-3">
+            <ul className="divide-y-2 divide-border">
+              <li className="flex items-center gap-3.5 py-3.5">
                 <AppIcon icon={app.icon} size="sm" />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{app.name}</p>
-                  <p className="text-[13px] text-fg-muted">
-                    Lisensi Web · satu perangkat
+                  <p className="truncate text-sm font-black text-fg">{app.name}</p>
+                  <p className="text-xs font-semibold text-fg-muted">
+                    Lisensi Resmi · Garansi Aktif
                   </p>
                 </div>
-                <span className="text-sm font-medium tabular-nums">{formatRupiah(app.price)}</span>
+                <span className="text-sm font-black tabular-nums text-fg">{formatRupiah(app.price)}</span>
               </li>
             </ul>
 
-            <div className="flex items-center justify-between border-t border-border pt-3 text-sm">
-              <span className="text-fg-muted">Total</span>
-              <span className="font-semibold tabular-nums">{formatRupiah(app.price)}</span>
+            <div className="flex items-center justify-between border-t-2 border-border pt-3 text-sm">
+              <span className="font-bold text-fg-muted">Total Bayar</span>
+              <span className="font-black tabular-nums text-fg">{formatRupiah(app.price)}</span>
             </div>
           </article>
         );

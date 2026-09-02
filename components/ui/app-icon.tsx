@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { AppIconConfig } from "@/types";
 import { iconRegistry, iconFallback } from "./icon-registry";
 import { cn } from "@/lib/utils";
@@ -11,7 +14,7 @@ const sizes = {
   "2xl": 96,
 };
 
-const logoPadding = 0.16;
+const logoPadding = 0.14;
 
 export function AppIcon({
   icon,
@@ -24,14 +27,15 @@ export function AppIcon({
   rounded?: boolean;
   className?: string;
 }) {
-  const px = sizes[size];
+  const [imgFailed, setImgFailed] = useState(false);
+  const px = sizes[size] || 44;
 
-  if (icon.logo) {
+  if (icon.logo && !imgFailed) {
     return (
       <span
         className={cn(
-          "relative inline-flex shrink-0 items-center justify-center overflow-hidden bg-surface shadow-[var(--elev-1)] ring-1 ring-border/50",
-          rounded && "rounded-[22%]",
+          "relative inline-flex shrink-0 items-center justify-center overflow-hidden border-2 border-border bg-surface shadow-[2px_2px_0px_var(--shadow-color)]",
+          rounded && "rounded-md",
           className,
         )}
         style={{ width: px, height: px }}
@@ -43,28 +47,31 @@ export function AppIcon({
           width={px}
           height={px}
           loading="lazy"
+          onError={() => setImgFailed(true)}
           className="object-contain"
-          style={{ width: "100%", height: "100%", padding: px * logoPadding }}
+          style={{ width: "100%", height: "100%", padding: Math.round(px * logoPadding) }}
         />
       </span>
     );
   }
 
   const Icon = iconRegistry[icon.glyph] ?? iconFallback;
-  const iconSize = Math.round(px * 0.44);
+  const iconSize = Math.round(px * 0.48);
   return (
     <span
-      className={cn("relative inline-flex shrink-0 items-center justify-center shadow-[var(--elev-1)] ring-1 ring-black/5", rounded && "rounded-[22%]", className)}
+      className={cn(
+        "relative inline-flex shrink-0 items-center justify-center border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)]",
+        rounded && "rounded-md",
+        className,
+      )}
       style={{
         width: px,
         height: px,
-        background: `linear-gradient(135deg, ${icon.from} 0%, ${icon.to} 100%)`,
+        backgroundColor: icon.from || "#0a0a0a",
       }}
       aria-hidden="true"
     >
-      {/* highlight atas — kesan kaca pada ikon */}
-      <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-[inherit] bg-gradient-to-b from-white/25 to-transparent" />
-      <Icon size={iconSize} className="text-white/90" strokeWidth={1.75} />
+      <Icon size={iconSize} className="text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]" strokeWidth={2.5} />
     </span>
   );
 }

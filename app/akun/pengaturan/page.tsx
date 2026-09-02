@@ -16,20 +16,20 @@ export default function PengaturanPage() {
 
   const handleLogout = () => {
     logout();
-    toast.push({ title: "Berhasil keluar", description: "Sampai jumpa lagi." });
+    toast.push({ title: "Berhasil keluar", description: "Sampai jumpa lagi di SerbaPremium." });
     router.push("/");
   };
 
   return (
     <div className="max-w-xl space-y-6">
       <form
-        className="space-y-4 rounded-xl border border-border bg-surface p-6 shadow-sm"
+        className="space-y-4 rounded-lg border-2 border-border bg-surface p-6 shadow-[4px_4px_0px_var(--shadow-color)]"
         onSubmit={(e) => {
           e.preventDefault();
           toast.push({ title: "Profil diperbarui" });
         }}
       >
-        <h2 className="text-[15px] font-semibold tracking-tight">Informasi Pribadi</h2>
+        <h2 className="text-sm font-black uppercase text-fg">Informasi Pribadi</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Nama Lengkap" htmlFor="nama">
             <Input id="nama" defaultValue={user?.name ?? ""} />
@@ -44,26 +44,26 @@ export default function PengaturanPage() {
         <Button type="submit">Simpan Perubahan</Button>
       </form>
 
-      <div className="space-y-4 rounded-xl border border-border bg-surface p-6 shadow-sm">
-        <h2 className="text-[15px] font-semibold tracking-tight">Notifikasi</h2>
-        <div className="flex items-center justify-between gap-4">
+      <div className="space-y-4 rounded-lg border-2 border-border bg-surface p-6 shadow-[4px_4px_0px_var(--shadow-color)]">
+        <h2 className="text-sm font-black uppercase text-fg">Notifikasi Akun</h2>
+        <div className="flex items-center justify-between gap-4 border-b-2 border-border pb-3">
           <div>
-            <p className="text-sm font-medium">Promo dan penawaran</p>
-            <p className="text-[13px] text-fg-muted">Kabar promo aplikasi yang Anda keinginkan.</p>
+            <p className="text-sm font-bold text-fg">Promo dan penawaran</p>
+            <p className="text-xs font-medium text-fg-muted">Kabar diskon dan voucher aplikasi.</p>
           </div>
           <Switch checked={notif.promo} onChange={(v) => setNotif((s) => ({ ...s, promo: v }))} label="Promo dan penawaran" />
         </div>
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 border-b-2 border-border pb-3">
           <div>
-            <p className="text-sm font-medium">Pembaruan aplikasi</p>
-            <p className="text-[13px] text-fg-muted">Info versi baru untuk aplikasi di koleksi Anda.</p>
+            <p className="text-sm font-bold text-fg">Pembaruan lisensi</p>
+            <p className="text-xs font-medium text-fg-muted">Info update versi untuk aplikasi di koleksi Anda.</p>
           </div>
           <Switch checked={notif.update} onChange={(v) => setNotif((s) => ({ ...s, update: v }))} label="Pembaruan aplikasi" />
         </div>
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-medium">Status pesanan</p>
-            <p className="text-[13px] text-fg-muted">Notifikasi saat pesanan diproses dan selesai.</p>
+            <p className="text-sm font-bold text-fg">Status pesanan</p>
+            <p className="text-xs font-medium text-fg-muted">Notifikasi saat pesanan diproses dan selesai.</p>
           </div>
           <Switch checked={notif.pesanan} onChange={(v) => setNotif((s) => ({ ...s, pesanan: v }))} label="Status pesanan" />
         </div>
@@ -71,8 +71,8 @@ export default function PengaturanPage() {
 
       <div className="flex justify-end">
         <Button variant="danger" onClick={handleLogout}>
-          <LogOut size={15} />
-          Keluar
+          <LogOut size={15} strokeWidth={2.5} />
+          Keluar dari Akun
         </Button>
       </div>
     </div>

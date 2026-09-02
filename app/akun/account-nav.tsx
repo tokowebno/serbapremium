@@ -20,7 +20,7 @@ export function AccountNav() {
   return (
     <nav
       aria-label="Menu akun"
-      className="no-scrollbar -mx-5 flex gap-1 overflow-x-auto px-5 lg:mx-0 lg:flex-col lg:px-0"
+      className="no-scrollbar -mx-5 flex gap-1.5 overflow-x-auto px-5 lg:mx-0 lg:flex-col lg:px-0"
     >
       {menu.map((item) => {
         const active = item.href === "/akun" ? pathname === "/akun" : pathname.startsWith(item.href);
@@ -29,14 +29,14 @@ export function AccountNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex shrink-0 items-center gap-2.5 rounded-lg px-3.5 py-2.5 text-sm transition-colors lg:w-full",
+              "flex shrink-0 items-center gap-2.5 rounded-md border-2 px-3.5 py-2.5 text-sm font-bold transition-all duration-100 lg:w-full",
               active
-                ? "bg-surface font-medium text-fg shadow-sm ring-1 ring-border"
-                : "text-fg-muted hover:bg-surface hover:text-fg",
+                ? "border-border bg-accent text-black shadow-[3px_3px_0px_var(--shadow-color)]"
+                : "border-transparent text-fg-muted hover:border-border hover:bg-surface hover:text-fg hover:shadow-[2px_2px_0px_var(--shadow-color)]",
             )}
             aria-current={active ? "page" : undefined}
           >
-            <item.icon size={16} strokeWidth={1.75} />
+            <item.icon size={16} strokeWidth={2.5} />
             {item.label}
           </Link>
         );

@@ -65,7 +65,7 @@ function MasukForm() {
             </span>
             <p className="mt-3 text-[15px] font-semibold tracking-tight">Area Admin</p>
             <h1 className="mt-2 text-xl font-semibold tracking-tight">Masuk</h1>
-            <p className="mt-1 text-sm text-fg-muted">Akses terbatas untuk pengelola Tokono.</p>
+            <p className="mt-1 text-sm text-fg-muted">Akses terbatas untuk pengelola SerbaPremium.</p>
           </div>
 
           <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4" noValidate>
@@ -75,7 +75,7 @@ function MasukForm() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@tokono.example"
+                placeholder="admin@serbapremium.id"
                 autoComplete="username"
                 autoFocus
               />
@@ -112,7 +112,7 @@ function MasukForm() {
         </div>
 
         <p className="mt-4 text-center text-xs text-fg-faint">
-          Area ini hanya untuk pengelola Tokono.
+          Area ini hanya untuk pengelola SerbaPremium.
         </p>
       </div>
     </div>

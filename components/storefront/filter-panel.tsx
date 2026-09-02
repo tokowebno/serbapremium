@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
-import { Check, X } from "lucide-react";
+import { Check, X, Filter } from "lucide-react";
 import { api, type SortKey } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -40,8 +40,8 @@ export function useFilterState() {
 
 function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="border-b border-border py-5 first:pt-0 last:border-0">
-      <p className="mb-3 text-[13px] font-semibold tracking-wide">{title}</p>
+    <div className="border-b-2 border-border py-4 first:pt-0 last:border-0">
+      <p className="mb-2.5 text-xs font-black tracking-wider text-fg uppercase">{title}</p>
       {children}
     </div>
   );
@@ -62,20 +62,24 @@ function OptionRow({
     <button
       onClick={onClick}
       className={cn(
-        "flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-surface-2",
-        checked ? "text-fg font-medium" : "text-fg-muted",
+        "flex w-full items-center gap-2.5 rounded-sm px-2 py-1.5 text-left text-[13.5px] transition-all hover:bg-surface-2",
+        checked ? "font-black text-fg" : "font-medium text-fg-muted",
       )}
     >
       <span
         className={cn(
-          "flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border transition-colors",
-          checked ? "border-accent bg-accent text-accent-fg" : "border-border-strong bg-surface",
+          "flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-xs border-2 border-border transition-colors shadow-[1px_1px_0px_var(--shadow-color)]",
+          checked ? "bg-accent text-black" : "bg-surface",
         )}
       >
-        {checked && <Check size={11} strokeWidth={3} />}
+        {checked && <Check size={12} strokeWidth={3.5} />}
       </span>
-      {label}
-      {count != null && <span className="ml-auto text-xs text-fg-faint tabular-nums">{count}</span>}
+      <span className="truncate">{label}</span>
+      {count != null && (
+        <span className="ml-auto rounded-xs border border-border bg-surface-2 px-1.5 py-0.2 text-[10px] font-bold tabular-nums text-fg">
+          {count}
+        </span>
+      )}
     </button>
   );
 }
@@ -111,13 +115,21 @@ export function FilterPanel({ onApplied }: { onApplied?: () => void }) {
   };
 
   return (
-    <div className="flex flex-col">
-      <div className="flex items-center justify-between py-2">
-        <p className="text-sm font-semibold tracking-tight">Filter</p>
+    <div className="rounded-lg border-2 border-border bg-surface p-5 shadow-[4px_4px_0px_var(--shadow-color)]">
+      <div className="flex items-center justify-between border-b-2 border-border pb-3">
+        <div className="flex items-center gap-2">
+          <span className="flex h-6 w-6 items-center justify-center rounded-xs border-2 border-border bg-accent-yellow shadow-[1px_1px_0px_var(--shadow-color)]">
+            <Filter size={13} strokeWidth={2.5} className="text-black" />
+          </span>
+          <p className="text-sm font-black tracking-tight uppercase text-fg">Filter</p>
+        </div>
         {activeCount > 0 && (
-          <button onClick={clearAll} className="flex items-center gap-1 text-[13px] text-fg-muted hover:text-fg">
-            <X size={13} />
-            Hapus semua
+          <button
+            onClick={clearAll}
+            className="flex items-center gap-1 rounded-xs border border-border bg-surface-2 px-1.5 py-0.5 text-xs font-bold text-fg transition-colors hover:bg-discount hover:text-white"
+          >
+            <X size={11} strokeWidth={3} />
+            Reset
           </button>
         )}
       </div>
@@ -157,17 +169,19 @@ export function FilterPanel({ onApplied }: { onApplied?: () => void }) {
         </div>
       </FilterGroup>
 
-      <FilterGroup title="Lainnya">
+      <FilterGroup title="Promo">
         <OptionRow
           checked={f.promoOnly}
-          label="Sedang promo"
+          label="Sedang Diskon / Promo"
           onClick={() => setParam("promo", f.promoOnly ? "" : "1")}
         />
       </FilterGroup>
 
-      <Button className="mt-4" onClick={onApplied}>
-        Terapkan
-      </Button>
+      {onApplied && (
+        <Button className="mt-4 w-full" onClick={onApplied}>
+          Terapkan Filter
+        </Button>
+      )}
     </div>
   );
 }
@@ -177,7 +191,7 @@ export function SortSelect() {
   const f = useFilterState();
   return (
     <label className="flex items-center gap-2">
-      <span className="hidden text-[13px] text-fg-muted sm:inline">Urutkan</span>
+      <span className="hidden text-xs font-black uppercase text-fg sm:inline">Urutkan</span>
       <select
         value={f.sort}
         onChange={(e) => {
@@ -185,7 +199,7 @@ export function SortSelect() {
           params.set("urutkan", e.target.value);
           router.replace(`/aplikasi?${params.toString()}`, { scroll: false });
         }}
-        className="h-9 rounded-lg border border-border bg-surface px-3 text-[13px] font-medium shadow-sm outline-none focus:border-accent/50"
+        className="h-9 cursor-pointer rounded-md border-2 border-border bg-surface px-3 text-[13px] font-bold text-fg shadow-[2px_2px_0px_var(--shadow-color)] outline-none focus:shadow-[4px_4px_0px_var(--shadow-color)]"
         aria-label="Urutkan aplikasi"
       >
         {sortOptions.map((o) => (

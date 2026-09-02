@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <linearGradient id="heyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#48238A"/>
+    </linearGradient>
+  </defs>
+  <rect width="100" height="100" rx="20" fill="url(#heyGrad)"/>
+  <!-- HeyGen: simplified video avatar icon - circle head + body -->
+  <circle cx="50" cy="34" r="14" fill="white" opacity="0.95"/>
+  <ellipse cx="50" cy="72" rx="22" ry="16" fill="white" opacity="0.95"/>
+</svg>

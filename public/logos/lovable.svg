@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <linearGradient id="lovGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6d28d9"/>
+      <stop offset="100%" stop-color="#3b1474"/>
+    </linearGradient>
+  </defs>
+  <rect width="100" height="100" rx="20" fill="url(#lovGrad)"/>
+  <!-- Lovable: heart shape -->
+  <path d="M50 72 C50 72 22 54 22 37 C22 27 30 20 40 20 C45 20 50 24 50 24 C50 24 55 20 60 20 C70 20 78 27 78 37 C78 54 50 72 50 72Z" fill="white" opacity="0.95"/>
+</svg>

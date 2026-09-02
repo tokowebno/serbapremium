@@ -50,9 +50,9 @@ function changelogFor(app: App): string[] {
 
 function Info({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div>
-      <dt className="text-xs font-semibold tracking-wide text-fg-faint uppercase">{label}</dt>
-      <dd className="mt-1 text-sm">{children}</dd>
+    <div className="rounded-md border-2 border-border bg-surface p-3.5 shadow-[2px_2px_0px_var(--shadow-color)]">
+      <dt className="text-xs font-black tracking-wider text-fg-muted uppercase">{label}</dt>
+      <dd className="mt-1 text-sm font-bold text-fg">{children}</dd>
     </div>
   );
 }
@@ -73,11 +73,13 @@ export function ProductTabs({ slug, reviews }: { slug: string; reviews: Review[]
       <div className="mt-8">
         {active === "ringkasan" && (
           <div className="max-w-2xl">
-            <p className="text-[15px] leading-7 text-fg-muted">{app.description}</p>
-            <dl className="mt-8 grid gap-x-8 gap-y-5 sm:grid-cols-2">
+            <div className="rounded-lg border-2 border-border bg-surface p-6 shadow-[4px_4px_0px_var(--shadow-color)]">
+              <p className="text-[15px] font-medium leading-relaxed text-fg">{app.description}</p>
+            </div>
+            <dl className="mt-6 grid gap-3 sm:grid-cols-2">
               <Info label="Pengembang">
                 {developer ? (
-                  <Link href={`/pengembang/${developer.slug}`} className="text-accent hover:underline">
+                  <Link href={`/pengembang/${developer.slug}`} className="text-accent-blue dark:text-accent hover:underline">
                     {developer.name}
                   </Link>
                 ) : (
@@ -86,7 +88,7 @@ export function ProductTabs({ slug, reviews }: { slug: string; reviews: Review[]
               </Info>
               <Info label="Kategori">
                 {category ? (
-                  <Link href={`/kategori/${category.slug}`} className="text-accent hover:underline">
+                  <Link href={`/kategori/${category.slug}`} className="text-accent-blue dark:text-accent hover:underline">
                     {category.name}
                   </Link>
                 ) : (
@@ -95,7 +97,7 @@ export function ProductTabs({ slug, reviews }: { slug: string; reviews: Review[]
               </Info>
               <Info label="Dirilis">{formatDate(app.releasedAt)}</Info>
               <Info label="Diperbarui">{formatDate(app.updatedAt)}</Info>
-              <Info label="Unduhan">{formatCompact(app.downloads)}</Info>
+              <Info label="Total Unduhan">{formatCompact(app.downloads)}</Info>
             </dl>
           </div>
         )}
@@ -103,9 +105,12 @@ export function ProductTabs({ slug, reviews }: { slug: string; reviews: Review[]
         {active === "fitur" && (
           <ul className="grid max-w-2xl gap-3 sm:grid-cols-2">
             {app.features.map((f) => (
-              <li key={f} className="flex items-start gap-2.5 text-sm leading-6 text-fg">
-                <Check size={16} className="mt-1 shrink-0 text-accent" strokeWidth={2.5} />
-                {f}
+              <li
+                key={f}
+                className="flex items-start gap-2.5 rounded-md border-2 border-border bg-surface p-3 text-sm font-bold text-fg shadow-[2px_2px_0px_var(--shadow-color)]"
+              >
+                <Check size={18} className="mt-0.5 shrink-0 text-accent-blue dark:text-accent" strokeWidth={3} />
+                <span>{f}</span>
               </li>
             ))}
           </ul>
@@ -117,9 +122,12 @@ export function ProductTabs({ slug, reviews }: { slug: string; reviews: Review[]
               const requirement = app.requirements[p];
               if (!requirement) return null;
               return (
-                <div key={p} className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-surface px-4 py-3">
+                <div
+                  key={p}
+                  className="flex flex-wrap items-center gap-3 rounded-md border-2 border-border bg-surface px-4 py-3.5 shadow-[2px_2px_0px_var(--shadow-color)]"
+                >
                   <PlatformBadge platform={p} />
-                  <p className="text-sm text-fg-muted">{requirement}</p>
+                  <p className="text-sm font-bold text-fg">{requirement}</p>
                 </div>
               );
             })}
@@ -128,16 +136,19 @@ export function ProductTabs({ slug, reviews }: { slug: string; reviews: Review[]
 
         {active === "versi" && (
           <div className="max-w-2xl">
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3 rounded-lg border-2 border-border bg-surface p-4 shadow-[3px_3px_0px_var(--shadow-color)]">
               <Badge tone="accent">Versi {app.version}</Badge>
-              <span className="text-sm text-fg-muted">Diperbarui {formatDate(app.updatedAt)}</span>
+              <span className="text-sm font-bold text-fg-muted">Diperbarui {formatDate(app.updatedAt)}</span>
             </div>
-            <p className="mt-7 text-xs font-semibold tracking-wide text-fg-faint uppercase">Perubahan terbaru</p>
-            <ul className="mt-3 space-y-3">
+            <p className="mt-6 text-xs font-black tracking-wider text-fg-muted uppercase">Perubahan terbaru</p>
+            <ul className="mt-3 space-y-2.5">
               {changes.map((c) => (
-                <li key={c} className="flex items-start gap-2.5 text-sm leading-6 text-fg-muted">
-                  <Check size={15} className="mt-1 shrink-0 text-accent" strokeWidth={2.5} />
-                  {c}
+                <li
+                  key={c}
+                  className="flex items-start gap-2.5 rounded-md border-2 border-border bg-surface p-3 text-sm font-semibold text-fg shadow-[2px_2px_0px_var(--shadow-color)]"
+                >
+                  <Check size={16} className="mt-0.5 shrink-0 text-success" strokeWidth={3} />
+                  <span>{c}</span>
                 </li>
               ))}
             </ul>
@@ -146,31 +157,31 @@ export function ProductTabs({ slug, reviews }: { slug: string; reviews: Review[]
 
         {active === "ulasan" && (
           <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
-            <div className="h-fit rounded-xl border border-border bg-surface p-6">
-              <p className="text-4xl font-semibold tracking-tight tabular-nums">
+            <div className="h-fit rounded-lg border-2 border-border bg-surface p-6 shadow-[4px_4px_0px_var(--shadow-color)]">
+              <p className="text-4xl font-black tracking-tight tabular-nums text-fg">
                 {app.rating.toLocaleString("id-ID", { minimumFractionDigits: 1 })}
               </p>
-              <Rating value={app.rating} showValue={false} size={16} className="mt-2" />
-              <p className="mt-1 text-sm text-fg-muted">{app.ratingCount.toLocaleString("id-ID")} ulasan</p>
+              <Rating value={app.rating} showValue={false} size={18} className="mt-2" />
+              <p className="mt-1 text-xs font-bold text-fg-muted">{app.ratingCount.toLocaleString("id-ID")} ulasan pembeli</p>
               <div className="mt-6 space-y-2.5">
                 {[5, 4, 3, 2, 1].map((star, i) => (
                   <div key={star} className="flex items-center gap-3">
-                    <span className="w-5 text-[13px] text-fg-muted tabular-nums">{star}</span>
+                    <span className="w-5 text-xs font-black tabular-nums text-fg">{star}★</span>
                     <div
-                      className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-2"
+                      className="h-2.5 flex-1 overflow-hidden rounded-xs border border-border bg-surface-2"
                       role="img"
                       aria-label={`${star} bintang: ${distribution[i]} persen`}
                     >
-                      <div className="h-full rounded-full bg-star" style={{ width: `${distribution[i]}%` }} />
+                      <div className="h-full bg-star" style={{ width: `${distribution[i]}%` }} />
                     </div>
-                    <span className="w-11 text-right text-xs text-fg-faint tabular-nums">{distribution[i]}%</span>
+                    <span className="w-10 text-right text-xs font-bold tabular-nums text-fg-muted">{distribution[i]}%</span>
                   </div>
                 ))}
               </div>
             </div>
             <div>
               {reviews.length === 0 ? (
-                <p className="rounded-xl border border-border bg-surface px-6 py-14 text-center text-sm text-fg-muted">
+                <p className="rounded-lg border-2 border-border bg-surface px-6 py-14 text-center text-sm font-bold text-fg-muted shadow-[4px_4px_0px_var(--shadow-color)]">
                   Belum ada ulasan untuk aplikasi ini.
                 </p>
               ) : (

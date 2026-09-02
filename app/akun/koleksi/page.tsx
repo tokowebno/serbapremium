@@ -31,10 +31,10 @@ export default function KoleksiPage() {
 
   return (
     <div>
-      <p className="mb-4 text-sm text-fg-muted">
-        {apps.length} aplikasi dalam koleksi Anda. Pembelian satu kali — unduh kapan saja.
+      <p className="mb-4 text-xs font-bold uppercase tracking-wider text-fg-muted">
+        {apps.length} aplikasi dalam koleksi Anda · Pembelian satu kali, unduh kapan saja
       </p>
-      <ul className="divide-y divide-border rounded-xl border border-border bg-surface shadow-sm">
+      <ul className="divide-y-2 divide-border rounded-lg border-2 border-border bg-surface shadow-[4px_4px_0px_var(--shadow-color)]">
         {apps.map(({ entry, app }) => {
           const hasUpdate = app!.updatedAt > entry.purchasedAt;
           return (
@@ -42,10 +42,10 @@ export default function KoleksiPage() {
               <AppIcon icon={app!.icon} size="md" />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-semibold tracking-tight">{app!.name}</p>
+                  <p className="font-black tracking-tight text-fg">{app!.name}</p>
                   {hasUpdate && <Badge tone="accent">Pembaruan tersedia</Badge>}
                 </div>
-                <p className="mt-0.5 text-[13px] text-fg-muted">
+                <p className="mt-0.5 text-xs font-bold text-fg-muted">
                   Versi {app!.version} · Dibeli {formatDate(entry.purchasedAt)}
                 </p>
                 <div className="mt-1.5">
@@ -57,7 +57,7 @@ export default function KoleksiPage() {
                   Detail
                 </ButtonLink>
                 <ButtonLink href={`/aplikasi/${app!.slug}`} size="sm">
-                  <Download size={14} />
+                  <Download size={14} strokeWidth={2.5} />
                   Unduh
                 </ButtonLink>
               </div>
@@ -65,8 +65,8 @@ export default function KoleksiPage() {
           );
         })}
       </ul>
-      <p className="mt-4 text-xs text-fg-faint">
-        Tombol unduh mengarah ke halaman detail aplikasi — integrasi unduhan sungguhan menyusul bersama backend.
+      <p className="mt-4 text-xs font-medium text-fg-faint">
+        Tombol unduh mengarah ke halaman detail aplikasi untuk mengunduh versi terbaru lisensi Anda.
       </p>
     </div>
   );

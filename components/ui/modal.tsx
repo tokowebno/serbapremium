@@ -51,7 +51,7 @@ export function Modal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.15 }}
             onClick={onClose}
             aria-hidden="true"
           />
@@ -61,20 +61,23 @@ export function Modal({
             aria-modal="true"
             aria-label={title}
             tabIndex={-1}
-            className={cn("mat-strong relative w-full rounded-[var(--radius-xl)] p-6 shadow-[var(--elev-3)] outline-none", width)}
-            initial={{ opacity: 0, y: 18, scale: 0.98 }}
+            className={cn(
+              "relative w-full rounded-lg border-2 border-border bg-surface p-6 shadow-[8px_8px_0px_var(--shadow-color)] outline-none",
+              width,
+            )}
+            initial={{ opacity: 0, y: 16, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 18, scale: 0.98 }}
-            transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+            exit={{ opacity: 0, y: 16, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
           >
-            <div className="mb-4 flex items-center justify-between gap-4">
-              {title && <h2 className="text-lg font-semibold tracking-tight">{title}</h2>}
+            <div className="mb-4 flex items-center justify-between gap-4 border-b-2 border-border pb-3">
+              {title && <h2 className="text-lg font-black tracking-tight text-fg">{title}</h2>}
               <button
                 onClick={onClose}
                 aria-label="Tutup"
-                className="rounded-md p-1.5 text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
+                className="rounded-md border-2 border-border bg-surface-2 p-1 text-fg transition-all hover:bg-discount hover:text-white"
               >
-                <X size={18} />
+                <X size={16} strokeWidth={2.5} />
               </button>
             </div>
             {children}

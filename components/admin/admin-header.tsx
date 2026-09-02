@@ -13,10 +13,10 @@ export function AdminPageHeader({
   className?: string;
 }) {
   return (
-    <div className={cn("mb-8 flex flex-wrap items-end justify-between gap-4", className)}>
+    <div className={cn("mb-8 flex flex-wrap items-end justify-between gap-4 border-b-2 border-border pb-4", className)}>
       <div>
-        <h1 className="text-[26px] font-semibold tracking-[-0.025em]">{title}</h1>
-        {description && <p className="mt-1.5 text-sm text-fg-muted">{description}</p>}
+        <h1 className="text-2xl font-black tracking-tight text-fg sm:text-3xl">{title}</h1>
+        {description && <p className="mt-1 text-sm font-medium text-fg-muted">{description}</p>}
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
     </div>
@@ -53,7 +53,7 @@ export function AdminSearchInput({
       placeholder={placeholder}
       aria-label={placeholder}
       className={cn(
-        "h-9 w-full max-w-xs rounded-lg border border-border bg-surface px-3 text-[13px] text-fg shadow-sm outline-none placeholder:text-fg-faint focus:border-accent/50",
+        "h-10 w-full max-w-xs rounded-md border-2 border-border bg-surface px-3.5 text-[13px] font-bold text-fg shadow-[2px_2px_0px_var(--shadow-color)] outline-none placeholder:text-fg-faint focus:shadow-[3px_3px_0px_var(--shadow-color)]",
         className,
       )}
     />
@@ -77,7 +77,7 @@ export function AdminSelect({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-9 rounded-lg border border-border bg-surface px-3 text-[13px] font-medium shadow-sm outline-none focus:border-accent/50"
+        className="h-10 cursor-pointer rounded-md border-2 border-border bg-surface px-3 text-[13px] font-bold text-fg shadow-[2px_2px_0px_var(--shadow-color)] outline-none focus:shadow-[3px_3px_0px_var(--shadow-color)]"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>

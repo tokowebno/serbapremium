@@ -114,11 +114,11 @@ export function useLibrary() {
   return ctx;
 }
 
-function usePersistedState<T>(key: string, initial: T): [T, (v: T | ((prev: T) => T)) => void] {
+function usePersistedState<T>(key: string, legacyKey: string, initial: T): [T, (v: T | ((prev: T) => T)) => void] {
   const [state, setState] = useState<T>(initial);
   useEffect(() => {
     // Hidrasi dari localStorage — ditunda ke microtask agar tidak setState sinkron dalam effect.
-    const raw = localStorage.getItem(key);
+    const raw = localStorage.getItem(key) || localStorage.getItem(legacyKey);
     if (raw) {
       queueMicrotask(() => {
         try {
@@ -128,7 +128,7 @@ function usePersistedState<T>(key: string, initial: T): [T, (v: T | ((prev: T) =
         }
       });
     }
-  }, [key]);
+  }, [key, legacyKey]);
   useEffect(() => {
     try {
       localStorage.setItem(key, JSON.stringify(state));
@@ -141,13 +141,13 @@ function usePersistedState<T>(key: string, initial: T): [T, (v: T | ((prev: T) =
 
 export function Providers({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<"light" | "dark">("light");
-  const [cart, setCart] = usePersistedState<CartEntry[]>("tokono:cart", []);
-  const [wishlist, setWishlist] = usePersistedState<string[]>("tokono:wishlist", []);
-  const [library, setLibrary] = usePersistedState<LibraryEntry[]>("tokono:library", []);
-  const [authUser, setAuthUser] = usePersistedState<AuthUser | null>("tokono:user", null);
+  const [cart, setCart] = usePersistedState<CartEntry[]>("serbapremium:cart", "tokono:cart", []);
+  const [wishlist, setWishlist] = usePersistedState<string[]>("serbapremium:wishlist", "tokono:wishlist", []);
+  const [library, setLibrary] = usePersistedState<LibraryEntry[]>("serbapremium:library", "tokono:library", []);
+  const [authUser, setAuthUser] = usePersistedState<AuthUser | null>("serbapremium:user", "tokono:user", null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("tokono:theme");
+    const stored = localStorage.getItem("serbapremium:theme") || localStorage.getItem("tokono:theme");
     // Default terang; gelap hanya jika pengguna pernah memilih gelap secara eksplisit.
     const initial = stored === "dark" ? "dark" : "light";
     // Ditunda agar tidak setState sinkron dalam effect.
@@ -156,6 +156,11 @@ export function Providers({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
+    try {
+      localStorage.setItem("serbapremium:theme", theme);
+    } catch {
+      /* abaikan */
+    }
   }, [theme]);
 
   const themeValue = useMemo<ThemeValue>(

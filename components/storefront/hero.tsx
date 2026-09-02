@@ -1,130 +1,125 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, ShieldCheck, Zap } from "lucide-react";
 import { api } from "@/lib/api";
 import { AppIcon } from "@/components/ui/app-icon";
 import { ButtonLink } from "@/components/ui/button";
 import { Rating } from "@/components/ui/rating";
-import { StaggerWords, easeOut } from "@/components/ui/reveal";
 import { formatRupiah } from "@/lib/utils";
+import { useTranslation } from "./i18n-provider";
+import { getLocalizedApp } from "@/lib/i18n/product-translations";
 
-/**
- * Hero — application discovery experience.
- * Komposisi baru: environmental artwork + integrated headline
- * + floating app shelf (bukan headline kiri + icon random kanan).
- */
 export function Hero() {
+  const { lang, t } = useTranslation();
   const apps = api.apps.featured().slice(0, 4);
 
   return (
-    <section className="relative overflow-hidden pt-36 pb-28">
-      {/* Environmental layer — artwork aplikasi sebagai cahaya lingkungan */}
-      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-        <div
-          className="absolute -top-32 -left-24 h-[480px] w-[480px] rounded-full opacity-70 blur-3xl"
-          style={{ background: `radial-gradient(circle, ${apps[0].icon.from}40 0%, transparent 65%)` }}
-        />
-        <div
-          className="absolute top-10 right-[-10%] h-[420px] w-[420px] rounded-full opacity-60 blur-3xl"
-          style={{ background: `radial-gradient(circle, ${apps[1].icon.to}38 0%, transparent 65%)` }}
-        />
-        <div
-          className="absolute bottom-[-20%] left-1/3 h-[380px] w-[380px] rounded-full opacity-50 blur-3xl"
-          style={{ background: `radial-gradient(circle, ${apps[2].icon.from}30 0%, transparent 65%)` }}
-        />
-      </div>
-
+    <section className="relative overflow-hidden pt-32 pb-20 sm:pt-36 sm:pb-24">
       <div className="tk-container relative">
         <div className="mx-auto max-w-3xl text-center">
-          {/* Integrated headline */}
+          {/* Brutalist Tag */}
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1, ease: easeOut }}
-            className="mx-auto mb-6 w-fit"
+            transition={{ duration: 0.3 }}
+            className="mx-auto mb-5 w-fit"
           >
-            <span className="mat-func inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[13px] font-medium text-fg-muted">
-              <Sparkles size={14} className="text-accent" />
-              Marketplace aplikasi premium
+            <span className="inline-flex items-center gap-2 rounded-sm border-2 border-border bg-accent-yellow px-3 py-1 text-xs font-black tracking-wider text-black uppercase shadow-[2px_2px_0px_var(--shadow-color)]">
+              <Zap size={14} className="fill-current text-black" />
+              {t.hero.badge || "SERBAPREMIUM · LISENSI DIGITAL RESMI"}
             </span>
           </motion.div>
 
-          <h1 className="text-[44px] leading-[1.05] font-semibold tracking-[-0.035em] sm:text-[68px]">
-            <StaggerWords text="Temukan aplikasi yang tepat." />
-          </h1>
+          {/* Headline */}
+          <motion.h1
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.05 }}
+            className="text-[38px] leading-[1.08] font-black tracking-tight text-fg sm:text-[62px]"
+          >
+            {t.hero.title1} <br className="hidden sm:inline" />
+            <span className="bg-accent px-2 py-0.5 text-black border-2 border-border shadow-[3px_3px_0px_var(--shadow-color)] inline-block my-1">
+              {t.product.buyOnce}
+            </span>
+            , {t.hero.title2}
+          </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, delay: 0.5, ease: easeOut }}
-            className="mx-auto mt-5 max-w-xl text-[17px] leading-7 text-fg-muted"
+            transition={{ duration: 0.35, delay: 0.1 }}
+            className="mx-auto mt-6 max-w-xl text-[16px] font-medium leading-relaxed text-fg-muted sm:text-[17px]"
           >
-            Jelajahi aplikasi premium untuk berbagai perangkat, pilih yang sesuai kebutuhan, dan gunakan tanpa
-            langganan.
+            {t.hero.desc}
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, delay: 0.65, ease: easeOut }}
-            className="mt-8 flex flex-wrap items-center justify-center gap-3"
+            transition={{ duration: 0.35, delay: 0.15 }}
+            className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4"
           >
             <ButtonLink href="/aplikasi" size="lg">
-              Jelajahi Aplikasi
+              {t.hero.exploreBtn} <ArrowRight size={17} strokeWidth={2.5} />
             </ButtonLink>
             <ButtonLink href="/promo" size="lg" variant="glass">
-              Lihat Promo
+              {t.hero.promoBtn} 🔥
             </ButtonLink>
+          </motion.div>
+
+          {/* Badges Kepercayaan */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="mt-8 flex flex-wrap items-center justify-center gap-4 text-xs font-bold text-fg-muted"
+          >
+            <span className="inline-flex items-center gap-1.5 rounded-xs border border-border bg-surface px-2.5 py-1 shadow-[1px_1px_0px_var(--shadow-color)]">
+              <ShieldCheck size={14} className="text-success" strokeWidth={2.5} /> {t.footer.warranty}
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-xs border border-border bg-surface px-2.5 py-1 shadow-[1px_1px_0px_var(--shadow-color)]">
+              <Sparkles size={14} className="text-warning" strokeWidth={2.5} /> {t.footer.instantActivation}
+            </span>
           </motion.div>
         </div>
 
-        {/* Floating app shelf — komposisi intentional, bukan icon random */}
-        <div className="relative mx-auto mt-16 max-w-4xl">
-          <div className="absolute inset-x-8 top-1/2 h-24 -translate-y-1/2 rounded-full bg-surface-2/50 blur-2xl" aria-hidden="true" />
+        {/* Floating Brutalist Shelf */}
+        <div className="relative mx-auto mt-14 max-w-4xl">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.75, ease: easeOut }}
-            className="relative flex flex-wrap items-center justify-center gap-4 sm:gap-6"
+            transition={{ duration: 0.4, delay: 0.25 }}
+            className="flex flex-wrap items-center justify-center gap-3 sm:gap-4"
           >
-            {apps.map((app, i) => (
-              <motion.a
-                key={app.id}
-                href={`/aplikasi/${app.slug}`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.85 + i * 0.1, ease: easeOut }}
-                whileHover={{ y: -6 }}
-                className="mat-func group flex items-center gap-3 rounded-[var(--radius-xl)] p-3 pr-5 transition-shadow duration-[var(--dur-base)] hover:shadow-[var(--elev-3)]"
-              >
-                <div className="relative">
-                  <AppIcon icon={app.icon} size="lg" />
-                  <span
-                    className="pointer-events-none absolute -inset-2 rounded-2xl opacity-0 blur-lg transition-opacity duration-[var(--dur-slow)] group-hover:opacity-50"
-                    style={{ background: `radial-gradient(circle, ${app.icon.from}55, transparent 70%)` }}
-                  />
-                </div>
-                <div className="text-left">
-                  <p className="text-[14px] leading-tight font-semibold">{app.name}</p>
-                  <div className="mt-1 flex items-center gap-2">
-                    <Rating value={app.rating} showValue={false} size={10} />
-                    <span className="text-xs text-fg-muted tabular-nums">{formatRupiah(app.price)}</span>
+            {apps.map((app) => {
+              const localized = getLocalizedApp(app, lang);
+              return (
+                <a
+                  key={app.id}
+                  href={`/aplikasi/${app.slug}`}
+                  className="group flex items-center gap-3 rounded-md border-2 border-border bg-surface p-3 pr-5 shadow-[3px_3px_0px_var(--shadow-color)] transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_var(--shadow-color)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                >
+                  <AppIcon icon={app.icon} size="md" />
+                  <div className="text-left">
+                    <p className="text-[14px] leading-tight font-black text-fg group-hover:text-accent-blue dark:group-hover:text-accent">
+                      {localized.name}
+                    </p>
+                    <div className="mt-1 flex items-center gap-2">
+                      <Rating value={app.rating} showValue={false} size={11} />
+                      <span className="text-xs font-bold tabular-nums text-fg">{formatRupiah(app.price)}</span>
+                    </div>
                   </div>
-                </div>
-              </motion.a>
-            ))}
-            <motion.a
+                </a>
+              );
+            })}
+            <a
               href="/aplikasi"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 1.25, ease: easeOut }}
-              whileHover={{ y: -6 }}
               aria-label="Lihat semua aplikasi"
-              className="mat-clear flex h-[68px] w-[68px] items-center justify-center rounded-[var(--radius-xl)] text-fg-muted transition-shadow duration-[var(--dur-base)] hover:text-fg hover:shadow-[var(--elev-2)]"
+              className="flex h-[60px] w-[60px] items-center justify-center rounded-md border-2 border-border bg-accent text-accent-fg shadow-[3px_3px_0px_var(--shadow-color)] transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_var(--shadow-color)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
             >
-              <ArrowRight size={22} strokeWidth={1.75} />
-            </motion.a>
+              <ArrowRight size={22} strokeWidth={2.8} />
+            </a>
           </motion.div>
         </div>
       </div>

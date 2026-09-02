@@ -4,10 +4,10 @@ export const developers: Developer[] = [
   {
     id: "tokono-store",
     slug: "tokono-store",
-    name: "Tokono Store",
+    name: "SerbaPremium Store",
     logo: { from: "#1b1a17", to: "#0d0d0b", glyph: "box" },
     description:
-      "Toko resmi Tokono — lisensi digital premium dengan pengiriman instan dan garansi penggantian.",
+      "Toko resmi SerbaPremium — lisensi digital premium dengan pengiriman instan dan garansi penggantian.",
     website: "https://tokono.example",
     location: "Jakarta, Indonesia",
     joinDate: "2024-01-01",

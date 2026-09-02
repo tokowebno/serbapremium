@@ -19,7 +19,10 @@ export function Tabs({
   return (
     <div
       role="tablist"
-      className={cn("flex gap-1 overflow-x-auto rounded-lg bg-surface-2 p-1 no-scrollbar", className)}
+      className={cn(
+        "flex gap-1.5 overflow-x-auto rounded-md border-2 border-border bg-surface-2 p-1.5 shadow-[2px_2px_0px_var(--shadow-color)] no-scrollbar",
+        className,
+      )}
     >
       {items.map((t) => (
         <button
@@ -28,8 +31,10 @@ export function Tabs({
           aria-selected={active === t.id}
           onClick={() => onChange(t.id)}
           className={cn(
-            "rounded-md px-3.5 py-1.5 text-[13px] font-medium whitespace-nowrap transition-colors",
-            active === t.id ? "bg-surface text-fg shadow-sm" : "text-fg-muted hover:text-fg",
+            "rounded-sm px-3.5 py-1.5 text-[13px] font-bold whitespace-nowrap transition-all duration-100",
+            active === t.id
+              ? "border-2 border-border bg-accent text-accent-fg shadow-[2px_2px_0px_var(--shadow-color)]"
+              : "border-2 border-transparent text-fg-muted hover:border-border hover:bg-surface hover:text-fg",
           )}
         >
           {t.label}

@@ -28,7 +28,7 @@ export default function UlasanPage() {
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!appId) return;
-    toast.push({ title: "Ulasan terkirim", description: "Terima kasih atas ulasan Anda." });
+    toast.push({ title: "Ulasan terkirim", description: "Terima kasih atas ulasan Anda di SerbaPremium." });
   };
 
   const owned = entries
@@ -39,10 +39,10 @@ export default function UlasanPage() {
     <div className="space-y-4">
       <form
         onSubmit={onSubmit}
-        className="space-y-4 rounded-xl border border-border bg-surface p-6 shadow-sm"
+        className="space-y-4 rounded-lg border-2 border-border bg-surface p-6 shadow-[4px_4px_0px_var(--shadow-color)]"
       >
-        <h2 className="text-[15px] font-semibold tracking-tight">Tulis Ulasan</h2>
-        <Field label="Aplikasi">
+        <h2 className="text-sm font-black uppercase text-fg">Tulis Ulasan Pembeli</h2>
+        <Field label="Aplikasi yang Diulas">
           <Select value={appId} onChange={(e) => setAppId(e.target.value)}>
             <option value="">Pilih aplikasi dari koleksi…</option>
             {owned.map((a) => (
@@ -53,7 +53,7 @@ export default function UlasanPage() {
           </Select>
         </Field>
         <Field label="Isi Ulasan">
-          <Textarea rows={4} placeholder="Bagaimana pengalaman Anda dengan aplikasi ini?" required />
+          <Textarea rows={4} placeholder="Bagaimana pengalaman Anda dengan aplikasi/lisensi ini?" required />
         </Field>
         <Button type="submit">Kirim Ulasan</Button>
       </form>
@@ -61,7 +61,7 @@ export default function UlasanPage() {
       {entries.length > 0 && (
         <EmptyState
           icon={Star}
-          title="Belum ada ulasan dari Anda."
+          title="Belum ada riwayat ulasan."
           description="Ulasan yang Anda kirim akan tampil di sini."
         />
       )}

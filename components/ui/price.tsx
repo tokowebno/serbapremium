@@ -11,16 +11,20 @@ export function Price({
   size?: "sm" | "md" | "lg";
   className?: string;
 }) {
-  const textSize = size === "lg" ? "text-2xl" : size === "md" ? "text-[17px]" : "text-sm";
+  const textSize = size === "lg" ? "text-2xl sm:text-3xl" : size === "md" ? "text-lg sm:text-xl" : "text-[15px]";
   return (
-    <span className={cn("inline-flex flex-wrap items-baseline gap-x-2 gap-y-0.5", className)}>
-      <span className={cn("font-semibold tracking-tight tabular-nums", textSize)}>{formatRupiah(value)}</span>
+    <span className={cn("inline-flex flex-wrap items-baseline gap-x-2 gap-y-1", className)}>
+      <span className={cn("font-black tracking-tight tabular-nums text-fg", textSize)}>
+        {formatRupiah(value)}
+      </span>
       {original && original > value && (
         <>
-          <span className="text-[13px] text-fg-faint line-through tabular-nums">
+          <span className="text-[13px] font-semibold text-fg-muted line-through tabular-nums decoration-2">
             {formatRupiah(original)}
           </span>
-          <span className="text-xs font-semibold text-discount">-{discountPercent(original, value)}%</span>
+          <span className="rounded-sm border-2 border-border bg-discount px-1.5 py-0.2 text-[11px] font-black text-white shadow-[1px_1px_0px_var(--shadow-color)]">
+            -{discountPercent(original, value)}%
+          </span>
         </>
       )}
     </span>

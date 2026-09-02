@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "main": ".open-next/worker.js",
-  "name": "tokono",
+  "name": "serbapremium",
   "compatibility_date": "2026-08-11",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
@@ -11,12 +11,12 @@
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
-      "service": "tokono"
+      "service": "serbapremium"
     }
   ],
   "vars": {
-    "NEXT_PUBLIC_SUPABASE_URL": "https://xanrkbxvxhyqpxewlifl.supabase.co",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhbnJrYnh2eGh5cXB4ZXdsaWZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0OTY0MzMsImV4cCI6MjEwMjA3MjQzM30.JEocbc_WNWFdz_qR1slY25irnQPmyTZOs4lm4Fv7wOI"
+    "NEXT_PUBLIC_SUPABASE_URL": "https://mxkgyxiwbavoxiqeivom.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14a2d5eGl3YmF2b3hpcWVpdm9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzMzk3NDAsImV4cCI6MjEwMzkxNTc0MH0.Z3aEBO_gFP--fO5eXXsuad2Vk7cETxwfseHdq92zydg"
   },
   "observability": {
     "enabled": true

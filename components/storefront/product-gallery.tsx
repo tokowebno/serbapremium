@@ -30,7 +30,7 @@ export function ProductGallery({ app }: { app: App }) {
       <div className="hidden md:block">
         <button
           onClick={() => setLightbox(true)}
-          className="block w-full cursor-zoom-in"
+          className="block w-full cursor-zoom-in rounded-lg border-2 border-border shadow-[4px_4px_0px_var(--shadow-color)] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_var(--shadow-color)] overflow-hidden"
           aria-label="Perbesar tangkapan layar"
         >
           <MockScreenshot variant={shots[active]} accent={accent} className="aspect-[16/10] w-full" />
@@ -43,10 +43,10 @@ export function ProductGallery({ app }: { app: App }) {
               aria-label={`Lihat tangkapan layar ${i + 1}`}
               aria-current={active === i}
               className={cn(
-                "overflow-hidden rounded-lg transition-all duration-200",
+                "overflow-hidden rounded-md border-2 transition-all duration-100",
                 active === i
-                  ? "ring-2 ring-accent ring-offset-2 ring-offset-bg"
-                  : "opacity-70 hover:opacity-100",
+                  ? "border-border shadow-[3px_3px_0px_var(--shadow-color)] -translate-x-0.5 -translate-y-0.5"
+                  : "border-border/40 opacity-70 hover:opacity-100 hover:border-border",
               )}
             >
               <MockScreenshot variant={s} accent={accent} className="aspect-[16/10] w-full" />
@@ -61,7 +61,10 @@ export function ProductGallery({ app }: { app: App }) {
           <button
             key={s + i}
             onClick={() => setActive(i)}
-            className={cn("w-[85%] shrink-0", active === i && "opacity-100")}
+            className={cn(
+              "w-[85%] shrink-0 rounded-lg border-2 border-border shadow-[3px_3px_0px_var(--shadow-color)] overflow-hidden",
+              active === i && "border-accent",
+            )}
           >
             <MockScreenshot variant={s} accent={accent} className="aspect-[16/10] w-full" />
           </button>
@@ -81,40 +84,42 @@ export function ProductGallery({ app }: { app: App }) {
               aria-hidden="true"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.97 }}
+              initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.97 }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-              className="relative w-full max-w-3xl"
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className="relative w-full max-w-3xl rounded-lg border-2 border-border bg-surface p-4 shadow-[8px_8px_0px_var(--shadow-color)]"
               role="dialog"
               aria-modal="true"
-              aria-label="Tangkapan layar {app.name}"
+              aria-label={`Tangkapan layar ${app.name}`}
             >
-              <MockScreenshot variant={shots[active]} accent={accent} className="aspect-[16/10] w-full" />
+              <div className="overflow-hidden rounded-md border-2 border-border">
+                <MockScreenshot variant={shots[active]} accent={accent} className="aspect-[16/10] w-full" />
+              </div>
               <button
                 onClick={() => setLightbox(false)}
                 aria-label="Tutup"
-                className="glass absolute -top-4 -right-4 rounded-full p-2.5 text-fg"
+                className="absolute -top-3 -right-3 flex h-8 w-8 items-center justify-center rounded-sm border-2 border-border bg-discount text-white shadow-[2px_2px_0px_var(--shadow-color)]"
               >
-                <X size={16} />
+                <X size={16} strokeWidth={2.5} />
               </button>
               <div className="mt-4 flex items-center justify-center gap-3">
                 <button
                   onClick={() => setActive((i) => (i - 1 + shots.length) % shots.length)}
                   aria-label="Sebelumnya"
-                  className="glass rounded-full p-2.5 text-fg"
+                  className="flex h-9 w-9 items-center justify-center rounded-sm border-2 border-border bg-surface text-fg shadow-[2px_2px_0px_var(--shadow-color)] hover:bg-surface-2 active:translate-x-0.5 active:translate-y-0.5"
                 >
-                  <ChevronLeft size={16} />
+                  <ChevronLeft size={18} strokeWidth={2.5} />
                 </button>
-                <span className="text-sm text-fg-muted tabular-nums">
+                <span className="rounded-xs border border-border bg-surface-2 px-2 py-0.5 text-xs font-bold tabular-nums text-fg">
                   {active + 1} / {shots.length}
                 </span>
                 <button
                   onClick={() => setActive((i) => (i + 1) % shots.length)}
                   aria-label="Berikutnya"
-                  className="glass rounded-full p-2.5 text-fg"
+                  className="flex h-9 w-9 items-center justify-center rounded-sm border-2 border-border bg-surface text-fg shadow-[2px_2px_0px_var(--shadow-color)] hover:bg-surface-2 active:translate-x-0.5 active:translate-y-0.5"
                 >
-                  <ChevronRight size={16} />
+                  <ChevronRight size={18} strokeWidth={2.5} />
                 </button>
               </div>
             </motion.div>

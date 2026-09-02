@@ -3,164 +3,106 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ════════════════════════════════════════════════════════════
-   TOKONO — DESIGN TOKENS
-   Sistem visual: material berjenjang + elevation + gerak fisik.
+   SERBAPREMIUM — NEO-BRUTALISM DESIGN SYSTEM
+   Sistem visual: High Contrast + Bold Borders + Solid Hard Shadows + Tactile Motion
    ════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Warna dasar — warm neutral, bukan putih murni */
-  --bg: #f4f3f0;
-  --bg-deep: #ebeae5;
+  /* Substrate: off-white newsprint paper */
+  --bg: #f6f5ef;
+  --bg-deep: #ebe9df;
   --surface: #ffffff;
-  --surface-2: #f0efeb;
-  --surface-3: #e7e6e1;
-  --fg: #1a1917;
-  --fg-muted: #6d6a62;
-  --fg-faint: #9a978e;
-  --border: rgba(26, 25, 23, 0.08);
-  --border-strong: rgba(26, 25, 23, 0.16);
-  --accent: #12694f;
-  --accent-hover: #0e5a43;
-  --accent-fg: #ffffff;
-  --accent-soft: rgba(18, 105, 79, 0.09);
-  --discount: #b3402a;
-  --discount-soft: rgba(179, 64, 42, 0.1);
-  --success: #1d7a4f;
-  --warning: #a06a12;
-  --danger: #b3402a;
-  --ring: rgba(18, 105, 79, 0.35);
-  --overlay: rgba(22, 21, 18, 0.4);
-  --star: #d9a03c;
+  --surface-2: #eeece2;
+  --surface-3: #e2dfd3;
 
-  /* ═══ MATERIAL SYSTEM ═══
-     Layered: gradient tint + blur + saturate + brightness + edge light. */
+  /* Typography & Lines */
+  --fg: #0a0a0a;
+  --fg-muted: #4a4944;
+  --fg-faint: #78766e;
+  --border: #0a0a0a;
+  --border-strong: #0a0a0a;
+  --border-subtle: rgba(10, 10, 10, 0.15);
 
-  /* Material Fungsional — navbar, toolbar, dialog, control */
-  --mat-func-bg:
-    linear-gradient(150deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.5) 55%, rgba(255, 255, 255, 0.62) 100%);
-  --mat-func-border: rgba(255, 255, 255, 0.7);
-  --mat-func-shadow:
-    0 1px 1px rgba(26, 25, 23, 0.04),
-    0 8px 24px rgba(26, 25, 23, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.75),
-    inset 0 -1px 0 rgba(26, 25, 23, 0.04);
-  --mat-func-blur: 28px;
+  /* Neo-Brutalist High-Energy Accents */
+  --accent: #00e599; /* Electric Mint / Lime */
+  --accent-hover: #00c985;
+  --accent-fg: #0a0a0a;
+  --accent-soft: rgba(0, 229, 153, 0.2);
 
-  /* Material Jernih — di atas visual/media, translucency tinggi */
-  --mat-clear-bg: linear-gradient(160deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.16));
-  --mat-clear-border: rgba(255, 255, 255, 0.45);
-  --mat-clear-shadow:
-    0 2px 12px rgba(26, 25, 23, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.55);
-  --mat-clear-blur: 22px;
+  --accent-yellow: #ffe600; /* Cyber Yellow */
+  --accent-blue: #0066ff; /* Electric Cobalt */
+  --accent-orange: #ff6b35; /* Punchy Orange */
 
-  /* Material Kuat — popover, sheet, dropdown (lebih opak, pasti terbaca) */
-  --mat-strong-bg:
-    linear-gradient(150deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.78) 100%);
-  --mat-strong-border: rgba(255, 255, 255, 0.85);
-  --mat-strong-shadow:
-    0 2px 4px rgba(26, 25, 23, 0.05),
-    0 16px 48px rgba(26, 25, 23, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  --mat-strong-blur: 36px;
+  --discount: #ff334b; /* Vivid Hazard Red */
+  --discount-soft: rgba(255, 51, 75, 0.15);
+  --success: #059669;
+  --warning: #d97706;
+  --danger: #ff334b;
 
-  /* Dark tinted & elevated */
-  --mat-tint-bg:
-    linear-gradient(150deg, color-mix(in srgb, var(--accent) 30%, rgba(32, 32, 28, 0.8)) 0%, color-mix(in srgb, var(--accent) 18%, rgba(24, 24, 21, 0.7)) 100%);
-  --mat-tint-border: color-mix(in srgb, var(--accent) 35%, rgba(255, 255, 255, 0.14));
-  --mat-tint-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  --mat-elev-bg: linear-gradient(150deg, rgba(36, 36, 32, 0.94) 0%, rgba(28, 28, 25, 0.9) 100%);
-  --mat-elev-border: rgba(255, 255, 255, 0.14);
-  --mat-elev-shadow: 0 2px 6px rgba(0, 0, 0, 0.55), 0 24px 64px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --ring: #0a0a0a;
+  --overlay: rgba(10, 10, 10, 0.65);
+  --star: #f59e0b;
 
-  /* Material Tinted — active/selected state (menyerap warna aksen) */
-  --mat-tint-bg:
-    linear-gradient(150deg, color-mix(in srgb, var(--accent) 16%, rgba(255, 255, 255, 0.7)) 0%, color-mix(in srgb, var(--accent) 10%, rgba(255, 255, 255, 0.5)) 100%);
-  --mat-tint-border: color-mix(in srgb, var(--accent) 25%, rgba(255, 255, 255, 0.7));
-  --mat-tint-shadow:
-    0 1px 2px color-mix(in srgb, var(--accent) 20%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  --mat-tint-blur: 24px;
+  /* Neo-Brutalist Hard Shadows */
+  --shadow-color: #0a0a0a;
+  --shadow-sm: 2px 2px 0px var(--shadow-color);
+  --shadow-md: 4px 4px 0px var(--shadow-color);
+  --shadow-lg: 6px 6px 0px var(--shadow-color);
+  --shadow-xl: 8px 8px 0px var(--shadow-color);
 
-  /* Material Elevated — dialog/sheet/popover level tertinggi */
-  --mat-elev-bg:
-    linear-gradient(150deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.86) 100%);
-  --mat-elev-border: rgba(255, 255, 255, 0.95);
-  --mat-elev-shadow:
-    0 2px 6px rgba(26, 25, 23, 0.06),
-    0 24px 64px rgba(26, 25, 23, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 1);
-  --mat-elev-blur: 40px;
-
-  /* Konten — kartu standard (permukaan, bukan kaca) */
-  --content-shadow: 0 1px 2px rgba(26, 25, 23, 0.04), 0 4px 16px rgba(26, 25, 23, 0.05);
-
-  /* Elevation */
-  --elev-1: 0 1px 2px rgba(26, 25, 23, 0.05);
-  --elev-2: 0 2px 8px rgba(26, 25, 23, 0.06), 0 8px 24px rgba(26, 25, 23, 0.07);
-  --elev-3: 0 4px 16px rgba(26, 25, 23, 0.08), 0 16px 48px rgba(26, 25, 23, 0.12);
-
-  /* Radius */
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
-  --radius-pill: 999px;
+  /* Radius: Compact & Crisp */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 9999px;
 
   /* Motion */
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --dur-fast: 140ms;
-  --dur-base: 240ms;
-  --dur-slow: 420ms;
+  --dur-fast: 100ms;
+  --dur-base: 180ms;
+  --dur-slow: 300ms;
 }
 
 .dark {
-  --bg: #121211;
-  --bg-deep: #0d0d0c;
-  --surface: #1a1a18;
-  --surface-2: #232320;
-  --surface-3: #2d2d29;
-  --fg: #ecebe7;
-  --fg-muted: #a3a098;
-  --fg-faint: #737067;
-  --border: rgba(236, 235, 231, 0.1);
-  --border-strong: rgba(236, 235, 231, 0.2);
-  --accent: #3ba07f;
-  --accent-hover: #4cb392;
-  --accent-fg: #06251a;
-  --accent-soft: rgba(59, 160, 127, 0.14);
-  --discount: #d1684f;
-  --discount-soft: rgba(209, 104, 79, 0.14);
-  --success: #3fae7f;
-  --warning: #c9952e;
-  --danger: #d1684f;
-  --ring: rgba(59, 160, 127, 0.4);
-  --overlay: rgba(8, 8, 6, 0.62);
-  --star: #e3b45c;
+  --bg: #0f1013;
+  --bg-deep: #090a0c;
+  --surface: #18191f;
+  --surface-2: #22232b;
+  --surface-3: #2d2e38;
 
-  /* Dark material — layered blacks dengan pantulan warna redup */
-  --mat-func-bg:
-    linear-gradient(150deg, rgba(38, 38, 34, 0.72) 0%, rgba(24, 24, 22, 0.5) 55%, rgba(30, 30, 27, 0.62) 100%);
-  --mat-func-border: rgba(255, 255, 255, 0.1);
-  --mat-func-shadow:
-    0 1px 1px rgba(0, 0, 0, 0.4),
-    0 8px 24px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
-  --mat-clear-bg: linear-gradient(160deg, rgba(30, 30, 27, 0.5), rgba(20, 20, 18, 0.2));
-  --mat-clear-border: rgba(255, 255, 255, 0.09);
-  --mat-clear-shadow: 0 2px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  --mat-strong-bg: linear-gradient(150deg, rgba(34, 34, 30, 0.92) 0%, rgba(26, 26, 23, 0.85) 100%);
-  --mat-strong-border: rgba(255, 255, 255, 0.12);
-  --mat-strong-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.5),
-    0 16px 48px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  --content-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.35);
-  --elev-1: 0 1px 2px rgba(0, 0, 0, 0.35);
-  --elev-2: 0 2px 8px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.4);
-  --elev-3: 0 4px 16px rgba(0, 0, 0, 0.4), 0 16px 48px rgba(0, 0, 0, 0.55);
+  --fg: #f4f4f0;
+  --fg-muted: #a4a49c;
+  --fg-faint: #72726a;
+  --border: #f4f4f0;
+  --border-strong: #f4f4f0;
+  --border-subtle: rgba(244, 244, 240, 0.2);
+
+  --accent: #00e599;
+  --accent-hover: #1cf5ac;
+  --accent-fg: #0a0a0a;
+  --accent-soft: rgba(0, 229, 153, 0.25);
+
+  --accent-yellow: #ffe600;
+  --accent-blue: #388bfd;
+  --accent-orange: #ff7844;
+
+  --discount: #ff4d61;
+  --discount-soft: rgba(255, 77, 97, 0.2);
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ff4d61;
+
+  --ring: #00e599;
+  --overlay: rgba(0, 0, 0, 0.8);
+  --star: #fbbf24;
+
+  --shadow-color: #000000;
+  --shadow-sm: 2px 2px 0px var(--border);
+  --shadow-md: 4px 4px 0px var(--border);
+  --shadow-lg: 6px 6px 0px var(--border);
+  --shadow-xl: 8px 8px 0px var(--border);
 }
 
 @theme inline {
@@ -174,10 +116,14 @@
   --color-fg-faint: var(--fg-faint);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
+  --color-border-subtle: var(--border-subtle);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-fg: var(--accent-fg);
   --color-accent-soft: var(--accent-soft);
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-orange: var(--accent-orange);
   --color-discount: var(--discount);
   --color-discount-soft: var(--discount-soft);
   --color-success: var(--success);
@@ -187,67 +133,66 @@
   --color-overlay: var(--overlay);
   --color-star: var(--star);
 
-  /* Font: system stack ala Apple — tanpa download font */
   --font-sans:
-    -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI",
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
   --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
 
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
-
-  --shadow-sm: var(--elev-1);
-  --shadow-md: var(--elev-2);
-  --shadow-lg: var(--elev-3);
-
-  --ease-smooth: var(--ease-out);
+  --radius-xs: 2px;
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-pill: var(--radius-pill);
 }
 
 /* ════════════════════════════════════════════════════════════
-   BASE
+   BASE & RESET
    ════════════════════════════════════════════════════════════ */
 
 @layer base {
-  * {
-    border-color: var(--border);
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
   }
 
   html {
+    color-scheme: light dark;
     scroll-behavior: smooth;
-    -webkit-tap-highlight-color: transparent;
+    font-family: var(--font-sans);
+    background-color: var(--bg);
+    color: var(--fg);
   }
 
   body {
-    background: var(--bg);
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg);
     color: var(--fg);
-    font-family: var(--font-sans);
-    font-size: 15px;
-    line-height: 1.55;
-    letter-spacing: -0.006em;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    overflow-x: clip;
+
+    /* Subtle geometric grid background pattern */
+    background-image: radial-gradient(var(--border-subtle) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-attachment: fixed;
   }
 
   ::selection {
-    background: var(--accent);
-    color: var(--accent-fg);
-  }
-
-  h1, h2, h3, h4 {
-    text-wrap: balance;
-    letter-spacing: -0.022em;
-    font-weight: 600;
+    background: var(--accent-yellow);
+    color: #000000;
   }
 
   :focus-visible {
-    outline: 2px solid var(--ring);
+    outline: 2px solid var(--border);
     outline-offset: 2px;
   }
 
+  /* Reduce motion if requested */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
@@ -258,228 +203,173 @@
 }
 
 /* ════════════════════════════════════════════════════════════
-   MATERIAL UTILITIES
+   NEO-BRUTALIST UTILITY CLASSES
    ════════════════════════════════════════════════════════════ */
 
-@utility tk-container {
+.tk-container {
   margin-inline: auto;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1240px;
   padding-inline: 1.25rem;
-  @media (min-width: 640px) {
+}
+@media (min-width: 640px) {
+  .tk-container {
     padding-inline: 1.5rem;
   }
 }
 
-/* Material Fungsional — navbar, toolbar, dialog, floating control */
-@utility mat-func {
-  position: relative;
-  background: var(--mat-func-bg);
-  -webkit-backdrop-filter: blur(var(--mat-func-blur)) saturate(1.8) brightness(1.05);
-  backdrop-filter: blur(var(--mat-func-blur)) saturate(1.8) brightness(1.05);
-  border: 1px solid var(--mat-func-border);
-  box-shadow: var(--mat-func-shadow);
-
-  /* Refraksi: kilau specular melengkung di tepi atas */
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(130% 60% at 50% -14%, rgba(255, 255, 255, 0.4) 0%, transparent 55%);
-    pointer-events: none;
-  }
-}
-
-/* Material Jernih — di atas visual/media */
-@utility mat-clear {
-  position: relative;
-  background: var(--mat-clear-bg);
-  -webkit-backdrop-filter: blur(var(--mat-clear-blur)) saturate(1.7);
-  backdrop-filter: blur(var(--mat-clear-blur)) saturate(1.7);
-  border: 1px solid var(--mat-clear-border);
-  box-shadow: var(--mat-clear-shadow);
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(130% 60% at 50% -14%, rgba(255, 255, 255, 0.3) 0%, transparent 55%);
-    pointer-events: none;
-  }
-}
-
-/* Material Kuat — popover, sheet, dropdown */
-@utility mat-strong {
-  position: relative;
-  background: var(--mat-strong-bg);
-  -webkit-backdrop-filter: blur(var(--mat-strong-blur)) saturate(1.8);
-  backdrop-filter: blur(var(--mat-strong-blur)) saturate(1.8);
-  border: 1px solid var(--mat-strong-border);
-  box-shadow: var(--mat-strong-shadow);
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(130% 60% at 50% -14%, rgba(255, 255, 255, 0.45) 0%, transparent 55%);
-    pointer-events: none;
-  }
-}
-
-/* Material Tinted — active/selected state */
-@utility mat-tinted {
-  position: relative;
-  background: var(--mat-tint-bg);
-  -webkit-backdrop-filter: blur(var(--mat-tint-blur)) saturate(1.9);
-  backdrop-filter: blur(var(--mat-tint-blur)) saturate(1.9);
-  border: 1px solid var(--mat-tint-border);
-  box-shadow: var(--mat-tint-shadow);
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(130% 60% at 50% -14%, rgba(255, 255, 255, 0.35) 0%, transparent 55%);
-    pointer-events: none;
-  }
-}
-
-/* Material Elevated — dialog/sheet/popover */
-@utility mat-elevated {
-  position: relative;
-  background: var(--mat-elev-bg);
-  -webkit-backdrop-filter: blur(var(--mat-elev-blur)) saturate(1.8);
-  backdrop-filter: blur(var(--mat-elev-blur)) saturate(1.8);
-  border: 1px solid var(--mat-elev-border);
-  box-shadow: var(--mat-elev-shadow);
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(130% 60% at 50% -14%, rgba(255, 255, 255, 0.5) 0%, transparent 55%);
-    pointer-events: none;
-  }
-}
-
-/* Kartu konten — permukaan halus dengan depth, bukan kaca */
-@utility content-card {
+/* Neo-Brutalist Box & Surface Tokens */
+.brutal-card {
   background: var(--surface);
-  border: 1px solid var(--border);
-  box-shadow: var(--content-shadow);
-  transition: box-shadow 0.25s var(--ease-out), transform 0.25s var(--ease-out), border-color 0.25s var(--ease-out);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 4px 4px 0px var(--shadow-color);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-@utility content-card-hover {
-  &:hover {
-    border-color: var(--border-strong);
-    box-shadow: var(--elev-2);
-    transform: translateY(-2px);
-  }
+.brutal-card-hover:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--shadow-color);
 }
 
-/* Alias lama → material baru (kompatibilitas, upgrade otomatis) */
-@utility glass {
-  @apply mat-func;
+.brutal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 3px 3px 0px var(--shadow-color);
+  transition: all 0.12s ease;
+  user-select: none;
 }
-@utility glass-strong {
-  @apply mat-strong;
+.brutal-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px var(--shadow-color);
 }
-@utility glass-card {
-  position: relative;
-  background: var(--mat-func-bg);
-  -webkit-backdrop-filter: blur(22px) saturate(1.6);
-  backdrop-filter: blur(22px) saturate(1.6);
-  border: 1px solid var(--mat-func-border);
-  box-shadow: var(--mat-func-shadow);
-  transition: box-shadow 0.25s var(--ease-out), transform 0.25s var(--ease-out), border-color 0.25s var(--ease-out);
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(130% 60% at 50% -14%, rgba(255, 255, 255, 0.32) 0%, transparent 55%);
-    pointer-events: none;
-  }
+.brutal-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px var(--shadow-color);
 }
 
-@utility glass-card-hover {
-  &:hover {
-    border-color: var(--border-strong);
-    box-shadow: var(--elev-2);
-    transform: translateY(-2px);
-  }
+.brutal-badge {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: 1.5px 1.5px 0px var(--shadow-color);
 }
 
-/* Backdrop ambient — lingkungan lembut, depth berlapis */
-@utility ambient-bg {
-  background:
-    radial-gradient(46% 40% at 12% 18%, color-mix(in srgb, var(--accent) 12%, transparent) 0%, transparent 100%),
-    radial-gradient(34% 30% at 88% 8%, color-mix(in srgb, var(--star) 9%, transparent) 0%, transparent 100%),
-    radial-gradient(40% 36% at 70% 92%, color-mix(in srgb, var(--accent) 8%, transparent) 0%, transparent 100%),
-    radial-gradient(26% 24% at 95% 62%, color-mix(in srgb, var(--discount) 6%, transparent) 0%, transparent 100%);
+/* Backward-compatible utilities remapped to Neo-Brutalist */
+.content-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 4px 4px 0px var(--shadow-color);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
-/* Glass backdrop lama → ambient */
-@utility glass-backdrop {
-  @apply ambient-bg;
+.content-card-hover:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--shadow-color);
 }
 
-/* Sheen redup di dark mode */
-.dark .mat-func::before,
-.dark .mat-strong::before,
-.dark .mat-clear::before,
-.dark .glass-card::before {
-  background: radial-gradient(130% 60% at 50% -14%, rgba(255, 255, 255, 0.08) 0%, transparent 55%);
+.mat-func {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 3px 3px 0px var(--shadow-color);
 }
 
-/* Kilau menyapu tombol primary — halus, transform-only */
+.mat-strong {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 6px 6px 0px var(--shadow-color);
+}
+
+.mat-clear {
+  background: var(--surface-2);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 3px 3px 0px var(--shadow-color);
+}
+
+.mat-tinted {
+  background: var(--accent-soft);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 3px 3px 0px var(--shadow-color);
+}
+
+.mat-elevated {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 8px 8px 0px var(--shadow-color);
+}
+
+.glass {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  box-shadow: 3px 3px 0px var(--shadow-color);
+}
+
+.glass-strong {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  box-shadow: 6px 6px 0px var(--shadow-color);
+}
+
+.glass-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 4px 4px 0px var(--shadow-color);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.glass-card-hover:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--shadow-color);
+}
+
+.ambient-bg {
+  background: var(--surface-2);
+  border: 2px solid var(--border);
+  box-shadow: 4px 4px 0px var(--shadow-color);
+}
+
+.glass-backdrop {
+  background: var(--surface-2);
+  border: 2px solid var(--border);
+}
+
+/* Button tactile styling */
 .btn-shine {
   position: relative;
   overflow: hidden;
 }
 
-.btn-shine::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -60%;
-  width: 40%;
-  height: 100%;
-  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.32), transparent);
-  transform: skewX(-20deg);
-  transition: transform 0.7s var(--ease-out);
-  pointer-events: none;
-}
-
-.btn-shine:hover::after {
-  transform: translateX(320%) skewX(-20deg);
-}
-
-@utility scrollbar-thin {
+.scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: var(--border-strong) transparent;
+  scrollbar-color: var(--border) transparent;
 }
 
-@utility text-balance {
+.text-balance {
   text-wrap: balance;
 }
 
-@utility no-scrollbar {
+.no-scrollbar {
   scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
-/* Marquee — strip berjalan horizontal, berhenti saat hover */
-@keyframes tk-marquee {
+/* Marquee */
+@keyframes sp-marquee {
   from {
     transform: translateX(0);
   }
@@ -491,7 +381,7 @@
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: tk-marquee 36s linear infinite;
+  animation: sp-marquee 28s linear infinite;
 }
 
 .marquee:hover .marquee-track {

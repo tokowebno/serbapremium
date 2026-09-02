@@ -22,7 +22,7 @@ function ChartCard({ title, children }: { title: string; children: React.ReactNo
 export default function AdminLaporanPage() {
   return (
     <div>
-      <AdminPageHeader title="Laporan" description="Ringkasan performa Tokono per periode. (Data contoh Januari–Agustus 2026)" />
+      <AdminPageHeader title="Laporan" description="Ringkasan performa SerbaPremium per periode. (Data contoh Januari–Agustus 2026)" />
 
       <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard label="Pendapatan" value={formatRupiah(api.stats.revenue())} icon={Banknote} />

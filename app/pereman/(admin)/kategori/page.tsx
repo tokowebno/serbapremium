@@ -59,7 +59,7 @@ export default function AdminKategoriPage() {
     <div>
       <AdminPageHeader
         title="Kategori"
-        description="Kelola kategori aplikasi di Tokono."
+        description="Kelola kategori aplikasi di SerbaPremium."
         actions={<CategoryForm trigger="tambah" />}
       />
       <DataTable columns={columns} rows={cats} />

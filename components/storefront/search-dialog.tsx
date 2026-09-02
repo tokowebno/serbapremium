@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Search } from "lucide-react";
+import { ArrowRight, Search, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -10,7 +10,7 @@ import { formatRupiah } from "@/lib/utils";
 import { AppIcon } from "@/components/ui/app-icon";
 import type { App } from "@/types";
 
-const RECENT_KEY = "tokono:recent-searches";
+const RECENT_KEY = "serbapremium:recent-searches";
 
 const popularCategories = ["Desain", "Produktivitas", "Pengembangan", "AI", "Keamanan"];
 
@@ -25,7 +25,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
     if (!open) return;
     queueMicrotask(() => setQ(""));
     try {
-      const stored = localStorage.getItem(RECENT_KEY);
+      const stored = localStorage.getItem(RECENT_KEY) || localStorage.getItem("tokono:recent-searches");
       if (stored) {
         queueMicrotask(() => {
           try {
@@ -89,7 +89,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
+            transition={{ duration: 0.15 }}
             onClick={onClose}
             aria-hidden="true"
           />
@@ -97,14 +97,14 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
             role="dialog"
             aria-modal="true"
             aria-label="Pencarian"
-            className="mat-strong relative w-full max-w-xl overflow-hidden rounded-[var(--radius-xl)] shadow-[var(--elev-3)]"
-            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            className="relative w-full max-w-xl overflow-hidden rounded-lg border-2 border-border bg-surface shadow-[8px_8px_0px_var(--shadow-color)]"
+            initial={{ opacity: 0, y: -10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.98 }}
-            transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+            exit={{ opacity: 0, y: -10, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
           >
-            <div className="flex items-center gap-3 border-b border-border px-5 py-4">
-              <Search size={18} className="shrink-0 text-fg-muted" />
+            <div className="flex items-center gap-3 border-b-2 border-border bg-surface-2 px-5 py-3.5">
+              <Search size={18} strokeWidth={2.5} className="shrink-0 text-fg" />
               <input
                 ref={inputRef}
                 value={q}
@@ -112,29 +112,33 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && q.trim()) goToResults(q.trim());
                 }}
-                placeholder="Cari aplikasi, pengembang, kategori…"
-                className="w-full bg-transparent text-[15px] text-fg outline-none placeholder:text-fg-faint"
+                placeholder="Cari aplikasi, akun premium, tools AI…"
+                className="w-full bg-transparent text-[15px] font-bold text-fg outline-none placeholder:text-fg-faint"
                 aria-label="Kata kunci pencarian"
               />
-              <kbd className="shrink-0 rounded border border-border bg-surface px-1.5 py-0.5 text-[11px] text-fg-faint">
+              <button
+                onClick={onClose}
+                aria-label="Tutup pencarian"
+                className="rounded-xs border border-border bg-surface px-1.5 py-0.5 text-[11px] font-black text-fg shadow-[1px_1px_0px_var(--shadow-color)]"
+              >
                 ESC
-              </kbd>
+              </button>
             </div>
 
-            <div className="max-h-[52vh] overflow-y-auto scrollbar-thin">
+            <div className="max-h-[52vh] overflow-y-auto scrollbar-thin p-3">
               {q.trim() === "" ? (
-                <div className="p-4">
+                <div className="p-2">
                   {recent.length > 0 && (
                     <div className="mb-5">
-                      <p className="mb-2 px-2 text-xs font-semibold tracking-wide text-fg-faint uppercase">
+                      <p className="mb-2 text-xs font-black tracking-wider text-fg-muted uppercase">
                         Pencarian terbaru
                       </p>
-                      <div className="flex flex-wrap gap-2 px-2">
+                      <div className="flex flex-wrap gap-2">
                         {recent.map((r) => (
                           <button
                             key={r}
                             onClick={() => setQ(r)}
-                            className="rounded-full border border-border bg-surface px-3 py-1 text-[13px] text-fg-muted transition-colors hover:text-fg"
+                            className="rounded-xs border-2 border-border bg-surface px-3 py-1 text-xs font-bold text-fg shadow-[1.5px_1.5px_0px_var(--shadow-color)] transition-all hover:bg-accent-yellow hover:text-black hover:-translate-x-0.5 hover:-translate-y-0.5"
                           >
                             {r}
                           </button>
@@ -142,10 +146,10 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                       </div>
                     </div>
                   )}
-                  <p className="mb-2 px-2 text-xs font-semibold tracking-wide text-fg-faint uppercase">
+                  <p className="mb-2 text-xs font-black tracking-wider text-fg-muted uppercase">
                     Kategori populer
                   </p>
-                  <div className="grid gap-1">
+                  <div className="grid gap-1.5">
                     {popularCategories.map((name) => {
                       const cat = api.categories.list().find((c) => c.name === name);
                       if (!cat) return null;
@@ -155,26 +159,26 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                           key={cat.id}
                           href={categoryHref(name)}
                           onClick={onClose}
-                          className="flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-surface-2"
+                          className="flex items-center gap-3 rounded-md border-2 border-transparent p-2 transition-all hover:border-border hover:bg-surface-2 hover:shadow-[2px_2px_0px_var(--shadow-color)]"
                         >
-                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-2">
-                            <Icon size={15} className="text-fg-muted" />
+                          <span className="flex h-8 w-8 items-center justify-center rounded-xs border-2 border-border bg-accent-yellow text-black shadow-[1px_1px_0px_var(--shadow-color)]">
+                            <Icon size={15} strokeWidth={2.5} />
                           </span>
-                          <span className="text-sm font-medium">{cat.name}</span>
-                          <ArrowRight size={14} className="ml-auto text-fg-faint" />
+                          <span className="text-sm font-bold text-fg">{cat.name}</span>
+                          <ArrowRight size={14} strokeWidth={2.5} className="ml-auto text-fg-muted" />
                         </Link>
                       );
                     })}
                   </div>
                 </div>
               ) : results.length === 0 ? (
-                <p className="px-6 py-10 text-center text-sm text-fg-muted">
-                  Tidak ada hasil untuk “{q}”.
+                <p className="px-6 py-10 text-center text-sm font-bold text-fg-muted">
+                  Tidak ada hasil untuk &ldquo;{q}&rdquo;.
                 </p>
               ) : (
-                <div className="p-2">
-                  <p className="px-2 py-1.5 text-xs font-semibold tracking-wide text-fg-faint uppercase">
-                    {results.length} hasil
+                <div className="space-y-1">
+                  <p className="px-2 py-1 text-xs font-black tracking-wider text-fg-muted uppercase">
+                    {results.length} hasil ditemukan
                   </p>
                   {results.map((app) => (
                     <Link
@@ -184,14 +188,14 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                         commitSearch(q.trim());
                         onClose();
                       }}
-                      className="flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-surface-2"
+                      className="flex items-center gap-3 rounded-md border-2 border-transparent p-2.5 transition-all hover:border-border hover:bg-surface-2 hover:shadow-[2px_2px_0px_var(--shadow-color)]"
                     >
                       <AppIcon icon={app.icon} size="sm" />
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-medium">{app.name}</p>
-                        <p className="truncate text-[13px] text-fg-muted">{app.tagline}</p>
+                        <p className="truncate text-sm font-black text-fg">{app.name}</p>
+                        <p className="truncate text-[13px] font-medium text-fg-muted">{app.tagline}</p>
                       </div>
-                      <span className="ml-auto shrink-0 text-sm font-semibold tabular-nums">
+                      <span className="ml-auto shrink-0 text-sm font-black tabular-nums text-fg">
                         {formatRupiah(app.price)}
                       </span>
                     </Link>

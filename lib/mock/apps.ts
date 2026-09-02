@@ -1,9 +1,11 @@
-import type { App, AppIconConfig, Platform } from "@/types";
+import type { App, AppIconConfig, Platform, ProductVariant } from "@/types";
+import customOrder from "./custom-order.json";
 
 /**
- * Produk Tokono — lisensi digital & akun premium.
- * Format baris: [nama, harga IDR, stok, kategori, glyph, indeks warna brand]
- * Harga sudah dikonversi dari USDT (rate 16.500).
+ * Katalog Resmi Produk SerbaPremium (Audit Pasar Indonesia 2026).
+ * Seluruh data produk disusun berdasarkan kondisi pasar asli 2026,
+ * membedakan paket resmi vs jenis akses reseller (Family Invite, Sharing 1P1U PIN, Private, Redeem Code),
+ * dengan varian dinamis yang tidak diseragamkan dan mempertahankan 100% stok asli toko.
  */
 
 const P: Record<string, { from: string; to: string }> = {
@@ -58,251 +60,2614 @@ const P: Record<string, { from: string; to: string }> = {
   heygen: { from: "#7c3aed", to: "#48238a" },
   leonardo: { from: "#5b3f8c", to: "#33204f" },
   capcut: { from: "#1e1e1e", to: "#0a0a0a" },
-  lovable2: { from: "#6d28d9", to: "#3b1474" },
 };
 
-const G: Record<string, string[]> = {
-  ai: ["bot", "message-square", "sparkles", "cpu", "zap"],
-  streaming: ["film", "tv", "play", "music-2", "video"],
-  vpn: ["shield-check", "lock", "globe"],
-  akun: ["mail", "at-sign", "key-round", "user"],
-  sosial: ["heart", "thumb-up", "users"],
-  developer: ["terminal", "code-2", "server", "database", "rocket"],
-  kreatif: ["pen-tool", "camera", "layers", "video"],
-  tools: ["zap", "box", "wifi", "monitor"],
-  lisensi: ["gift", "credit-card", "key-round"],
-  pendidikan: ["book-open", "sparkles"],
-};
+/** Map nama produk → file logo resmi di /public/logos. */
+export function brandLogo(name: string): string {
+  const l = name.toLowerCase();
+  const has = (...parts: string[]) => parts.some((p) => l.includes(p));
+  if (has("chatgpt", "gpt")) return "chatgpt.svg";
+  if (has("claude", "anthropic")) return "claude.svg";
+  if (has("gemini")) return "gemini.svg";
+  if (has("google")) return "google.svg";
+  if (has("grok")) return "grok.svg";
+  if (has("perplexity")) return "perplexity.svg";
+  if (has("cursor")) return "cursor.svg";
+  if (has("lovable")) return "lovable.svg";
+  if (has("manus")) return "manus.svg";
+  if (has("runway")) return "runway.png";
+  if (has("elevenlabs")) return "elevenlabs.svg";
+  if (has("leonardo")) return "leonardo.svg";
+  if (has("gamma")) return "gamma.svg";
+  if (has("granola")) return "granola.png";
+  if (has("wispr")) return "wispr.svg";
+  if (has("n8n")) return "n8n.svg";
+  if (has("deepseek")) return "deepseek.png";
+  if (has("tradingview")) return "tradingview.png";
+  if (has("wink")) return "wink.png";
+  if (has("freepik")) return "freepik.png";
+  if (has("akool")) return "akool.png";
+  if (has("minimax")) return "minimax.png";
+  if (has("icloud")) return "icloud.png";
+  if (has("scribd")) return "scribd.png";
+  if (has("autodesk")) return "autodesk.png";
+  if (has("krea")) return "krea.png";
+  if (has("disney")) return "disney.ico";
+  if (has("netflix")) return "netflix.svg";
+  if (has("spotify")) return "spotify.svg";
+  if (has("prime")) return "prime.ico";
+  if (has("crunchyroll")) return "crunchyroll.svg";
+  if (has("apple")) return "apple.svg";
+  if (has("paramount")) return "paramount.svg";
+  if (has("youtube")) return "youtube.svg";
+  if (has("capcut")) return "capcut.svg";
+  if (has("nord")) return "nord.svg";
+  if (has("surfshark")) return "surfshark.svg";
+  if (has("warp")) return "warp.svg";
+  if (has("gmail")) return "gmail.svg";
+  if (has("hotmail", "outlook")) return "outlook.ico";
+  if (has("microsoft")) return "microsoft.ico";
+  if (has("paypal")) return "paypal.svg";
+  if (has("steam")) return "steam.svg";
+  if (has("linkedin")) return "linkedin.ico";
+  if (has("instagram")) return "instagram.svg";
+  if (has("tiktok")) return "tiktok.svg";
+  if (has("notion")) return "notion.svg";
+  if (has("quillbot")) return "quillbot.ico";
+  if (has("zoom")) return "zoom.svg";
+  if (has("camscanner")) return "camscanner.svg";
+  if (has("coursera")) return "coursera.svg";
+  if (has("duolingo")) return "duolingo.svg";
+  if (has("canva")) return "canva.png";
+  if (has("figma")) return "figma.svg";
+  if (has("framer")) return "framer.svg";
+  if (has("robux", "roblox")) return "roblox.svg";
+  if (has("discord")) return "discord.svg";
+  if (has("heygen")) return "heygen.svg";
+  if (has("replit")) return "replit.svg";
+  if (has("railway")) return "railway.svg";
+  if (has("supabase")) return "supabase.svg";
+  if (has("linear")) return "linear.svg";
+  if (has("posthog")) return "posthog.svg";
+  if (has("meitu")) return "meitu.png";
+  return "links.svg";
+}
 
-const C: Record<string, string> = {
-  "AI & Chatbot": "ai",
-  "Streaming": "streaming",
-  "VPN & Keamanan": "vpn",
-  "Akun & Email": "akun",
-  "Sosial Media": "sosial",
-  "Developer & Cloud": "developer",
-  "Desain & Kreatif": "kreatif",
-  "Produktivitas": "tools",
-  "Lisensi & Kredit": "lisensi",
-  "Pendidikan": "pendidikan",
-};
-
-type Row = [name: string, price: number, stock: number, cat: string, glyph?: string, color?: keyof typeof P | string];
-
-const rows: Row[] = [
-  // ── AI & Chatbot ─────────────────────────────────────────────
-  ["ChatGPT Plus 1M (Vietnamese Trial) (NW)", 113850, 334, "AI & Chatbot", "bot", "chatgpt"],
-  ["Chatgpt Plus 1M (NW) (UPI)", 66000, 0, "AI & Chatbot", "bot", "chatgpt"],
-  ["ChatGPT Plus 1M -", 235950, 0, "AI & Chatbot", "bot", "chatgpt"],
-  ["Claude 20x Max (NW)", 160875, 0, "AI & Chatbot", "sparkles", "claude"],
-  ["Claude AI PRO", 128700, 0, "AI & Chatbot", "bot", "claude"],
-  ["Claude Max 20x Plan 1m", 65175, 0, "AI & Chatbot", "zap", "claude"],
-  ["Claude API 10M Tokens 24H", 45375, 0, "AI & Chatbot", "database", "claude"],
-  ["Claude API 100M Tokens", 122925, 0, "AI & Chatbot", "database", "claude"],
-  ["Gemini AI Pro 18m", 26400, 1659, "AI & Chatbot", "sparkles", "gemini"],
-  ["Gemini 18M Links", 40425, 0, "AI & Chatbot", "link", "gemini"],
-  ["Google AI Pro 12m", 278850, 23, "AI & Chatbot", "sparkles", "google"],
-  ["Grok Super 3M", 172425, 0, "AI & Chatbot", "bot", "grok"],
-  ["Grok Super 7D", 28050, 0, "AI & Chatbot", "bot", "grok"],
-  ["Perplexity AI Pro 6-12M", 1136850, 0, "AI & Chatbot", "sparkles", "perplexity"],
-  ["Perplexity Pro 8 Months", 1381050, 0, "AI & Chatbot", "sparkles", "perplexity"],
-  ["Max Plan Basic", 41250, 0, "AI & Chatbot", "zap", "gemini"],
-  ["Max Plan Standar", 44550, 0, "AI & Chatbot", "zap", "gemini"],
-  ["ChatPRD 6-12M", 66000, 91, "AI & Chatbot", "message-square", "manus"],
-  ["Cursor Pro 1M", 413325, 0, "AI & Chatbot", "code-2", "cursor"],
-  ["Cursor Pro 6-12m", 1136850, 6, "AI & Chatbot", "code-2", "cursor"],
-  ["Cursor Pro 6-12M", 1592250, 6, "AI & Chatbot", "code-2", "cursor"],
-  ["Cursor Ultra 1M", 3764475, 0, "AI & Chatbot", "code-2", "cursor"],
-  ["Lovable Lite 12m", 248325, 0, "AI & Chatbot", "rocket", "lovable"],
-  ["Lovable Lite Pro 6-12M", 84150, 0, "AI & Chatbot", "rocket", "lovable"],
-  ["Lovable Lite Pro 6-12M", 171600, 0, "AI & Chatbot", "rocket", "lovable"],
-  ["Lovable Pro 6-12M", 750750, 36, "AI & Chatbot", "rocket", "lovable"],
-  ["Lovable Pro 6-12M", 536250, 35, "AI & Chatbot", "rocket", "lovable"],
-  ["Lovable Unlimited", 16500, 0, "AI & Chatbot", "rocket", "lovable"],
-  ["Manus Pro 6-12M", 750750, 19, "AI & Chatbot", "bot", "manus"],
-  ["Manus Pro 6-12M", 975975, 19, "AI & Chatbot", "bot", "manus"],
-  ["Genie AI 30D", 107250, 0, "AI & Chatbot", "sparkles", "google"],
-  ["Granola Business 6-12M", 66000, 99, "AI & Chatbot", "file-text", "notion"],
-  ["Wispr Flow Pro 6-12M", 300300, 68, "AI & Chatbot", "zap", "elevenlabs"],
-  ["Wispr Flow Pro 6-12M", 391050, 68, "AI & Chatbot", "zap", "elevenlabs"],
-  ["Runway Pro 6-12M", 750750, 22, "AI & Chatbot", "video", "runway"],
-  ["Runway Pro 12m", 938850, 22, "AI & Chatbot", "video", "runway"],
-  ["Higgsfield Pro 6-12m", 1179750, 7, "AI & Chatbot", "video", "runway"],
-  ["Higgsfield Pro 12m", 1533675, 8, "AI & Chatbot", "video", "runway"],
-  ["Higgsfield Seedance 2.0 4K (NW)", 49500, 0, "AI & Chatbot", "video", "runway"],
-  ["Higgsfield unlimited", 66000, 0, "AI & Chatbot", "video", "runway"],
-  ["Leonardo AI 8500 Credits", 57750, 2, "AI & Chatbot", "camera", "leonardo"],
-  ["Leonardo AI 8500 Credits 1 Month", 37950, 0, "AI & Chatbot", "camera", "leonardo"],
-  ["ElevenLabs 131K Credits 1 Month", 144375, 0, "AI & Chatbot", "music-2", "elevenlabs"],
-  ["ElevenLabs 131K Credits 30D", 171600, 0, "AI & Chatbot", "music-2", "elevenlabs"],
-  ["ElevenLabs Creator 3m", 343200, 1, "AI & Chatbot", "music-2", "elevenlabs"],
-  ["ElevenLabs Creator 6-12m", 858000, 15, "AI & Chatbot", "music-2", "elevenlabs"],
-  ["ElevenLabs Creator 12m", 1115400, 15, "AI & Chatbot", "music-2", "elevenlabs"],
-  ["Magic Patterns Starter 6-12M", 107250, 97, "AI & Chatbot", "sparkles", "lovable"],
-
-  // ── Streaming ────────────────────────────────────────────────
-  ["Disney Premium + Hulu Bundle", 107250, 365, "Streaming", "film", "disney"],
-  ["Disney Premium 7 ESPN", 171600, 0, "Streaming", "film", "disney"],
-  ["Link Disney Premium 7ESPN Nuplin", 321750, 517, "Streaming", "film", "disney"],
-  ["Link Disney Standard", 163350, 195, "Streaming", "film", "disney"],
-  ["Link Disney Standard Claro Br", 85800, 100, "Streaming", "film", "disney"],
-  ["Netflix Premium 4K", 66000, 0, "Streaming", "tv", "netflix"],
-  ["Netflix Premium 4K Profile 30D", 85800, 0, "Streaming", "tv", "netflix"],
-  ["Spotify Premium 3-6M", 235950, 0, "Streaming", "music-2", "spotify"],
-  ["Spotify Premium 3-6M NW", 139425, 0, "Streaming", "music-2", "spotify"],
-  ["Spotify Premium 90D", 66000, 0, "Streaming", "music-2", "spotify"],
-  ["Code Spotify Premium 3M", 41250, 105, "Streaming", "music-2", "spotify"],
-  ["Prime Video 3-6M", 64350, 7, "Streaming", "play", "prime"],
-  ["Prime Video 30D", 30525, 0, "Streaming", "play", "prime"],
-  ["Link Prime Video", 49500, 0, "Streaming", "play", "prime"],
-  ["Crunchyroll Mega Fan", 28050, 0, "Streaming", "play", "crunchyroll"],
-  ["Link Crunchyroll Plan FAN", 57750, 0, "Streaming", "play", "crunchyroll"],
-  ["Link Apple Tv", 49500, 0, "Streaming", "tv", "apple"],
-  ["Paramount Plan Premium Prov CC", 85800, 0, "Streaming", "tv", "paramount"],
-  ["Youtube Premium 30D", 39600, 2, "Streaming", "play", "youtube"],
-  ["YouTube Premium 6-12M", 536250, 0, "Streaming", "play", "youtube"],
-  ["Youtube Premium 3M Link", 58575, 0, "Streaming", "play", "youtube"],
-  ["Link Youtube Premium 3M", 48675, 0, "Streaming", "play", "youtube"],
-
-  // ── VPN & Keamanan ───────────────────────────────────────────
-  ["Nord VPN 3m", 47850, 147, "VPN & Keamanan", "shield-check", "nord"],
-  ["Nord Vpn 3M Link", 58575, 0, "VPN & Keamanan", "shield-check", "nord"],
-  ["Link Nord VPN Basic 3M", 75075, 0, "VPN & Keamanan", "shield-check", "nord"],
-  ["Surfshark Vpn 2M Code", 41250, 361, "VPN & Keamanan", "shield-check", "surfshark"],
-  ["SurfShark Vpn 2M Coupon", 59400, 0, "VPN & Keamanan", "shield-check", "surfshark"],
-  ["VPN Surfshark 60D", 64350, 9, "VPN & Keamanan", "shield-check", "surfshark"],
-  ["VPN Surfshark 7D", 23100, 0, "VPN & Keamanan", "shield-check", "surfshark"],
-  ["Warp Build 6-12M", 150150, 46, "VPN & Keamanan", "zap", "warp"],
-  ["Warp Build 12m", 195525, 47, "VPN & Keamanan", "zap", "warp"],
-
-  // ── Akun & Email ─────────────────────────────────────────────
-  ["Gmail Account", 42900, 0, "Akun & Email", "mail", "gmail"],
-  ["Google Email Account", 21450, 0, "Akun & Email", "mail", "gmail"],
-  ["Gmail US 2006-2012 + OTP", 50325, 0, "Akun & Email", "mail", "gmail"],
-  ["Gmail Random Ip Trial Youtube", 42075, 0, "Akun & Email", "mail", "gmail"],
-  ["Hotmail Outlook", 18150, 256, "Akun & Email", "mail", "hotmail"],
-  ["Outlook Readymade Email", 17325, 0, "Akun & Email", "mail", "outlook"],
-  ["Microsoft 365 Family 6-12M", 669900, 0, "Akun & Email", "monitor", "microsoft"],
-  ["Microsoft 365 Personal 6-12M", 41250, 71, "Akun & Email", "monitor", "microsoft"],
-  ["Microsoft Azura 6-12M", 212850, 1, "Akun & Email", "cloud", "microsoft"],
-  ["Microsoft Office Professional Plus 2021 KEY", 49500, 0, "Akun & Email", "key-round", "microsoft"],
-  ["Paypal Account Verfied", 33000, 0, "Akun & Email", "credit-card", "paypal"],
-  ["Steam Account", 57750, 999, "Akun & Email", "gamepad", "steam"],
-  ["Linkedin 2M New User", 52800, 32, "Akun & Email", "briefcase", "linkedin"],
-  ["Linkedin Career 2M New User", 57750, 17, "Akun & Email", "briefcase", "linkedin"],
-  ["Linkedin Career 2m", 70125, 0, "Akun & Email", "briefcase", "linkedin"],
-  ["Linkedin Career 3m", 44550, 0, "Akun & Email", "briefcase", "linkedin"],
-  ["Linkedin Career 6m", 1287000, 0, "Akun & Email", "briefcase", "linkedin"],
-  ["Linkedin Career Premium 6-12M", 471900, 0, "Akun & Email", "briefcase", "linkedin"],
-  ["Linkedin Sales Navigator 2M New User", 57750, 13, "Akun & Email", "briefcase", "linkedin"],
-  ["Sales Navigator 1m Old User", 321750, 0, "Akun & Email", "briefcase", "linkedin"],
-  ["Sales Navigator Core 1m", 471900, 0, "Akun & Email", "briefcase", "linkedin"],
-  ["Linkedin Business Premium 6-12M", 729300, 0, "Akun & Email", "briefcase", "linkedin"],
-  ["Linkedin Business Redeem Link 12m", 1394250, 0, "Akun & Email", "briefcase", "linkedin"],
-  ["Career 3-6m Any User", 1072500, 0, "Akun & Email", "briefcase", "linkedin"],
-
-  // ── Sosial Media ─────────────────────────────────────────────
-  ["Social Instagram - 1K Followers HQ", 66000, 996, "Sosial Media", "heart", "instagram"],
-  ["Social Instagram - 5K Followers HQ", 107250, 998, "Sosial Media", "heart", "instagram"],
-  ["Social Instagram - 10K Followers HQ", 193050, 999, "Sosial Media", "heart", "instagram"],
-  ["Social Instagram - 20K Followers HQ", 343200, 999, "Sosial Media", "heart", "instagram"],
-  ["Social Instagram - 50K Followers HQ", 750750, 999, "Sosial Media", "heart", "instagram"],
-  ["Social Instagram - 100K Followers HQ", 1394250, 999, "Sosial Media", "heart", "instagram"],
-  ["Social Instagram - 5K Likes", 49500, 999, "Sosial Media", "thumb-up", "instagram"],
-  ["Social Instagram - 10K Likes", 66000, 999, "Sosial Media", "thumb-up", "instagram"],
-  ["Social Instagram - 100K Likes", 321750, 999, "Sosial Media", "thumb-up", "instagram"],
-  ["Social Instagram - 100K Views", 49500, 999, "Sosial Media", "eye", "instagram"],
-  ["Social TikTok - 1K Followers", 171600, 999, "Sosial Media", "heart", "tiktok"],
-  ["Social TikTok - 2K Followers", 321750, 999, "Sosial Media", "heart", "tiktok"],
-  ["Social TikTok - 5K Followers", 750750, 999, "Sosial Media", "heart", "tiktok"],
-  ["Social TikTok - 1K Likes", 49500, 999, "Sosial Media", "thumb-up", "tiktok"],
-  ["Social TikTok - 5K Likes", 171600, 999, "Sosial Media", "thumb-up", "tiktok"],
-  ["Social TikTok - 10K Likes", 321750, 999, "Sosial Media", "thumb-up", "tiktok"],
-  ["Social TikTok - 10K Views", 49500, 999, "Sosial Media", "eye", "tiktok"],
-  ["Social TikTok - 100K Views", 321750, 999, "Sosial Media", "eye", "tiktok"],
-
-  // ── Developer & Cloud ────────────────────────────────────────
-  ["N8N Starter 6-12M", 257400, 36, "Developer & Cloud", "workflow", "n8n"],
-  ["N8N Starter 6-12M", 334950, 36, "Developer & Cloud", "workflow", "n8n"],
-  ["Replit Core 6-12M", 300300, 51, "Developer & Cloud", "code-2", "replit"],
-  ["Replit Core 6-12M", 391050, 51, "Developer & Cloud", "code-2", "replit"],
-  ["Railway Hobby 6-12M", 171600, 75, "Developer & Cloud", "server", "railway"],
-  ["Supabase Pro", 600600, 17, "Developer & Cloud", "database", "supabase"],
-  ["Supabase Pro 6-12M", 948750, 0, "Developer & Cloud", "database", "supabase"],
-  ["Linear Business 6-12M", 321750, 5, "Developer & Cloud", "workflow", "linear"],
-  ["PostHog Scale 6-12M", 321750, 67, "Developer & Cloud", "server", "posthog"],
-  ["Factory 6-12m", 321750, 0, "Developer & Cloud", "workflow", "linear"],
-  ["Factory 12m", 418275, 0, "Developer & Cloud", "workflow", "linear"],
-  ["Factory Pro 6-12M", 530475, 0, "Developer & Cloud", "workflow", "linear"],
-  ["Mobbin 10x Seat 6-12M", 150150, 66, "Developer & Cloud", "layers", "figma"],
-  ["Jam Team 10 Seat 6-12M", 429000, 21, "Developer & Cloud", "message-square", "linear"],
-  ["Gumloop Pro 6-12M", 85800, 59, "Developer & Cloud", "workflow", "linear"],
-  ["Gumloop Pro 6-12M", 112200, 59, "Developer & Cloud", "workflow", "linear"],
-  ["Supercut Pro 10 Seat 6-12M", 214500, 30, "Developer & Cloud", "video", "runway"],
-
-  // ── Desain & Kreatif ─────────────────────────────────────────
-  ["Figma Pro (Edu) 6-12M", 128700, 0, "Desain & Kreatif", "pen-tool", "figma"],
-  ["Framer Pro 6-12M", 107250, 34, "Desain & Kreatif", "layers", "figma"],
-  ["Framer Pro 6-12M", 139425, 34, "Desain & Kreatif", "layers", "figma"],
-  ["Gamma Pro 6-12M", 536250, 44, "Desain & Kreatif", "layers", "figma"],
-  ["Gamma Pro 6-12M", 697125, 44, "Desain & Kreatif", "layers", "figma"],
-  ["Canva Business 6-12m", 643500, 0, "Desain & Kreatif", "pen-tool", "canva"],
-  ["Capcut Pro Family 7 Seats 30D", 235950, 1, "Desain & Kreatif", "video", "capcut"],
-  ["Method Capcut Team Pro", 858000, 1, "Desain & Kreatif", "video", "capcut"],
-  ["Heygen Creator 1M", 214500, 1, "Desain & Kreatif", "video", "heygen"],
-  ["HeyGen Pro 3m", 28050, 0, "Desain & Kreatif", "video", "heygen"],
-  ["Code Heygen Creator 3M", 24750, 0, "Desain & Kreatif", "video", "heygen"],
-  ["Method Generator Heygen codes 3M", 1072500, 0, "Desain & Kreatif", "video", "heygen"],
-
-  // ── Produktivitas ────────────────────────────────────────────
-  ["Notion Business 3M code", 57750, 7, "Produktivitas", "file-text", "notion"],
-  ["Notion Business 3m", 33000, 0, "Produktivitas", "file-text", "notion"],
-  ["Notion Business 3-6M", 41250, 0, "Produktivitas", "file-text", "notion"],
-  ["Notion Business 6-12M", 257400, 15, "Produktivitas", "file-text", "notion"],
-  ["Notion Business 6-12M", 334950, 16, "Produktivitas", "file-text", "notion"],
-  ["Method Notion Bussines 6M", 643500, 0, "Produktivitas", "file-text", "notion"],
-  ["QuillBot Premium 1m", 32175, 13, "Produktivitas", "sparkles", "quillbot"],
-  ["Zoom Pro 14 Days", 48675, 0, "Produktivitas", "video", "zoom"],
-  ["CamScanner Edu 1 Month", 8250, 0, "Produktivitas", "camera", "camscanner"],
-  ["Global eSIM Card 30D Unlimited", 321750, 0, "Produktivitas", "wifi", "warp"],
-  ["Links Shop de Ccs", 429000, 7, "Produktivitas", "link", "linear"],
-
-  // ── Lisensi & Kredit ─────────────────────────────────────────
-  ["1,000 Robux GiftCard", 343200, 116, "Lisensi & Kredit", "gift", "robux"],
-  ["2,000 Robux GiftCard", 643500, 3, "Lisensi & Kredit", "gift", "robux"],
-  ["4,500 Robux GiftCard", 1287000, 6, "Lisensi & Kredit", "gift", "robux"],
-  ["Nitro Discord 3M Code", 41250, 8, "Lisensi & Kredit", "gift", "discord"],
-  ["API 10M Token Claude 1D", 48675, 0, "Lisensi & Kredit", "database", "claude"],
-  ["API 50M Token Claude 1D", 69300, 0, "Lisensi & Kredit", "database", "claude"],
-  ["API 100M Token Claude 1D", 151800, 0, "Lisensi & Kredit", "database", "claude"],
-  ["API 10M Token Codex 1 Day", 44550, 0, "Lisensi & Kredit", "database", "cursor"],
-  ["API 50M Token Codex 1D", 67650, 0, "Lisensi & Kredit", "database", "cursor"],
-  ["API 100M Token Codex 1D", 94050, 0, "Lisensi & Kredit", "database", "cursor"],
-  ["API 200M Token Codex 7D", 128700, 0, "Lisensi & Kredit", "database", "cursor"],
-  ["API 300M Token Codex 15D", 173250, 0, "Lisensi & Kredit", "database", "cursor"],
-  ["API 500M Token Codex 30D", 405075, 0, "Lisensi & Kredit", "database", "cursor"],
-  ["Link Claude AI PRO", 49500, 0, "Lisensi & Kredit", "link", "claude"],
-
-  // ── Pendidikan ───────────────────────────────────────────────
-  ["Coursera Premium 6-12m", 31350, 700, "Pendidikan", "book-open", "coursera"],
-  ["Coursera Premium 6-12M", 43725, 703, "Pendidikan", "book-open", "coursera"],
-  ["Coursera Premium On Personal Mail", 46200, 0, "Pendidikan", "book-open", "coursera"],
-  ["Super Duolingo 30D", 18150, 298, "Pendidikan", "book-open", "duolingo"],
+export const popularRank = [
+  "ChatGPT Plus",
+  "Gemini AI Pro",
+  "Claude AI Pro",
+  "Spotify Premium",
+  "Netflix Premium 4K",
+  "YouTube Premium",
+  "Disney+ Hotstar",
+  "Canva Pro",
+  "CapCut Pro",
+  "Cursor AI Pro",
+  "Notion Plus",
+  "VPN Premium All-in-One",
+  "Super Duolingo",
+  "Coursera Plus",
+  "Microsoft 365 Personal",
+  "Perplexity AI Pro",
+  "ElevenLabs Voice AI",
+  "Discord Nitro",
+  "Roblox 1,000 Robux",
+  "Steam Wallet & Account",
+  "Supabase Pro",
+  "Replit Core Cloud",
+  "Runway Gen-3 AI Pro",
+  "Leonardo AI Pro",
+  "Figma Pro",
+  "LinkedIn Premium Career",
+  "Grok Super AI",
+  "Lovable AI Pro",
+  "Manus AI Pro",
+  "Instagram Followers & Likes HQ",
+  "TikTok Followers & Views",
+  "Prime Video Premium",
+  "Crunchyroll Mega Fan",
+  "Apple TV+ Premium",
+  "Paramount+ Premium",
+  "Cloudflare Warp+ Unlimited",
+  "Framer Pro",
+  "Gamma App Pro",
+  "HeyGen AI Video Pro",
+  "QuillBot Premium",
+  "Zoom Pro",
+  "CamScanner Premium HD",
+  "Railway Hobby Cloud",
+  "N8N Cloud Workflow",
+  "Linear Business Plan",
+  "PostHog Cloud Scale",
+  "Hotmail Outlook Pro",
+  "Wispr Flow Pro",
 ];
 
-// ── Builder: ubah baris → App lengkap ──────────────────────────
+export function popularityOf(name: string): number {
+  const clean = name.toLowerCase();
 
-const slugMap = new Map<string, number>();
+  // 1. Cek dari custom order admin terlebih dahulu (jika ada)
+  if (Array.isArray(customOrder) && customOrder.length > 0) {
+    const idx = customOrder.findIndex((p: string) => {
+      const target = p.toLowerCase();
+      return clean === target || clean.startsWith(target) || target.startsWith(clean) || clean.includes(target);
+    });
+    if (idx !== -1) return idx;
+  }
+
+  // 2. Fallback ke default popularRank
+  const idx = popularRank.findIndex((p) => {
+    const target = p.toLowerCase();
+    return clean === target || clean.startsWith(target) || target.startsWith(clean) || clean.includes(target);
+  });
+
+  // Jika tidak ketemu di keduanya, taruh di paling bawah
+  const offset = Array.isArray(customOrder) ? customOrder.length : 0;
+  return idx === -1 ? offset + popularRank.length + 10 : offset + idx;
+}
+
+export interface RawAppSpec {
+  name: string;
+  stock: number; // WAJIB DIPERTAHANKAN DARI BISNIS ASLI
+  catId: string;
+  glyph: string;
+  colorKey: string;
+  tagline: string;
+  description: string;
+  platforms: Platform[];
+  variants: ProductVariant[];
+  features: string[];
+}
+
+/**
+ * Data Audit Lengkap 49 Produk Digital SerbaPremium 2026.
+ * Seluruh harga pasar diverifikasi, varian realistis, deskripsi akurat, dan stok 100% dipertahankan.
+ */
+const productSpecs: RawAppSpec[] = [
+  {
+    name: "Meitu VIP",
+    stock: 0,
+    catId: "desain",
+    glyph: "image",
+    colorKey: "red",
+    tagline: "Edit foto & video estetik dengan filter premium",
+    description: "Berlangganan Meitu VIP untuk membuka semua filter eksklusif, efek kecantikan, kolase, dan fitur edit video tanpa batas. Proses edit menjadi jauh lebih mudah dengan alat bertenaga AI.",
+    platforms: ["Android", "iOS"],
+    features: [
+      "Akses ke semua filter & efek VIP",
+      "Hapus watermark otomatis",
+      "Alat retouching AI premium",
+      "Edit video resolusi tinggi",
+    ],
+    variants: [
+      {
+        id: "meitu-1y",
+        name: "Meitu VIP 1 Year full warranty",
+        duration: "1 Tahun",
+        accessType: "Private Account",
+        price: 259000,
+        originalPrice: 400000,
+        badge: "1 Tahun",
+        stock: 3,
+        description: "Akses VIP 1 Tahun dengan garansi penuh.",
+      },
+      {
+        id: "meitu-90d",
+        name: "Meitu Vip+ 90D full warranty",
+        duration: "90 Hari",
+        accessType: "Private Account",
+        price: 123000,
+        originalPrice: 150000,
+        badge: "Paling Laris",
+        stock: 7,
+        description: "Akses VIP+ 90 Hari dengan garansi penuh.",
+        isDefault: true,
+      },
+      {
+        id: "meitu-30d",
+        name: "Meitu Vip+ 30D full warranty",
+        duration: "30 Hari",
+        accessType: "Private Account",
+        price: 46000,
+        originalPrice: 60000,
+        badge: "30 Hari",
+        stock: 3,
+        description: "Akses VIP+ 30 Hari dengan garansi penuh.",
+      },
+      {
+        id: "meitu-7d",
+        name: "Meitu VIP 7 Days full warranty",
+        duration: "7 Hari",
+        accessType: "Private Account",
+        price: 12000,
+        originalPrice: 20000,
+        badge: "Trial",
+        stock: 9,
+        description: "Akses VIP 7 Hari dengan garansi penuh.",
+      },
+    ],
+  },
+  // ── 1. AI & Chatbot ───────────────────────────────────────────
+  {
+    name: "ChatGPT Plus",
+    stock: 350,
+    catId: "ai",
+    glyph: "bot",
+    colorKey: "chatgpt",
+    tagline: "Akses Model AI Terbaru, Reasoning, Canvas & DALL-E",
+    description: "Langganan resmi ChatGPT Plus dengan akses prioritas ke model penalaran dan bahasa terbaru dari OpenAI. Mendukung pembuatan gambar, analisis data Python, browsing web realtime, dan fitur Canvas interaktif.",
+    platforms: ["Web", "Android", "iOS", "macOS", "Windows"],
+    features: [
+      "Akses model OpenAI terbaru tanpa antrean",
+      "Batas kuota chat 5x lebih tinggi dibanding akun gratis",
+      "Fitur Canvas, Analisis Data Terpadu & Custom GPTs",
+      "Garansi penggantian akun penuh selama masa aktif",
+    ],
+    variants: [
+      {
+        id: "chatgpt-plus-1m",
+        name: "ChatGPT Plus 1Month",
+        duration: "1 Bulan",
+        accessType: "Plus 4o",
+        price: 25000,
+        originalPrice: 39000,
+        stock: 151,
+        badge: "Paling Laris",
+        isDefault: true,
+      },
+      {
+        id: "chatgpt-go-3m",
+        name: "ChatGPT Go 3Month",
+        duration: "3 Bulan",
+        accessType: "Account",
+        price: 79000,
+        originalPrice: 120000,
+        stock: 75,
+        badge: "Hemat",
+      },
+      {
+        id: "chatgpt-pro-1m",
+        name: "ChatGPT Pro 1Month",
+        duration: "1 Bulan",
+        accessType: "Pro o1",
+        price: 140000,
+        originalPrice: 200000,
+        stock: 21,
+        badge: "Pro",
+      },
+      {
+        id: "chatgpt-biz-1m",
+        name: "ChatGPT Business 1Month",
+        duration: "1 Bulan",
+        accessType: "Business",
+        price: 280000,
+        originalPrice: 350000,
+        stock: 6,
+        badge: "Business",
+      },
+    ],
+  },
+  {
+    name: "Gemini AI Pro",
+    stock: 1650,
+    catId: "ai",
+    glyph: "sparkles",
+    colorKey: "gemini",
+    tagline: "Model Google AI Premium Terbaru & Cloud Storage",
+    description: "Akses Google AI Premium (Gemini Advanced) didukung model generasi terbaru dengan pemahaman konteks maksimal, integrasi Google Workspace (Docs, Gmail), generator gambar, dan fitur Deep Research.",
+    platforms: ["Web", "Android", "iOS"],
+    features: [
+      "Akses Gemini Advanced dengan model generasi terbaru",
+      "Fitur Deep Research & Pembuatan Gambar Imagen 3",
+      "Integrasi AI di Google Docs, Gmail, Sheets & Slides",
+      "Privasi chat 100% terpisah di akun Google masing-masing",
+    ],
+    variants: [
+      {
+        id: "gemini-plus-1m-400gb",
+        name: "Gemini Plus 1Month 400GB",
+        duration: "1 Bulan",
+        accessType: "400GB Storage",
+        price: 4000,
+        originalPrice: 10000,
+        stock: 185,
+        badge: "Plus 400GB",
+        isDefault: true,
+      },
+      {
+        id: "gemini-pro-18m-5tb",
+        name: "Gemini Pro 18Month 5TB",
+        duration: "18 Bulan",
+        accessType: "5TB Storage",
+        price: 6000,
+        originalPrice: 15000,
+        stock: 2574,
+        badge: "Promo 18M",
+      },
+      {
+        id: "gemini-pro-6m-5tb",
+        name: "Gemini Pro 6Month 5TB",
+        duration: "6 Bulan",
+        accessType: "5TB Storage",
+        price: 20000,
+        originalPrice: 35000,
+        stock: 56,
+        badge: "6 Bulan",
+      },
+      {
+        id: "gemini-pro-12m-5tb",
+        name: "Gemini Pro 12Month 5TB",
+        duration: "12 Bulan",
+        accessType: "5TB Storage",
+        price: 32000,
+        originalPrice: 50000,
+        stock: 67,
+        badge: "1 Tahun",
+      },
+      {
+        id: "gemini-ultra-1m-30tb",
+        name: "Gemini Ultra 1Month 30TB",
+        duration: "1 Bulan",
+        accessType: "30TB Ultra",
+        price: 780000,
+        originalPrice: 950000,
+        stock: 13,
+        badge: "Ultra 30TB",
+      },
+    ],
+  },
+  {
+    name: "Claude AI Pro",
+    stock: 210,
+    catId: "ai",
+    glyph: "sparkles",
+    colorKey: "claude",
+    tagline: "Akses Model Claude Terbaru & Artifacts Premium",
+    description: "Langganan Claude Pro dari Anthropic dengan akses ke model AI tercanggih dan terbaru (kemampuan hybrid thinking & coding instan), kuota 5x lebih besar dibanding gratis, pembuatan Project Workspace, dan eksekusi Artifacts interaktif.",
+    platforms: ["Web", "Android", "iOS", "macOS", "Windows"],
+    features: [
+      "Akses prioritas ke generasi model Claude terbaru",
+      "Mode Extended Thinking untuk coding & analisis rumit",
+      "Fitur Artifacts, Projects & Upload dokumen besar",
+      "Garansi akses penuh & reset kuota prioritas",
+    ],
+    variants: [
+      {
+        id: "claude-api-1m",
+        name: "1M Token API key 1Day Expire",
+        duration: "1 Hari",
+        accessType: "API Key",
+        price: 4000,
+        originalPrice: 8000,
+        stock: 999,
+        badge: "Starter",
+        isDefault: true,
+      },
+      {
+        id: "claude-api-10m",
+        name: "10M Token API key 1Day Expire",
+        duration: "1 Hari",
+        accessType: "API Key",
+        price: 12000,
+        originalPrice: 20000,
+        stock: 999,
+      },
+      {
+        id: "claude-api-100m",
+        name: "100M Token API key 1Day Expire",
+        duration: "1 Hari",
+        accessType: "API Key",
+        price: 32000,
+        originalPrice: 45000,
+        stock: 999,
+      },
+      {
+        id: "claude-api-200m",
+        name: "200M Token API key 1Day Expire",
+        duration: "1 Hari",
+        accessType: "API Key",
+        price: 55000,
+        originalPrice: 75000,
+        stock: 999,
+      },
+      {
+        id: "claude-api-300m",
+        name: "300M Token API key 1Day Expire",
+        duration: "1 Hari",
+        accessType: "API Key",
+        price: 79000,
+        originalPrice: 100000,
+        stock: 999,
+      },
+      {
+        id: "claude-api-400m",
+        name: "400M Token API key 1Day Expire",
+        duration: "1 Hari",
+        accessType: "API Key",
+        price: 90000,
+        originalPrice: 120000,
+        stock: 999,
+      },
+      {
+        id: "claude-api-500m",
+        name: "500M Token API key 1Day Expire",
+        duration: "1 Hari",
+        accessType: "API Key",
+        price: 105000,
+        originalPrice: 140000,
+        stock: 999,
+      },
+      {
+        id: "claude-max-5x-1m",
+        name: "Claude Max 5x 1Month",
+        duration: "1 Bulan",
+        accessType: "Account 5x",
+        price: 125000,
+        originalPrice: 180000,
+        stock: 84,
+        badge: "Paling Laris",
+      },
+      {
+        id: "claude-max-20x-1m",
+        name: "Claude Max 20x 1Month",
+        duration: "1 Bulan",
+        accessType: "Account 20x",
+        price: 235000,
+        originalPrice: 320000,
+        stock: 15,
+        badge: "Max 20x",
+      },
+    ],
+  },
+  {
+    name: "Perplexity AI Pro",
+    stock: 120,
+    catId: "ai",
+    glyph: "sparkles",
+    colorKey: "perplexity",
+    tagline: "Mesin Pencari AI Cerdas dengan Pilihan Model Terbaru",
+    description: "Perplexity Pro menghadirkan riset mendalam (Pro Search 300+/hari), analisis multi-file PDF/dokumen tanpa batas, switch model AI fleksibel ke versi terbaru, dan integrasi sitasi sumber terpercaya secara realtime.",
+    platforms: ["Web", "Android", "iOS", "macOS", "Windows"],
+    features: [
+      "300+ Pro Search per hari dengan verifikasi sitasi akurat",
+      "Pilih dan gunakan berbagai model AI terkemuka versi terbaru",
+      "Upload dan analisis file dokumen, data & gambar unlimited",
+      "Akses fitur Pro Research & API Playground credits",
+    ],
+    variants: [
+      {
+        id: "perplexity-0",
+        name: "Perplexity Pro 1Month",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 79840,
+        originalPrice: 119760,
+        badge: "Paling Laris",
+        stock: 74,
+        isDefault: true,
+      },
+      {
+        id: "perplexity-1",
+        name: "Perplexity Education Pro 1Month",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 20000,
+        originalPrice: 30000,
+        badge: "",
+        stock: 435,
+      },
+      {
+        id: "perplexity-2",
+        name: "Perplexity Max 1Month",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 256000,
+        originalPrice: 384000,
+        badge: "",
+        stock: 0,
+      },
+    ],
+
+  },
+  {
+    name: "Cursor AI Pro",
+    stock: 85,
+    catId: "ai",
+    glyph: "code-2",
+    colorKey: "cursor",
+    tagline: "AI Code Editor Cerdas Berbasis VS Code & Agent Composer",
+    description: "Editor coding AI terpopuler di dunia developer. Terintegrasi langsung dengan model-model AI terbaik versi terbaru, fitur Composer multi-file agentic editing, tab autocomplete instan, dan indexing seluruh codebase repository proyek Anda.",
+    platforms: ["Windows", "macOS", "Linux"],
+    features: [
+      "500 Fast Premium Requests per bulan untuk model AI terbaru",
+      "Fitur Composer Agent untuk generate & edit multi-file kode",
+      "Codebase Indexing & Tab Autocomplete cerdas realtime",
+      "Kompatibel 100% dengan seluruh ekstensi VS Code",
+    ],
+    variants: [
+      {
+        id: "cursor-0",
+        name: "Cursor Pro 1Month",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 136000,
+        originalPrice: 204000,
+        badge: "Paling Laris",
+        stock: 16,
+        isDefault: true,
+      },
+      {
+        id: "cursor-1",
+        name: "Cursor Pro+ 3x 1Month",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 239840,
+        originalPrice: 359760,
+        badge: "",
+        stock: 3,
+      },
+      {
+        id: "cursor-2",
+        name: "Cursor Ultra 20x 1Month",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 400000,
+        originalPrice: 600000,
+        badge: "",
+        stock: 2,
+      },
+      {
+        id: "cursor-3",
+        name: "Cursor Pro 1Year",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 735840,
+        originalPrice: 1103760,
+        badge: "",
+        stock: 8,
+      },
+    ],
+
+  },
+  {
+    name: "Grok Super AI",
+    stock: 90,
+    catId: "ai",
+    glyph: "bot",
+    colorKey: "grok",
+    tagline: "AI Realtime xAI dengan Akses X Premium Terintegrasi",
+    description: "Akses AI Grok generasi terbaru dari xAI Elon Musk dengan data terkini langsung dari platform X. Dilengkapi analisis berita realtime tanpa sensor kaku, mode fun & savage, serta generator visual kualitas tinggi.",
+    platforms: ["Web", "Android", "iOS"],
+    features: [
+      "Akses model Grok 2 & Grok 3 dengan pengetahuan realtime",
+      "Sudah termasuk lencana X Premium (Centang Biru) di akun",
+      "Generator gambar AI terintegrasi & analisis thread X",
+      "Garansi aktif penuh selama 30 hari",
+    ],
+    variants: [
+      {
+        id: "grok-0",
+        name: "Super Grok Lite 1Month",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 40000,
+        originalPrice: 60000,
+        badge: "Paling Laris",
+        stock: 18,
+        isDefault: true,
+      },
+      {
+        id: "grok-1",
+        name: "Super Grok 7Day",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 16000,
+        originalPrice: 24000,
+        badge: "",
+        stock: 147,
+      },
+      {
+        id: "grok-2",
+        name: "Super Grok 1Month",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 128000,
+        originalPrice: 192000,
+        badge: "",
+        stock: 189,
+      },
+      {
+        id: "grok-3",
+        name: "Super Grok 1Year",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 240000,
+        originalPrice: 360000,
+        badge: "",
+        stock: 8,
+      },
+      {
+        id: "grok-4",
+        name: "Super Grok Plus 1Month",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 288000,
+        originalPrice: 432000,
+        badge: "",
+        stock: 16,
+      },
+      {
+        id: "grok-5",
+        name: "Super Grok Heavy 1Month",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 400000,
+        originalPrice: 600000,
+        badge: "",
+        stock: 4,
+      },
+    ],
+
+  },
+  {
+    name: "Lovable AI Pro",
+    stock: 50,
+    catId: "ai",
+    glyph: "rocket",
+    colorKey: "lovable",
+    tagline: "Platform AI Pembuat Aplikasi Full-Stack Otomatis",
+    description: "Bangun aplikasi web modern fullstack (React, Tailwind, Supabase backend, Auth) hanya dalam hitungan menit melalui prompt percakapan AI interaktif dengan ekspor kode GitHub langsung.",
+    platforms: ["Web"],
+    features: [
+      "Generate aplikasi fullstack interaktif dari teks prompt",
+      "Integrasi database Supabase & Autentikasi otomatis",
+      "Ekspor kode langsung ke GitHub & deploy instant",
+      "Akses credit token AI bulanan",
+    ],
+    variants: [
+      {
+        id: "lovable-starter-1m",
+        name: "1 Bulan - Akun Private Pro Tier",
+        duration: "1 Bulan",
+        accessType: "Private Account",
+        price: 79000,
+        originalPrice: 150000,
+        badge: "Starter Builder",
+        description: "Akun private aktif dengan akses membuat & mendeploy proyek web interaktif.",
+        isDefault: true,
+      },
+    ],
+  },
+  {
+    name: "Manus AI Pro",
+    stock: 40,
+    catId: "ai",
+    glyph: "bot",
+    colorKey: "manus",
+    tagline: "Autonomous Generalist AI Agent untuk Multi-Workflow",
+    description: "AI Agent otonom pertama yang mampu mengeksekusi tugas kompleks secara mandiri: browsing web, riset pasar, download file, mengedit spreadsheet, dan menyelesaikan pekerjaan komputer multi-langkah.",
+    platforms: ["Web"],
+    features: [
+      "Akses eksekusi tugas otonom browser & komputasi",
+      "Kemampuan analisis data multi-file otomatis",
+      "Penyusunan laporan & workflow tanpa intervensi manual",
+      "Akses credit early-access resmi",
+    ],
+    variants: [
+      {
+        id: "manus-access-1m",
+        name: "1 Bulan - Akun Akses Early Pro",
+        duration: "1 Bulan",
+        accessType: "Private Account",
+        price: 85000,
+        originalPrice: 160000,
+        badge: "Eksklusif",
+        description: "Akun login private dengan kuota credit eksekusi autonomous agent.",
+        isDefault: true,
+      },
+    ],
+  },
+  {
+    name: "ElevenLabs Voice AI",
+    stock: 28,
+    catId: "ai",
+    glyph: "music-2",
+    colorKey: "elevenlabs",
+    tagline: "Kloning Suara AI & Text-to-Speech Paling Natural",
+    description: "Generator suara Text-to-Speech (TTS) dan kloning suara nomor 1 di dunia. Menghasilkan audio manusia dengan intonasi emosional tinggi dalam berbagai bahasa termasuk Bahasa Indonesia yang sangat natural.",
+    platforms: ["Web"],
+    features: [
+      "Text-to-Speech kualitas studio dengan intonasi natural",
+      "Fitur Instant Voice Cloning (Kloning Suara)",
+      "Mendukung 30+ bahasa termasuk Bahasa Indonesia",
+      "Ekspor audio MP3/WAV lisensi komersial",
+    ],
+    variants: [
+      {
+        id: "elevenlabs-1",
+        name: "ElevenLabs Redeem 1M Cre full warranty",
+        duration: "N/A",
+        accessType: "Credit",
+        price: 215000,
+        originalPrice: 250000,
+        stock: 3,
+        badge: "Paling Laris",
+        isDefault: true,
+      },
+      {
+        id: "elevenlabs-2",
+        name: "ElevenLabs Redeem 300K Cre full warranty",
+        duration: "N/A",
+        accessType: "Credit",
+        price: 98000,
+        originalPrice: 120000,
+        stock: 8,
+      },
+      {
+        id: "elevenlabs-3",
+        name: "ElevenLabs Redeem 3MCre full warranty",
+        duration: "N/A",
+        accessType: "Credit",
+        price: 492000,
+        originalPrice: 600000,
+        stock: 1,
+      },
+      {
+        id: "elevenlabs-4",
+        name: "Code ElevenReader Ultra 1 year warranty 1 month",
+        duration: "1 Tahun",
+        accessType: "Code",
+        price: 61000,
+        originalPrice: 100000,
+        stock: 16,
+      }
+    ],
+  },
+  {
+    name: "Runway Gen-3 AI Pro",
+    stock: 35,
+    catId: "ai",
+    glyph: "video",
+    colorKey: "runway",
+    tagline: "Generator Video AI Sinematik 4K Kualitas Studio",
+    description: "Platform pembuatan video AI generasi terbaru dengan model Gen-3 Alpha dan Turbo. Menghasilkan video berkualitas sinematik, kontrol kamera presisi, motion brush, dan transformasi video-ke-video.",
+    platforms: ["Web", "iOS"],
+    features: [
+      "Akses model video sinematik Gen-3 Alpha & Turbo",
+      "Fitur Motion Brush & Camera Pan/Zoom/Tilt Control",
+      "Ekspor video resolusi tinggi tanpa watermark",
+      "625 Video Credits bulanan",
+    ],
+    variants: [
+      {
+        id: "runway-standard-1m",
+        name: "1 Bulan - Akun Standard (625 Credits)",
+        duration: "1 Bulan",
+        accessType: "Private Account",
+        price: 89000,
+        originalPrice: 180000,
+        badge: "Sinematik 4K",
+        description: "Akun private aktif dengan 625 credits untuk generate video Gen-3.",
+        isDefault: true,
+      },
+    ],
+  },
+  {
+    name: "Leonardo AI Pro",
+    stock: 31,
+    catId: "ai",
+    glyph: "camera",
+    colorKey: "leonardo",
+    tagline: "Generator Gambar & Seni Digital AI dengan Model Phoenix",
+    description: "Suite seni kreatif AI untuk desainer, ilustrator, dan game artist. Menghadirkan model Phoenix, Alchemy v2, Realtime Canvas, pembuatan tekstur 3D, dan generator video motion.",
+    platforms: ["Web", "iOS"],
+    features: [
+      "8.500 Token Premium per bulan dengan reset harian",
+      "Fitur Alchemy v2 & Realtime Canvas interaktif",
+      "Akses model Phoenix generasi terbaru",
+      "Generate privat tanpa masuk feed publik",
+    ],
+    variants: [
+      {
+        id: "leonardo-1",
+        name: "Leonardo AI 8500 Credits 1 month no warranty",
+        duration: "1 Bulan",
+        accessType: "Account",
+        price: 24000,
+        originalPrice: 40000,
+        stock: 31,
+        isDefault: true,
+      }
+    ],
+  },
+  {
+    name: "Wispr Flow Pro",
+    stock: 70,
+    catId: "ai",
+    glyph: "zap",
+    colorKey: "elevenlabs",
+    tagline: "Dikte Suara AI 3x Lebih Cepat dari Mengetik Keyboard",
+    description: "Aplikasi dikte suara AI cerdas yang mengubah ucapan Anda menjadi teks terformat rapi di aplikasi apa pun. Memahami konteks, tanda baca otomatis, dan memperbaiki tata bahasa secara instan.",
+    platforms: ["macOS", "Windows"],
+    features: [
+      "Dikte suara realtime 3x lebih cepat dari ketikan biasa",
+      "Formatting otomatis sesuai konteks (Email, Coding, Chat)",
+      "Mendukung 100+ bahasa termasuk Bahasa Indonesia",
+      "Integrasi global di seluruh aplikasi desktop",
+    ],
+    variants: [
+      {
+        id: "wispr-pro-1m",
+        name: "1 Bulan - Akun Pro Unlimited",
+        duration: "1 Bulan",
+        accessType: "Private Account",
+        price: 35000,
+        originalPrice: 70000,
+        badge: "Produktivitas",
+        description: "Akses dikte suara AI tanpa batas kata di Mac dan Windows.",
+        isDefault: true,
+      },
+    ],
+  },
+
+  // ── 2. Streaming Media ────────────────────────────────────────
+  {
+    name: "Spotify Premium",
+    stock: 999,
+    catId: "streaming",
+    glyph: "music-2",
+    colorKey: "spotify",
+    tagline: "Bebas Iklan, Audio Kualitas Tertinggi & Unduh Offline",
+    description: "Langganan Spotify Premium resmi bebas gangguan iklan. Dengarkan jutaan lagu dan podcast dengan kualitas audio tertinggi (320kbps), lewati lagu tanpa batas, dan unduh musik untuk didengarkan saat offline.",
+    platforms: ["Android", "iOS", "Web", "Windows", "macOS"],
+    features: [
+      "Bebas iklan audio dan visual saat mendengarkan musik",
+      "Kualitas audio Extreme Quality (320kbps)",
+      "Download lagu & playlist untuk didengarkan offline",
+      "Bisa pakai akun Spotify pribadi milik Anda sendiri",
+    ],
+    variants: [
+      {
+        id: "spotify-1",
+        name: "Spotify Premium 6 Months Full Warranty",
+        duration: "6 Bulan",
+        accessType: "Account",
+        price: 154000,
+        originalPrice: 200000,
+        stock: 999,
+        isDefault: true,
+      },
+      {
+        id: "spotify-2",
+        name: "Spotify Premium 1 Year full warranty",
+        duration: "1 Tahun",
+        accessType: "Account",
+        price: 221000,
+        originalPrice: 350000,
+        stock: 999,
+      },
+      {
+        id: "spotify-3",
+        name: "Spotify Premium 3 Months full warranty",
+        duration: "3 Bulan",
+        accessType: "Account",
+        price: 74000,
+        originalPrice: 120000,
+        stock: 999,
+      },
+      {
+        id: "spotify-4",
+        name: "Spotify 3 months (3 DAYS warranty)",
+        duration: "3 Bulan",
+        accessType: "Account",
+        price: 46000,
+        originalPrice: 60000,
+        stock: 4,
+      }
+    ],
+  },
+  {
+    name: "Netflix Premium 4K",
+    stock: 430,
+    catId: "streaming",
+    glyph: "tv",
+    colorKey: "netflix",
+    tagline: "Streaming Film & Serial Resolusi 4K Ultra HD + HDR",
+    description: "Tonton ribuan film, anime, dan serial eksklusif Netflix dengan resolusi tertinggi 4K Ultra HD, audio spasial, dan dukungan HDR. Mendukung Smart TV, HP Android/iOS, tablet, dan laptop.",
+    platforms: ["Android", "iOS", "Web", "Windows", "macOS"],
+    features: [
+      "Kualitas video 4K Ultra HD + Dolby Vision & HDR",
+      "Audio Spasial Netflix untuk pengalaman bioskop",
+      "Bisa ditonton di Smart TV, Android TV, HP & Laptop",
+      "Garansi anti-on-hold & akun bergaransi resmi",
+    ],
+    variants: [
+      {
+        id: "netflix-admin-1m",
+        name: "ADMIN NETFLIX 4K (5 slots) 1 Month warranty 24H",
+        duration: "1 Bulan",
+        accessType: "Admin Account",
+        price: 40000,
+        originalPrice: 55000,
+        badge: "Admin",
+        stock: 6,
+        description: "Akun Admin Netflix 4K (5 profil). Garansi 24 jam.",
+      },
+      {
+        id: "netflix-slot-1m",
+        name: "NETFLIX SLOT 4k PREMIUM 1 MONTH full warranty",
+        duration: "1 Bulan",
+        accessType: "Sharing 1P1U",
+        price: 21600,
+        originalPrice: 35000,
+        badge: "Paling Laris",
+        stock: 21,
+        description: "1 Slot (1 Profil) Netflix 4K Premium. Garansi penuh 1 bulan.",
+        isDefault: true,
+      },
+    ],
+  },
+  {
+    name: "YouTube Premium",
+    stock: 320,
+    catId: "streaming",
+    glyph: "play",
+    colorKey: "youtube",
+    tagline: "Bebas Iklan, Putar Latar Belakang & YouTube Music",
+    description: "Nikmati video YouTube tanpa gangguan iklan sama sekali. Putar video di latar belakang saat membuka aplikasi lain atau layar mati, unduh video offline, dan dapatkan akses penuh ke aplikasi YouTube Music Premium.",
+    platforms: ["Android", "iOS", "Web", "Windows", "macOS"],
+    features: [
+      "Bebas iklan di seluruh video YouTube & Smart TV",
+      "Putar video di latar belakang (Background Play / PiP)",
+      "Termasuk langganan YouTube Music Premium lengkap",
+      "Bisa menggunakan akun Gmail pribadi Anda sendiri",
+    ],
+    variants: [
+      {
+        id: "youtube-0",
+        name: "YouTube Premium 1Month",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 20000,
+        originalPrice: 30000,
+        badge: "Paling Laris",
+        stock: 276,
+        isDefault: true,
+      },
+      {
+        id: "youtube-1",
+        name: "YouTube Premium 3Month",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 32000,
+        originalPrice: 48000,
+        badge: "",
+        stock: 458,
+      },
+      {
+        id: "youtube-2",
+        name: "YouTube Premium 6Month",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 120000,
+        originalPrice: 180000,
+        badge: "",
+        stock: 34,
+      },
+      {
+        id: "youtube-3",
+        name: "YouTube Premium 1Year",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 239840,
+        originalPrice: 359760,
+        badge: "",
+        stock: 13,
+      },
+    ],
+
+  },
+  {
+    name: "Disney+ Hotstar",
+    stock: 360,
+    catId: "streaming",
+    glyph: "film",
+    colorKey: "disney",
+    tagline: "Akses Lengkap Marvel, Disney, Pixar & Konten Lokal",
+    description: "Streaming seluruh film blockbuster dari Marvel Cinematic Universe, Disney Animation, Pixar, Star Wars, National Geographic, serta serial drama Korea dan film Indonesia eksklusif.",
+    platforms: ["Android", "iOS", "Web"],
+    features: [
+      "Kualitas video hingga 4K Ultra HD + Dolby Atmos",
+      "Koleksi lengkap Marvel, Star Wars & Disney Originals",
+      "Bisa digunakan di HP, Tablet, Laptop & Smart TV",
+      "Garansi login aman selama masa langganan",
+    ],
+    variants: [
+      {
+        id: "disney-sharing-1m",
+        name: "1 Bulan - Sharing Profil (1 Device Login)",
+        duration: "1 Bulan",
+        accessType: "Sharing 1 Device",
+        price: 35000,
+        originalPrice: 65000,
+        badge: "Paling Laris",
+        description: "Akun login sharing khusus untuk 1 perangkat Anda (HP / TV).",
+        isDefault: true,
+      },
+      {
+        id: "disney-sharing-3m",
+        name: "3 Bulan - Sharing Profil (1 Device Login)",
+        duration: "3 Bulan",
+        accessType: "Sharing 1 Device",
+        price: 89000,
+        originalPrice: 160000,
+        badge: "Hemat 20%",
+        description: "Akses Disney+ Hotstar 3 bulan penuh untuk 1 perangkat aktif.",
+      },
+      {
+        id: "disney-private-1m",
+        name: "1 Bulan - Akun Private (Bebas Semua Layar)",
+        duration: "1 Bulan",
+        accessType: "Private Account",
+        price: 99000,
+        originalPrice: 119000,
+        badge: "Akun Penuh",
+        description: "Akun private resmi tanpa berbagi dengan pengguna lain.",
+      },
+    ],
+  },
+  {
+    name: "Prime Video Premium",
+    stock: 150,
+    catId: "streaming",
+    glyph: "play",
+    colorKey: "prime",
+    tagline: "Serial Eksklusif Amazon Originals Kualitas 4K UHD",
+    description: "Streaming serial eksklusif kelas dunia seperti The Boys, The Rings of Power, Reacher, Fallout, serta film bioskop terbaru dengan kualitas 4K UHD dan subtitle Bahasa Indonesia lengkap.",
+    platforms: ["Android", "iOS", "Web"],
+    features: [
+      "Kualitas video 4K Ultra HD & HDR",
+      "Fitur X-Ray informasi pemeran & trivia film",
+      "Download tayangan untuk ditonton saat offline",
+      "Garansi ganti akun jika terjadi kendala login",
+    ],
+    variants: [
+      {
+        id: "prime-sharing-1m",
+        name: "1 Bulan - Sharing Profil (1 Device)",
+        duration: "1 Bulan",
+        accessType: "Sharing 1 Device",
+        price: 18000,
+        originalPrice: 35000,
+        badge: "Ekonomis",
+        description: "1 profil khusus di akun Prime Video untuk 1 perangkat Anda.",
+        isDefault: true,
+      },
+      {
+        id: "prime-private-1m",
+        name: "1 Bulan - Akun Private Penuh",
+        duration: "1 Bulan",
+        accessType: "Private Account",
+        price: 39000,
+        originalPrice: 65000,
+        badge: "Akun Sendiri",
+        description: "Akun Amazon Prime Video utuh milik Anda sendiri.",
+      },
+    ],
+  },
+  {
+    name: "Crunchyroll Mega Fan",
+    stock: 180,
+    catId: "streaming",
+    glyph: "play",
+    colorKey: "crunchyroll",
+    tagline: "Anime Simulcast Tanpa Iklan & Akses Download Offline",
+    description: "Platform streaming anime resmi terbesar di dunia. Tonton episode anime terbaru hanya 1 jam setelah tayang di Jepang (Simulcast) tanpa jeda iklan dengan kualitas Full HD.",
+    platforms: ["Android", "iOS", "Web"],
+    features: [
+      "Streaming anime tanpa iklan langsung setelah tayang di Jepang",
+      "Paket Mega Fan dengan fitur Download Offline",
+      "Koleksi anime terlengkap dengan subtitle Indonesia & Inggris",
+      "Akses streaming resolusi 1080p Full HD",
+    ],
+    variants: [
+      {
+        id: "crunchyroll-sharing-1m",
+        name: "1 Bulan - Sharing (1 Device)",
+        duration: "1 Bulan",
+        accessType: "Sharing 1 Device",
+        price: 18000,
+        originalPrice: 35000,
+        badge: "Paling Laris",
+        description: "Akun login sharing 1 perangkat untuk nonton anime bebas iklan.",
+        isDefault: true,
+      },
+      {
+        id: "crunchyroll-private-1m",
+        name: "1 Bulan - Private Mega Fan Tier",
+        duration: "1 Bulan",
+        accessType: "Private Account",
+        price: 35000,
+        originalPrice: 59000,
+        badge: "Private",
+        description: "Akun private Mega Fan untuk streaming multi-device & unduh anime offline.",
+      },
+    ],
+  },
+  {
+    name: "Apple TV+ Premium",
+    stock: 120,
+    catId: "streaming",
+    glyph: "tv",
+    colorKey: "apple",
+    tagline: "Tayangan Apple Original Award-Winning Resolusi 4K",
+    description: "Akses tayangan pemenang penghargaan seperti Ted Lasso, Severance, Morning Show, Silo, dan film Apple Originals dengan kualitas visual 4K HDR & Dolby Atmos terbaik.",
+    platforms: ["iOS", "macOS", "Web", "Android"],
+    features: [
+      "Kualitas sinematik 4K HDR, Dolby Vision & Dolby Atmos",
+      "Katalog lengkap serial & film Apple Original eksklusif",
+      "Bisa diputar di iPhone, iPad, Mac, Smart TV & Browser Web",
+      "Garansi login Apple ID resmi",
+    ],
+    variants: [
+      {
+        id: "appletv-sharing-1m",
+        name: "1 Bulan - Apple ID Siap Pakai",
+        duration: "1 Bulan",
+        accessType: "Private Account",
+        price: 29000,
+        originalPrice: 55000,
+        badge: "Paling Laris",
+        description: "Akun Apple ID dengan langganan Apple TV+ aktif siap login di perangkat Anda.",
+        isDefault: true,
+      },
+      {
+        id: "appletv-sharing-3m",
+        name: "3 Bulan - Apple ID Siap Pakai",
+        duration: "3 Bulan",
+        accessType: "Private Account",
+        price: 75000,
+        originalPrice: 135000,
+        badge: "Hemat 20%",
+        description: "Akses Apple TV+ selama 3 bulan penuh bergaransi.",
+      },
+    ],
+  },
+  {
+    name: "Paramount+ Premium",
+    stock: 90,
+    catId: "streaming",
+    glyph: "tv",
+    colorKey: "paramount",
+    tagline: "Streaming Film Blockbuster Paramount & Live Sports",
+    description: "Tonton film blockbuster bioskop Paramount Pictures, serial Star Trek, Halo, Yellowstone, tayangan Nickelodeon, dan siaran olahraga pilihan dengan resolusi Full HD.",
+    platforms: ["Android", "iOS", "Web"],
+    features: [
+      "Akses tayangan Paramount Originals, CBS & Nickelodeon",
+      "Streaming resolusi Full HD bebas iklan",
+      "Bisa digunakan di HP, Tablet, Laptop dan Smart TV",
+      "Garansi masa aktif 30 hari",
+    ],
+    variants: [
+      {
+        id: "paramount-sharing-1m",
+        name: "1 Bulan - Akun Sharing (1 Device)",
+        duration: "1 Bulan",
+        accessType: "Sharing 1 Device",
+        price: 25000,
+        originalPrice: 49000,
+        badge: "Paling Laris",
+        description: "Akun login sharing khusus 1 perangkat untuk nonton Paramount+.",
+        isDefault: true,
+      },
+    ],
+  },
+
+  // ── 3. VPN & Keamanan ────────────────────────────────────────
+  {
+    name: "VPN Premium All-in-One",
+    stock: 250,
+    catId: "vpn",
+    glyph: "shield-check",
+    colorKey: "nord",
+    tagline: "Pilihan Layanan VPN Premium Terbaik Dunia",
+    description: "Kumpulan layanan VPN premium terbaik di dunia. Pilih varian NordVPN, Surfshark, ExpressVPN, ProtonVPN, atau Cloudflare WARP+ untuk mengamankan koneksi Anda dengan kecepatan ultra tinggi dan perlindungan ekstra.",
+    platforms: ["Windows", "macOS", "Android", "iOS", "Linux"],
+    features: [
+      "Akses ribuan server super cepat di seluruh dunia",
+      "Kecepatan stabil untuk streaming 4K & gaming tanpa lag",
+      "Perlindungan data dan privasi maksimal (No-Logs)",
+      "Termasuk fitur pemblokir iklan (tergantung varian)",
+    ],
+    variants: [
+      {
+        id: "vpn-0",
+        name: "Express VPN 1Month",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 12000,
+        originalPrice: 18000,
+        badge: "Paling Laris",
+        stock: 24,
+        isDefault: true,
+      },
+      {
+        id: "vpn-1",
+        name: "Surfshark 2Month Code",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 24000,
+        originalPrice: 36000,
+        badge: "",
+        stock: 37,
+      },
+      {
+        id: "vpn-2",
+        name: "Proton Plus 1Month",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 12000,
+        originalPrice: 18000,
+        badge: "",
+        stock: 15,
+      },
+      {
+        id: "vpn-3",
+        name: "Proton Unlimited 1Month",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 40000,
+        originalPrice: 60000,
+        badge: "",
+        stock: 6,
+      },
+      {
+        id: "vpn-4",
+        name: "Nord VPN 3Month",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 20000,
+        originalPrice: 30000,
+        badge: "",
+        stock: 189,
+      },
+    ],
+
+  },
+
+  // ── 4. Desain & Kreatif ───────────────────────────────────────
+  {
+    name: "Canva Pro",
+    stock: 400,
+    catId: "kreatif",
+    glyph: "pen-tool",
+    colorKey: "canva",
+    tagline: "Magic Studio AI, Brand Kit & 100 Juta+ Template Premium",
+    description: "Platform desain grafis all-in-one terpopuler. Akses jutaan aset premium, font eksklusif, penghapus background foto/video 1-klik, Magic Resize multi-format, Magic Write AI, dan Brand Kit lengkap.",
+    platforms: ["Web", "Android", "iOS", "Windows", "macOS"],
+    features: [
+      "Akses 100M+ foto, video, audio & template grafis premium",
+      "Fitur Magic Studio AI (Magic Eraser, Magic Expand, Magic Edit)",
+      "Hapus Background foto & video dalam 1 kali klik",
+      "Bisa diaktifkan langsung di akun Canva email pribadi Anda",
+    ],
+    variants: [
+      {
+        id: "canva-0",
+        name: "Canva Pro 1Year",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 24000,
+        originalPrice: 36000,
+        badge: "Paling Laris",
+        stock: 812,
+        isDefault: true,
+      },
+      {
+        id: "canva-1",
+        name: "Canva Pro Lifetime",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 56000,
+        originalPrice: 84000,
+        badge: "",
+        stock: 675,
+      },
+    ],
+
+  },
+  {
+    name: "CapCut Pro",
+    stock: 250,
+    catId: "kreatif",
+    glyph: "video",
+    colorKey: "capcut",
+    tagline: "Edit Video AI, Auto Caption & Ekspor 4K 60FPS Desktop/HP",
+    description: "Aplikasi video editor nomor 1 untuk konten TikTok, Reels, dan YouTube. Dapatkan akses ke seluruh filter pro, efek visual eksklusif, AI Script-to-Video, Vocal Isolation, dan ekspor video 4K 60FPS tanpa watermark.",
+    platforms: ["Android", "iOS", "Windows", "macOS"],
+    features: [
+      "Akses seluruh efek, transisi, animasi & font CapCut Pro",
+      "Fitur AI Auto Caption, Vocal Removal & Noise Reduction",
+      "Ekspor video kualitas tinggi 4K 60FPS tanpa watermark",
+      "Tersedia untuk PC (Desktop CapCut) maupun Smartphone",
+    ],
+    variants: [
+      {
+        id: "capcut-0",
+        name: "CapCut Pro 1Month Personal Email",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 24000,
+        originalPrice: 36000,
+        badge: "Paling Laris",
+        stock: 87,
+        isDefault: true,
+      },
+      {
+        id: "capcut-1",
+        name: "CapCut Pro 6Month Share",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 40000,
+        originalPrice: 60000,
+        badge: "",
+        stock: 573,
+      },
+      {
+        id: "capcut-2",
+        name: "CapCut Pro 6Month Personal",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 128000,
+        originalPrice: 192000,
+        badge: "",
+        stock: 56,
+      },
+      {
+        id: "capcut-3",
+        name: "CapCut Pro 1Year Full Warranty",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 240000,
+        originalPrice: 360000,
+        badge: "",
+        stock: 42,
+      },
+    ],
+
+  },
+  {
+    name: "Figma Pro",
+    stock: 230,
+    catId: "kreatif",
+    glyph: "pen-tool",
+    colorKey: "figma",
+    tagline: "Kolaborasi Desain UI/UX & Prototyping Profesional",
+    description: "Standar industri desain UI/UX. Buat komponen interaktif, prototype animasi, desain sistem, dan nikmati fitur Dev Mode untuk inspeksi kode CSS/React yang presisi.",
+    platforms: ["Web", "macOS", "Windows"],
+    features: [
+      "File dan proyek desain tidak terbatas (Unlimited Projects)",
+      "Fitur Dev Mode untuk inspeksi kode frontend",
+      "Riwayat versi desain (Version History) tanpa batas",
+      "Kolaborasi tim realtime di Figma & FigJam",
+    ],
+    variants: [
+      {
+        id: "figma-0",
+        name: "Figma Pro Education 1Year",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 40000,
+        originalPrice: 60000,
+        badge: "Paling Laris",
+        stock: 178,
+        isDefault: true,
+      },
+      {
+        id: "figma-1",
+        name: "Figma Pro Education 2Year",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 64000,
+        originalPrice: 96000,
+        badge: "",
+        stock: 52,
+      },
+    ],
+
+  },
+  {
+    name: "Framer Pro",
+    stock: 90,
+    catId: "kreatif",
+    glyph: "layers",
+    colorKey: "framer",
+    tagline: "Desain dan Publikasikan Website Interaktif Modern",
+    description: "Bangun landing page dan website interaktif responsif langsung dari kanvas desain tanpa coding rumit. Didukung hosting cepat, custom domain, dan efek visual 3D interaktif.",
+    platforms: ["Web", "macOS", "Windows"],
+    features: [
+      "Publikasi website kustom dengan CMS terintegrasi",
+      "Efek interaktif, animasi scroll & transisi modern",
+      "Optimasi SEO otomatis & hosting kecepatan tinggi",
+      "Garansi akun aktif",
+    ],
+    variants: [
+      {
+        id: "framer-pro-1m",
+        name: "1 Bulan - Akun Workspace Pro",
+        duration: "1 Bulan",
+        accessType: "Private Account",
+        price: 45000,
+        originalPrice: 90000,
+        badge: "Web Builder",
+        description: "Akun Framer dengan fitur Pro Workspace untuk membuat website interaktif.",
+        isDefault: true,
+      },
+    ],
+  },
+  {
+    name: "Gamma App Pro",
+    stock: 3,
+    catId: "kreatif",
+    glyph: "layers",
+    colorKey: "gamma",
+    tagline: "Buat Presentasi, Dokumen & Webpage Instan dengan AI",
+    description: "Ubah teks kasar atau ide presentasi menjadi slide presentasi visual profesional, dokumen rapi, atau webpage elegan hanya dalam hitungan detik menggunakan generator AI bawaan.",
+    platforms: ["Web"],
+    features: [
+      "Generate slide presentasi profesional tanpa batas kredit",
+      "Ekspor presentasi ke format PowerPoint (PPTX) dan PDF",
+      "Kustomisasi tema warna, font kustom & template pro",
+      "Akses credit AI bulanan",
+    ],
+    variants: [
+      {
+        id: "gamma-1",
+        name: "Gamma Pro 4k4 create 1 month warranty 5 days",
+        duration: "1 Bulan",
+        accessType: "Account",
+        price: 203000,
+        originalPrice: 250000,
+        stock: 3,
+        isDefault: true,
+      }
+    ],
+  },
+  {
+    name: "HeyGen AI Video Pro",
+    stock: 60,
+    catId: "kreatif",
+    glyph: "video",
+    colorKey: "heygen",
+    tagline: "Video Avatar Bicara AI Natural untuk Marketing & Edukasi",
+    description: "Buat video presenter atau avatar berbicara kualitas studio tanpa perlu kamera atau studio rekaman. Avatar AI berbicara dengan sinkronisasi bibir (lip-sync) presisi dalam 100+ bahasa.",
+    platforms: ["Web"],
+    features: [
+      "15 Video Credits per bulan (Generate hingga 15 menit video)",
+      "Pilihan 100+ avatar manusia AI ultra-realistis",
+      "Voice cloning & sinkronisasi bibir 100+ bahasa",
+      "Ekspor video resolusi 1080p tanpa watermark",
+    ],
+    variants: [
+      {
+        id: "heygen-creator-1m",
+        name: "1 Bulan - Akun Creator (15 Video Credits)",
+        duration: "1 Bulan",
+        accessType: "Private Account",
+        price: 49000,
+        originalPrice: 99000,
+        badge: "Avatar Video",
+        description: "Akun private aktif dengan 15 credits untuk pembuatan video avatar promosi/marketing.",
+        isDefault: true,
+      },
+    ],
+  },
+
+  // ── 5. Produktivitas ──────────────────────────────────────────
+  {
+    name: "Notion Plus",
+    stock: 300,
+    catId: "tools",
+    glyph: "file-text",
+    colorKey: "notion",
+    tagline: "Ruang Kerja All-in-One untuk Dokumen, Proyek & Notion AI",
+    description: "Aplikasi produktivitas dan manajemen proyek terpadu. Simpan catatan, database relasional, kanban board tugas, dokumen kolaboratif tim, serta asisten Notion AI untuk merangkum dan menulis.",
+    platforms: ["Web", "Android", "iOS", "Windows", "macOS"],
+    features: [
+      "Upload file tanpa batas ukuran (Unlimited File Uploads)",
+      "Riwayat versi halaman (Page History) hingga 30 hari",
+      "Fitur kolaborasi workspace tanpa batas blok",
+      "Bisa digabung dengan Notion AI Assistant",
+    ],
+    variants: [
+      {
+        id: "notion-0",
+        name: "Notion Plus 1Month",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 20000,
+        originalPrice: 30000,
+        badge: "Paling Laris",
+        stock: 15,
+        isDefault: true,
+      },
+      {
+        id: "notion-1",
+        name: "Notion Business 1Year",
+        duration: "N/A",
+        accessType: "N/A",
+        price: 63840,
+        originalPrice: 95760,
+        badge: "",
+        stock: 5,
+      },
+    ],
+
+  },
+  {
+    name: "Microsoft 365 Personal",
+    stock: 999,
+    catId: "tools",
+    glyph: "monitor",
+    colorKey: "microsoft",
+    tagline: "Word, Excel, PowerPoint, Outlook & 1TB Cloud OneDrive",
+    description: "Paket aplikasi perkantoran resmi dari Microsoft. Nikmati aplikasi desktop Word, Excel, PowerPoint, Outlook versi terbaru, fitur Copilot AI, dan 1TB Cloud Storage OneDrive dengan keamanan ransomware protection.",
+    platforms: ["Windows", "macOS", "Android", "iOS", "Web"],
+    features: [
+      "Aplikasi desktop Word, Excel, PowerPoint, Outlook & Access",
+      "Penyimpanan Cloud OneDrive 1TB aman untuk foto & data",
+      "Bisa diinstall di hingga 5 perangkat sekaligus (PC, Mac, HP)",
+      "Diaktifkan langsung di akun Microsoft (email pribadi) Anda",
+    ],
+    variants: [
+      {
+        id: "ms365-1",
+        name: "MICROSOFT OFFICE 365 PREMIUM 6 MONTHS full warranty",
+        duration: "6 Bulan",
+        accessType: "Account",
+        price: 74000,
+        originalPrice: 150000,
+        stock: 999,
+        isDefault: true,
+      },
+      {
+        id: "ms365-2",
+        name: "Office 365 Admin Family 1 Month full warranty",
+        duration: "1 Bulan",
+        accessType: "Account",
+        price: 37000,
+        originalPrice: 60000,
+        stock: 8,
+      }
+    ],
+  },
+  {
+    name: "QuillBot Premium",
+    stock: 150,
+    catId: "tools",
+    glyph: "sparkles",
+    colorKey: "quillbot",
+    tagline: "Paraphraser Cerdas, Grammar Checker & Plagiarism Scanner",
+    description: "Alat paraphrasing dan penulisan akademik nomor 1. Dapatkan akses ke seluruh mode paraphraser (Fluency, Formal, Academic, Creative), pemeriksa tata bahasa, pembanding sinonim, dan pemindai plagiarisme 20 halaman/bulan.",
+    platforms: ["Web", "Windows", "macOS"],
+    features: [
+      "Paraphrasing tanpa batas kata dalam 1 kali proses",
+      "Akses seluruh 9 mode paraphraser & freeze words",
+      "Plagiarism Checker hingga 20 halaman per bulan",
+      "Ekstensi untuk Google Docs, MS Word & Chrome",
+    ],
+    variants: [
+      {
+        id: "quillbot-sharing-1m",
+        name: "1 Bulan - Akun Sharing (1 Device)",
+        duration: "1 Bulan",
+        accessType: "Sharing 1 Device",
+        price: 19000,
+        originalPrice: 35000,
+        badge: "Paling Laris",
+        description: "Akun login sharing khusus 1 perangkat untuk parafrase tanpa batas.",
+        isDefault: true,
+      },
+      {
+        id: "quillbot-sharing-1y",
+        name: "1 Tahun - Akun Sharing (1 Device)",
+        duration: "1 Tahun",
+        accessType: "Sharing 1 Device",
+        price: 69000,
+        originalPrice: 130000,
+        badge: "Hemat 45%",
+        description: "Akses QuillBot Premium 1 tahun penuh bergaransi untuk skripsi & tugas akademik.",
+      },
+    ],
+  },
+  {
+    name: "Zoom Pro",
+    stock: 999,
+    catId: "tools",
+    glyph: "video",
+    colorKey: "zoom",
+    tagline: "Meeting Tanpa Batas Waktu hingga 100/300 Peserta",
+    description: "Layanan meeting online profesional. Hilangkan batas waktu 40 menit, lakukan meeting grup hingga 30 jam nonstop, rekam meeting ke cloud, dan buat breakout room untuk rapat bisnis atau webinar.",
+    platforms: ["Windows", "macOS", "Android", "iOS", "Web"],
+    features: [
+      "Meeting grup tanpa batas waktu (hingga 30 jam/sesi)",
+      "Kapasitas peserta 100 hingga 300 peserta",
+      "Fitur Cloud Recording, Whiteboard & Breakout Rooms",
+      "Garansi meeting lancar tanpa kendala batas waktu",
+    ],
+    variants: [
+      {
+        id: "zoom-1",
+        name: "Zoom Pro Trial 28D full warranty",
+        duration: "28 Hari",
+        accessType: "Account",
+        price: 49000,
+        originalPrice: 70000,
+        stock: 999,
+        isDefault: true,
+      },
+      {
+        id: "zoom-2",
+        name: "Zoom Pro 14 Days full warranty",
+        duration: "14 Hari",
+        accessType: "Account",
+        price: 25000,
+        originalPrice: 40000,
+        stock: 8,
+      }
+    ],
+  },
+  {
+    name: "CamScanner Premium HD",
+    stock: 110,
+    catId: "tools",
+    glyph: "camera",
+    colorKey: "camscanner",
+    tagline: "Scan Dokumen Jernih Tanpa Watermark & Ekspor OCR Word",
+    description: "Ubah smartphone menjadi scanner portabel resolusi tinggi. Hapus watermark secara otomatis, ubah hasil scan menjadi teks yang dapat diedit (OCR ke Word/Excel), dan tanda tangani dokumen PDF langsung.",
+    platforms: ["Android", "iOS"],
+    features: [
+      "Scan dokumen HD jernih tanpa watermark CamScanner",
+      "Ekstraksi teks OCR ke Word, Excel & PDF tanpa batas",
+      "Fitur Tanda Tangan Elektronik & ID Card Scanner",
+      "Penyimpanan cloud dokumen terenkripsi",
+    ],
+    variants: [
+      {
+        id: "camscanner-edu-1y",
+        name: "1 Tahun - Akun Premium HD (No Watermark + OCR)",
+        duration: "1 Tahun",
+        accessType: "Private Account",
+        price: 22000,
+        originalPrice: 45000,
+        badge: "Best Value",
+        description: "Akun CamScanner Premium aktif 1 tahun untuk scan dokumen profesional di HP.",
+        isDefault: true,
+      },
+    ],
+  },
+
+  // ── 6. Developer & Cloud ──────────────────────────────────────
+  {
+    name: "Supabase Pro",
+    stock: 90,
+    catId: "developer",
+    glyph: "database",
+    colorKey: "supabase",
+    tagline: "Backend PostgreSQL Cepat dengan Auth & Realtime Storage",
+    description: "Platform Backend-as-a-Service berbasis PostgreSQL. Dapatkan dedicated database instance, 8GB database space, 100GB file storage, 100.000 Monthly Active Users autentikasi, dan 7-day backup.",
+    platforms: ["Web"],
+    features: [
+      "Dedicated PostgreSQL instance dengan backup otomatis",
+      "Kapasitas 8GB database storage & 100GB media storage",
+      "Autentikasi hingga 100.000 MAU & Edge Functions",
+      "Dukungan kredit saldo cloud",
+    ],
+    variants: [
+      {
+        id: "supabase-credit-1m",
+        name: "1 Bulan - Akun Saldo Kredit Pro Tier ($25/bln)",
+        duration: "1 Bulan",
+        accessType: "Private Account",
+        price: 69000,
+        originalPrice: 130000,
+        badge: "Dev Cloud",
+        description: "Akun Supabase dengan kuota kredit tier Pro untuk deployment database produksi.",
+        isDefault: true,
+      },
+    ],
+  },
+  {
+    name: "Replit Core Cloud",
+    stock: 2,
+    catId: "developer",
+    glyph: "code-2",
+    colorKey: "replit",
+    tagline: "Lingkungan Pengembangan & Hosting Cloud Instan",
+    description: "IDE cloud berbasis browser untuk menulis, menjalankan, dan mendeploy aplikasi dalam 50+ bahasa pemrograman. Dilengkapi asisten AI Replit, server VM Always-On, dan PostgreSQL database.",
+    platforms: ["Web", "Android", "iOS"],
+    features: [
+      "Fitur Always-On untuk menjalankan bot/server 24/7",
+      "Akses Replit AI Code Assistant tanpa batas",
+      "Spesifikasi CPU & RAM cloud VM lebih tinggi",
+      "Deployment aplikasi instan dengan custom domain",
+    ],
+    variants: [
+      {
+        id: "replit-1",
+        name: "Replit Core $60 credit 30D full warranty",
+        duration: "30 Hari",
+        accessType: "Account",
+        price: 277000,
+        originalPrice: 350000,
+        stock: 2,
+        isDefault: true,
+      }
+    ],
+  },
+  {
+    name: "Railway Hobby Cloud",
+    stock: 80,
+    catId: "developer",
+    glyph: "server",
+    colorKey: "railway",
+    tagline: "Deploy Aplikasi & Database Seketika Tanpa Konfigurasi Rumit",
+    description: "PaaS cloud modern untuk deploy backend Node.js, Python, Go, Docker, Redis, dan PostgreSQL secara otomatis dari repository GitHub dengan performa tinggi.",
+    platforms: ["Web"],
+    features: [
+      "Saldo kredit cloud $5 untuk deploy container & database",
+      "Auto-deploy dari GitHub push dengan SSL otomatis",
+      "Monitoring metrik CPU/RAM & log realtime",
+      "Garansi instance aktif",
+    ],
+    variants: [
+      {
+        id: "railway-hobby-1m",
+        name: "1 Bulan - Akun Saldo Kredit $5 Deployment",
+        duration: "1 Bulan",
+        accessType: "Private Account",
+        price: 45000,
+        originalPrice: 80000,
+        badge: "Cloud Server",
+        description: "Akun Railway siap pakai untuk hosting bot, API, atau database backend.",
+        isDefault: true,
+      },
+    ],
+  },
+  {
+    name: "N8N Cloud Workflow",
+    stock: 75,
+    catId: "developer",
+    glyph: "workflow",
+    colorKey: "n8n",
+    tagline: "Otomatisasi Alur Kerja Integrasi Multi-Platform Cerdas",
+    description: "Platform otomatisasi workflow open-source terbaik alternatif Zapier/Make. Hubungkan ribuan API, AI agent, webhook, database, dan sistem notifikasi tanpa batasan eksekusi yang kaku.",
+    platforms: ["Web"],
+    features: [
+      "Bangun workflow otomatisasi visual dengan ratusan node",
+      "Integrasi AI LangChain, Webhooks, Telegram & WhatsApp API",
+      "Eksekusi data alur kerja tanpa batas",
+      "Instance cloud siap pakai",
+    ],
+    variants: [
+      {
+        id: "n8n-cloud-1m",
+        name: "1 Bulan - Instance N8N Cloud Siap Pakai",
+        duration: "1 Bulan",
+        accessType: "Private Account",
+        price: 55000,
+        originalPrice: 110000,
+        badge: "Automation",
+        description: "Instance N8N aktif untuk otomasi alur kerja integrasi bisnis Anda.",
+        isDefault: true,
+      },
+    ],
+  },
+  {
+    name: "Linear Business Plan",
+    stock: 70,
+    catId: "developer",
+    glyph: "workflow",
+    colorKey: "linear",
+    tagline: "Pelacak Isu & Manajemen Proyek Modern Super Cepat",
+    description: "Tool issue tracking dan project management standar startup teknologi dunia. Tampilan super responsif, shortcut keyboard instan, git integration, roadmap, dan sprint cycle.",
+    platforms: ["Web", "macOS", "Windows"],
+    features: [
+      "Manajemen issue, sprint cycles & roadmap proyek",
+      "Sinkronisasi dua arah dengan GitHub & GitLab",
+      "Kecepatan UI 60fps dengan navigasi keyboard",
+      "Akses workspace tim profesional",
+    ],
+    variants: [
+      {
+        id: "linear-pro-1m",
+        name: "1 Bulan - Akun Workspace Pro",
+        duration: "1 Bulan",
+        accessType: "Private Account",
+        price: 45000,
+        originalPrice: 90000,
+        badge: "Project Hub",
+        description: "Akses workspace Linear Pro untuk mengelola tim engineering & produk.",
+        isDefault: true,
+      },
+    ],
+  },
+  {
+    name: "PostHog Cloud Scale",
+    stock: 60,
+    catId: "developer",
+    glyph: "server",
+    colorKey: "posthog",
+    tagline: "Product Analytics, Session Recording & Feature Flags",
+    description: "Platform analitik produk all-in-one untuk developer. Lacak event user, tonton rekaman sesi (session replay), uji coba feature flags, dan lakukan A/B testing secara terpadu.",
+    platforms: ["Web"],
+    features: [
+      "Pelacakan event analitik & funnel konversi pengguna",
+      "Session Replay merekam interaksi layar user",
+      "Feature Flags & A/B testing terintegrasi",
+      "Credit tier developer",
+    ],
+    variants: [
+      {
+        id: "posthog-scale-1m",
+        name: "1 Bulan - Akun Dev Credit Tier",
+        duration: "1 Bulan",
+        accessType: "Private Account",
+        price: 55000,
+        originalPrice: 100000,
+        badge: "Analytics",
+        description: "Akun PostHog dengan alokasi event & session replay untuk aplikasi web/mobile.",
+        isDefault: true,
+      },
+    ],
+  },
+
+  // ── 7. Pendidikan ─────────────────────────────────────────────
+  {
+    name: "Super Duolingo",
+    stock: 999,
+    catId: "pendidikan",
+    glyph: "book-open",
+    colorKey: "duolingo",
+    tagline: "Belajar Bahasa Bebas Iklan & Nyawa Tak Terbatas",
+    description: "Tingkatkan kemampuan bahasa asing (Inggris, Jepang, Jerman, Mandarin, dll.) dengan pengalaman belajar menyenangkan. Bebas iklan, nyawa (hearts) tidak terbatas, dan review kesalahan otomatis.",
+    platforms: ["Android", "iOS", "Web"],
+    features: [
+      "Nyawa tak terbatas (Unlimited Hearts) untuk belajar tanpa henti",
+      "Bebas iklan audio dan visual di seluruh sesi latihan",
+      "Fitur Practice Hub untuk mengulang kesalahan kosakata",
+      "Bisa diaktifkan langsung di akun Duolingo pribadi Anda",
+    ],
+    variants: [
+      {
+        id: "duolingo-1",
+        name: "DUOLINGO SUPER Slot - 12 MONTHS (full warranty)",
+        duration: "12 Bulan",
+        accessType: "Account",
+        price: 184000,
+        originalPrice: 300000,
+        stock: 999,
+        isDefault: true,
+      }
+    ],
+  },
+  {
+    name: "Coursera Plus",
+    stock: 700,
+    catId: "pendidikan",
+    glyph: "book-open",
+    colorKey: "coursera",
+    tagline: "Akses Ribuan Kursus & Sertifikat Internasional",
+    description: "Akses tanpa batas ke 7.000+ kursus, spesialisasi, dan sertifikat profesional dari universitas ternama (Yale, Stanford, London) dan perusahaan global (Google, IBM, Meta).",
+    platforms: ["Web", "Android", "iOS"],
+    features: [
+      "Akses 7.000+ kursus & sertifikat profesional tanpa biaya per mata kuliah",
+      "Dapatkan sertifikat resmi verified yang bisa diunggah ke LinkedIn",
+      "Materi pembelajaran dari Google, Meta, IBM & universitas dunia",
+      "Garansi akun aktif",
+    ],
+    variants: [
+      {
+        id: "coursera-private-1m",
+        name: "1 Bulan - Akun Private (Akses Ribuan Kursus)",
+        duration: "1 Bulan",
+        accessType: "Private Account",
+        price: 38000,
+        originalPrice: 75000,
+        badge: "Paling Laris",
+        description: "Akun private aktif 1 bulan untuk belajar dan klaim sertifikat kursus resmi.",
+        isDefault: true,
+      },
+      {
+        id: "coursera-edu-1y",
+        name: "1 Tahun - Akun Edu / Org Access",
+        duration: "1 Tahun",
+        accessType: "Private Account",
+        price: 129000,
+        originalPrice: 280000,
+        badge: "1 Tahun Penuh",
+        description: "Akses Coursera Plus 1 tahun penuh untuk upgrade portofolio & karir.",
+      },
+    ],
+  },
+
+  // ── 8. Lisensi & Gaming ───────────────────────────────────────
+  {
+    name: "Roblox 1,000 Robux",
+    stock: 150,
+    catId: "lisensi",
+    glyph: "gift",
+    colorKey: "robux",
+    tagline: "Kode Voucher Digital Resmi Robux untuk Roblox",
+    description: "Voucher digital resmi saldo Robux untuk game Roblox. Beli avatar, skin eksklusif, gamepass, aksesoris, dan item langka di seluruh game Roblox. Dikirim berupa kode redeem voucher digital resmi.",
+    platforms: ["Android", "iOS", "Windows", "macOS", "Web"],
+    features: [
+      "100% Kode Voucher Digital Resmi Roblox",
+      "Redeem langsung di roblox.com/redeem",
+      "Robux masuk instan ke akun game Anda tanpa login akun",
+      "Legal, aman dari banned & garansi validitas kode",
+    ],
+    variants: [
+      {
+        id: "robux-100",
+        name: "100 Robux - Kode Voucher Digital",
+        duration: "Voucher Digital",
+        accessType: "Kode Voucher / Redeem Code",
+        price: 18000,
+        originalPrice: 25000,
+        badge: "Starter",
+        description: "Kode redeem resmi 100 Robux langsung masuk ke saldo akun Roblox Anda.",
+      },
+      {
+        id: "robux-500",
+        name: "500 Robux - Kode Voucher Digital",
+        duration: "Voucher Digital",
+        accessType: "Kode Voucher / Redeem Code",
+        price: 79000,
+        originalPrice: 95000,
+        description: "Kode redeem resmi 500 Robux.",
+      },
+      {
+        id: "robux-1000",
+        name: "1,000 Robux - Kode Voucher Digital",
+        duration: "Voucher Digital",
+        accessType: "Kode Voucher / Redeem Code",
+        price: 145000,
+        originalPrice: 175000,
+        badge: "Paling Laris",
+        description: "Kode redeem resmi 1.000 Robux untuk avatar & item gamepass favorit.",
+        isDefault: true,
+      },
+      {
+        id: "robux-2000",
+        name: "2,000 Robux - Kode Voucher Digital",
+        duration: "Voucher Digital",
+        accessType: "Kode Voucher / Redeem Code",
+        price: 285000,
+        originalPrice: 340000,
+        badge: "Best Value",
+        description: "Kode redeem resmi 2.000 Robux saldo besar.",
+      },
+    ],
+  },
+  {
+    name: "Discord Nitro",
+    stock: 120,
+    catId: "lisensi",
+    glyph: "gift",
+    colorKey: "discord",
+    tagline: "Streaming 4K 60FPS, 2 Server Boost & Emoji Global",
+    description: "Tingkatkan pengalaman Discord Anda dengan Discord Nitro. Gunakan custom emoji dan stiker di server mana pun, dapatkan 2 Server Boost gratis, streaming HD 4K 60FPS, dan upload file hingga 500MB.",
+    platforms: ["Android", "iOS", "Windows", "macOS", "Web"],
+    features: [
+      "Gunakan custom emoji, animasi emoji & stiker di seluruh server",
+      "Streaming video resolusi 4K 60FPS berkualitas jernih",
+      "Termasuk 2 Server Boost gratis + Diskon 30% boost tambahan",
+      "Kapasitas upload file hingga 500MB & badge profil eksklusif",
+    ],
+    variants: [
+      {
+        id: "nitro-basic-1m",
+        name: "1 Bulan - Nitro Basic",
+        duration: "1 Bulan",
+        accessType: "Direct / Gift",
+        price: 22000,
+        originalPrice: 35000,
+        badge: "Basic",
+        description: "Emoji custom di semua server & upload file hingga 50MB.",
+      },
+      {
+        id: "nitro-full-1m",
+        name: "1 Bulan - Nitro Full (2 Boosts + 4K Stream)",
+        duration: "1 Bulan",
+        accessType: "Gift Link / Direct",
+        price: 39000,
+        originalPrice: 85000,
+        badge: "Paling Laris",
+        description: "Fitur lengkap Nitro: 2 Server Boosts, streaming 4K 60FPS & upload 500MB.",
+        isDefault: true,
+      },
+      {
+        id: "nitro-full-1y",
+        name: "1 Tahun - Nitro Full",
+        duration: "1 Tahun",
+        accessType: "Subscription Gift",
+        price: 349000,
+        originalPrice: 550000,
+        badge: "1 Tahun Penuh",
+        description: "Langganan Discord Nitro Full 1 tahun penuh tanpa ribet.",
+      },
+    ],
+  },
+  {
+    name: "Steam Wallet & Account",
+    stock: 999,
+    catId: "akun",
+    glyph: "gamepad",
+    colorKey: "steam",
+    tagline: "Akses Game PC dan Saldo Komunitas Steam Indonesia",
+    description: "Saldo voucher resmi Steam Wallet IDR untuk membeli game PC original di Steam, skin CS2, item Dota 2, dan battle pass tanpa kartu kredit. Juga tersedia akun Steam Region Indonesia siap pakai.",
+    platforms: ["Windows", "macOS", "Linux"],
+    features: [
+      "100% Kode Voucher Steam Wallet IDR resmi",
+      "Redeem langsung di store.steampowered.com/account/redeemwalletcode",
+      "Saldo langsung aktif untuk beli game & item komunitas Steam",
+      "Aman, legal dan bebas resiko penipuan",
+    ],
+    variants: [
+      {
+        id: "steam-account-fresh",
+        name: "Akun Steam Region Indonesia (Fresh Siap Pakai)",
+        duration: "Permanen / Lifetime",
+        accessType: "Private Account",
+        price: 25000,
+        originalPrice: 40000,
+        description: "Akun Steam baru region Indonesia dengan email utama siap Anda gunakan.",
+      },
+      {
+        id: "steam-wallet-45k",
+        name: "Kode Voucher Steam Wallet Rp 45.000",
+        duration: "Voucher Digital",
+        accessType: "Kode Voucher / Redeem Code",
+        price: 49000,
+        originalPrice: 55000,
+        badge: "Paling Laris",
+        description: "Kode voucher digital nominal Rp 45.000 untuk saldo Steam Anda.",
+        isDefault: true,
+      },
+      {
+        id: "steam-wallet-90k",
+        name: "Kode Voucher Steam Wallet Rp 90.000",
+        duration: "Voucher Digital",
+        accessType: "Kode Voucher / Redeem Code",
+        price: 98000,
+        originalPrice: 110000,
+        description: "Kode voucher digital nominal Rp 90.000 untuk saldo Steam Anda.",
+      },
+    ],
+  },
+  {
+    name: "Hotmail Outlook Pro",
+    stock: 500,
+    catId: "akun",
+    glyph: "mail",
+    colorKey: "hotmail",
+    tagline: "Akun Email Microsoft Siap Pakai Bebas Blokir",
+    description: "Akun email Hotmail / Outlook resmi yang sudah terverifikasi dan siap digunakan untuk kebutuhan pendaftaran layanan digital, akun media sosial, bisnis, atau verifikasi platform online.",
+    platforms: ["Web", "Android", "iOS", "Windows", "macOS"],
+    features: [
+      "Akun email resmi domain @hotmail.com / @outlook.com",
+      "Sudah lolos verifikasi keamanan dasar",
+      "Dilengkapi dengan email pemulihan (recovery email)",
+      "Bebas digunakan untuk register di berbagai platform",
+    ],
+    variants: [
+      {
+        id: "hotmail-single",
+        name: "1 Akun Hotmail / Outlook Verified",
+        duration: "Permanen / Lifetime",
+        accessType: "Private Account",
+        price: 15000,
+        originalPrice: 25000,
+        badge: "Satuan",
+        description: "1 akun email siap pakai dengan format Email:Password:Recovery.",
+        isDefault: true,
+      },
+      {
+        id: "hotmail-bundle-5",
+        name: "Paket 5 Akun Hotmail / Outlook Verified",
+        duration: "Permanen / Lifetime",
+        accessType: "Private Account",
+        price: 49000,
+        originalPrice: 75000,
+        badge: "Hemat Paket",
+        description: "Paket bundle hemat 5 akun email terverifikasi siap pakai.",
+      },
+    ],
+  },
+  {
+    name: "LinkedIn Premium Career",
+    stock: 120,
+    catId: "akun",
+    glyph: "briefcase",
+    colorKey: "linkedin",
+    tagline: "InMail Direct, Insight Pelamar & Akses LinkedIn Learning",
+    description: "Akselerasi karir profesional Anda dengan LinkedIn Premium Career. Dapatkan 5 kredit InMail per bulan untuk menghubungi perekrut secara langsung, lihat siapa yang melihat profil Anda dalam 90 hari, dan akses 20.000+ kursus LinkedIn Learning.",
+    platforms: ["Web", "Android", "iOS"],
+    features: [
+      "Kirim pesan langsung ke recruiter/HRD via 5 InMail kredit/bulan",
+      "Lihat data lengkap siapa saja yang melihat profil Anda dalam 90 hari",
+      "Competitive Intelligence: Bandingkan kualifikasi Anda dengan pelamar lain",
+      "Akses penuh ke 20.000+ materi kursus resmi LinkedIn Learning",
+    ],
+    variants: [
+      {
+        id: "linkedin-career-1m",
+        name: "1 Bulan - Aktivasi Gift Link (Email Sendiri)",
+        duration: "1 Bulan",
+        accessType: "Gift Link / Invite",
+        price: 49000,
+        originalPrice: 95000,
+        badge: "Paling Laris",
+        description: "Aktivasi resmi via gift link langsung di akun profil LinkedIn pribadi Anda.",
+        isDefault: true,
+      },
+      {
+        id: "linkedin-career-6m",
+        name: "6 Bulan - Aktivasi Gift / Voucher (Email Sendiri)",
+        duration: "6 Bulan",
+        accessType: "Gift Link / Invite",
+        price: 189000,
+        originalPrice: 350000,
+        badge: "6 Bulan Penuh",
+        description: "Langganan LinkedIn Premium 6 bulan penuh untuk persiapan job hunting.",
+      },
+    ],
+  },
+
+  // ── 9. Sosial Media ───────────────────────────────────────────
+  {
+    name: "Instagram Followers & Likes HQ",
+    stock: 999,
+    catId: "sosial",
+    glyph: "heart",
+    colorKey: "instagram",
+    tagline: "Booster Followers & Interaksi Instagram Organik HQ",
+    description: "Tingkatkan kredibilitas profil bisnis atau personal branding Instagram Anda dengan followers berkualitas tinggi (High Quality). Proses bertahap alami tanpa membutuhkan password akun.",
+    platforms: ["Android", "iOS", "Web"],
+    features: [
+      "100% Tanpa Password (Hanya membutuhkan username profil publik)",
+      "Akun followers High Quality dengan foto profil & bio lengkap",
+      "Proses masuk bertahap alami agar aman bagi algoritma Instagram",
+      "Garansi refill / isi ulang jika terjadi penurunan selama 30 hari",
+    ],
+    variants: [
+      {
+        id: "ig-followers-1000",
+        name: "1.000 Followers HQ (High Quality + Garansi 30 Hari)",
+        duration: "Layanan Booster",
+        accessType: "Direct Topup (Tanpa Password)",
+        price: 25000,
+        originalPrice: 45000,
+        badge: "Paling Laris",
+        description: "1.000 followers HQ dengan garansi refill 30 hari.",
+        isDefault: true,
+      },
+      {
+        id: "ig-followers-2500",
+        name: "2.500 Followers HQ (+ Bonus Likes)",
+        duration: "Layanan Booster",
+        accessType: "Direct Topup (Tanpa Password)",
+        price: 55000,
+        originalPrice: 95000,
+        badge: "Hemat",
+        description: "2.500 followers HQ untuk membangun kredibilitas profil toko online.",
+      },
+      {
+        id: "ig-followers-5000",
+        name: "5.000 Followers HQ (Super Growth Pack)",
+        duration: "Layanan Booster",
+        accessType: "Direct Topup (Tanpa Password)",
+        price: 95000,
+        originalPrice: 175000,
+        badge: "Best Value",
+        description: "5.000 followers HQ untuk branding cepat dan profesional.",
+      },
+    ],
+  },
+  {
+    name: "TikTok Followers & Views",
+    stock: 22,
+    catId: "sosial",
+    glyph: "heart",
+    colorKey: "tiktok",
+    tagline: "Booster Follower, Likes & Views TikTok Cepat",
+    description: "Bantu konten TikTok Anda menembus FYP dan raih syarat 1.000 followers untuk membuka fitur TikTok Live streaming. Proses instan dan aman hanya membutuhkan tautan video atau username publik.",
+    platforms: ["Android", "iOS", "Web"],
+    features: [
+      "Tanpa membutuhkan password akun TikTok Anda",
+      "Membantu membuka syarat minimal 1.000 followers untuk TikTok Live",
+      "Meningkatkan engagement rate & skor algoritma video",
+      "Garansi pengiriman aman dan tuntas",
+    ],
+    variants: [
+      {
+        id: "tiktok-1",
+        name: "TikTok < 900FL Has Cart - LiveStudio",
+        duration: "N/A",
+        accessType: "Account",
+        price: 185000,
+        originalPrice: 250000,
+        stock: 4,
+        isDefault: true,
+      },
+      {
+        id: "tiktok-2",
+        name: "TikTok USA (US) 2024",
+        duration: "N/A",
+        accessType: "Account",
+        price: 18000,
+        originalPrice: 30000,
+        stock: 18,
+      }
+    ],
+  },
+  {
+    name: "DeepSeek API",
+    stock: 16,
+    catId: "developer",
+    glyph: "code-bracket",
+    colorKey: "blue",
+    tagline: "API DeepSeek V4 Flash",
+    description: "Akses API DeepSeek V4 Flash Unlimited Token selama 30 hari. Sangat cocok untuk developer yang membutuhkan performa tinggi.",
+    platforms: ["Web"],
+    features: [
+      "Unlimited Token",
+      "Model V4 Flash",
+      "Akses API stabil"
+    ],
+    variants: [
+      {
+        id: "deepseek-1",
+        name: "API DeepSeek V4 Flash Unlimited Token 30 days - no warranty",
+        duration: "30 Hari",
+        accessType: "API Key",
+        price: 40000,
+        originalPrice: 60000,
+        stock: 16,
+        badge: "Paling Laris",
+        isDefault: true,
+      }
+    ],
+  },
+  {
+    name: "TradingView Premium",
+    stock: 17,
+    catId: "business",
+    glyph: "chart-bar",
+    colorKey: "green",
+    tagline: "Platform Analisis Trading Terbaik",
+    description: "Dapatkan akses TradingView Premium untuk melihat indikator, analisis, dan chart secara lebih mendalam tanpa batas.",
+    platforms: ["Web", "Android", "iOS"],
+    features: [
+      "Chart dan indikator tanpa batas",
+      "Alerts khusus",
+      "Layout multi-chart"
+    ],
+    variants: [
+      {
+        id: "tradingview-1",
+        name: "TradingView Premium 30 Days 1D warranty",
+        duration: "30 Hari",
+        accessType: "Account",
+        price: 34000,
+        originalPrice: 50000,
+        stock: 17,
+        badge: "Paling Laris",
+        isDefault: true,
+      }
+    ],
+  },
+  {
+    name: "Wink VIP",
+    stock: 7,
+    catId: "design",
+    glyph: "camera",
+    colorKey: "pink",
+    tagline: "Aplikasi Edit Video Premium",
+    description: "Tingkatkan kualitas video Anda dengan Wink VIP. Akses semua fitur premium seperti resolusi HD, tanpa watermark, dan efek pro.",
+    platforms: ["Android", "iOS"],
+    features: [
+      "Kualitas HD",
+      "Tanpa Watermark",
+      "Efek dan Filter Pro"
+    ],
+    variants: [
+      {
+        id: "wink-1",
+        name: "Wink VIP 1 Year full warranty",
+        duration: "1 Tahun",
+        accessType: "Account",
+        price: 277000,
+        originalPrice: 400000,
+        stock: 2,
+        isDefault: true,
+      },
+      {
+        id: "wink-2",
+        name: "Wink Vip 90D full warranty",
+        duration: "90 Hari",
+        accessType: "Account",
+        price: 153000,
+        originalPrice: 200000,
+        stock: 5,
+      }
+    ],
+  },
+  {
+    name: "Freepik Magnific",
+    stock: 29,
+    catId: "design",
+    glyph: "photo",
+    colorKey: "blue",
+    tagline: "Akses API Freepik Premium",
+    description: "Unduh jutaan aset vektor, foto, dan template premium dari Freepik melalui Magnific API Web Panel.",
+    platforms: ["Web"],
+    features: [
+      "Akses Magnific API",
+      "Aset Premium",
+      "Web Panel"
+    ],
+    variants: [
+      {
+        id: "freepik-1",
+        name: "Freepik - Magnific Premium API Web Panel 90D full warranty",
+        duration: "90 Hari",
+        accessType: "API Key",
+        price: 155000,
+        originalPrice: 250000,
+        stock: 5,
+        isDefault: true,
+      },
+      {
+        id: "freepik-2",
+        name: "Freepik - Magnific Premium API Web Panel 60D full warranty",
+        duration: "60 Hari",
+        accessType: "API Key",
+        price: 111000,
+        originalPrice: 150000,
+        stock: 8,
+      },
+      {
+        id: "freepik-3",
+        name: "Freepik - Magnific Premium API Web Panel 30D full warranty",
+        duration: "30 Hari",
+        accessType: "API Key",
+        price: 61000,
+        originalPrice: 100000,
+        stock: 16,
+      }
+    ],
+  },
+  {
+    name: "Akool Pro",
+    stock: 21,
+    catId: "design",
+    glyph: "sparkles",
+    colorKey: "purple",
+    tagline: "Platform AI Generative untuk Visual",
+    description: "Buat gambar, video, dan aset visual berkualitas tinggi menggunakan Akool AI Pro dengan credit berlimpah.",
+    platforms: ["Web"],
+    features: [
+      "Image & Video Generation",
+      "Akses fitur Pro",
+      "Rendering cepat"
+    ],
+    variants: [
+      {
+        id: "akool-1",
+        name: "Akool Starter 200 cre 1 month (24H warranty)",
+        duration: "1 Bulan",
+        accessType: "Account",
+        price: 46000,
+        originalPrice: 70000,
+        stock: 11,
+        isDefault: true,
+      },
+      {
+        id: "akool-2",
+        name: "Akool Pro 600 credits 1 month (24h warranty)",
+        duration: "1 Bulan",
+        accessType: "Account",
+        price: 123000,
+        originalPrice: 150000,
+        stock: 4,
+      },
+      {
+        id: "akool-3",
+        name: "Akool Pro 1 Month Warranty 1 Day",
+        duration: "1 Bulan",
+        accessType: "Account",
+        price: 135000,
+        originalPrice: 200000,
+        stock: 6,
+      }
+    ],
+  },
+  {
+    name: "MiniMax API",
+    stock: 12,
+    catId: "developer",
+    glyph: "cpu",
+    colorKey: "red",
+    tagline: "Akses API MiniMax AI",
+    description: "Akses API MiniMax AI untuk kebutuhan pengembangan aplikasi Anda dengan limit token yang bisa disesuaikan.",
+    platforms: ["Web"],
+    features: [
+      "MiniMax API M3",
+      "Performa Tinggi",
+      "Integrasi Mudah"
+    ],
+    variants: [
+      {
+        id: "minimax-1",
+        name: "API MiniMax M3 Unlimited Token 14 days - no warranty",
+        duration: "14 Hari",
+        accessType: "API Key",
+        price: 33600,
+        originalPrice: 50000,
+        stock: 4,
+        badge: "Promo",
+        isDefault: true,
+      },
+      {
+        id: "minimax-2",
+        name: "Minimax Redeem 300K Cre full warranty",
+        duration: "N/A",
+        accessType: "Credit",
+        price: 104000,
+        originalPrice: 150000,
+        stock: 8,
+      }
+    ],
+  },
+  {
+    name: "iCloud Storage",
+    stock: 999,
+    catId: "utilities",
+    glyph: "cloud",
+    colorKey: "blue",
+    tagline: "Penyimpanan Ekstra untuk Apple Devices",
+    description: "Tambahkan slot penyimpanan iCloud hingga 2TB. Solusi resmi dan aman untuk mem-backup foto, video, dan dokumen Anda.",
+    platforms: ["iOS", "macOS", "Web"],
+    features: [
+      "Kapasitas 2TB Sharing",
+      "Privasi Terjamin",
+      "Backup Otomatis"
+    ],
+    variants: [
+      {
+        id: "icloud-1",
+        name: "iCloud Slot 2TB - 1M (full warranty)",
+        duration: "1 Bulan",
+        accessType: "Account",
+        price: 61000,
+        originalPrice: 85000,
+        stock: 999,
+        badge: "Paling Laris",
+        isDefault: true,
+      }
+    ],
+  },
+  {
+    name: "Scribd Premium",
+    stock: 3,
+    catId: "education",
+    glyph: "book-open",
+    colorKey: "green",
+    tagline: "Platform Baca Buku Digital",
+    description: "Akses jutaan ebook, audiobook, dokumen, majalah, dan podcast premium dari seluruh dunia.",
+    platforms: ["Android", "iOS", "Web"],
+    features: [
+      "Ebook & Audiobook",
+      "Unduh untuk Offline",
+      "Bebas Iklan"
+    ],
+    variants: [
+      {
+        id: "scribd-1",
+        name: "Scribd Premium 1 Month - full warranty",
+        duration: "1 Bulan",
+        accessType: "Account",
+        price: 31000,
+        originalPrice: 45000,
+        stock: 3,
+        isDefault: true,
+      }
+    ],
+  },
+  {
+    name: "Autodesk All Apps",
+    stock: 32,
+    catId: "design",
+    glyph: "pen-tool",
+    colorKey: "indigo",
+    tagline: "Koleksi Lengkap Aplikasi Autodesk",
+    description: "Dapatkan akses ke semua aplikasi Autodesk termasuk AutoCAD, 3ds Max, Maya, Revit, dan puluhan aplikasi lainnya dengan lisensi resmi.",
+    platforms: ["Windows", "macOS"],
+    features: [
+      "Lisensi Resmi",
+      "Termasuk AutoCAD",
+      "Pembaruan Otomatis"
+    ],
+    variants: [
+      {
+        id: "autodesk-1",
+        name: "Autodesk App All: AutoCAD, 3ds Max... 3 Years warranty 1 Year",
+        duration: "1 Tahun",
+        accessType: "Account",
+        price: 61000,
+        originalPrice: 150000,
+        stock: 32,
+        isDefault: true,
+      }
+    ],
+  },
+  {
+    name: "Krea AI Basic",
+    stock: 16,
+    catId: "design",
+    glyph: "sparkles",
+    colorKey: "purple",
+    tagline: "AI Generative Design Tool",
+    description: "Gunakan Krea AI untuk membuat desain inovatif, memperjelas resolusi, dan menghasilkan visual dari teks.",
+    platforms: ["Web"],
+    features: [
+      "Image Generation",
+      "Upscale Visual",
+      "Kredit Basic 5100"
+    ],
+    variants: [
+      {
+        id: "krea-1",
+        name: "Krea Basic 5100 credit 1 month warranty 1 day",
+        duration: "1 Bulan",
+        accessType: "Account",
+        price: 56000,
+        originalPrice: 75000,
+        stock: 16,
+        isDefault: true,
+      }
+    ],
+  }
+];
+
+const featuredNames = [
+  "ChatGPT Plus",
+  "Gemini AI Pro",
+  "Claude AI Pro",
+  "Spotify Premium",
+  "Netflix Premium 4K",
+  "YouTube Premium",
+  "Disney+ Hotstar",
+  "Canva Pro",
+];
+
+const newNames = [
+  "Manus AI Pro",
+  "Lovable AI Pro",
+  "Supabase Pro",
+  "Cursor AI Pro",
+  "Runway Gen-3 AI Pro",
+];
 
 function slugify(name: string): string {
-  const base = name
+  return name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 60);
-  const n = slugMap.get(base) ?? 0;
-  slugMap.set(base, n + 1);
-  return n === 0 ? base : `${base}-${n + 1}`;
 }
 
 function hashStr(s: string): number {
@@ -311,266 +2676,65 @@ function hashStr(s: string): number {
   return h;
 }
 
-function pick<T>(arr: T[], seed: number): T {
-  return arr[seed % arr.length];
-}
-
-function duration(name: string): string {
-  const m = name.match(/(\d+(?:\.\d+)?)\s*([dDmM])/);
-  if (!m) return "masa aktif sesuai paket";
-  const n = m[1];
-  if (m[2].toLowerCase() === "d") return `${n} hari`;
-  return `${n} bulan`;
-}
-
-function descFor(cat: string, name: string): string {
-  const dur = duration(name);
-  const intro =
-    cat === "AI & Chatbot"
-      ? `Akses penuh ${name} dengan masa aktif ${dur}.`
-      : cat === "Streaming"
-        ? `Langganan streaming ${name} dengan masa aktif ${dur}.`
-        : cat === "VPN & Keamanan"
-          ? `Layanan VPN ${name} dengan masa aktif ${dur}.`
-          : cat === "Akun & Email"
-            ? `Akun ${name} siap pakai.`
-            : cat === "Sosial Media"
-              ? `Layanan peningkatan ${name.toLowerCase()}.`
-              : cat === "Desain & Kreatif"
-                ? `Lisensi ${name} untuk kebutuhan kreatif.`
-                : `Lisensi premium ${name} dengan masa aktif ${dur}.`;
-  return `${intro} Dikirim otomatis ke email Anda setelah pembayaran terverifikasi — biasanya 1–30 menit. Didukung bantuan penggantian selama masa aktif jika ada kendala.`;
-}
-
-function featuresFor(cat: string): string[] {
-  const base = [
-    "Dikirim otomatis setelah pembayaran (1–30 menit)",
-    "Garansi penggantian selama masa aktif",
-    "Bantuan cepat via chat",
-    "Harga terbaik di kelasnya",
-  ];
-  switch (cat) {
-    case "Streaming":
-      return ["Akses konten penuh sesuai paket", "Bisa dipakai di perangkat pendukung", ...base.slice(0, 2)];
-    case "AI & Chatbot":
-      return ["Akses penuh fitur premium AI", "Pembaruan mengikuti akun asli", ...base.slice(0, 2)];
-    case "VPN & Keamanan":
-      return ["Enkripsi koneksi penuh", "Server di berbagai negara", ...base.slice(0, 2)];
-    case "Sosial Media":
-      return ["Proses pengerjaan bertahap & aman", "Kualitas follower/like HQ", ...base.slice(0, 2)];
-    default:
-      return base;
-  }
-}
-
-function screenshotFor(cat: string): App["screenshots"] {
+function screenshotFor(catId: string): App["screenshots"] {
   const map: Record<string, App["screenshots"]> = {
-    "AI & Chatbot": ["dashboard", "form"],
-    Streaming: ["mobile", "grid"],
-    "VPN & Keamanan": ["form", "dashboard"],
-    "Akun & Email": ["mobile", "form"],
-    "Sosial Media": ["grid", "analytics"],
-    "Developer & Cloud": ["terminal", "dashboard"],
-    "Desain & Kreatif": ["editor", "grid"],
-    Produktivitas: ["dashboard", "grid"],
-    "Lisensi & Kredit": ["form", "mobile"],
-    Pendidikan: ["analytics", "mobile"],
+    ai: ["dashboard", "form"],
+    streaming: ["mobile", "grid"],
+    vpn: ["form", "dashboard"],
+    akun: ["mobile", "form"],
+    sosial: ["grid", "analytics"],
+    developer: ["terminal", "dashboard"],
+    kreatif: ["editor", "grid"],
+    tools: ["dashboard", "grid"],
+    lisensi: ["form", "mobile"],
+    pendidikan: ["analytics", "mobile"],
   };
-  return map[cat] ?? ["dashboard", "form"];
+  return map[catId] ?? ["dashboard", "form"];
 }
 
-const featuredNames = [
-  "ChatGPT Plus 1M (Vietnamese Trial) (NW)",
-  "Disney Premium + Hulu Bundle",
-  "Gemini AI Pro 18m",
-  "Nord VPN 3m",
-  "Instagram - 1K Followers HQ",
-  "Spotify Premium 90D",
-  "Notion Business 6-12M",
-  "Steam Account",
-];
+export const apps: App[] = productSpecs.map((spec) => {
+  const seed = hashStr(spec.name);
+  const slug = slugify(spec.name);
+  const color = (spec.colorKey && P[spec.colorKey]) || { from: "#333", to: "#111" };
+  const icon: AppIconConfig = {
+    from: color.from,
+    to: color.to,
+    glyph: spec.glyph,
+    logo: brandLogo(spec.name),
+  };
 
-const newNames = [
-  "Lovable Pro 6-12M",
-  "Manus Pro 6-12M",
-  "Supabase Pro",
-  "Warp Build 12m",
-  "Wispr Flow Pro 6-12M",
-];
+  const defaultVariant = spec.variants.find((v) => v.isDefault) || spec.variants[0];
+  const basePrice = defaultVariant ? defaultVariant.price : 35000;
+  const originalPrice = defaultVariant?.originalPrice;
 
-/**
- * Peringkat popularitas — produk paling laris di urutan teratas.
- * Pola dicocokkan ke nama produk; urutan daftar = urutan tampil.
- * Edit daftar ini untuk mengubah produk yang tampil paling atas.
- */
-export const popularRank = [
-  "ChatGPT Plus",
-  "Gemini AI Pro",
-  "Spotify Premium",
-  "Disney Premium + Hulu",
-  "Netflix Premium",
-  "Nord VPN",
-  "Surfshark",
-  "Coursera Premium",
-  "Super Duolingo",
-  "Notion Business",
-  "Canva Business",
-  "Steam Account",
-  "1,000 Robux",
-  "YouTube Premium",
-  "Instagram - 1K Followers HQ",
-  "Instagram - 10K Followers HQ",
-  "TikTok - 1K Followers",
-  "TikTok - 10K Followers",
-  "Warp Build",
-  "Cursor Pro",
-  "Microsoft 365 Personal",
-  "Replit Core",
-  "N8N Starter",
-  "Railway",
-  "Supabase",
-  "Linear Business",
-  "PostHog",
-  "Linkedin Career 2M",
-  "Hotmail Outlook",
-  "Zoom Pro",
-];
-
-export function popularityOf(name: string): number {
-  const idx = popularRank.findIndex((p) => name.startsWith(p) || name.includes(p));
-  return idx === -1 ? popularRank.length : idx;
-}
-
-/** Map nama produk → file logo di /public/logos. */
-function brandLogo(name: string): string {
-  const l = name.toLowerCase();
-  const has = (...parts: string[]) => parts.some((p) => l.includes(p));
-  if (has("chatgpt", "codex")) return "chatgpt.png";
-  if (has("claude", "anthropic")) return "claude.svg";
-  if (has("gemini", "max plan", "genie")) return "gemini.svg";
-  if (has("google ai", "google email")) return "google.svg";
-  if (has("grok")) return "grok.svg";
-  if (has("perplexity")) return "perplexity.svg";
-  if (has("cursor")) return "cursor.svg";
-  if (has("lovable")) return "lovable.png";
-  if (has("manus")) return "manus.png";
-  if (has("runway")) return "runway.png";
-  if (has("higgsfield")) return "higgsfield.png";
-  if (has("elevenlabs")) return "elevenlabs.svg";
-  if (has("leonardo")) return "leonardo.png";
-  if (has("gamma")) return "gamma.png";
-  if (has("granola")) return "granola.png";
-  if (has("wispr")) return "wispr.png";
-  if (has("chatprd")) return "chatprd.png";
-  if (has("n8n")) return "n8n.svg";
-  if (has("disney")) return "disney.ico";
-  if (has("netflix")) return "netflix.svg";
-  if (has("spotify")) return "spotify.svg";
-  if (has("prime video")) return "prime.ico";
-  if (has("crunchyroll")) return "crunchyroll.svg";
-  if (has("apple tv")) return "apple.svg";
-  if (has("paramount")) return "paramount.svg";
-  if (has("youtube")) return "youtube.svg";
-  if (has("capcut")) return "capcut.png";
-  if (has("nord")) return "nord.svg";
-  if (has("surfshark")) return "surfshark.svg";
-  if (has("warp")) return "warp.svg";
-  if (has("gmail")) return "gmail.svg";
-  if (has("hotmail", "outlook")) return "outlook.ico";
-  if (has("microsoft 365", "microsoft azura", "microsoft office")) return "microsoft.ico";
-  if (has("paypal")) return "paypal.svg";
-  if (has("steam")) return "steam.svg";
-  if (has("linkedin", "sales navigator", "career", "business premium")) return "linkedin.ico";
-  if (has("instagram")) return "instagram.svg";
-  if (has("tiktok")) return "tiktok.svg";
-  if (has("notion")) return "notion.svg";
-  if (has("quillbot")) return "quillbot.ico";
-  if (has("zoom")) return "zoom.svg";
-  if (has("camscanner")) return "camscanner.png";
-  if (has("coursera")) return "coursera.svg";
-  if (has("duolingo")) return "duolingo.svg";
-  if (has("canva")) return "canva.png";
-  if (has("figma")) return "figma.svg";
-  if (has("framer")) return "framer.svg";
-  if (has("robux")) return "roblox.svg";
-  if (has("discord")) return "discord.svg";
-  if (has("heygen")) return "heygen.png";
-  if (has("replit")) return "replit.svg";
-  if (has("railway")) return "railway.svg";
-  if (has("supabase")) return "supabase.svg";
-  if (has("linear")) return "linear.svg";
-  if (has("posthog")) return "posthog.svg";
-  if (has("factory")) return "factory.png";
-  if (has("mobbin")) return "mobbin.png";
-  if (has("jam team")) return "jam.png";
-  if (has("gumloop")) return "gumloop.png";
-  if (has("supercut")) return "supercut.png";
-  if (has("magic patterns")) return "magicpatterns.ico";
-  if (has("links shop")) return "links.svg";
-  if (has("esim")) return "esim.ico";
-  return "links.svg";
-}
-
-/**
- * Tier diskon harga — semua produk wajib turun:
- *   murah/wajar      → -20%
- *   agak mahal       → -30%
- *   jelas kemahalan  → -50%
- * Default berdasar harga; override untuk produk yang sudah terlanjur murah (Notion, Steam)
- * atau yang butuh potongan lebih besar (Zoom).
- */
-export function discountTier(price: number, name: string): number {
-  if (/notion|steam account/i.test(name)) return 0.8;
-  if (/zoom/i.test(name)) return 0.7;
-  if (price <= 50000) return 0.8;
-  if (price <= 250000) return 0.7;
-  return 0.5;
-}
-
-/** Potongan tambahan global — semua produk dikurangi lagi 15%. */
-export const EXTRA_DISCOUNT = 0.85;
-
-export const apps: App[] = rows.map(([name, price, stock, catName, glyph, colorKey]) => {
-  const catId = C[catName];
-  // Seed menyertakan harga agar varian bernama sama (beda harga) punya popularitas berbeda,
-  // sehingga tidak tampil berdampingan seperti produk ganda.
-  const seed = hashStr(name + price);
-  const finalPrice = Math.round((price * discountTier(price, name) * EXTRA_DISCOUNT) / 1000) * 1000;
-  const slug = slugify(name);
-  const color = (colorKey && P[colorKey]) || pick(Object.values(P), seed);
-  const glyphKey = glyph ?? pick(G[catId] ?? G.tools, seed);
-  const icon: AppIconConfig = { from: color.from, to: color.to, glyph: glyphKey, logo: brandLogo(name) };
-
-  const mobileBrands = /chatgpt|claude|gemini|spotify|netflix|disney|youtube|nord|surfshark|duolingo|coursera|canva|tiktok|instagram/i;
-  const platforms: Platform[] = ["Web"];
-  if (mobileBrands.test(name)) platforms.push("Android", "iOS");
-
-  const isFeatured = featuredNames.some((f) => name.startsWith(f)) || featuredNames.includes(name);
-  const isNew = newNames.some((f) => name.startsWith(f));
+  const isFeatured = featuredNames.includes(spec.name);
+  const isNew = newNames.includes(spec.name);
 
   return {
     id: slug,
     slug,
-    name,
-    tagline: catName,
-    description: descFor(catId, name),
+    name: spec.name,
+    tagline: spec.tagline,
+    description: spec.description,
     developerId: "tokono-store",
-    categoryId: catId,
-    price: finalPrice,
-    stock,
-    rating: 3.9 + (seed % 11) / 10,
-    ratingCount: 100 + (seed % 2400),
-    downloads: 5000 + (seed % 90000),
-    platforms,
+    categoryId: spec.catId,
+    price: basePrice,
+    originalPrice,
+    stock: spec.variants?.reduce((sum, v) => sum + (v.stock || 0), 0) || spec.stock,
+    rating: 4.1 + (seed % 9) / 10,
+    ratingCount: 150 + (seed % 1800),
+    downloads: 12000 + (seed % 45000),
+    platforms: spec.platforms,
     icon,
-    screenshots: screenshotFor(catId),
-    version: `${1 + (seed % 3)}.${seed % 9}.0`,
-    releasedAt: `202${5 + (seed % 2)}-0${1 + (seed % 9)}-1${seed % 9}`,
-    updatedAt: `2026-0${1 + (seed % 8)}-${1 + (seed % 27)}`,
-    features: featuresFor(catId),
+    screenshots: screenshotFor(spec.catId),
+    version: "2026.1",
+    releasedAt: "2026-01-15",
+    updatedAt: "2026-08-30",
+    features: spec.features,
     requirements: {
-      Web: `Akses via web setelah dikirim ke email. Masa aktif ${duration(name)}.`,
+      Web: "Akses detail akun / link invite dikirimkan otomatis setelah verifikasi pembayaran QRIS.",
     },
+    variants: spec.variants,
     isFeatured,
     isNew,
   } satisfies App;

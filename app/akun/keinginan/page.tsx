@@ -27,10 +27,10 @@ export default function KeinginanPage() {
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <p className="text-sm text-fg-muted">{apps.length} aplikasi disimpan.</p>
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        <p className="text-xs font-bold uppercase tracking-wider text-fg-muted">{apps.length} aplikasi disimpan.</p>
         {apps.some((a) => a.originalPrice != null) && (
-          <Badge tone="accent">Sebagian sedang promo</Badge>
+          <Badge tone="accent">Sebagian sedang promo 🔥</Badge>
         )}
       </div>
       <ProductGrid apps={apps} columns={3} />

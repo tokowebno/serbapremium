@@ -31,7 +31,7 @@ export default function AdminPengaturanPage() {
 
   return (
     <div>
-      <AdminPageHeader title="Pengaturan" description="Konfigurasi platform Tokono." />
+      <AdminPageHeader title="Pengaturan" description="Konfigurasi platform SerbaPremium." />
       <Tabs
         className="mb-6 max-w-full"
         active={tab}
@@ -48,10 +48,10 @@ export default function AdminPengaturanPage() {
       />
 
       {tab === "info" && (
-        <Section title="Informasi Tokono">
+        <Section title="Informasi SerbaPremium">
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Nama Toko"><Input defaultValue="Tokono" /></Field>
-            <Field label="Email Dukungan"><Input defaultValue="dukungan@tokono.example" /></Field>
+            <Field label="Nama Toko"><Input defaultValue="SerbaPremium" /></Field>
+            <Field label="Email Dukungan"><Input defaultValue="dukungan@serbapremium.id" /></Field>
             <Field label="Alamat" className="sm:col-span-2"><Textarea defaultValue="Jakarta, Indonesia" /></Field>
             <Field label="PPN (%)"><Input type="number" defaultValue="11" /></Field>
           </div>
@@ -74,10 +74,10 @@ export default function AdminPengaturanPage() {
       {tab === "email" && (
         <Section title="Email">
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Host SMTP"><Input defaultValue="smtp.tokono.example" /></Field>
+            <Field label="Host SMTP"><Input defaultValue="smtp.serbapremium.id" /></Field>
             <Field label="Port"><Input defaultValue="587" /></Field>
-            <Field label="Dari Nama"><Input defaultValue="Tokono" /></Field>
-            <Field label="Dari Alamat"><Input defaultValue="noreply@tokono.example" /></Field>
+            <Field label="Dari Nama"><Input defaultValue="SerbaPremium" /></Field>
+            <Field label="Dari Alamat"><Input defaultValue="noreply@serbapremium.id" /></Field>
           </div>
           <SaveRow onSave={() => save("Email")} />
         </Section>

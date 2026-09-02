@@ -6,6 +6,11 @@ export function formatRupiah(n: number): string {
   return `Rp${n.toLocaleString("id-ID")}`;
 }
 
+export function formatPrice(n: number, currency: string = "IDR"): string {
+  if (currency === "USD") return `$${n.toFixed(2)}`;
+  return `Rp${n.toLocaleString("id-ID")}`;
+}
+
 export function formatDate(iso: string): string {
   return new Intl.DateTimeFormat("id-ID", {
     day: "numeric",

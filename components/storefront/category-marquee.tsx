@@ -11,18 +11,20 @@ export function CategoryMarquee({ className }: { className?: string }) {
 
   return (
     <div
-      className={cn("marquee relative overflow-hidden py-6 select-none", className)}
+      className={cn("marquee relative overflow-hidden border-y-2 border-border bg-surface-2 py-4 select-none", className)}
       aria-hidden="true"
     >
       <div className="marquee-track items-center gap-3 pr-3">
         {items.map((c, i) => (
           <span
             key={`${c.id}-${i}`}
-            className="flex shrink-0 items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-[13px] font-medium text-fg-muted"
+            className="flex shrink-0 items-center gap-2 rounded-sm border-2 border-border bg-surface px-3.5 py-1.5 text-[13px] font-bold text-fg shadow-[2px_2px_0px_var(--shadow-color)]"
           >
-            <c.icon size={14} className="text-accent" />
+            <c.icon size={15} strokeWidth={2.5} className="text-accent-blue dark:text-accent" />
             {c.name}
-            <span className="text-fg-faint tabular-nums">{c.count}</span>
+            <span className="rounded-xs border border-border bg-surface-2 px-1 py-0.2 text-[10px] font-black tabular-nums text-fg-muted">
+              {c.count}
+            </span>
           </span>
         ))}
       </div>

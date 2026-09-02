@@ -31,7 +31,7 @@ export function AppForm({ app }: { app?: App }) {
           <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
             {app ? `Edit ${app.name}` : "Tambah Aplikasi"}
           </h1>
-          <p className="text-sm text-fg-muted">{app ? "Perbarui informasi aplikasi." : "Daftarkan aplikasi baru ke Tokono."}</p>
+          <p className="text-sm text-fg-muted">{app ? "Perbarui informasi aplikasi." : "Daftarkan aplikasi baru ke SerbaPremium."}</p>
         </div>
       </div>
 

@@ -92,6 +92,9 @@ export const api = {
     getBySlug(slug: string): App | undefined {
       return getProducts().find((a) => a.slug === slug);
     },
+    getById(id: string): App | undefined {
+      return getProducts().find((a) => a.id === id || a.slug === id);
+    },
     featured(): App[] {
       // Unggulan dengan stok tersedia di depan, stok habis di belakang.
       return sortApps(getProducts().filter((a) => a.isFeatured), "popularitas");

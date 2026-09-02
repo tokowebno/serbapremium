@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <linearGradient id="camGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00a5df"/>
+      <stop offset="100%" stop-color="#005f82"/>
+    </linearGradient>
+  </defs>
+  <rect width="100" height="100" rx="20" fill="url(#camGrad)"/>
+  <!-- CamScanner: document with scan lines -->
+  <rect x="25" y="18" width="42" height="54" rx="4" fill="white" opacity="0.95"/>
+  <rect x="32" y="27" width="28" height="3" rx="1.5" fill="url(#camGrad)"/>
+  <rect x="32" y="35" width="20" height="3" rx="1.5" fill="url(#camGrad)"/>
+  <rect x="32" y="43" width="24" height="3" rx="1.5" fill="url(#camGrad)"/>
+  <!-- Camera viewfinder corners on doc -->
+  <rect x="58" y="55" width="17" height="25" rx="4" fill="#00a5df" opacity="0.9"/>
+  <circle cx="66.5" cy="64" r="5" fill="white" opacity="0.9"/>
+</svg>

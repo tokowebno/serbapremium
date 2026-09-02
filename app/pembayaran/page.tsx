@@ -3,15 +3,27 @@ import { CheckoutForm } from "./checkout-form";
 
 export const metadata: Metadata = {
   title: "Pembayaran",
-  description: "Selesaikan pembelian aplikasi Anda di Tokono.",
+  description: "Selesaikan pembelian aplikasi & akun premium Anda di SerbaPremium.",
 };
 
 interface Props {
-  searchParams: Promise<{ app?: string }>;
+  searchParams: Promise<{
+    app?: string;
+    variant?: string;
+    price?: string;
+    title?: string;
+    platform?: string;
+  }>;
 }
 
 export default async function PembayaranPage({ searchParams }: Props) {
-  const { app } = await searchParams;
-  // Item beli-langsung dibaca di server — andal di semua environment (dev, worker).
-  return <CheckoutForm initialSlug={app} />;
+  const sp = await searchParams;
+  return (
+    <CheckoutForm
+      initialSlug={sp.app}
+      customTitle={sp.title}
+      customPrice={sp.price ? Number(sp.price) : undefined}
+      customPlatform={sp.platform}
+    />
+  );
 }

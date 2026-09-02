@@ -26,25 +26,25 @@ export function Rating({
             <Star key={i} size={size} fill="currentColor" strokeWidth={0} />
           ) : i === full && hasHalf ? (
             <span key={i} className="relative inline-flex">
-              <Star size={size} className="text-border-strong" fill="currentColor" strokeWidth={0} />
+              <Star size={size} className="text-border-subtle" fill="currentColor" strokeWidth={0} />
               <StarHalf
                 size={size}
-                className="absolute inset-0"
+                className="absolute inset-0 text-star"
                 fill="currentColor"
                 strokeWidth={0}
               />
             </span>
           ) : (
-            <Star key={i} size={size} className="text-border-strong" fill="currentColor" strokeWidth={0} />
+            <Star key={i} size={size} className="text-border-subtle" fill="currentColor" strokeWidth={0} />
           ),
         )}
       </span>
       {showValue && (
-        <span className="text-[13px] font-medium tabular-nums text-fg">
+        <span className="text-[13px] font-bold tabular-nums text-fg">
           {rounded.toLocaleString("id-ID", { minimumFractionDigits: 1 })}
         </span>
       )}
-      {count != null && <span className="text-[13px] text-fg-muted">{count.toLocaleString("id-ID")} ulasan</span>}
+      {count != null && <span className="text-[13px] font-medium text-fg-muted">{count.toLocaleString("id-ID")} ulasan</span>}
     </span>
   );
 }

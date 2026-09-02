@@ -22,6 +22,20 @@ export interface AppIconConfig {
   logo?: string;
 }
 
+export interface ProductVariant {
+  id: string;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  duration?: string;
+  stock?: number;
+  features?: string[];
+  accessType?: string;
+  isDefault?: boolean;
+  badge?: string;
+  description?: string;
+}
+
 export interface App {
   id: string;
   slug: string;
@@ -45,6 +59,7 @@ export interface App {
   updatedAt: string;
   features: string[];
   requirements: Partial<Record<Platform, string>>;
+  variants?: ProductVariant[];
   isFeatured?: boolean;
   isNew?: boolean;
 }

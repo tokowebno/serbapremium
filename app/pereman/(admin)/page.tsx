@@ -24,7 +24,7 @@ export default function AdminDashboardPage() {
     <div>
       <AdminPageHeader
         title="Dasbor"
-        description="Ringkasan performa Tokono hari ini."
+        description="Ringkasan performa SerbaPremium hari ini."
       />
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
@@ -36,57 +36,57 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border border-border bg-surface p-6 shadow-sm">
-          <h2 className="mb-4 text-[15px] font-semibold tracking-tight">Pendapatan 8 Bulan</h2>
+        <div className="rounded-lg border-2 border-border bg-surface p-6 shadow-[4px_4px_0px_var(--shadow-color)]">
+          <h2 className="mb-4 text-base font-black tracking-tight text-fg uppercase">Pendapatan 8 Bulan</h2>
           <LineChart data={revenueSeries} />
         </div>
-        <div className="rounded-xl border border-border bg-surface p-6 shadow-sm">
-          <h2 className="mb-4 text-[15px] font-semibold tracking-tight">Aplikasi Terlaris</h2>
+        <div className="rounded-lg border-2 border-border bg-surface p-6 shadow-[4px_4px_0px_var(--shadow-color)]">
+          <h2 className="mb-4 text-base font-black tracking-tight text-fg uppercase">Aplikasi Terlaris</h2>
           <HorizontalBars data={topApps} />
         </div>
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border border-border bg-surface shadow-sm">
-          <div className="flex items-center justify-between px-6 pt-5">
-            <h2 className="text-[15px] font-semibold tracking-tight">Pesanan Terbaru</h2>
-            <Link href="/pereman/pesanan" className="text-[13px] font-medium text-accent hover:underline">
-              Lihat semua
+        <div className="rounded-lg border-2 border-border bg-surface shadow-[4px_4px_0px_var(--shadow-color)]">
+          <div className="flex items-center justify-between border-b-2 border-border px-6 py-4">
+            <h2 className="text-base font-black tracking-tight text-fg uppercase">Pesanan Terbaru</h2>
+            <Link href="/pereman/pesanan" className="text-xs font-bold text-accent-blue dark:text-accent hover:underline">
+              Lihat semua →
             </Link>
           </div>
-          <ul className="divide-y divide-border px-6 py-2">
+          <ul className="divide-y-2 divide-border px-6 py-2">
             {latestOrders.map((o) => (
               <li key={o.id} className="flex items-center justify-between gap-3 py-3 text-sm">
                 <div className="min-w-0">
-                  <p className="truncate font-mono text-[13px] font-medium">{o.id}</p>
-                  <p className="truncate text-[13px] text-fg-muted">{o.userName}</p>
+                  <p className="truncate font-mono text-[13px] font-bold text-fg">{o.id}</p>
+                  <p className="truncate text-xs font-medium text-fg-muted">{o.userName}</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
                   <StatusBadge status={o.paymentStatus} />
-                  <span className="font-medium tabular-nums">{formatRupiah(o.total)}</span>
+                  <span className="font-bold tabular-nums text-fg">{formatRupiah(o.total)}</span>
                 </div>
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="rounded-xl border border-border bg-surface shadow-sm">
-          <div className="flex items-center justify-between px-6 pt-5">
-            <h2 className="text-[15px] font-semibold tracking-tight">Aktivitas Terbaru</h2>
-            <Link href="/pereman/aktivitas" className="text-[13px] font-medium text-accent hover:underline">
-              Lihat semua
+        <div className="rounded-lg border-2 border-border bg-surface shadow-[4px_4px_0px_var(--shadow-color)]">
+          <div className="flex items-center justify-between border-b-2 border-border px-6 py-4">
+            <h2 className="text-base font-black tracking-tight text-fg uppercase">Aktivitas Terbaru</h2>
+            <Link href="/pereman/aktivitas" className="text-xs font-bold text-accent-blue dark:text-accent hover:underline">
+              Lihat semua →
             </Link>
           </div>
-          <ul className="divide-y divide-border px-6 py-2">
+          <ul className="divide-y-2 divide-border px-6 py-2">
             {latestActivity.map((a) => (
               <li key={a.id} className="py-3 text-sm">
-                <p className="truncate">
-                  <span className="font-medium">{a.admin}</span>{" "}
+                <p className="truncate text-[13.5px]">
+                  <span className="font-black text-fg">{a.admin}</span>{" "}
                   <span className="text-fg-muted">
                     {a.action} {a.target}
                   </span>
                 </p>
-                <p className="text-xs text-fg-faint">{formatDate(a.date)}</p>
+                <p className="text-xs font-bold text-fg-faint">{formatDate(a.date)}</p>
               </li>
             ))}
           </ul>

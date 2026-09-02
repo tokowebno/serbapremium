@@ -1,10 +1,12 @@
 {
-  "name": "tokono",
+  "name": "serbapremium",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:cf": "npx @opennextjs/cloudflare",
+    "deploy": "npx @opennextjs/cloudflare && wrangler deploy",
     "start": "next start",
     "lint": "eslint"
   },

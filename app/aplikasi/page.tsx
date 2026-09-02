@@ -9,7 +9,7 @@ import { AppFilterToggle } from "@/components/storefront/app-filter-toggle";
 export const metadata: Metadata = {
   title: "Aplikasi",
   description:
-    "Jelajahi semua aplikasi premium di Tokono. Filter berdasarkan kategori, platform, harga, dan promo.",
+    "Jelajahi semua aplikasi premium di SerbaPremium. Filter berdasarkan kategori, platform, harga, dan promo.",
 };
 
 const PLATFORMS = ["Android", "iOS", "Windows", "macOS", "Linux"] as const;
@@ -48,8 +48,8 @@ export default async function AplikasiPage({
   });
 
   return (
-    <div className="ambient-bg tk-container pt-28 pb-20">
-      <div className="grid gap-10 lg:grid-cols-[264px_1fr]">
+    <div className="tk-container pt-28 pb-20">
+      <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
         <aside className="hidden lg:block">
           <div className="sticky top-28 max-h-[calc(100dvh-8rem)] overflow-y-auto pr-1 scrollbar-thin">
             <FilterPanel />
@@ -57,14 +57,21 @@ export default async function AplikasiPage({
         </aside>
 
         <div className="min-w-0">
-          <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="flex flex-wrap items-end justify-between gap-4 border-b-2 border-border pb-5">
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">
-                {q ? <>Hasil untuk &ldquo;{q}&rdquo;</> : "Aplikasi"}
+              <div className="mb-1">
+                <span className="inline-block rounded-xs border border-border bg-accent px-2 py-0.5 text-[10px] font-black uppercase text-black shadow-[1px_1px_0px_var(--shadow-color)]">
+                  KATALOG SERBAPREMIUM
+                </span>
+              </div>
+              <h1 className="text-2xl font-black tracking-tight text-fg sm:text-[32px]">
+                {q ? <>Hasil pencarian: &ldquo;{q}&rdquo;</> : "Semua Aplikasi & Akun"}
               </h1>
-              <p className="mt-1 text-sm text-fg-muted">{apps.length} aplikasi</p>
+              <p className="mt-1 text-sm font-bold text-fg-muted">
+                Menampilkan <span className="text-fg">{apps.length}</span> produk digital
+              </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <AppFilterToggle />
               <SortSelect />
             </div>
@@ -73,10 +80,10 @@ export default async function AplikasiPage({
           {apps.length === 0 ? (
             <EmptyState
               icon={Search}
-              title="Tidak ada hasil"
-              description="Coba ubah kata kunci atau hapus filter yang sedang aktif."
-              action={{ label: "Jelajahi Aplikasi", href: "/aplikasi" }}
-              className="mt-8 rounded-xl border border-border"
+              title="Tidak ada hasil ditemukan"
+              description="Coba gunakan kata kunci lain atau reset filter yang sedang aktif."
+              action={{ label: "Reset Filter", href: "/aplikasi" }}
+              className="mt-8"
             />
           ) : (
             <div className="mt-8">

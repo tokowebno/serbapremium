@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40" fill="none">
+  <!-- QRIS stylized background shape & typography -->
+  <path d="M6 6H28V12H12V28H6V6Z" fill="#ED1C24" />
+  <path d="M16 16H24V24H16V16Z" fill="#ED1C24" />
+  <text x="34" y="27" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="22" letter-spacing="-0.5" fill="#231F20">QRIS</text>
+</svg>

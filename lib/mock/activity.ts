@@ -25,5 +25,5 @@ export const activity: ActivityLog[] = [
   { id: "a-022", admin: "Dewi Lestari", action: "Mengubah pengaturan pembayaran", target: "Pajak PPN 11%", date: "2026-07-31T14:55:00", status: "berhasil" },
   { id: "a-023", admin: "Raka Pratama", action: "Menghapus varian", target: "Wispr Flow Pro 6-12M", date: "2026-07-31T10:30:00", status: "berhasil" },
   { id: "a-024", admin: "Andi Wijaya", action: "Membuat laporan bulanan", target: "Laporan Juli 2026", date: "2026-07-30T09:00:00", status: "berhasil" },
-  { id: "a-025", admin: "Dewi Lestari", action: "Memperbarui informasi Tokono", target: "Alamat dan kontak", date: "2026-07-29T15:12:00", status: "berhasil" },
+  { id: "a-025", admin: "Dewi Lestari", action: "Memperbarui informasi SerbaPremium", target: "Alamat dan kontak", date: "2026-07-29T15:12:00", status: "berhasil" },
 ];

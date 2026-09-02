@@ -45,7 +45,7 @@ export function Drawer({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.15 }}
             onClick={onClose}
             aria-hidden="true"
           />
@@ -54,25 +54,23 @@ export function Drawer({
             aria-modal="true"
             aria-label={title}
             className={cn(
-              "mat-strong fixed flex flex-col shadow-[var(--elev-3)]",
-              isBottom ? "inset-x-0 bottom-0 rounded-t-[var(--radius-xl)]" : "inset-y-0 right-0 w-[min(400px,92vw)] rounded-l-[var(--radius-xl)]",
+              "fixed flex flex-col border-2 border-border bg-surface shadow-[8px_8px_0px_var(--shadow-color)]",
+              isBottom ? "inset-x-0 bottom-0 rounded-t-lg" : "inset-y-0 right-0 w-[min(420px,92vw)] rounded-l-lg",
               className,
             )}
-            initial={
-              isBottom ? { y: "100%" } : { x: "100%" }
-            }
+            initial={isBottom ? { y: "100%" } : { x: "100%" }}
             animate={isBottom ? { y: 0 } : { x: 0 }}
             exit={isBottom ? { y: "100%" } : { x: "100%" }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
           >
-            <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-3.5">
-              {title && <h2 className="text-[15px] font-semibold tracking-tight">{title}</h2>}
+            <div className="flex items-center justify-between gap-4 border-b-2 border-border px-5 py-3.5 bg-surface-2">
+              {title && <h2 className="text-[16px] font-black tracking-tight text-fg">{title}</h2>}
               <button
                 onClick={onClose}
                 aria-label="Tutup"
-                className="rounded-md p-1.5 text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
+                className="rounded-md border-2 border-border bg-surface p-1 text-fg transition-colors hover:bg-discount hover:text-white"
               >
-                <X size={18} />
+                <X size={16} strokeWidth={2.5} />
               </button>
             </div>
             <div className="overflow-y-auto p-5">{children}</div>
