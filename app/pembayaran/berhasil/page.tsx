@@ -1,12 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircle2, Download, Library, PackageCheck } from "lucide-react";
+import { Clock, Download, Library, PackageCheck } from "lucide-react";
 import { useSyncExternalStore } from "react";
 import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useHydrated } from "@/lib/use-hydrated";
-import { formatDate, formatRupiah } from "@/lib/utils";
+import { formatDate, formatPrice } from "@/lib/utils";
+import { useTranslation } from "@/components/storefront/i18n-provider";
 
 interface LastOrder {
   id: string;
@@ -15,12 +16,15 @@ interface LastOrder {
   total: number;
 }
 
+// Snapshot di-cache agar referensi stabil — syarat useSyncExternalStore.
 let cachedRaw: string | null = null;
 let cachedOrder: LastOrder | null = null;
 
 function readLastOrder(): LastOrder | null {
   try {
-    const raw = sessionStorage.getItem("serbapremium:last-order") || sessionStorage.getItem("tokono:last-order");
+    const raw =
+      sessionStorage.getItem("tokono:last-order") ||
+      sessionStorage.getItem("serbapremium:last-order");
     if (raw !== cachedRaw) {
       cachedRaw = raw;
       cachedOrder = raw ? (JSON.parse(raw) as LastOrder) : null;
@@ -34,6 +38,7 @@ function readLastOrder(): LastOrder | null {
 const noopSubscribe = () => () => {};
 
 export default function OrderSuccessPage() {
+  const { lang } = useTranslation();
   const order = useSyncExternalStore(noopSubscribe, readLastOrder, () => null);
   const hydrated = useHydrated();
 
@@ -44,9 +49,9 @@ export default function OrderSuccessPage() {
       <div className="tk-container pt-28 pb-20">
         <EmptyState
           icon={PackageCheck}
-          title="Tidak ada pesanan terbaru"
-          description="Selesaikan proses checkout untuk melihat ringkasan pesanan Anda."
-          action={{ label: "Jelajahi Katalog", href: "/aplikasi" }}
+          title={lang === "en" ? "No recent orders" : lang === "zh" ? "无近期订单" : "Tidak ada pesanan terbaru"}
+          description={lang === "en" ? "Complete a payment to see your order summary." : lang === "zh" ? "完成付款以查看订单摘要。" : "Selesaikan pembayaran untuk melihat ringkasan pesanan Anda."}
+          action={{ label: lang === "en" ? "Explore Apps" : lang === "zh" ? "浏览应用" : "Jelajahi Aplikasi", href: "/aplikasi" }}
         />
       </div>
     );
@@ -55,53 +60,57 @@ export default function OrderSuccessPage() {
   return (
     <div className="tk-container flex justify-center pt-28 pb-20">
       <motion.div
-        initial={{ opacity: 0, scale: 0.96 }}
+        initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.25, ease: "easeOut" }}
-        className="w-full max-w-md rounded-lg border-2 border-border bg-surface p-8 shadow-[6px_6px_0px_var(--shadow-color)]"
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full max-w-md rounded-xl border border-border bg-surface p-8 shadow-sm"
       >
         <div className="flex flex-col items-center text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-sm border-2 border-border bg-accent text-black shadow-[2px_2px_0px_var(--shadow-color)]">
-            <CheckCircle2 size={30} strokeWidth={2.5} />
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-2">
+            <Clock size={24} className="text-warning" />
           </span>
-          <h1 className="mt-4 text-2xl font-black tracking-tight text-fg">Pesanan Berhasil Diproses!</h1>
-          <p className="mt-1.5 text-sm font-medium leading-relaxed text-fg-muted">
-            Terima kasih telah berbelanja di SerbaPremium. Lisensi/akun Anda akan segera aktif dan dapat diakses dari menu Koleksi Saya.
+          <h1 className="mt-4 text-2xl font-semibold tracking-tight">
+            {lang === "en" ? "Payment is being processed." : lang === "zh" ? "支付正在处理中。" : "Pembayaran sedang diproses."}
+          </h1>
+          <p className="mt-1.5 text-sm text-fg-muted">
+            {lang === "en"
+              ? "Thank you! We are verifying your payment. Apps will be added to your collection once verified."
+              : lang === "zh"
+              ? "谢谢！我们正在核实您的付款。验证完成后，应用将存入您的收藏。"
+              : "Terima kasih! Kami memverifikasi pembayaran Anda. Aplikasi akan masuk ke koleksi setelah terverifikasi."}
           </p>
         </div>
 
-        <dl className="mt-6 divide-y-2 divide-border rounded-md border-2 border-border bg-surface-2 px-4 text-sm font-bold">
+        <dl className="mt-6 divide-y divide-border rounded-lg border border-border bg-surface-2 px-4 text-sm">
           <div className="flex items-center justify-between gap-4 py-3">
-            <dt className="text-fg-muted">Nomor Pesanan</dt>
-            <dd className="font-mono font-black tabular-nums text-fg">{order.id}</dd>
+            <dt className="text-fg-muted">{lang === "en" ? "Order Number" : lang === "zh" ? "订单编号" : "Nomor Pesanan"}</dt>
+            <dd className="font-mono font-semibold tabular-nums">{order.id}</dd>
           </div>
           <div className="flex items-center justify-between gap-4 py-3">
-            <dt className="text-fg-muted">Tanggal Transaksi</dt>
-            <dd className="tabular-nums text-fg">{formatDate(order.date)}</dd>
+            <dt className="text-fg-muted">{lang === "en" ? "Date" : lang === "zh" ? "日期" : "Tanggal"}</dt>
+            <dd className="tabular-nums">{formatDate(order.date)}</dd>
           </div>
           <div className="flex items-center justify-between gap-4 py-3">
-            <dt className="text-fg-muted">Total Bayar</dt>
-            <dd className="font-black tabular-nums text-fg">{formatRupiah(order.total)}</dd>
+            <dt className="text-fg-muted">{lang === "en" ? "Total" : lang === "zh" ? "总额" : "Total"}</dt>
+            <dd className="font-semibold tabular-nums">{formatPrice(order.total, lang)}</dd>
           </div>
         </dl>
 
-        <ul className="mt-4 divide-y-2 divide-border rounded-md border-2 border-border bg-surface px-4 text-sm font-bold">
+        <ul className="mt-4 divide-y divide-border rounded-lg border border-border px-4 text-sm">
           {order.items.map((item) => (
             <li key={item.name + item.platform} className="flex items-center justify-between gap-3 py-3">
-              <span className="font-black text-fg">{item.name}</span>
-              <span className="rounded-xs border border-border bg-surface-2 px-1.5 py-0.2 text-xs text-fg-muted">
-                {item.platform}
-              </span>
+              <span className="font-medium">{item.name}</span>
+              <span className="text-fg-muted">{item.platform}</span>
             </li>
           ))}
         </ul>
 
         <div className="mt-6 flex flex-col gap-3">
           <ButtonLink href="/akun/koleksi">
-            <Download size={16} strokeWidth={2.5} /> Buka Koleksi Saya
+            <Download size={16} /> {lang === "en" ? "Download" : lang === "zh" ? "下载" : "Unduh"}
           </ButtonLink>
-          <ButtonLink href="/aplikasi" variant="secondary">
-            <Library size={16} strokeWidth={2.5} /> Lanjut Belanja
+          <ButtonLink href="/akun/koleksi" variant="secondary">
+            <Library size={16} /> {lang === "en" ? "Open Collection" : lang === "zh" ? "打开我的收藏" : "Buka Koleksi"}
           </ButtonLink>
         </div>
       </motion.div>
