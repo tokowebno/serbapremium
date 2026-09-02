@@ -105,12 +105,17 @@ export default async function AppDetailPage({ params }: Props) {
           {/* Key Stats Bar */}
           <ProductStats downloads={app.downloads} ratingCount={app.ratingCount} stock={app.stock} />
 
+          {/* Di HP: Pilihan Variasi langsung sesudah Total Delivered / Sisa Stok agar tidak perlu scroll jauh */}
+          <div className="block lg:hidden">
+            <ProductVariantSelector app={app} />
+          </div>
+
           {/* Description & Features */}
-          <div className="rounded-lg border-2 border-border bg-surface p-6 shadow-[4px_4px_0px_var(--shadow-color)]">
-            <h3 className="text-sm font-black uppercase tracking-tight text-fg">
+          <div className="rounded-lg border-2 border-border bg-surface p-4 sm:p-6 shadow-[3px_3px_0px_var(--shadow-color)] sm:shadow-[4px_4px_0px_var(--shadow-color)]">
+            <h3 className="text-xs sm:text-sm font-black uppercase tracking-tight text-fg">
               {t.product.serviceDesc || "Deskripsi Layanan & Produk"}
             </h3>
-            <p className="mt-2 text-[14.5px] font-medium leading-relaxed text-fg-muted">{app.description}</p>
+            <p className="mt-2 text-xs sm:text-[14.5px] font-medium leading-relaxed text-fg-muted">{app.description}</p>
 
             <div className="mt-4 flex items-center gap-2.5 rounded-md border-2 border-border bg-accent/20 p-3 text-xs font-black text-fg shadow-[2px_2px_0px_var(--shadow-color)]">
               <ShieldCheck size={18} className="text-success shrink-0" strokeWidth={2.5} />
@@ -123,7 +128,7 @@ export default async function AppDetailPage({ params }: Props) {
               </span>
             </div>
 
-            <div className="mt-5 flex flex-wrap items-center gap-2.5 border-t-2 border-border pt-4">
+            <div className="mt-4 sm:mt-5 flex flex-wrap items-center gap-2 border-t-2 border-border pt-3.5">
               <PlatformList platforms={app.platforms} />
               <Badge tone="neutral">{t.product.version || "Versi"} {app.version}</Badge>
               <span className="inline-flex items-center gap-1 rounded-xs border border-border bg-accent px-2 py-0.5 text-xs font-black text-black shadow-[1px_1px_0px_var(--shadow-color)]">
@@ -139,8 +144,8 @@ export default async function AppDetailPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Kolom Kanan: Sticky Selector Pilihan Varian Produk */}
-        <aside className="lg:col-span-5 lg:sticky lg:top-28">
+        {/* Kolom Kanan: Sticky Selector Pilihan Varian Produk di Desktop */}
+        <aside className="hidden lg:block lg:col-span-5 lg:sticky lg:top-28">
           <ProductVariantSelector app={app} />
         </aside>
       </div>
