@@ -150,7 +150,15 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
   }
 
   const subtotal = itemsToCheckout.reduce((sum, item) => sum + item.price, 0);
-  const totalBayar = subtotal + (paymentMethod === "qris" ? uniqueCode : 0);
+
+  // Rate: 1 USDT ≈ Rp 16.000
+  const rawUsd = subtotal / 16000;
+  const baseUsd = Math.max(0.5, rawUsd);
+  // Kode unik 3-4 desimal untuk USDT (misal: 0.0123)
+  const usdtDecimalUnique = (uniqueCode % 900 + 100) / 10000;
+  const totalUsdt = Number((baseUsd + usdtDecimalUnique).toFixed(4));
+
+  const totalBayar = paymentMethod === "qris" ? subtotal + uniqueCode : subtotal;
 
   const copyAddress = async (text: string) => {
     try {
@@ -162,7 +170,7 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
     }
   };
 
-  const copyAmount = async (amount: number) => {
+  const copyAmount = async (amount: number | string) => {
     try {
       await navigator.clipboard.writeText(amount.toString());
       setIsAmountCopied(true);
@@ -209,7 +217,8 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
       user_email: email.trim(),
       user_phone: phone.trim() || null,
       payment_method: paymentMethod,
-      total: totalBayar,
+      total: paymentMethod === "qris" ? totalBayar : totalUsdt,
+      currency: paymentMethod === "qris" ? "IDR" : "USDT",
       payment_status: "menunggu",
       order_status: "diproses",
       date: nowIso,
@@ -239,7 +248,8 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
           name: item.name,
           platform: item.platform,
         })),
-        total: totalBayar,
+        total: paymentMethod === "qris" ? totalBayar : totalUsdt,
+        currency: paymentMethod === "qris" ? "IDR" : "USDT",
         customer: {
           name: name.trim(),
           email: email.trim(),
@@ -505,18 +515,57 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
               ) : (
                 <>
                   <div className="rounded-lg border-2 border-border bg-surface-2 p-4 shadow-[2px_2px_0px_var(--shadow-color)]">
-                    <p className="text-xs font-black uppercase text-fg-muted">
-                      {lang === "en" ? "Total USDT amount to send" : lang === "zh" ? "应付 USDT 数量" : "Total USDT yang harus dikirim"}
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-black uppercase text-fg-muted">
+                        {lang === "en" ? "Total USDT amount to send" : lang === "zh" ? "应付 USDT 数量" : "Total USDT yang harus dikirim"}
+                      </p>
+                      <span className="rounded-xs border border-border bg-accent px-2 py-0.5 text-[10px] font-black text-black">
+                        1 USDT ≈ Rp 16.000
+                      </span>
+                    </div>
+
+                    <div className="mt-2 flex items-baseline justify-between gap-2">
+                      <div>
+                        <p className="text-3xl font-black tracking-tight text-fg tabular-nums">
+                          {totalUsdt} <span className="text-lg font-black text-accent-blue dark:text-accent">USDT</span>
+                        </p>
+                        <p className="text-xs font-bold text-fg-muted mt-0.5">
+                          ≈ ${totalUsdt.toFixed(2)} USD (Rp {subtotal.toLocaleString("id-ID")})
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => copyAmount(totalUsdt)}
+                        className="flex items-center gap-1 rounded-xs border border-border bg-accent px-2.5 py-1 text-[11px] font-black text-black shadow-[1px_1px_0px_var(--shadow-color)] hover:bg-accent-hover"
+                      >
+                        {isAmountCopied ? <Check size={12} strokeWidth={3} /> : <Copy size={12} strokeWidth={2.5} />}
+                        {isAmountCopied ? "Disalin!" : "Salin Nominal"}
+                      </button>
+                    </div>
+
+                    <p className="mt-2.5 text-xs font-bold leading-5 text-fg-muted border-t border-border pt-2">
+                      <span className="font-black text-fg">Kode unik desimal (+{usdtDecimalUnique.toFixed(4)} USDT)</span> sudah termasuk dalam nominal di atas. Transfer persis <span className="font-black text-fg">{totalUsdt} USDT</span> agar sistem otomatis mengenali transfer Anda.
                     </p>
-                    <p className="mt-1 text-3xl font-black tracking-tight text-fg tabular-nums">
-                      {formatPrice(totalBayar, lang)}
+                  </div>
+
+                  {/* QR Code Alamat Wallet USD / USDT */}
+                  <div className="flex flex-col items-center gap-3 py-2">
+                    <div className="relative overflow-hidden rounded-lg border-2 border-border bg-white p-3 shadow-[3px_3px_0px_var(--shadow-color)]">
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(PAYMENT_INFO[paymentMethod].address ?? "")}&margin=10`}
+                        alt={`QR Code Wallet ${PAYMENT_INFO[paymentMethod].badge}`}
+                        className="h-52 w-52 object-contain"
+                      />
+                    </div>
+                    <p className="max-w-xs text-center text-xs font-bold leading-5 text-fg-muted">
+                      Pindai QR di atas menggunakan aplikasi wallet crypto Anda (Binance, Trust Wallet, MetaMask, TronLink, OKX) atau salin alamat di bawah.
                     </p>
                   </div>
 
                   <div className="space-y-4">
                     <div>
-                      <p className="text-xs font-black uppercase text-fg-muted">Jaringan Transfer</p>
-                      <p className="mt-1 font-mono text-sm font-black text-fg">
+                      <p className="text-xs font-black uppercase text-fg-muted">Jaringan Transfer (Network)</p>
+                      <p className="mt-1 font-mono text-sm font-black text-fg bg-surface px-3 py-2 rounded-md border border-border">
                         {PAYMENT_INFO[paymentMethod].network}
                       </p>
                     </div>
@@ -588,7 +637,7 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
                     <p className="text-xs font-bold text-fg-muted">{item.platform}</p>
                   </div>
                   <span className="font-black tabular-nums text-fg shrink-0">
-                    {formatPrice(item.price, lang)}
+                    {paymentMethod === "qris" ? formatPrice(item.price, lang) : `$${(item.price / 16000).toFixed(2)}`}
                   </span>
                 </li>
               ))}
@@ -597,19 +646,28 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
             <dl className="mt-4 space-y-2 border-t-2 border-border pt-4 text-xs font-bold">
               <div className="flex justify-between text-fg-muted">
                 <dt>{lang === "en" ? "Subtotal" : lang === "zh" ? "小计" : "Subtotal"}</dt>
-                <dd className="tabular-nums">{formatPrice(subtotal, lang)}</dd>
+                <dd className="tabular-nums">
+                  {paymentMethod === "qris" ? formatPrice(subtotal, lang) : `$${(subtotal / 16000).toFixed(2)} USD`}
+                </dd>
               </div>
 
-              {paymentMethod === "qris" && (
+              {paymentMethod === "qris" ? (
                 <div className="flex justify-between text-accent-blue dark:text-accent font-black">
                   <dt>{lang === "en" ? "Unique Code" : lang === "zh" ? "唯一验证码" : "Kode Unik Verifikasi"}</dt>
                   <dd className="tabular-nums">+{uniqueCode}</dd>
+                </div>
+              ) : (
+                <div className="flex justify-between text-accent-blue dark:text-accent font-black">
+                  <dt>{lang === "en" ? "Unique Decimal Code" : lang === "zh" ? "唯一验证码 (小数)" : "Kode Unik Desimal"}</dt>
+                  <dd className="tabular-nums">+{usdtDecimalUnique.toFixed(4)} USDT</dd>
                 </div>
               )}
 
               <div className="flex justify-between border-t-2 border-border pt-3 text-base font-black text-fg">
                 <dt>{lang === "en" ? "Total Payment" : lang === "zh" ? "支付总额" : "Total Bayar"}</dt>
-                <dd className="tabular-nums">{formatPrice(totalBayar, lang)}</dd>
+                <dd className="tabular-nums">
+                  {paymentMethod === "qris" ? formatPrice(totalBayar, lang) : `${totalUsdt} USDT`}
+                </dd>
               </div>
             </dl>
           </div>
