@@ -1,12 +1,21 @@
+"use client";
+
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "./i18n-provider";
+import { getLocalizedCategory } from "@/lib/i18n/product-translations";
 
 /**
  * Strip kategori berjalan horizontal — berhenti saat cursor di atasnya.
  * Konten digandakan dua kali agar loop mulus (translateX -50%).
  */
 export function CategoryMarquee({ className }: { className?: string }) {
-  const cats = api.categories.withCount().filter((c) => c.count > 0);
+  const { lang } = useTranslation();
+  const rawCats = api.categories.withCount().filter((c) => c.count > 0);
+  const cats = rawCats.map((c) => ({
+    ...c,
+    ...getLocalizedCategory(c, lang),
+  }));
   const items = [...cats, ...cats]; // duplikat untuk loop mulus
 
   return (

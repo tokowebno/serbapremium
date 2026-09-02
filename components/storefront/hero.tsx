@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 import { AppIcon } from "@/components/ui/app-icon";
 import { ButtonLink } from "@/components/ui/button";
 import { Rating } from "@/components/ui/rating";
-import { formatRupiah } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils";
 import { useTranslation } from "./i18n-provider";
 import { getLocalizedApp } from "@/lib/i18n/product-translations";
 
@@ -107,7 +107,7 @@ export function Hero() {
                     </p>
                     <div className="mt-1 flex items-center gap-2">
                       <Rating value={app.rating} showValue={false} size={11} />
-                      <span className="text-xs font-bold tabular-nums text-fg">{formatRupiah(app.price)}</span>
+                      <span className="text-xs font-bold tabular-nums text-fg">{formatPrice(app.price, lang)}</span>
                     </div>
                   </div>
                 </a>
