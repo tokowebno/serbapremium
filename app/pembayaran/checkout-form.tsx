@@ -337,7 +337,7 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
                 </h2>
               </div>
 
-              {/* Ringkasan Singkat Produk & Total */}
+              {/* Ringkasan Singkat Produk & Total (Nominal Normal Bersih di Step 1) */}
               <div className="flex items-center justify-between gap-3 rounded-md sm:rounded-lg border-2 border-border bg-surface-2 p-3 sm:p-3.5 shadow-[2px_2px_0px_var(--shadow-color)]">
                 <div className="min-w-0">
                   <p className="text-[10px] sm:text-xs font-black uppercase text-fg-muted">Produk</p>
@@ -346,7 +346,7 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
                 <div className="text-right shrink-0">
                   <p className="text-[10px] sm:text-xs font-black uppercase text-fg-muted">Total</p>
                   <p className="text-sm sm:text-base font-black text-fg tabular-nums">
-                    {paymentMethod === "qris" ? formatPrice(totalBayar, lang) : `${totalUsdt} USDT`}
+                    {paymentMethod === "qris" ? formatPrice(subtotal, lang) : `$${baseUsd.toFixed(2)}`}
                   </p>
                 </div>
               </div>
