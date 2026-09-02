@@ -101,6 +101,7 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("qris");
 
   const [loading, setLoading] = useState(false);
+  const [stepLoading, setStepLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isAmountCopied, setIsAmountCopied] = useState(false);
   const [qrisDone, setQrisDone] = useState(false);
@@ -195,8 +196,12 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
 
   const goNext = () => {
     if (!validateForm()) return;
-    setStep(2);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setStepLoading(true);
+    setTimeout(() => {
+      setStepLoading(false);
+      setStep(2);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 700);
   };
 
   const finishCheckout = async () => {
@@ -438,9 +443,9 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
               </div>
 
               <div className="mt-4 flex justify-end">
-                <Button size="lg" onClick={goNext} disabled={loading} className="w-full sm:w-auto h-13 sm:h-12 px-8 text-base font-black shadow-[3px_3px_0px_var(--shadow-color)]">
-                  {loading ? (lang === "en" ? "Processing…" : lang === "zh" ? "处理中…" : "Memproses…") : (lang === "en" ? "Proceed to Payment" : lang === "zh" ? "前往付款" : "Lanjut ke Pembayaran")}
-                  {!loading && <ArrowRight size={18} strokeWidth={2.5} />}
+                <Button size="lg" onClick={goNext} disabled={stepLoading || loading} loading={stepLoading} className="w-full sm:w-auto h-13 sm:h-12 px-8 text-base font-black shadow-[3px_3px_0px_var(--shadow-color)]">
+                  {stepLoading ? (lang === "en" ? "Generating Invoice…" : lang === "zh" ? "生成账单中…" : "Menyiapkan Tagihan Pembayaran…") : (lang === "en" ? "Proceed to Payment" : lang === "zh" ? "前往付款" : "Lanjut ke Pembayaran")}
+                  {!stepLoading && <ArrowRight size={18} strokeWidth={2.5} />}
                 </Button>
               </div>
             </div>

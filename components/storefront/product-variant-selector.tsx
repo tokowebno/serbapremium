@@ -90,6 +90,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
   const defaultVariant = variants.find((v) => v.stock !== 0) || variants[0];
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(defaultVariant);
   const [isAdding, setIsAdding] = useState(false);
+  const [isBuying, setIsBuying] = useState(false);
 
   const currentPrice = selectedVariant.price;
   const defaultPlatform = app.platforms[0] || "Web";
@@ -119,6 +120,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
   };
 
   const handleBuyNow = () => {
+    setIsBuying(true);
     const customItemName =
       variants.length === 1 || selectedVariant.name.toLowerCase().includes(app.name.toLowerCase())
         ? selectedVariant.name
@@ -131,7 +133,9 @@ export function ProductVariantSelector({ app }: { app: App }) {
       price: String(currentPrice),
       title: customItemName,
     });
-    router.push(`/pembayaran?${params.toString()}`);
+    setTimeout(() => {
+      router.push(`/pembayaran?${params.toString()}`);
+    }, 450);
   };
 
   return (
@@ -218,9 +222,10 @@ export function ProductVariantSelector({ app }: { app: App }) {
             size="lg"
             className="w-full"
             onClick={handleBuyNow}
-            disabled={selectedVariant.stock === 0}
+            disabled={selectedVariant.stock === 0 || isBuying}
+            loading={isBuying}
           >
-            {t.product.buyNow || "Beli Sekarang"} <ArrowRight size={17} strokeWidth={2.5} />
+            {isBuying ? (lang === "en" ? "Preparing Checkout…" : lang === "zh" ? "正在准备结账…" : "Menyiapkan Pembayaran…") : (t.product.buyNow || "Beli Sekarang")} {!isBuying && <ArrowRight size={17} strokeWidth={2.5} />}
           </Button>
           <Button
             size="lg"
