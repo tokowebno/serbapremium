@@ -318,9 +318,8 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
         })}
       </div>
 
-      <div className="mt-6 sm:mt-8 grid items-start gap-6 sm:gap-8 lg:grid-cols-[1fr_360px]">
-        {/* Kolom Kiri */}
-        <section className="rounded-md sm:rounded-xl border-2 border-border bg-surface p-4 sm:p-6 shadow-[3px_3px_0px_var(--shadow-color)] sm:shadow-[4px_4px_0px_var(--shadow-color)]">
+      <div className="mt-6 sm:mt-8 max-w-2xl mx-auto">
+        <section className="rounded-md sm:rounded-xl border-2 border-border bg-surface p-4 sm:p-7 shadow-[3px_3px_0px_var(--shadow-color)] sm:shadow-[5px_5px_0px_var(--shadow-color)]">
           {step === 1 ? (
             /* STEP 1: PILIH METODE PEMBAYARAN + DATA PEMBELI */
             <div className="flex flex-col gap-4 sm:gap-5">
@@ -331,6 +330,20 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
                 <h2 className="mt-1 text-base sm:text-lg font-black tracking-tight text-fg">
                   {lang === "en" ? "Buyer Information & Payment Method" : lang === "zh" ? "选择付款方式与填写信息" : "Informasi Pembeli & Metode Pembayaran"}
                 </h2>
+              </div>
+
+              {/* Ringkasan Singkat Produk & Total */}
+              <div className="flex items-center justify-between gap-3 rounded-md sm:rounded-lg border-2 border-border bg-surface-2 p-3 sm:p-3.5 shadow-[2px_2px_0px_var(--shadow-color)]">
+                <div className="min-w-0">
+                  <p className="text-[10px] sm:text-xs font-black uppercase text-fg-muted">Produk</p>
+                  <p className="truncate text-xs sm:text-sm font-black text-fg">{itemsToCheckout[0]?.name || "Item Digital"}</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-[10px] sm:text-xs font-black uppercase text-fg-muted">Total</p>
+                  <p className="text-sm sm:text-base font-black text-fg tabular-nums">
+                    {paymentMethod === "qris" ? formatPrice(totalBayar, lang) : `${totalUsdt} USDT`}
+                  </p>
+                </div>
               </div>
 
               {/* Pilihan Metode Pembayaran dengan Logo Asli QRIS / BNB / TRON */}
@@ -424,10 +437,10 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
                 )}
               </div>
 
-              <div className="mt-2 flex justify-end">
-                <Button size="lg" onClick={goNext} disabled={loading} className="w-full sm:w-auto">
+              <div className="mt-4 flex justify-end">
+                <Button size="lg" onClick={goNext} disabled={loading} className="w-full sm:w-auto h-13 sm:h-12 px-8 text-base font-black shadow-[3px_3px_0px_var(--shadow-color)]">
                   {loading ? (lang === "en" ? "Processing…" : lang === "zh" ? "处理中…" : "Memproses…") : (lang === "en" ? "Proceed to Payment" : lang === "zh" ? "前往付款" : "Lanjut ke Pembayaran")}
-                  {!loading && <ArrowRight size={16} strokeWidth={2.5} />}
+                  {!loading && <ArrowRight size={18} strokeWidth={2.5} />}
                 </Button>
               </div>
             </div>
@@ -505,7 +518,7 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
                           <CheckCircle2 size={18} className="text-success" /> Pembayaran Anda tercatat.
                         </div>
                       ) : (
-                        <Button size="lg" className="w-full" onClick={() => setQrisDone(true)}>
+                        <Button size="lg" className="w-full h-13 text-base font-black shadow-[3px_3px_0px_var(--shadow-color)]" onClick={() => setQrisDone(true)}>
                           Saya Sudah Bayar
                         </Button>
                       )}
@@ -595,7 +608,7 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
                           <CheckCircle2 size={18} className="text-success" /> Transfer USDT Anda tercatat.
                         </div>
                       ) : (
-                        <Button size="lg" className="w-full" onClick={() => setUsdtDone(true)}>
+                        <Button size="lg" className="w-full h-13 text-base font-black shadow-[3px_3px_0px_var(--shadow-color)]" onClick={() => setUsdtDone(true)}>
                           Saya Sudah Transfer USDT
                         </Button>
                       )}
@@ -610,73 +623,18 @@ export function CheckoutForm({ initialSlug, customTitle, customPrice, customPlat
                 </div>
               )}
 
-              <div className="mt-4 flex flex-col sm:flex-row gap-3">
-                <Button variant="secondary" size="lg" onClick={() => setStep(1)} className="sm:w-1/3">
+              {/* Tombol Aksi Bawah: Tebal, Padat, dan Jelas di HP */}
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                <Button variant="secondary" size="lg" onClick={() => setStep(1)} className="w-full sm:w-1/3 h-14 text-sm font-black shadow-[2px_2px_0px_var(--shadow-color)]">
                   ← Kembali
                 </Button>
-                <Button size="lg" onClick={finishCheckout} disabled={loading} className="flex-1">
+                <Button size="lg" onClick={finishCheckout} disabled={loading} className="w-full sm:flex-1 h-14 text-base sm:text-lg font-black py-4 shadow-[4px_4px_0px_var(--shadow-color)]">
                   {loading ? (lang === "en" ? "Confirming Order…" : lang === "zh" ? "确认订单中…" : "Mengonfirmasi Pesanan…") : (lang === "en" ? "Complete Order 🚀" : lang === "zh" ? "完成订单 🚀" : "Selesaikan Pembayaran 🚀")}
                 </Button>
               </div>
             </div>
           )}
         </section>
-
-        {/* Kolom Kanan — Ringkasan Pesanan */}
-        <aside className="space-y-4">
-          <div className="rounded-xl border-2 border-border bg-surface p-6 shadow-[4px_4px_0px_var(--shadow-color)]">
-            <h2 className="border-b-2 border-border pb-3 text-base font-black tracking-tight text-fg">
-              {lang === "en" ? "Order Summary" : lang === "zh" ? "订单明细" : "Ringkasan Pesanan"}
-            </h2>
-
-            <ul className="mt-4 divide-y-2 divide-border">
-              {itemsToCheckout.map((item) => (
-                <li key={item.id + item.platform} className="flex items-center justify-between gap-3 py-3 text-sm">
-                  <div className="min-w-0">
-                    <p className="truncate font-black text-fg">{item.name}</p>
-                    <p className="text-xs font-bold text-fg-muted">{item.platform}</p>
-                  </div>
-                  <span className="font-black tabular-nums text-fg shrink-0">
-                    {paymentMethod === "qris" ? formatPrice(item.price, lang) : `$${(item.price / 16000).toFixed(2)}`}
-                  </span>
-                </li>
-              ))}
-            </ul>
-
-            <dl className="mt-4 space-y-2 border-t-2 border-border pt-4 text-xs font-bold">
-              <div className="flex justify-between text-fg-muted">
-                <dt>{lang === "en" ? "Subtotal" : lang === "zh" ? "小计" : "Subtotal"}</dt>
-                <dd className="tabular-nums">
-                  {paymentMethod === "qris" ? formatPrice(subtotal, lang) : `$${(subtotal / 16000).toFixed(2)} USD`}
-                </dd>
-              </div>
-
-              {paymentMethod === "qris" ? (
-                <div className="flex justify-between text-accent-blue dark:text-accent font-black">
-                  <dt>{lang === "en" ? "Unique Code" : lang === "zh" ? "唯一验证码" : "Kode Unik Verifikasi"}</dt>
-                  <dd className="tabular-nums">+{uniqueCode}</dd>
-                </div>
-              ) : (
-                <div className="flex justify-between text-accent-blue dark:text-accent font-black">
-                  <dt>{lang === "en" ? "Unique Decimal Code" : lang === "zh" ? "唯一验证码 (小数)" : "Kode Unik Desimal"}</dt>
-                  <dd className="tabular-nums">+{usdtDecimalUnique.toFixed(4)} USDT</dd>
-                </div>
-              )}
-
-              <div className="flex justify-between border-t-2 border-border pt-3 text-base font-black text-fg">
-                <dt>{lang === "en" ? "Total Payment" : lang === "zh" ? "支付总额" : "Total Bayar"}</dt>
-                <dd className="tabular-nums">
-                  {paymentMethod === "qris" ? formatPrice(totalBayar, lang) : `${totalUsdt} USDT`}
-                </dd>
-              </div>
-            </dl>
-          </div>
-
-          <div className="flex items-center gap-2 rounded-lg border-2 border-border bg-surface-2 p-3 text-xs font-bold text-fg-muted shadow-[2px_2px_0px_var(--shadow-color)]">
-            <ShieldCheck size={18} className="text-success shrink-0" />
-            <span>Garansi 100% uang kembali jika lisensi atau akun bermasalah.</span>
-          </div>
-        </aside>
       </div>
     </div>
   );
