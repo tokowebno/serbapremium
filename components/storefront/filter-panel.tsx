@@ -6,22 +6,10 @@ import { Check, X, Filter } from "lucide-react";
 import { api, type SortKey } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "./i18n-provider";
+import { getLocalizedCategory } from "@/lib/i18n/product-translations";
 
 const platforms = ["Android", "iOS", "Windows", "macOS", "Linux", "Web"] as const;
-const sortOptions: Array<{ id: SortKey; label: string }> = [
-  { id: "popularitas", label: "Popularitas" },
-  { id: "terbaru", label: "Terbaru" },
-  { id: "terlaris", label: "Terlaris" },
-  { id: "harga-rendah", label: "Harga terendah" },
-  { id: "harga-tinggi", label: "Harga tertinggi" },
-  { id: "rating", label: "Rating tertinggi" },
-];
-
-const priceRanges = [
-  { id: "0-50000", label: "Di bawah Rp50.000", min: 0, max: 50000 },
-  { id: "50000-150000", label: "Rp50.000 – Rp150.000", min: 50000, max: 150000 },
-  { id: "150000-9999999", label: "Di atas Rp150.000", min: 150000, max: 9999999 },
-];
 
 export function useFilterState() {
   const searchParams = useSearchParams();
@@ -87,6 +75,22 @@ function OptionRow({
 export function FilterPanel({ onApplied }: { onApplied?: () => void }) {
   const router = useRouter();
   const f = useFilterState();
+  const { lang, t } = useTranslation();
+
+  const priceRanges = [
+    {
+      id: "0-50000",
+      label: lang === "en" ? "Under $3.00" : lang === "zh" ? "低于 $3.00" : "Di bawah Rp50.000",
+    },
+    {
+      id: "50000-150000",
+      label: lang === "en" ? "$3.00 – $9.00" : lang === "zh" ? "$3.00 – $9.00" : "Rp50.000 – Rp150.000",
+    },
+    {
+      id: "150000-9999999",
+      label: lang === "en" ? "Over $9.00" : lang === "zh" ? "高于 $9.00" : "Di atas Rp150.000",
+    },
+  ];
 
   const setParam = useCallback(
     (key: string, value: string) => {
@@ -105,7 +109,12 @@ export function FilterPanel({ onApplied }: { onApplied?: () => void }) {
     router.replace(`/aplikasi?${params.toString()}`, { scroll: false });
   };
 
-  const categories = api.categories.withCount().filter((c) => c.count > 0);
+  const rawCategories = api.categories.withCount().filter((c) => c.count > 0);
+  const categories = rawCategories.map((c) => ({
+    ...c,
+    ...getLocalizedCategory(c, lang),
+  }));
+
   const activeCount = [f.category, f.platform, f.price, f.promoOnly ? "p" : ""].filter(Boolean).length;
 
   const clearAll = () => {
@@ -121,7 +130,9 @@ export function FilterPanel({ onApplied }: { onApplied?: () => void }) {
           <span className="flex h-6 w-6 items-center justify-center rounded-xs border-2 border-border bg-accent-yellow shadow-[1px_1px_0px_var(--shadow-color)]">
             <Filter size={13} strokeWidth={2.5} className="text-black" />
           </span>
-          <p className="text-sm font-black tracking-tight uppercase text-fg">Filter</p>
+          <p className="text-sm font-black tracking-tight uppercase text-fg">
+            {t.filter?.title || "Filter"}
+          </p>
         </div>
         {activeCount > 0 && (
           <button
@@ -129,12 +140,12 @@ export function FilterPanel({ onApplied }: { onApplied?: () => void }) {
             className="flex items-center gap-1 rounded-xs border border-border bg-surface-2 px-1.5 py-0.5 text-xs font-bold text-fg transition-colors hover:bg-discount hover:text-white"
           >
             <X size={11} strokeWidth={3} />
-            Reset
+            {t.filter?.clearAll || "Reset"}
           </button>
         )}
       </div>
 
-      <FilterGroup title="Kategori">
+      <FilterGroup title={t.filter?.category || "Kategori"}>
         <div className="flex flex-col gap-0.5">
           {categories.map((c) => (
             <OptionRow
@@ -148,7 +159,7 @@ export function FilterPanel({ onApplied }: { onApplied?: () => void }) {
         </div>
       </FilterGroup>
 
-      <FilterGroup title="Platform">
+      <FilterGroup title={t.filter?.platform || "Platform"}>
         <div className="flex flex-col gap-0.5">
           {platforms.map((p) => (
             <OptionRow key={p} checked={f.platform === p} label={p} onClick={() => toggleParam("platform", p)} />
@@ -156,7 +167,7 @@ export function FilterPanel({ onApplied }: { onApplied?: () => void }) {
         </div>
       </FilterGroup>
 
-      <FilterGroup title="Harga">
+      <FilterGroup title={t.filter?.price || "Harga"}>
         <div className="flex flex-col gap-0.5">
           {priceRanges.map((r) => (
             <OptionRow
@@ -169,17 +180,17 @@ export function FilterPanel({ onApplied }: { onApplied?: () => void }) {
         </div>
       </FilterGroup>
 
-      <FilterGroup title="Promo">
+      <FilterGroup title={t.filter?.onSale || "Promo"}>
         <OptionRow
           checked={f.promoOnly}
-          label="Sedang Diskon / Promo"
+          label={lang === "en" ? "On Discount / Promo" : lang === "zh" ? "限时折扣特惠" : "Sedang Diskon / Promo"}
           onClick={() => setParam("promo", f.promoOnly ? "" : "1")}
         />
       </FilterGroup>
 
       {onApplied && (
         <Button className="mt-4 w-full" onClick={onApplied}>
-          Terapkan Filter
+          {t.filter?.apply || "Terapkan Filter"}
         </Button>
       )}
     </div>
@@ -189,9 +200,40 @@ export function FilterPanel({ onApplied }: { onApplied?: () => void }) {
 export function SortSelect() {
   const router = useRouter();
   const f = useFilterState();
+  const { lang, t } = useTranslation();
+
+  const sortOptions: Array<{ id: SortKey; label: string }> = [
+    {
+      id: "popularitas",
+      label: t.filter?.sorts?.popularity || "Popularitas",
+    },
+    {
+      id: "terbaru",
+      label: t.filter?.sorts?.newest || "Terbaru",
+    },
+    {
+      id: "terlaris",
+      label: t.filter?.sorts?.bestseller || "Terlaris",
+    },
+    {
+      id: "harga-rendah",
+      label: t.filter?.sorts?.priceLow || "Harga terendah",
+    },
+    {
+      id: "harga-tinggi",
+      label: t.filter?.sorts?.priceHigh || "Harga tertinggi",
+    },
+    {
+      id: "rating",
+      label: t.filter?.sorts?.rating || "Rating tertinggi",
+    },
+  ];
+
   return (
     <label className="flex items-center gap-2">
-      <span className="hidden text-xs font-black uppercase text-fg sm:inline">Urutkan</span>
+      <span className="hidden text-xs font-black uppercase text-fg sm:inline">
+        {t.filter?.sortBy || "Urutkan"}
+      </span>
       <select
         value={f.sort}
         onChange={(e) => {

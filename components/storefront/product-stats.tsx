@@ -1,6 +1,7 @@
 "use client";
 
 import { formatCompact } from "@/lib/utils";
+import { useTranslation } from "./i18n-provider";
 
 export function ProductStats({
   downloads,
@@ -11,11 +12,25 @@ export function ProductStats({
   ratingCount: number;
   stock: number;
 }) {
+  const { lang, t } = useTranslation();
+
   const items = [
-    { label: "Total Unduhan", value: formatCompact(downloads) },
-    { label: "Ulasan Pembeli", value: `${ratingCount.toLocaleString("id-ID")}` },
-    { label: "Sisa Stok", value: stock > 0 ? `${stock.toLocaleString("id-ID")} unit` : "Habis" },
+    {
+      label: lang === "en" ? "Total Delivered" : lang === "zh" ? "累计交付" : "Total Terjual",
+      value: formatCompact(downloads, lang),
+    },
+    {
+      label: lang === "en" ? "Customer Reviews" : lang === "zh" ? "买家评价" : "Ulasan Pembeli",
+      value: `${ratingCount.toLocaleString(lang === "en" ? "en-US" : "id-ID")}`,
+    },
+    {
+      label: lang === "en" ? "Available Stock" : lang === "zh" ? "剩余库存" : "Sisa Stok",
+      value: stock > 0
+        ? `${stock.toLocaleString(lang === "en" ? "en-US" : "id-ID")} ${lang === "en" ? "pcs" : lang === "zh" ? "件" : "unit"}`
+        : (t.product?.outOfStock || "Habis"),
+    },
   ];
+
   return (
     <div className="mt-5 grid grid-cols-3 gap-3">
       {items.map((s) => (

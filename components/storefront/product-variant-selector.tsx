@@ -4,18 +4,67 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShieldCheck, Zap, ShoppingBag, ArrowRight } from "lucide-react";
 import type { App, ProductVariant } from "@/types";
-import { formatRupiah } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils";
 import { useCart } from "./providers";
 import { useToast } from "@/components/ui/toast";
 import { AppIcon } from "@/components/ui/app-icon";
 import { useTranslation } from "@/components/storefront/i18n-provider";
 import { Button } from "@/components/ui/button";
 
+function localizeVariantName(name: string, lang: string): string {
+  if (lang === "id") return name;
+  let s = name;
+  if (lang === "en") {
+    s = s
+      .replace(/1 Bulan/gi, "1 Month")
+      .replace(/2 Bulan/gi, "2 Months")
+      .replace(/3 Bulan/gi, "3 Months")
+      .replace(/6 Bulan/gi, "6 Months")
+      .replace(/12 Bulan/gi, "12 Months")
+      .replace(/1 Tahun/gi, "1 Year")
+      .replace(/2 Tahun/gi, "2 Years")
+      .replace(/30 Hari/gi, "30 Days")
+      .replace(/7 Hari/gi, "7 Days")
+      .replace(/1 Hari/gi, "1 Day")
+      .replace(/Akun Sharing/gi, "Shared Account")
+      .replace(/Sharing/gi, "Shared")
+      .replace(/Akun Privat/gi, "Private Account")
+      .replace(/Akun Private/gi, "Private Account")
+      .replace(/Private/gi, "Private")
+      .replace(/Garansi Penuh/gi, "Full Warranty")
+      .replace(/Garansi/gi, "Warranty")
+      .replace(/Email Pribadi/gi, "Personal Email")
+      .replace(/Akun Baru/gi, "New Account");
+  } else if (lang === "zh") {
+    s = s
+      .replace(/1 Bulan/gi, "1 个月")
+      .replace(/2 Bulan/gi, "2 个月")
+      .replace(/3 Bulan/gi, "3 个月")
+      .replace(/6 Bulan/gi, "6 个月")
+      .replace(/12 Bulan/gi, "12 个月")
+      .replace(/1 Tahun/gi, "1 年")
+      .replace(/2 Tahun/gi, "2 年")
+      .replace(/30 Hari/gi, "30 天")
+      .replace(/7 Hari/gi, "7 天")
+      .replace(/1 Hari/gi, "1 天")
+      .replace(/Akun Sharing/gi, "共享账号")
+      .replace(/Sharing/gi, "共享")
+      .replace(/Akun Privat/gi, "独享专属账号")
+      .replace(/Akun Private/gi, "独享专属账号")
+      .replace(/Private/gi, "独享")
+      .replace(/Garansi Penuh/gi, "全额质保")
+      .replace(/Garansi/gi, "保修")
+      .replace(/Email Pribadi/gi, "个人邮箱")
+      .replace(/Akun Baru/gi, "全新账号");
+  }
+  return s;
+}
+
 export function ProductVariantSelector({ app }: { app: App }) {
   const router = useRouter();
   const cart = useCart();
   const toast = useToast();
-  const { t } = useTranslation();
+  const { lang, t } = useTranslation();
 
   const rawVariants: ProductVariant[] =
     app.variants && app.variants.length > 0
@@ -63,7 +112,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
 
     toast.push({
       title: t.product.addedToCart || "Ditambahkan ke Keranjang",
-      description: `${customItemName} — ${formatRupiah(currentPrice)}`,
+      description: `${localizeVariantName(customItemName, lang)} — ${formatPrice(currentPrice, lang)}`,
       tone: "success",
     });
     setTimeout(() => setIsAdding(false), 300);
@@ -127,17 +176,17 @@ export function ProductVariantSelector({ app }: { app: App }) {
                     <AppIcon icon={app.icon} size="xs" className="h-6 w-6 !min-h-6 !min-w-6 rounded-xs" />
                   </div>
                   <div className="truncate">
-                    <p className="text-[13.5px] font-black truncate">{v.name}</p>
+                    <p className="text-[13.5px] font-black truncate">{localizeVariantName(v.name, lang)}</p>
                     <p className="text-[11px] font-semibold opacity-80">
                       {isOutOfStock
                         ? (t.product.outOfStock || "Stok Habis")
-                        : `Stok: ${v.stock ?? app.stock}`}
+                        : `${t.product.stock || "Stok:"} ${v.stock ?? app.stock}`}
                     </p>
                   </div>
                 </div>
 
                 <div className="shrink-0 text-right">
-                  <span className="text-[14px] font-black tabular-nums">{formatRupiah(v.price)}</span>
+                  <span className="text-[14px] font-black tabular-nums">{formatPrice(v.price, lang)}</span>
                 </div>
               </button>
             );
@@ -146,7 +195,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
       ) : (
         <div className="mt-4 rounded-md border-2 border-border bg-surface-2 p-4 shadow-[2px_2px_0px_var(--shadow-color)]">
           <p className="text-xs font-black uppercase text-fg-muted">{t.product.totalPayment || "Harga Produk"}</p>
-          <p className="mt-1 text-2xl font-black text-fg tabular-nums">{formatRupiah(currentPrice)}</p>
+          <p className="mt-1 text-2xl font-black text-fg tabular-nums">{formatPrice(currentPrice, lang)}</p>
         </div>
       )}
 
@@ -155,7 +204,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
         <div className="flex items-baseline justify-between mb-4">
           <div>
             <p className="text-xs font-black uppercase text-fg-muted">{t.product.totalPayment || "Total Pembayaran"}</p>
-            <p className="text-2xl font-black text-fg tabular-nums">{formatRupiah(currentPrice)}</p>
+            <p className="text-2xl font-black text-fg tabular-nums">{formatPrice(currentPrice, lang)}</p>
           </div>
           <span className="rounded-xs border border-border bg-accent-yellow px-2 py-0.5 text-xs font-black text-black shadow-[1px_1px_0px_var(--shadow-color)]">
             <Zap size={12} className="inline mr-1 fill-current" />

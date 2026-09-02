@@ -363,6 +363,71 @@ export const appTranslations: Record<string, Record<LanguageCode, AppTranslation
   },
 };
 
+export function translateGenericText(text: string, lang: LanguageCode): string {
+  if (!text || lang === "id") return text;
+  let s = text;
+  if (lang === "en") {
+    s = s
+      .replace(/Lisensi premium (.+) dengan masa aktif (.+?)\. Dikirim otomatis ke email Anda setelah pembayaran terverifikasi — biasanya 1–30 menit\. Didukung bantuan penggantian selama masa aktif jika ada kendala\./gi, "Official premium license for $1 with $2 validity. Delivered automatically to your email within 1–30 minutes after payment verification. Includes full warranty and replacement support during the active period.")
+      .replace(/Akses model (.+) terbaru dan fitur premium tanpa batas\./gi, "Access latest $1 models and unlimited premium features.")
+      .replace(/Langganan premium (.+) untuk (.+?)\./gi, "Premium subscription for $1 to $2.")
+      .replace(/Dikirim otomatis setelah pembayaran \(1–30 menit\)/gi, "Automated instant delivery (1–30 mins)")
+      .replace(/Garansi penggantian selama masa aktif/gi, "Full replacement warranty during active period")
+      .replace(/Bantuan cepat via chat/gi, "Fast priority support via chat")
+      .replace(/Harga terbaik di kelasnya/gi, "Best price guaranteed")
+      .replace(/Akses via web setelah dikirim ke email\. Masa aktif (.+?)\./gi, "Access via web after email delivery. Valid for $1.")
+      .replace(/Masa aktif/gi, "Validity:")
+      .replace(/1 Bulan/gi, "1 Month")
+      .replace(/2 Bulan/gi, "2 Months")
+      .replace(/3 Bulan/gi, "3 Months")
+      .replace(/6 Bulan/gi, "6 Months")
+      .replace(/12 Bulan/gi, "12 Months")
+      .replace(/1 Tahun/gi, "1 Year")
+      .replace(/30 Hari/gi, "30 Days")
+      .replace(/7 Hari/gi, "7 Days")
+      .replace(/1 Hari/gi, "1 Day")
+      .replace(/Akun Sharing/gi, "Shared Account")
+      .replace(/Sharing/gi, "Shared")
+      .replace(/Akun Privat/gi, "Private Account")
+      .replace(/Akun Private/gi, "Private Account")
+      .replace(/Private/gi, "Private")
+      .replace(/Garansi Penuh/gi, "Full Warranty")
+      .replace(/Garansi/gi, "Warranty")
+      .replace(/Email Pribadi/gi, "Personal Email")
+      .replace(/Akun Baru/gi, "New Account");
+  } else if (lang === "zh") {
+    s = s
+      .replace(/Lisensi premium (.+) dengan masa aktif (.+?)\. Dikirim otomatis ke email Anda setelah pembayaran terverifikasi — biasanya 1–30 menit\. Didukung bantuan penggantian selama masa aktif jika ada kendala\./gi, "$1 正版高级会员/授权，有效期 $2。付款验证后 1–30 分钟内全自动发送至邮箱，质保期内支持免费换新。")
+      .replace(/Akses model (.+) terbaru dan fitur premium tanpa batas\./gi, "尊享最新 $1 模型与无限高级功能。")
+      .replace(/Langganan premium (.+) untuk (.+?)\./gi, "$1 高级订阅，专为 $2 量身打造。")
+      .replace(/Dikirim otomatis setelah pembayaran \(1–30 menit\)/gi, "付款后全自动极速发货 (1–30分钟)")
+      .replace(/Garansi penggantian selama masa aktif/gi, "质保期内免费售后换新")
+      .replace(/Bantuan cepat via chat/gi, "全天候极速客服支持")
+      .replace(/Harga terbaik di kelasnya/gi, "同类产品最高性价比")
+      .replace(/Akses via web setelah dikirim ke email\. Masa aktif (.+?)\./gi, "发送至邮箱后即可在网页端访问，有效期 $1。")
+      .replace(/Masa aktif/gi, "有效期：")
+      .replace(/1 Bulan/gi, "1 个月")
+      .replace(/2 Bulan/gi, "2 个月")
+      .replace(/3 Bulan/gi, "3 个月")
+      .replace(/6 Bulan/gi, "6 个月")
+      .replace(/12 Bulan/gi, "12 个月")
+      .replace(/1 Tahun/gi, "1 年")
+      .replace(/30 Hari/gi, "30 天")
+      .replace(/7 Hari/gi, "7 天")
+      .replace(/1 Hari/gi, "1 天")
+      .replace(/Akun Sharing/gi, "共享账号")
+      .replace(/Sharing/gi, "共享")
+      .replace(/Akun Privat/gi, "独享专属账号")
+      .replace(/Akun Private/gi, "独享专属账号")
+      .replace(/Private/gi, "独享")
+      .replace(/Garansi Penuh/gi, "全额质保")
+      .replace(/Garansi/gi, "保修")
+      .replace(/Email Pribadi/gi, "个人邮箱")
+      .replace(/Akun Baru/gi, "全新账号");
+  }
+  return s;
+}
+
 /**
  * Mencari translasi aplikasi berdasarkan id, slug, atau nama brand.
  */
@@ -381,13 +446,22 @@ export function getLocalizedApp(app: App, lang: LanguageCode): App {
     }
   }
 
-  if (!trans) return app;
+  const rawFeatures = trans?.features && trans.features.length > 0 ? trans.features : app.features || [];
+  const localizedFeatures = rawFeatures.map((f) => translateGenericText(f, lang));
+
+  const localizedVariants = app.variants?.map((v) => ({
+    ...v,
+    name: translateGenericText(v.name, lang),
+    description: v.description ? translateGenericText(v.description, lang) : undefined,
+    badge: v.badge ? translateGenericText(v.badge, lang) : undefined,
+  }));
 
   return {
     ...app,
-    tagline: trans.tagline || app.tagline,
-    description: trans.description || app.description,
-    features: trans.features && trans.features.length > 0 ? trans.features : app.features,
+    tagline: trans?.tagline || translateGenericText(app.tagline, lang),
+    description: trans?.description || translateGenericText(app.description, lang),
+    features: localizedFeatures,
+    variants: localizedVariants,
   };
 }
 

@@ -3,21 +3,24 @@
 import { X } from "lucide-react";
 import type { CartItem } from "@/types";
 import { AppIcon } from "@/components/ui/app-icon";
-import { formatRupiah } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils";
 import { useCart } from "./providers";
+import { useTranslation } from "./i18n-provider";
 import type { Platform } from "@/types";
 
 const platforms: Platform[] = ["Android", "iOS", "Windows", "macOS", "Linux", "Web"];
 
 export function CartItemRow({ item }: { item: CartItem }) {
   const { remove } = useCart();
+  const { lang, t } = useTranslation();
+
   return (
     <div className="flex items-center gap-4 py-4">
       <AppIcon icon={item.icon} size="md" />
       <div className="min-w-0 flex-1">
         <p className="truncate text-base font-black tracking-tight text-fg">{item.name}</p>
         <p className="text-xs font-semibold text-fg-muted">
-          Lisensi digital · <span className="rounded-xs border border-border bg-surface-2 px-1 text-fg">{item.platform}</span>
+          {t.product.lifetime || "Lisensi digital"} · <span className="rounded-xs border border-border bg-surface-2 px-1 text-fg">{item.platform}</span>
         </p>
       </div>
       <div className="hidden sm:block">
@@ -37,7 +40,7 @@ export function CartItemRow({ item }: { item: CartItem }) {
           ))}
         </select>
       </div>
-      <span className="w-24 text-right text-base font-black tabular-nums text-fg">{formatRupiah(item.price)}</span>
+      <span className="w-28 text-right text-base font-black tabular-nums text-fg">{formatPrice(item.price, lang)}</span>
       <button
         onClick={() => remove(item.appId, item.platform)}
         aria-label={`Hapus ${item.name} dari keranjang`}

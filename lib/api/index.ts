@@ -16,7 +16,8 @@ import type {
   Review,
   UserAccount,
 } from "@/types";
-import { getProducts, getCategories } from "@/lib/data-cache";
+import { getProducts, getCategories, updateProductInCache } from "@/lib/data-cache";
+import { supabase, supabaseReady } from "@/lib/supabase";
 import { popularityOf } from "@/lib/mock/apps";
 import { developers } from "@/lib/mock/developers";
 import { reviews } from "@/lib/mock/reviews";
@@ -121,6 +122,72 @@ export const api = {
     },
     search(q: string, limit = 8): App[] {
       return this.list({ q, sort: "popularitas" }).slice(0, limit);
+    },
+    async update(id: string, partial: Partial<App>): Promise<boolean> {
+      const existing = getProducts().find((a) => a.id === id || a.slug === id);
+      if (!existing) return false;
+      const updated: App = { ...existing, ...partial };
+      updateProductInCache(updated);
+
+      if (supabaseReady) {
+        try {
+          await supabase.from("products").upsert({
+            id: updated.id,
+            slug: updated.slug,
+            name: updated.name,
+            tagline: updated.tagline,
+            description: updated.description,
+            price: updated.price,
+            stock: updated.stock,
+            category_id: updated.categoryId,
+            rating: updated.rating,
+            rating_count: updated.ratingCount,
+            downloads: updated.downloads,
+            icon: updated.icon,
+            platforms: updated.platforms,
+            version: updated.version,
+            features: updated.features,
+            requirements: updated.requirements,
+            variants: updated.variants,
+            is_featured: updated.isFeatured,
+            is_new: updated.isNew,
+          });
+        } catch (e) {
+          console.error("Supabase app update failed:", e);
+        }
+      }
+      return true;
+    },
+    async create(newApp: App): Promise<boolean> {
+      updateProductInCache(newApp);
+      if (supabaseReady) {
+        try {
+          await supabase.from("products").insert({
+            id: newApp.id,
+            slug: newApp.slug,
+            name: newApp.name,
+            tagline: newApp.tagline,
+            description: newApp.description,
+            price: newApp.price,
+            stock: newApp.stock,
+            category_id: newApp.categoryId,
+            rating: newApp.rating,
+            rating_count: newApp.ratingCount,
+            downloads: newApp.downloads,
+            icon: newApp.icon,
+            platforms: newApp.platforms,
+            version: newApp.version,
+            features: newApp.features,
+            requirements: newApp.requirements,
+            variants: newApp.variants,
+            is_featured: newApp.isFeatured,
+            is_new: newApp.isNew,
+          });
+        } catch (e) {
+          console.error("Supabase app insert failed:", e);
+        }
+      }
+      return true;
     },
   },
 

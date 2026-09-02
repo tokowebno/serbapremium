@@ -10,11 +10,17 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PlatformBadge } from "@/components/ui/platform-badge";
 import { formatDate } from "@/lib/utils";
 import type { Platform } from "@/types";
+import { useTranslation } from "@/components/storefront/i18n-provider";
+import { getLocalizedApp } from "@/lib/i18n/product-translations";
 
 export default function KoleksiPage() {
   const { entries } = useLibrary();
+  const { lang, t } = useTranslation();
   const apps = entries
-    .map((e) => ({ entry: e, app: api.apps.getBySlug(e.appId) }))
+    .map((e) => {
+      const raw = api.apps.getBySlug(e.appId);
+      return { entry: e, app: raw ? getLocalizedApp(raw, lang) : undefined };
+    })
     .filter((x) => x.app !== undefined)
     .reverse();
 
@@ -22,9 +28,9 @@ export default function KoleksiPage() {
     return (
       <EmptyState
         icon={BookOpen}
-        title="Belum ada aplikasi di koleksi Anda."
-        description="Jelajahi aplikasi untuk menemukan sesuatu yang Anda butuhkan."
-        action={{ label: "Jelajahi Aplikasi", href: "/aplikasi" }}
+        title={lang === "en" ? "No applications in your collection yet." : lang === "zh" ? "您的收藏库中暂无应用。" : "Belum ada aplikasi di koleksi Anda."}
+        description={lang === "en" ? "Explore our digital catalog to find what you need." : lang === "zh" ? "探索我们的数字产品库以发现您所需的应用与会员。" : "Jelajahi aplikasi untuk menemukan sesuatu yang Anda butuhkan."}
+        action={{ label: t.navbar?.apps || "Jelajahi Aplikasi", href: "/aplikasi" }}
       />
     );
   }
@@ -32,7 +38,7 @@ export default function KoleksiPage() {
   return (
     <div>
       <p className="mb-4 text-xs font-bold uppercase tracking-wider text-fg-muted">
-        {apps.length} aplikasi dalam koleksi Anda · Pembelian satu kali, unduh kapan saja
+        {apps.length} {lang === "en" ? "items in your collection · One-time purchase, access anytime" : lang === "zh" ? "个已购项目 · 一次性购买，随时取用" : "aplikasi dalam koleksi Anda · Pembelian satu kali, unduh kapan saja"}
       </p>
       <ul className="divide-y-2 divide-border rounded-lg border-2 border-border bg-surface shadow-[4px_4px_0px_var(--shadow-color)]">
         {apps.map(({ entry, app }) => {
@@ -43,10 +49,10 @@ export default function KoleksiPage() {
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="font-black tracking-tight text-fg">{app!.name}</p>
-                  {hasUpdate && <Badge tone="accent">Pembaruan tersedia</Badge>}
+                  {hasUpdate && <Badge tone="accent">{lang === "en" ? "Update available" : lang === "zh" ? "有可用更新" : "Pembaruan tersedia"}</Badge>}
                 </div>
                 <p className="mt-0.5 text-xs font-bold text-fg-muted">
-                  Versi {app!.version} · Dibeli {formatDate(entry.purchasedAt)}
+                  {lang === "en" ? "Version" : lang === "zh" ? "版本" : "Versi"} {app!.version} · {lang === "en" ? "Purchased" : lang === "zh" ? "购买时间" : "Dibeli"} {formatDate(entry.purchasedAt, lang)}
                 </p>
                 <div className="mt-1.5">
                   <PlatformBadge platform={app!.platforms[0] as Platform} />
@@ -54,11 +60,11 @@ export default function KoleksiPage() {
               </div>
               <div className="flex items-center gap-2">
                 <ButtonLink href={`/aplikasi/${app!.slug}`} variant="secondary" size="sm">
-                  Detail
+                  {t.product?.viewDetail || "Detail"}
                 </ButtonLink>
                 <ButtonLink href={`/aplikasi/${app!.slug}`} size="sm">
                   <Download size={14} strokeWidth={2.5} />
-                  Unduh
+                  {lang === "en" ? "Access" : lang === "zh" ? "使用" : "Unduh"}
                 </ButtonLink>
               </div>
             </li>
@@ -66,7 +72,7 @@ export default function KoleksiPage() {
         })}
       </ul>
       <p className="mt-4 text-xs font-medium text-fg-faint">
-        Tombol unduh mengarah ke halaman detail aplikasi untuk mengunduh versi terbaru lisensi Anda.
+        {lang === "en" ? "Clicking the access button directs you to the license and instructions page." : lang === "zh" ? "点击按钮将前往该产品的授权信息与使用说明页面。" : "Tombol unduh mengarah ke halaman detail aplikasi untuk mengunduh versi terbaru lisensi Anda."}
       </p>
     </div>
   );

@@ -5,10 +5,14 @@ import { ChevronRight } from "lucide-react";
 import { api } from "@/lib/api";
 import { EmptyState } from "@/components/ui/empty-state";
 import { AppGrid } from "@/components/storefront/app-grid";
+import { getServerTranslation } from "@/lib/i18n";
+import { getLocalizedCategory } from "@/lib/i18n/product-translations";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -22,9 +26,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function KategoriPage({ params }: Props) {
   const { slug } = await params;
-  const category = api.categories.getBySlug(slug);
-  if (!category) notFound();
+  const rawCategory = api.categories.getBySlug(slug);
+  if (!rawCategory) notFound();
 
+  const { lang, t } = await getServerTranslation();
+  const category = getLocalizedCategory(rawCategory, lang);
   const Icon = category.icon;
   const apps = api.apps.byCategory(category.id);
 
@@ -33,11 +39,11 @@ export default async function KategoriPage({ params }: Props) {
       {/* Breadcrumb */}
       <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-xs font-bold text-fg-muted">
         <Link href="/" className="transition-colors hover:text-fg">
-          Beranda
+          {t.navbar?.home || "Beranda"}
         </Link>
         <ChevronRight size={13} strokeWidth={3} className="text-fg-muted" />
         <Link href="/kategori" className="transition-colors hover:text-fg">
-          Kategori
+          {t.navbar?.categories || "Kategori"}
         </Link>
         <ChevronRight size={13} strokeWidth={3} className="text-fg-muted" />
         <span className="rounded-xs border border-border bg-surface-2 px-1.5 py-0.5 text-fg font-black">
@@ -54,7 +60,7 @@ export default async function KategoriPage({ params }: Props) {
           <div>
             <div className="mb-1">
               <span className="rounded-xs border border-border bg-accent px-2 py-0.5 text-[10px] font-black uppercase text-black shadow-[1px_1px_0px_var(--shadow-color)]">
-                KATEGORI PRODUK
+                {lang === "en" ? "CATEGORY CATALOG" : lang === "zh" ? "分类产品目录" : "KATEGORI PRODUK"}
               </span>
             </div>
             <h1 className="text-3xl font-black tracking-tight text-fg sm:text-4xl">{category.name}</h1>
@@ -62,7 +68,9 @@ export default async function KategoriPage({ params }: Props) {
               {category.description}
             </p>
             <p className="mt-2 text-xs font-bold text-fg">
-              Total <span className="rounded-xs border border-border bg-surface-2 px-1.5 py-0.2">{apps.length}</span> aplikasi
+              {lang === "en" ? "Total " : lang === "zh" ? "共计 " : "Total "}
+              <span className="rounded-xs border border-border bg-surface-2 px-1.5 py-0.2">{apps.length}</span>{" "}
+              {lang === "en" ? "applications & licenses" : lang === "zh" ? "款精选产品" : "aplikasi"}
             </p>
           </div>
         </div>
@@ -73,9 +81,9 @@ export default async function KategoriPage({ params }: Props) {
         {apps.length === 0 ? (
           <EmptyState
             icon={Icon}
-            title="Belum ada aplikasi di kategori ini"
-            description="Produk untuk kategori ini sedang disiapkan. Silakan cek kembali nanti."
-            action={{ label: "Jelajahi Aplikasi Lain", href: "/aplikasi" }}
+            title={lang === "en" ? "No applications in this category" : lang === "zh" ? "该分类暂无产品" : "Belum ada aplikasi di kategori ini"}
+            description={lang === "en" ? "Products for this category are coming soon. Please check back later." : lang === "zh" ? "该分类产品正在准备中，请稍后查看。" : "Produk untuk kategori ini sedang disiapkan. Silakan cek kembali nanti."}
+            action={{ label: t.navbar?.apps || "Jelajahi Aplikasi Lain", href: "/aplikasi" }}
           />
         ) : (
           <AppGrid slugs={apps.map((a) => a.slug)} />

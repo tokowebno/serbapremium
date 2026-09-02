@@ -11,14 +11,8 @@ import { Rating } from "@/components/ui/rating";
 import { Tabs } from "@/components/ui/tabs";
 import { PlatformBadge } from "@/components/ui/platform-badge";
 import { ReviewCard } from "./review-card";
-
-const tabItems = [
-  { id: "ringkasan", label: "Ringkasan" },
-  { id: "fitur", label: "Fitur" },
-  { id: "persyaratan", label: "Persyaratan Sistem" },
-  { id: "versi", label: "Versi" },
-  { id: "ulasan", label: "Ulasan" },
-];
+import { useTranslation } from "./i18n-provider";
+import { getLocalizedApp, getLocalizedCategory } from "@/lib/i18n/product-translations";
 
 /** Distribusi rating 5→1 bintang, deterministik dari ratingCount. */
 function ratingDistribution(app: App): number[] {
@@ -33,8 +27,8 @@ function ratingDistribution(app: App): number[] {
   return pct;
 }
 
-function changelogFor(app: App): string[] {
-  const pool = [
+function changelogFor(app: App, lang: string): string[] {
+  const poolID = [
     "Perbaikan stabilitas saat membuka berkas besar",
     "Peningkatan kecepatan peluncuran hingga 25%",
     "Perbaikan sinkronisasi antar perangkat",
@@ -44,6 +38,28 @@ function changelogFor(app: App): string[] {
     "Pintasan keyboard baru untuk akses cepat",
     "Pembaruan terjemahan dan penyesuaian teks",
   ];
+  const poolEN = [
+    "Performance and stability enhancements for large workspaces",
+    "Launch speed boosted by up to 25%",
+    "Improved multi-device realtime synchronization",
+    "Refined user interface and accessibility improvements",
+    "Optimized memory usage during extended sessions",
+    "Export and rendering improvements across all formats",
+    "New quick keyboard shortcuts",
+    "Multilingual locale and translation polish",
+  ];
+  const poolZH = [
+    "全面优化处理超大文件与工作区的稳定性",
+    "应用冷启动速度提升高达 25%",
+    "增强多设备间实时同步与数据备份能力",
+    "全新打磨的视觉界面与无障碍交互支持",
+    "大幅优化长时间运行下的内存与 CPU 占用",
+    "修复特定格式导出与渲染的兼容性问题",
+    "新增常用功能全局快捷键支持",
+    "多语言界面文案与本地化体验全面优化",
+  ];
+
+  const pool = lang === "en" ? poolEN : lang === "zh" ? poolZH : poolID;
   const rand = seededRandom(app.ratingCount * 13 + 7);
   return [...pool].sort(() => rand() - 0.5).slice(0, 4);
 }
@@ -59,12 +75,23 @@ function Info({ label, children }: { label: string; children: ReactNode }) {
 
 export function ProductTabs({ slug, reviews }: { slug: string; reviews: Review[] }) {
   const [active, setActive] = useState("ringkasan");
-  const app = api.apps.getBySlug(slug);
-  if (!app) return null;
+  const { lang, t } = useTranslation();
+  const rawApp = api.apps.getBySlug(slug);
+  if (!rawApp) return null;
+  const app = getLocalizedApp(rawApp, lang);
   const developer = api.developers.getBySlug(app.developerId);
-  const category = api.categories.getBySlug(app.categoryId);
+  const rawCategory = api.categories.getBySlug(app.categoryId);
+  const category = rawCategory ? getLocalizedCategory(rawCategory, lang) : undefined;
   const distribution = ratingDistribution(app);
-  const changes = changelogFor(app);
+  const changes = changelogFor(app, lang);
+
+  const tabItems = [
+    { id: "ringkasan", label: t.product?.tabs?.summary || "Ringkasan" },
+    { id: "fitur", label: t.product?.tabs?.features || "Fitur" },
+    { id: "persyaratan", label: t.product?.tabs?.requirements || "Persyaratan Sistem" },
+    { id: "versi", label: t.product?.tabs?.version || "Versi" },
+    { id: "ulasan", label: t.product?.tabs?.reviews || "Ulasan" },
+  ];
 
   return (
     <div>
@@ -77,7 +104,7 @@ export function ProductTabs({ slug, reviews }: { slug: string; reviews: Review[]
               <p className="text-[15px] font-medium leading-relaxed text-fg">{app.description}</p>
             </div>
             <dl className="mt-6 grid gap-3 sm:grid-cols-2">
-              <Info label="Pengembang">
+              <Info label={t.product?.byDeveloper || "Pengembang"}>
                 {developer ? (
                   <Link href={`/pengembang/${developer.slug}`} className="text-accent-blue dark:text-accent hover:underline">
                     {developer.name}
@@ -86,7 +113,7 @@ export function ProductTabs({ slug, reviews }: { slug: string; reviews: Review[]
                   "—"
                 )}
               </Info>
-              <Info label="Kategori">
+              <Info label={t.filter?.category || "Kategori"}>
                 {category ? (
                   <Link href={`/kategori/${category.slug}`} className="text-accent-blue dark:text-accent hover:underline">
                     {category.name}
@@ -95,9 +122,9 @@ export function ProductTabs({ slug, reviews }: { slug: string; reviews: Review[]
                   "—"
                 )}
               </Info>
-              <Info label="Dirilis">{formatDate(app.releasedAt)}</Info>
-              <Info label="Diperbarui">{formatDate(app.updatedAt)}</Info>
-              <Info label="Total Unduhan">{formatCompact(app.downloads)}</Info>
+              <Info label={lang === "en" ? "Released" : lang === "zh" ? "发布日期" : "Dirilis"}>{formatDate(app.releasedAt, lang)}</Info>
+              <Info label={lang === "en" ? "Updated" : lang === "zh" ? "最近更新" : "Diperbarui"}>{formatDate(app.updatedAt, lang)}</Info>
+              <Info label={lang === "en" ? "Total Delivered" : lang === "zh" ? "累计成交" : "Total Terjual"}>{formatCompact(app.downloads, lang)}</Info>
             </dl>
           </div>
         )}
@@ -137,10 +164,10 @@ export function ProductTabs({ slug, reviews }: { slug: string; reviews: Review[]
         {active === "versi" && (
           <div className="max-w-2xl">
             <div className="flex flex-wrap items-center gap-3 rounded-lg border-2 border-border bg-surface p-4 shadow-[3px_3px_0px_var(--shadow-color)]">
-              <Badge tone="accent">Versi {app.version}</Badge>
-              <span className="text-sm font-bold text-fg-muted">Diperbarui {formatDate(app.updatedAt)}</span>
+              <Badge tone="accent">{t.product?.version || "Versi"} {app.version}</Badge>
+              <span className="text-sm font-bold text-fg-muted">{lang === "en" ? "Updated on" : lang === "zh" ? "更新于" : "Diperbarui"} {formatDate(app.updatedAt, lang)}</span>
             </div>
-            <p className="mt-6 text-xs font-black tracking-wider text-fg-muted uppercase">Perubahan terbaru</p>
+            <p className="mt-6 text-xs font-black tracking-wider text-fg-muted uppercase">{lang === "en" ? "Recent Changes" : lang === "zh" ? "最近更新日志" : "Perubahan terbaru"}</p>
             <ul className="mt-3 space-y-2.5">
               {changes.map((c) => (
                 <li
@@ -159,10 +186,12 @@ export function ProductTabs({ slug, reviews }: { slug: string; reviews: Review[]
           <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
             <div className="h-fit rounded-lg border-2 border-border bg-surface p-6 shadow-[4px_4px_0px_var(--shadow-color)]">
               <p className="text-4xl font-black tracking-tight tabular-nums text-fg">
-                {app.rating.toLocaleString("id-ID", { minimumFractionDigits: 1 })}
+                {app.rating.toLocaleString(lang === "en" ? "en-US" : "id-ID", { minimumFractionDigits: 1 })}
               </p>
               <Rating value={app.rating} showValue={false} size={18} className="mt-2" />
-              <p className="mt-1 text-xs font-bold text-fg-muted">{app.ratingCount.toLocaleString("id-ID")} ulasan pembeli</p>
+              <p className="mt-1 text-xs font-bold text-fg-muted">
+                {app.ratingCount.toLocaleString(lang === "en" ? "en-US" : "id-ID")} {lang === "en" ? "verified reviews" : lang === "zh" ? "条真实用户评价" : "ulasan pembeli"}
+              </p>
               <div className="mt-6 space-y-2.5">
                 {[5, 4, 3, 2, 1].map((star, i) => (
                   <div key={star} className="flex items-center gap-3">
@@ -182,7 +211,7 @@ export function ProductTabs({ slug, reviews }: { slug: string; reviews: Review[]
             <div>
               {reviews.length === 0 ? (
                 <p className="rounded-lg border-2 border-border bg-surface px-6 py-14 text-center text-sm font-bold text-fg-muted shadow-[4px_4px_0px_var(--shadow-color)]">
-                  Belum ada ulasan untuk aplikasi ini.
+                  {lang === "en" ? "No reviews yet for this product." : lang === "zh" ? "该产品暂无评论。" : "Belum ada ulasan untuk aplikasi ini."}
                 </p>
               ) : (
                 <div className="space-y-4">

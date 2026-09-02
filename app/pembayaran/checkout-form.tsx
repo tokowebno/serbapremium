@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowLeft, ArrowRight, CheckCircle2, Copy, Check, ShoppingBag, Zap, ShieldCheck } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { Field, Input } from "@/components/ui/form";
 import { CheckoutSummary } from "@/components/storefront/checkout-summary";
 import { useCart, useLibrary } from "@/components/storefront/providers";
 import { useToast } from "@/components/ui/toast";
-import { cn, formatRupiah } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { supabase, supabaseReady } from "@/lib/supabase";
 import { useTranslation } from "@/components/storefront/i18n-provider";
 import type { CartItem, Platform, App } from "@/types";
@@ -18,31 +18,43 @@ import type { CartItem, Platform, App } from "@/types";
 export type PaymentMethod = "qris" | "usdt_bnb" | "usdt_tron";
 
 const PAYMENT_INFO: Record<PaymentMethod, {
-  name: string;
+  name: Record<string, string>;
   network: string;
   address?: string;
   badge: string;
 }> = {
   qris: {
-    name: "QRIS (Semua E-Wallet & Bank)",
+    name: {
+      id: "QRIS (Semua E-Wallet & Bank)",
+      en: "QRIS (Indonesian E-Wallet & Banks)",
+      zh: "QRIS (印尼电子钱包与网银)",
+    },
     network: "BCA, Mandiri, BRI, BNI, GoPay, OVO, Dana, ShopeePay",
     badge: "IDR QRIS",
   },
   usdt_bnb: {
-    name: "USDT (BNB Smart Chain / BEP-20)",
+    name: {
+      id: "USDT (BNB Smart Chain / BEP-20)",
+      en: "USDT (BNB Smart Chain / BEP-20)",
+      zh: "USDT (币安智能链 / BEP-20)",
+    },
     network: "BNB Smart Chain (BEP-20 / BSC)",
     address: "0x141b43fCDb8D17c09e7b4235b2527309db674A27",
     badge: "USDT BEP-20",
   },
   usdt_tron: {
-    name: "USDT (Tron Network / TRC-20)",
+    name: {
+      id: "USDT (Tron Network / TRC-20)",
+      en: "USDT (Tron Network / TRC-20)",
+      zh: "USDT (波场 / TRC-20)",
+    },
     network: "TRON (TRC-20)",
     address: "TQTpRn6j1Pfwf38xP8CxqxJi18YX4v8Wcm",
     badge: "USDT TRC-20",
   },
 };
 
-/** Simpan pesanan ke Supabase (tabel orders). Gagal diam-diam — bukan blokir checkout. */
+/** Simpan pesanan ke Supabase (tabel orders). */
 async function saveOrderToDb(order: Record<string, unknown>) {
   if (!supabaseReady) return;
   try {
@@ -69,17 +81,23 @@ export function CheckoutForm({
   const cart = useCart();
   const library = useLibrary();
   const toast = useToast();
-  const { t } = useTranslation();
+  const { lang, t } = useTranslation();
 
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("qris");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(lang === "id" ? "qris" : "usdt_bnb");
   const [isCopied, setIsCopied] = useState(false);
   const [paymentDone, setPaymentDone] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
+
+  useEffect(() => {
+    if (lang !== "id" && paymentMethod === "qris") {
+      setPaymentMethod("usdt_bnb");
+    }
+  }, [lang]);
 
   const steps = [
     t.checkout?.step1 || "1. Data Pembeli",
@@ -126,7 +144,7 @@ export function CheckoutForm({
     const seed = (subtotal * 7 + items.length * 13 + Date.now()) % 999;
     return String(seed + 1).padStart(3, "0");
   });
-  const totalBayar = subtotal + Number(uniqueCode);
+  const totalBayar = subtotal + (lang === "id" && paymentMethod === "qris" ? Number(uniqueCode) : 0);
 
   if (items.length === 0) {
     return (
@@ -143,22 +161,25 @@ export function CheckoutForm({
 
   const goNext = () => {
     const nextErrors: typeof errors = {};
-    if (!name.trim()) nextErrors.name = "Nama lengkap wajib diisi.";
-    if (!email.trim() || !/^\S+@\S+\.\S+$/.test(email)) nextErrors.email = "Alamat email tidak valid.";
+    if (!name.trim()) nextErrors.name = lang === "en" ? "Full name is required." : lang === "zh" ? "请填写姓名。" : "Nama lengkap wajib diisi.";
+    if (!email.trim() || !/^\S+@\S+\.\S+$/.test(email)) nextErrors.email = lang === "en" ? "Valid email address is required." : lang === "zh" ? "请输入有效的邮箱地址。" : "Alamat email tidak valid.";
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
       setStep(2);
-    }, 400);
+    }, 300);
   };
 
   const copyAddress = (addr?: string) => {
     if (!addr) return;
     navigator.clipboard.writeText(addr);
     setIsCopied(true);
-    toast.push({ title: "Alamat USDT disalin", tone: "info" });
+    toast.push({
+      title: lang === "en" ? "USDT Address copied" : lang === "zh" ? "已复制 USDT 地址" : "Alamat USDT disalin",
+      tone: "info"
+    });
     setTimeout(() => setIsCopied(false), 2000);
   };
 
@@ -178,7 +199,7 @@ export function CheckoutForm({
       sessionStorage.setItem("serbapremium:last-order", JSON.stringify(order));
       sessionStorage.setItem("tokono:last-order", JSON.stringify(order));
     } catch {
-      /* penyimpanan penuh */
+      /* storage full */
     }
     saveOrderToDb({
       id: orderId,
@@ -197,12 +218,12 @@ export function CheckoutForm({
     items.forEach((i) => library.add(i.appId));
     cart.clear();
     toast.push({
-      title: "Pembayaran terkirim",
-      description: "Pesanan Anda sedang diverifikasi oleh sistem SerbaPremium.",
+      title: lang === "en" ? "Payment submitted" : lang === "zh" ? "付款已提交" : "Pembayaran terkirim",
+      description: lang === "en" ? "Your order is being processed by SerbaPremium." : lang === "zh" ? "系统正在处理您的订单并安排发货。" : "Pesanan Anda sedang diverifikasi oleh sistem SerbaPremium.",
     });
     setTimeout(() => {
       router.push("/pembayaran/berhasil");
-    }, 800);
+    }, 600);
   };
 
   return (
@@ -211,7 +232,9 @@ export function CheckoutForm({
         <span className="rounded-xs border border-border bg-accent px-2 py-0.5 text-[10px] font-black uppercase text-black shadow-[1px_1px_0px_var(--shadow-color)]">
           CHECKOUT
         </span>
-        <h1 className="mt-2 text-2xl font-black tracking-tight text-fg sm:text-3xl">Proses Pembayaran</h1>
+        <h1 className="mt-2 text-2xl font-black tracking-tight text-fg sm:text-3xl">
+          {t.checkout.title || "Proses Pembayaran"}
+        </h1>
       </div>
 
       {/* Indikator langkah */}
@@ -251,41 +274,43 @@ export function CheckoutForm({
         <section className="rounded-lg border-2 border-border bg-surface p-6 shadow-[4px_4px_0px_var(--shadow-color)]">
           {step === 1 ? (
             <div className="flex flex-col gap-4">
-              <h2 className="text-base font-black uppercase tracking-tight text-fg">1. Data Pembeli</h2>
-              <Field label="Nama Lengkap" htmlFor="nama-lengkap">
+              <h2 className="text-base font-black uppercase tracking-tight text-fg">
+                {t.checkout.personalInfo || "1. Data Pembeli"}
+              </h2>
+              <Field label={t.checkout.name || "Nama Lengkap"} htmlFor="nama-lengkap">
                 <Input
                   id="nama-lengkap"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Nama Lengkap Anda"
+                  placeholder={lang === "en" ? "Your full name" : lang === "zh" ? "您的姓名" : "Nama Lengkap Anda"}
                   autoComplete="name"
                 />
                 {errors.name && <p className="text-xs font-bold text-discount">{errors.name}</p>}
               </Field>
-              <Field label="Alamat Email (Untuk Pengiriman Lisensi)" htmlFor="email">
+              <Field label={t.checkout.emailLabel || "Alamat Email (Untuk Pengiriman Lisensi)"} htmlFor="email">
                 <Input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="nama@email.com"
+                  placeholder="name@email.com"
                   autoComplete="email"
                 />
                 {errors.email && <p className="text-xs font-bold text-discount">{errors.email}</p>}
               </Field>
-              <Field label="Nomor WhatsApp / HP" hint="Opsional — untuk notifikasi instan pesanan." htmlFor="no-hp">
+              <Field label={t.checkout.phoneLabel || "Nomor WhatsApp / HP"} hint={lang === "en" ? "Optional for instant status notifications." : lang === "zh" ? "可选，用于接收即时订单通知。" : "Opsional — untuk notifikasi instan pesanan."} htmlFor="no-hp">
                 <Input
                   id="no-hp"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="08xxxxxxxxxx"
+                  placeholder="+62 8xxxxxxxxxx"
                   inputMode="tel"
                   autoComplete="tel"
                 />
               </Field>
               <div className="mt-2 flex justify-end">
                 <Button onClick={goNext} disabled={loading} size="lg">
-                  {loading ? "Memproses…" : "Lanjut ke Pembayaran"}
+                  {loading ? (t.checkout.processing || "Memproses…") : (t.checkout.proceedToPayment || "Lanjut ke Pembayaran")}
                   {!loading && <ArrowRight size={16} strokeWidth={2.5} />}
                 </Button>
               </div>
@@ -293,9 +318,11 @@ export function CheckoutForm({
           ) : (
             <div className="flex flex-col gap-5">
               <div className="flex items-center justify-between border-b-2 border-border pb-3">
-                <h2 className="text-base font-black uppercase tracking-tight text-fg">2. Metode Pembayaran</h2>
+                <h2 className="text-base font-black uppercase tracking-tight text-fg">
+                  {t.checkout.paymentMethod || "2. Metode Pembayaran"}
+                </h2>
                 <span className="flex items-center gap-1 rounded-xs border border-border bg-accent px-2 py-0.5 text-xs font-black text-black shadow-[1px_1px_0px_var(--shadow-color)]">
-                  <ShieldCheck size={13} strokeWidth={2.5} /> Terverifikasi
+                  <ShieldCheck size={13} strokeWidth={2.5} /> {lang === "en" ? "Verified & Secure" : lang === "zh" ? "安全已验证" : "Terverifikasi"}
                 </span>
               </div>
 
@@ -316,7 +343,9 @@ export function CheckoutForm({
                       }`}
                     >
                       <p className="text-xs font-black uppercase">{info.badge}</p>
-                      <p className="text-[11px] font-semibold opacity-80 mt-0.5 truncate">{info.name}</p>
+                      <p className="text-[11px] font-semibold opacity-80 mt-0.5 truncate">
+                        {info.name[lang] || info.name.id}
+                      </p>
                     </button>
                   );
                 })}
@@ -324,18 +353,23 @@ export function CheckoutForm({
 
               {/* Total Nominal Transfer Card */}
               <div className="rounded-md border-2 border-border bg-surface-2 p-4 shadow-[2px_2px_0px_var(--shadow-color)]">
-                <p className="text-xs font-black tracking-wider text-fg-muted uppercase">Total Nominal Pembayaran</p>
+                <p className="text-xs font-black tracking-wider text-fg-muted uppercase">
+                  {t.checkout.total || "Total Nominal Pembayaran"}
+                </p>
                 <p className="mt-1 text-3xl font-black tracking-tight tabular-nums text-fg">
-                  {formatRupiah(totalBayar)}
+                  {formatPrice(totalBayar, lang)}
                 </p>
                 {paymentMethod === "qris" ? (
                   <p className="mt-2 text-xs font-semibold leading-5 text-fg-muted">
-                    <span className="font-bold text-fg">Kode unik {uniqueCode}</span> otomatis disertakan pada
-                    nominal di atas untuk verifikasi otomatis instan.
+                    {lang === "en"
+                      ? `Unique code included automatically for instant automated verification.`
+                      : lang === "zh"
+                      ? `已包含唯一验证码，支持全自动即时核验。`
+                      : `Kode unik otomatis disertakan pada nominal di atas untuk verifikasi instan.`}
                   </p>
                 ) : (
                   <p className="mt-2 text-xs font-semibold leading-5 text-fg-muted">
-                    Estimasi: <span className="font-bold text-fg">{(totalBayar / 16000).toFixed(2)} USDT</span> (Rate: Rp16.000 / USDT)
+                    USDT: <span className="font-bold text-fg">{(totalBayar / 16000).toFixed(2)} USDT</span> (Rate: 1 USDT ≈ Rp16.000)
                   </p>
                 )}
               </div>
@@ -354,13 +388,19 @@ export function CheckoutForm({
                     />
                   </div>
                   <p className="max-w-xs text-center text-xs font-bold leading-5 text-fg-muted">
-                    Pindai QRIS di atas dengan aplikasi BCA, Mandiri, BRI, BNI, GoPay, OVO, DANA, ShopeePay, dsb.
+                    {lang === "en"
+                      ? "Scan QRIS above using any supported e-wallet or mobile banking app."
+                      : lang === "zh"
+                      ? "使用任意支持的电子钱包或银行 App 扫描上方 QRIS 二维码完成付款。"
+                      : "Pindai QRIS di atas dengan aplikasi BCA, Mandiri, BRI, BNI, GoPay, OVO, DANA, ShopeePay, dsb."}
                   </p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   <div className="rounded-md border-2 border-border bg-surface p-4 shadow-[2px_2px_0px_var(--shadow-color)]">
-                    <p className="text-xs font-black uppercase text-fg-muted">Alamat Wallet ({PAYMENT_INFO[paymentMethod].badge}):</p>
+                    <p className="text-xs font-black uppercase text-fg-muted">
+                      {lang === "en" ? "Wallet Address" : lang === "zh" ? "收款钱包地址" : "Alamat Wallet"} ({PAYMENT_INFO[paymentMethod].badge}):
+                    </p>
                     <div className="mt-2 flex items-center gap-2">
                       <input
                         readOnly
@@ -372,36 +412,37 @@ export function CheckoutForm({
                         className="flex h-8 shrink-0 items-center gap-1 rounded-sm border-2 border-border bg-accent px-2.5 text-xs font-black text-black shadow-[1.5px_1.5px_0px_var(--shadow-color)] hover:bg-accent-hover active:translate-x-0.5 active:translate-y-0.5"
                       >
                         {isCopied ? <Check size={14} strokeWidth={3} /> : <Copy size={14} strokeWidth={2.5} />}
-                        {isCopied ? "Disalin" : "Salin"}
+                        {isCopied ? (lang === "en" ? "Copied" : lang === "zh" ? "已复制" : "Disalin") : (lang === "en" ? "Copy" : lang === "zh" ? "复制" : "Salin")}
                       </button>
                     </div>
                   </div>
                   <p className="text-xs font-medium text-fg-muted">
-                    Pastikan jaringan transfer menggunakan <strong className="text-fg">{PAYMENT_INFO[paymentMethod].network}</strong>.
+                    {lang === "en" ? "Please ensure network is " : lang === "zh" ? "请务必确认转账网络为 " : "Pastikan jaringan transfer menggunakan "}
+                    <strong className="text-fg">{PAYMENT_INFO[paymentMethod].network}</strong>.
                   </p>
                 </div>
               )}
 
               {paymentDone ? (
                 <div className="flex items-center gap-2 rounded-sm border-2 border-border bg-accent px-3.5 py-2 text-xs font-black text-black shadow-[2px_2px_0px_var(--shadow-color)]">
-                  <CheckCircle2 size={16} strokeWidth={3} /> Pembayaran Anda telah tercatat!
+                  <CheckCircle2 size={16} strokeWidth={3} /> {lang === "en" ? "Payment confirmed! Ready to submit." : lang === "zh" ? "已确认付款！即可提交订单。" : "Pembayaran Anda telah tercatat!"}
                 </div>
               ) : (
                 <Button className="w-full" onClick={() => setPaymentDone(true)}>
-                  Saya Sudah Menyelesaikan Pembayaran
+                  {t.checkout?.alreadyTransferred || "Saya Sudah Menyelesaikan Pembayaran"}
                 </Button>
               )}
 
               <div className="mt-2 flex items-center justify-between gap-3 border-t-2 border-border pt-4">
                 <Button variant="secondary" onClick={() => setStep(1)}>
-                  <ArrowLeft size={16} strokeWidth={2.5} /> Kembali
+                  <ArrowLeft size={16} strokeWidth={2.5} /> {lang === "en" ? "Back" : lang === "zh" ? "返回" : "Kembali"}
                 </Button>
                 <Button
                   onClick={completePayment}
                   disabled={!paymentDone || loading}
                   className="flex-1 sm:flex-none"
                 >
-                  {loading ? "Memverifikasi…" : "Selesaikan Pesanan Sekarang 🚀"}
+                  {loading ? (t.checkout.processing || "Memverifikasi…") : (t.checkout.confirmAndFinish || "Selesaikan Pesanan Sekarang 🚀")}
                 </Button>
               </div>
             </div>

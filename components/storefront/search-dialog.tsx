@@ -1,21 +1,22 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Search, X } from "lucide-react";
+import { ArrowRight, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
-import { formatRupiah } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils";
 import { AppIcon } from "@/components/ui/app-icon";
 import type { App } from "@/types";
+import { useTranslation } from "./i18n-provider";
+import { getLocalizedApp, getLocalizedCategory } from "@/lib/i18n/product-translations";
 
 const RECENT_KEY = "serbapremium:recent-searches";
 
-const popularCategories = ["Desain", "Produktivitas", "Pengembangan", "AI", "Keamanan"];
-
 export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const router = useRouter();
+  const { lang, t } = useTranslation();
   const [q, setQ] = useState("");
   const [results, setResults] = useState<App[]>([]);
   const [recent, setRecent] = useState<string[]>([]);
@@ -36,7 +37,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
         });
       }
     } catch {
-      /* localStorage tidak tersedia */
+      /* localStorage not available */
     }
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -65,7 +66,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
     try {
       localStorage.setItem(RECENT_KEY, JSON.stringify(next));
     } catch {
-      /* abaikan */
+      /* ignore */
     }
   };
 
@@ -75,10 +76,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
     router.push(`/aplikasi?q=${encodeURIComponent(term)}`);
   };
 
-  const categoryHref = (name: string) => {
-    const cat = api.categories.list().find((c) => c.name === name);
-    return cat ? `/kategori/${cat.slug}` : "/aplikasi";
-  };
+  const popularCats = api.categories.list().slice(0, 5);
 
   return (
     <AnimatePresence>
@@ -96,7 +94,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
           <motion.div
             role="dialog"
             aria-modal="true"
-            aria-label="Pencarian"
+            aria-label={t.navbar?.search || "Pencarian"}
             className="relative w-full max-w-xl overflow-hidden rounded-lg border-2 border-border bg-surface shadow-[8px_8px_0px_var(--shadow-color)]"
             initial={{ opacity: 0, y: -10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -112,14 +110,14 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && q.trim()) goToResults(q.trim());
                 }}
-                placeholder="Cari aplikasi, akun premium, tools AI…"
+                placeholder={lang === "en" ? "Search applications, premium accounts, AI tools…" : lang === "zh" ? "搜索应用、高级会员、AI 生产力工具…" : "Cari aplikasi, akun premium, tools AI…"}
                 className="w-full bg-transparent text-[15px] font-bold text-fg outline-none placeholder:text-fg-faint"
                 aria-label="Kata kunci pencarian"
               />
               <button
                 onClick={onClose}
                 aria-label="Tutup pencarian"
-                className="rounded-xs border border-border bg-surface px-1.5 py-0.5 text-[11px] font-black text-fg shadow-[1px_1px_0px_var(--shadow-color)]"
+                className="rounded-xs border border-border bg-surface px-1.5 py-0.2 text-[11px] font-black text-fg shadow-[1px_1px_0px_var(--shadow-color)]"
               >
                 ESC
               </button>
@@ -131,7 +129,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                   {recent.length > 0 && (
                     <div className="mb-5">
                       <p className="mb-2 text-xs font-black tracking-wider text-fg-muted uppercase">
-                        Pencarian terbaru
+                        {lang === "en" ? "Recent Searches" : lang === "zh" ? "最近搜索" : "Pencarian terbaru"}
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {recent.map((r) => (
@@ -147,24 +145,23 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                     </div>
                   )}
                   <p className="mb-2 text-xs font-black tracking-wider text-fg-muted uppercase">
-                    Kategori populer
+                    {lang === "en" ? "Popular Categories" : lang === "zh" ? "热门分类" : "Kategori populer"}
                   </p>
                   <div className="grid gap-1.5">
-                    {popularCategories.map((name) => {
-                      const cat = api.categories.list().find((c) => c.name === name);
-                      if (!cat) return null;
+                    {popularCats.map((cat) => {
+                      const localized = getLocalizedCategory(cat, lang);
                       const Icon = cat.icon;
                       return (
                         <Link
                           key={cat.id}
-                          href={categoryHref(name)}
+                          href={`/kategori/${cat.slug}`}
                           onClick={onClose}
                           className="flex items-center gap-3 rounded-md border-2 border-transparent p-2 transition-all hover:border-border hover:bg-surface-2 hover:shadow-[2px_2px_0px_var(--shadow-color)]"
                         >
                           <span className="flex h-8 w-8 items-center justify-center rounded-xs border-2 border-border bg-accent-yellow text-black shadow-[1px_1px_0px_var(--shadow-color)]">
                             <Icon size={15} strokeWidth={2.5} />
                           </span>
-                          <span className="text-sm font-bold text-fg">{cat.name}</span>
+                          <span className="text-sm font-bold text-fg">{localized.name}</span>
                           <ArrowRight size={14} strokeWidth={2.5} className="ml-auto text-fg-muted" />
                         </Link>
                       );
@@ -173,33 +170,36 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                 </div>
               ) : results.length === 0 ? (
                 <p className="px-6 py-10 text-center text-sm font-bold text-fg-muted">
-                  Tidak ada hasil untuk &ldquo;{q}&rdquo;.
+                  {lang === "en" ? `No results found for "${q}".` : lang === "zh" ? `未找到与 “${q}” 相关的产品。` : `Tidak ada hasil untuk "${q}".`}
                 </p>
               ) : (
                 <div className="space-y-1">
                   <p className="px-2 py-1 text-xs font-black tracking-wider text-fg-muted uppercase">
-                    {results.length} hasil ditemukan
+                    {results.length} {lang === "en" ? "results found" : lang === "zh" ? "条匹配结果" : "hasil ditemukan"}
                   </p>
-                  {results.map((app) => (
-                    <Link
-                      key={app.id}
-                      href={`/aplikasi/${app.slug}`}
-                      onClick={() => {
-                        commitSearch(q.trim());
-                        onClose();
-                      }}
-                      className="flex items-center gap-3 rounded-md border-2 border-transparent p-2.5 transition-all hover:border-border hover:bg-surface-2 hover:shadow-[2px_2px_0px_var(--shadow-color)]"
-                    >
-                      <AppIcon icon={app.icon} size="sm" />
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-fg">{app.name}</p>
-                        <p className="truncate text-[13px] font-medium text-fg-muted">{app.tagline}</p>
-                      </div>
-                      <span className="ml-auto shrink-0 text-sm font-black tabular-nums text-fg">
-                        {formatRupiah(app.price)}
-                      </span>
-                    </Link>
-                  ))}
+                  {results.map((rawApp) => {
+                    const app = getLocalizedApp(rawApp, lang);
+                    return (
+                      <Link
+                        key={app.id}
+                        href={`/aplikasi/${app.slug}`}
+                        onClick={() => {
+                          commitSearch(q.trim());
+                          onClose();
+                        }}
+                        className="flex items-center gap-3 rounded-md border-2 border-transparent p-2.5 transition-all hover:border-border hover:bg-surface-2 hover:shadow-[2px_2px_0px_var(--shadow-color)]"
+                      >
+                        <AppIcon icon={app.icon} size="sm" />
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-black text-fg">{app.name}</p>
+                          <p className="truncate text-[13px] font-medium text-fg-muted">{app.tagline}</p>
+                        </div>
+                        <span className="ml-auto shrink-0 text-sm font-black tabular-nums text-fg">
+                          {formatPrice(app.price, lang)}
+                        </span>
+                      </Link>
+                    );
+                  })}
                 </div>
               )}
             </div>
