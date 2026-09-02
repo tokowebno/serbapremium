@@ -225,6 +225,8 @@ export interface RawAppSpec {
   platforms: Platform[];
   variants: ProductVariant[];
   features: string[];
+  rating?: number;
+  ratingCount?: number;
 }
 
 /**
@@ -298,6 +300,7 @@ const productSpecs: RawAppSpec[] = [
   // ── 1. AI & Chatbot ───────────────────────────────────────────
   {
     name: "ChatGPT Plus Apple Pay",
+    rating: 4.8,
     stock: 350,
     catId: "ai",
     glyph: "bot",
@@ -2664,7 +2667,7 @@ export const apps: App[] = productSpecs.map((spec) => {
     price: basePrice,
     originalPrice,
     stock: spec.variants?.reduce((sum, v) => sum + (v.stock || 0), 0) || spec.stock,
-    rating: 4.1 + (seed % 9) / 10,
+    rating: (spec as { rating?: number }).rating ?? (spec.name.toLowerCase().includes("chatgpt") ? 4.8 : 4.6 + (seed % 4) / 10),
     ratingCount: 150 + (seed % 1800),
     downloads: 12000 + (seed % 45000),
     platforms: spec.platforms,

@@ -113,7 +113,7 @@ export async function syncFromSupabase(): Promise<boolean> {
             from: mock.icon.from || dbMatch.icon.from,
             to: mock.icon.to || dbMatch.icon.to,
           },
-          rating: dbMatch.rating > 4.0 && dbMatch.rating <= 5.0 ? dbMatch.rating : mock.rating,
+          rating: mock.rating || (dbMatch.rating > 4.0 && dbMatch.rating <= 5.0 ? dbMatch.rating : 4.8),
         };
       });
 
