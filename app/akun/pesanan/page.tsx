@@ -32,13 +32,13 @@ export default function PesananPage() {
         if (!rawApp) return null;
         const app = getLocalizedApp(rawApp, lang);
         return (
-          <article key={entry.appId} className="rounded-lg border-2 border-border bg-surface p-5 shadow-[4px_4px_0px_var(--shadow-color)]">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-border pb-3">
+          <article key={entry.appId} className="glass-card rounded-2xl border border-border/80 bg-surface/90 p-5 sm:p-6 shadow-sm backdrop-blur-md">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/70 pb-3">
               <div>
-                <p className="font-mono text-sm font-black tracking-tight text-fg">
+                <p className="font-mono text-sm font-bold tracking-tight text-fg">
                   {`SP-${entry.appId.slice(0, 6).toUpperCase()}`}
                 </p>
-                <p className="text-xs font-bold text-fg-muted">{formatDate(entry.purchasedAt, lang)}</p>
+                <p className="text-xs font-normal text-fg-muted">{formatDate(entry.purchasedAt, lang)}</p>
               </div>
               <div className="flex items-center gap-2">
                 <StatusBadge status="dibayar" />
@@ -46,22 +46,22 @@ export default function PesananPage() {
               </div>
             </div>
 
-            <ul className="divide-y-2 divide-border">
+            <ul className="divide-y divide-border/60">
               <li className="flex items-center gap-3.5 py-3.5">
                 <AppIcon icon={app.icon} size="sm" />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-black text-fg">{app.name}</p>
-                  <p className="text-xs font-semibold text-fg-muted">
+                  <p className="truncate text-sm font-semibold text-fg">{app.name}</p>
+                  <p className="text-xs font-normal text-fg-muted">
                     {lang === "en" ? "Official License · Active Warranty" : lang === "zh" ? "官方正版授权 · 质保已生效" : "Lisensi Resmi · Garansi Aktif"}
                   </p>
                 </div>
-                <span className="text-sm font-black tabular-nums text-fg">{formatPrice(app.price, lang)}</span>
+                <span className="text-sm font-bold tabular-nums text-fg">{formatPrice(app.price, lang)}</span>
               </li>
             </ul>
 
-            <div className="flex items-center justify-between border-t-2 border-border pt-3 text-sm">
-              <span className="font-bold text-fg-muted">{t.checkout?.total || "Total Bayar"}</span>
-              <span className="font-black tabular-nums text-fg">{formatPrice(app.price, lang)}</span>
+            <div className="flex items-center justify-between border-t border-border/70 pt-3 text-sm">
+              <span className="font-medium text-fg-muted">{t.checkout?.total || "Total Bayar"}</span>
+              <span className="font-bold tabular-nums text-accent">{formatPrice(app.price, lang)}</span>
             </div>
           </article>
         );

@@ -37,10 +37,10 @@ export default function KoleksiPage() {
 
   return (
     <div>
-      <p className="mb-4 text-xs font-bold uppercase tracking-wider text-fg-muted">
+      <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-fg-muted">
         {apps.length} {lang === "en" ? "items in your collection · One-time purchase, access anytime" : lang === "zh" ? "个已购项目 · 一次性购买，随时取用" : "aplikasi dalam koleksi Anda · Pembelian satu kali, unduh kapan saja"}
       </p>
-      <ul className="divide-y-2 divide-border rounded-lg border-2 border-border bg-surface shadow-[4px_4px_0px_var(--shadow-color)]">
+      <ul className="glass-card divide-y divide-border/60 rounded-2xl border border-border/80 bg-surface/90 shadow-sm backdrop-blur-md">
         {apps.map(({ entry, app }) => {
           const hasUpdate = app!.updatedAt > entry.purchasedAt;
           return (
@@ -48,10 +48,10 @@ export default function KoleksiPage() {
               <AppIcon icon={app!.icon} size="md" />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-black tracking-tight text-fg">{app!.name}</p>
+                  <p className="font-semibold tracking-tight text-fg">{app!.name}</p>
                   {hasUpdate && <Badge tone="accent">{lang === "en" ? "Update available" : lang === "zh" ? "有可用更新" : "Pembaruan tersedia"}</Badge>}
                 </div>
-                <p className="mt-0.5 text-xs font-bold text-fg-muted">
+                <p className="mt-0.5 text-xs font-normal text-fg-muted">
                   {lang === "en" ? "Version" : lang === "zh" ? "版本" : "Versi"} {app!.version} · {lang === "en" ? "Purchased" : lang === "zh" ? "购买时间" : "Dibeli"} {formatDate(entry.purchasedAt, lang)}
                 </p>
                 <div className="mt-1.5">
@@ -59,11 +59,11 @@ export default function KoleksiPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <ButtonLink href={`/aplikasi/${app!.slug}`} variant="secondary" size="sm">
+                <ButtonLink href={`/aplikasi/${app!.slug}`} variant="secondary" size="sm" className="rounded-full">
                   {t.product?.viewDetail || "Detail"}
                 </ButtonLink>
-                <ButtonLink href={`/aplikasi/${app!.slug}`} size="sm">
-                  <Download size={14} strokeWidth={2.5} />
+                <ButtonLink href={`/aplikasi/${app!.slug}`} size="sm" className="rounded-full">
+                  <Download size={14} strokeWidth={2} />
                   {lang === "en" ? "Access" : lang === "zh" ? "使用" : "Unduh"}
                 </ButtonLink>
               </div>
@@ -71,7 +71,7 @@ export default function KoleksiPage() {
           );
         })}
       </ul>
-      <p className="mt-4 text-xs font-medium text-fg-faint">
+      <p className="mt-4 text-xs font-normal text-fg-faint">
         {lang === "en" ? "Clicking the access button directs you to the license and instructions page." : lang === "zh" ? "点击按钮将前往该产品的授权信息与使用说明页面。" : "Tombol unduh mengarah ke halaman detail aplikasi untuk mengunduh versi terbaru lisensi Anda."}
       </p>
     </div>

@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { useCart, useTheme, useWishlist } from "./providers";
 import { useTranslation } from "./i18n-provider";
 import { SearchDialog } from "./search-dialog";
+import { SerbaPremiumLogo } from "@/components/ui/logo";
 import { cn } from "@/lib/utils";
 
 const langFlags: Record<string, string> = {
@@ -50,32 +51,25 @@ export function Navbar() {
         <motion.div
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           className="mx-auto max-w-[1240px]"
         >
           <nav
             aria-label="Navigasi utama"
             className={cn(
-              "mt-3 flex h-14 items-center justify-between gap-2 rounded-md border-2 border-border bg-surface px-3 transition-all duration-150 sm:px-4",
+              "mt-3 flex h-13 items-center justify-between gap-2 rounded-full px-3 transition-all duration-300 sm:px-4",
               scrolled
-                ? "shadow-[5px_5px_0px_var(--shadow-color)] -translate-y-0.5"
-                : "shadow-[3px_3px_0px_var(--shadow-color)]",
+                ? "mat-func shadow-[var(--elev-2)]"
+                : "mat-func shadow-[var(--elev-1)]",
             )}
           >
             {/* Brand SERBAPREMIUM */}
             <Link
               href="/"
-              className="group flex shrink-0 items-center gap-2 pr-2"
+              className="group flex shrink-0 items-center pl-1 pr-2"
               aria-label="SerbaPremium — Beranda"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-sm border-2 border-border bg-accent text-accent-fg shadow-[1.5px_1.5px_0px_var(--shadow-color)] transition-transform duration-100 group-hover:scale-105">
-                <Zap size={18} strokeWidth={2.8} className="fill-current" />
-              </span>
-              <div className="flex flex-col">
-                <span className="text-[17px] font-black tracking-tighter text-fg uppercase">
-                  SERBA<span className="text-accent-blue dark:text-accent">PREMIUM</span>
-                </span>
-              </div>
+              <SerbaPremiumLogo iconSize={26} textSize="text-[16px]" />
             </Link>
 
             {/* Links desktop */}
@@ -87,29 +81,36 @@ export function Navbar() {
                     key={l.label}
                     href={l.href}
                     className={cn(
-                      "relative rounded-sm px-3 py-1.5 text-[13.5px] font-bold transition-all duration-100",
-                      active
-                        ? "border-2 border-border bg-accent-yellow text-black shadow-[2px_2px_0px_var(--shadow-color)]"
-                        : "border-2 border-transparent text-fg-muted hover:border-border hover:bg-surface-2 hover:text-fg",
+                      "relative rounded-full px-3.5 py-1.5 text-[13.5px] font-medium transition-colors duration-200",
+                      active ? "text-fg" : "text-fg-muted hover:text-fg",
                     )}
                   >
-                    <span>{l.label}</span>
+                    {active && (
+                      <motion.span
+                        layoutId="nav-active"
+                        className="absolute inset-0 rounded-full bg-surface shadow-[var(--elev-1)] ring-1 ring-border/80"
+                        transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                      />
+                    )}
+                    <span className="relative z-10">{l.label}</span>
                   </Link>
                 );
               })}
             </div>
 
             {/* Kontrol kanan */}
-            <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex items-center gap-1 sm:gap-1.5">
               {/* Search button */}
               <button
                 onClick={() => setSearchOpen(true)}
-                className="flex h-8 sm:h-9 items-center gap-1.5 sm:gap-2 rounded-xs sm:rounded-sm border-1.5 sm:border-2 border-border bg-surface-2 px-2 sm:px-3 text-xs font-bold text-fg-muted shadow-[1.5px_1.5px_0px_var(--shadow-color)] sm:shadow-[2px_2px_0px_var(--shadow-color)] transition-all duration-100 hover:bg-surface hover:text-fg sm:w-40 sm:justify-between lg:w-44"
+                className="flex h-8 sm:h-9 items-center gap-2 rounded-full bg-surface/60 px-3 text-[13px] text-fg-muted shadow-[inset_0_0_0_1px_var(--border)] backdrop-blur-md transition-all duration-200 hover:bg-surface hover:text-fg hover:shadow-[var(--elev-1)] sm:w-40 sm:justify-between lg:w-48"
                 aria-label={t.navbar.search}
               >
-                <Search size={14} strokeWidth={2.5} className="text-fg" />
-                <span className="hidden sm:inline text-xs">{t.navbar.search}</span>
-                <kbd className="hidden rounded-xs border border-border bg-surface px-1 py-0.2 text-[10px] font-mono text-fg font-black sm:inline">
+                <span className="flex items-center gap-2">
+                  <Search size={14} strokeWidth={2} />
+                  <span className="hidden sm:inline text-xs">{t.navbar.search}</span>
+                </span>
+                <kbd className="hidden rounded-md border border-border bg-surface px-1.5 py-0.5 text-[10px] font-mono text-fg-faint sm:inline">
                   /
                 </kbd>
               </button>
@@ -119,9 +120,9 @@ export function Navbar() {
                 onClick={openLanguageSelector}
                 aria-label={t.navbar.selectLanguage}
                 title={t.navbar.selectLanguage}
-                className="flex h-8 sm:h-9 items-center gap-1 rounded-xs sm:rounded-sm border-1.5 sm:border-2 border-border bg-surface px-2 sm:px-2.5 text-[11px] sm:text-xs font-black text-fg shadow-[1.5px_1.5px_0px_var(--shadow-color)] sm:shadow-[2px_2px_0px_var(--shadow-color)] transition-all duration-100 hover:bg-surface-2 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                className="flex h-8 sm:h-9 items-center gap-1 rounded-full bg-surface/60 px-2.5 text-xs font-semibold text-fg shadow-[inset_0_0_0_1px_var(--border)] backdrop-blur-md transition-all duration-200 hover:bg-surface hover:shadow-[var(--elev-1)] active:scale-95"
               >
-                <Globe size={13} strokeWidth={2.5} />
+                <Globe size={13} strokeWidth={2} />
                 <span>{langFlags[lang] || "🌐"}</span>
               </button>
 
@@ -129,18 +130,18 @@ export function Navbar() {
               <button
                 onClick={toggle}
                 aria-label={theme === "dark" ? t.navbar.lightMode : t.navbar.darkMode}
-                className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xs sm:rounded-sm border-1.5 sm:border-2 border-border bg-surface text-fg shadow-[1.5px_1.5px_0px_var(--shadow-color)] sm:shadow-[2px_2px_0px_var(--shadow-color)] transition-all duration-100 hover:bg-surface-2 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full text-fg-muted transition-all duration-200 hover:bg-surface/80 hover:text-fg hover:shadow-[var(--elev-1)] active:scale-95"
               >
-                {theme === "dark" ? <Sun size={15} strokeWidth={2.5} /> : <Moon size={15} strokeWidth={2.5} />}
+                {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
               </button>
 
               {/* Wishlist */}
               <Link
                 href="/akun/keinginan"
                 aria-label={t.navbar.wishlist}
-                className="hidden sm:flex relative h-9 w-9 items-center justify-center rounded-sm border-2 border-border bg-surface text-fg shadow-[2px_2px_0px_var(--shadow-color)] transition-all duration-100 hover:bg-surface-2 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full text-fg-muted transition-all duration-200 hover:bg-surface/80 hover:text-fg hover:shadow-[var(--elev-1)] active:scale-95"
               >
-                <Heart size={17} strokeWidth={2.5} />
+                <Heart size={16} />
                 <AnimatePresence>
                   {ids.length > 0 && (
                     <motion.span
@@ -148,7 +149,8 @@ export function Navbar() {
                       initial={{ scale: 0.5, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0.5, opacity: 0 }}
-                      className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-xs border border-border bg-discount px-1 text-[10px] font-black text-white shadow-[1px_1px_0px_var(--shadow-color)]"
+                      transition={{ type: "spring", stiffness: 500, damping: 24 }}
+                      className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-fg shadow-sm"
                     >
                       {ids.length}
                     </motion.span>
@@ -160,9 +162,9 @@ export function Navbar() {
               <Link
                 href="/keranjang"
                 aria-label={t.navbar.cart}
-                className="hidden sm:flex relative h-9 w-9 items-center justify-center rounded-sm border-2 border-border bg-accent text-accent-fg shadow-[2px_2px_0px_var(--shadow-color)] transition-all duration-100 hover:bg-accent-hover active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full text-fg-muted transition-all duration-200 hover:bg-surface/80 hover:text-fg hover:shadow-[var(--elev-1)] active:scale-95"
               >
-                <ShoppingBag size={17} strokeWidth={2.5} />
+                <ShoppingBag size={16} />
                 <AnimatePresence>
                   {count > 0 && (
                     <motion.span
@@ -170,7 +172,8 @@ export function Navbar() {
                       initial={{ scale: 0.5, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0.5, opacity: 0 }}
-                      className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-xs border border-border bg-discount px-1 text-[10px] font-black text-white shadow-[1px_1px_0px_var(--shadow-color)]"
+                      transition={{ type: "spring", stiffness: 500, damping: 24 }}
+                      className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-fg shadow-sm"
                     >
                       {count}
                     </motion.span>

@@ -47,11 +47,11 @@ export function Modal({
       {open && (
         <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center">
           <motion.div
-            className="absolute inset-0 bg-overlay"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            transition={{ duration: 0.2 }}
             onClick={onClose}
             aria-hidden="true"
           />
@@ -62,22 +62,22 @@ export function Modal({
             aria-label={title}
             tabIndex={-1}
             className={cn(
-              "relative w-full rounded-lg border-2 border-border bg-surface p-6 shadow-[8px_8px_0px_var(--shadow-color)] outline-none",
+              "glass-card relative w-full rounded-2xl border border-border/80 bg-surface/95 p-6 shadow-2xl backdrop-blur-xl outline-none sm:p-7",
               width,
             )}
             initial={{ opacity: 0, y: 16, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
           >
-            <div className="mb-4 flex items-center justify-between gap-4 border-b-2 border-border pb-3">
-              {title && <h2 className="text-lg font-black tracking-tight text-fg">{title}</h2>}
+            <div className="mb-4 flex items-center justify-between gap-4 border-b border-border/70 pb-3.5">
+              {title && <h2 className="text-lg font-bold tracking-tight text-fg">{title}</h2>}
               <button
                 onClick={onClose}
                 aria-label="Tutup"
-                className="rounded-md border-2 border-border bg-surface-2 p-1 text-fg transition-all hover:bg-discount hover:text-white"
+                className="rounded-full p-1.5 text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg active:scale-95"
               >
-                <X size={16} strokeWidth={2.5} />
+                <X size={18} strokeWidth={2} />
               </button>
             </div>
             {children}

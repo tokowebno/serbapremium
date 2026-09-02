@@ -24,14 +24,14 @@ export default async function KategoriIndexPage() {
 
   return (
     <div className="tk-container pt-28 pb-20">
-      <header className="mb-10 border-b-2 border-border pb-6">
-        <span className="rounded-xs border border-border bg-accent px-2 py-0.5 text-[10px] font-black uppercase text-black shadow-[1px_1px_0px_var(--shadow-color)]">
+      <header className="mb-10 border-b border-border/70 pb-6">
+        <span className="rounded-full bg-accent-soft px-3 py-0.5 text-xs font-semibold uppercase text-accent">
           {lang === "en" ? "DIRECTORY" : lang === "zh" ? "分类索引" : "DIREKTORI"}
         </span>
-        <h1 className="mt-2 text-3xl font-black tracking-tight text-fg sm:text-4xl">
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-fg sm:text-4xl">
           {lang === "en" ? "Application Categories" : lang === "zh" ? "全部分类与产品" : "Kategori Aplikasi"}
         </h1>
-        <p className="mt-2 max-w-xl text-[15px] font-medium leading-relaxed text-fg-muted">
+        <p className="mt-2 max-w-xl text-[15px] font-normal leading-relaxed text-fg-muted">
           {lang === "en"
             ? "Choose a category matching your creative workflows, productivity goals, or digital entertainment."
             : lang === "zh"

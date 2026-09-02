@@ -44,7 +44,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Mobile Navigation"
-      className="fixed bottom-0 inset-x-0 z-50 lg:hidden border-t-2 border-border bg-surface/95 backdrop-blur-md px-2 py-1.5 shadow-[0px_-3px_10px_rgba(0,0,0,0.1)]"
+      className="fixed bottom-3 inset-x-3 z-50 lg:hidden mat-func rounded-2xl px-2 py-1.5 shadow-[var(--elev-3)] border border-white/40 dark:border-white/10"
     >
       <div className="grid grid-cols-5 items-center gap-1">
         {navItems.map((item) => {
@@ -56,21 +56,21 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "relative flex flex-col items-center justify-center py-1 rounded-md transition-all duration-100",
+                "relative flex flex-col items-center justify-center py-1 rounded-xl transition-all duration-200",
                 active
-                  ? "bg-accent-yellow text-black font-black border border-border shadow-[1.5px_1.5px_0px_var(--shadow-color)]"
+                  ? "bg-accent/15 text-accent font-semibold"
                   : "text-fg-muted hover:text-fg active:bg-surface-2"
               )}
             >
               <div className="relative">
-                <Icon size={18} strokeWidth={active ? 2.8 : 2.2} />
+                <Icon size={18} strokeWidth={active ? 2.4 : 1.8} />
                 {item.badge !== undefined && (
-                  <span className="absolute -top-1.5 -right-2 flex h-3.5 min-w-3.5 items-center justify-center rounded-xs bg-discount px-0.5 text-[9px] font-black text-white">
+                  <span className="absolute -top-1.5 -right-2.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-accent px-1 text-[9px] font-bold text-accent-fg shadow-sm">
                     {item.badge}
                   </span>
                 )}
               </div>
-              <span className="mt-0.5 text-[10px] font-bold tracking-tight truncate max-w-[54px]">
+              <span className="mt-0.5 text-[10px] font-medium tracking-tight truncate max-w-[54px]">
                 {item.label}
               </span>
             </Link>

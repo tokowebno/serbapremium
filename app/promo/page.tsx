@@ -22,16 +22,16 @@ export default async function PromoPage() {
 
   return (
     <div className="tk-container pt-28 pb-20">
-      <header className="mb-10 rounded-lg border-2 border-border bg-surface p-6 sm:p-8 shadow-[5px_5px_0px_var(--shadow-color)]">
+      <header className="glass-card mb-10 rounded-2xl border border-border/80 bg-surface/90 p-6 sm:p-8 shadow-sm backdrop-blur-md">
         <div className="flex items-center gap-2 mb-2">
-          <span className="flex items-center gap-1 rounded-xs border-2 border-border bg-discount px-2.5 py-0.5 text-xs font-black uppercase text-white shadow-[1.5px_1.5px_0px_var(--shadow-color)]">
-            <Flame size={14} strokeWidth={2.8} /> {lang === "en" ? "ACTIVE DEALS" : lang === "zh" ? "限时特惠" : "DISKON AKTIF"}
+          <span className="flex items-center gap-1 rounded-full bg-rose-500/10 border border-rose-500/20 px-3 py-0.5 text-xs font-semibold uppercase text-rose-600 dark:text-rose-400">
+            <Flame size={13} /> {lang === "en" ? "ACTIVE DEALS" : lang === "zh" ? "限时特惠" : "DISKON AKTIF"}
           </span>
         </div>
-        <h1 className="text-3xl font-black tracking-tight text-fg sm:text-4xl">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-fg">
           {lang === "en" ? "Special Deals & Limited Offers" : lang === "zh" ? "独家优惠与限时折扣" : "Promo & Penawaran Terbatas"}
         </h1>
-        <p className="mt-2 max-w-xl text-[15px] font-medium leading-relaxed text-fg-muted">
+        <p className="mt-2 max-w-xl text-[14.5px] font-normal leading-relaxed text-fg-muted">
           {lang === "en"
             ? "Get exclusive discounts on premium subscriptions, accounts, and tools. Available while stock lasts."
             : lang === "zh"

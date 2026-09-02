@@ -18,11 +18,11 @@ export function PlatformBadge({ platform, className }: { platform: Platform; cla
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-sm border-2 border-border bg-surface px-2 py-0.5 text-xs font-bold text-fg shadow-[1.5px_1.5px_0px_var(--shadow-color)]",
+        "inline-flex items-center gap-1 rounded-md bg-surface-2/80 px-2 py-0.5 text-[11px] font-medium text-fg-muted ring-1 ring-border/50",
         className,
       )}
     >
-      <Icon size={12} strokeWidth={2.5} />
+      <Icon size={11} strokeWidth={1.75} />
       {label}
     </span>
   );

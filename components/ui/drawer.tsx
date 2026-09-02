@@ -41,11 +41,11 @@ export function Drawer({
       {open && (
         <div className="fixed inset-0 z-50">
           <motion.div
-            className="absolute inset-0 bg-overlay"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            transition={{ duration: 0.2 }}
             onClick={onClose}
             aria-hidden="true"
           />
@@ -54,26 +54,26 @@ export function Drawer({
             aria-modal="true"
             aria-label={title}
             className={cn(
-              "fixed flex flex-col border-2 border-border bg-surface shadow-[8px_8px_0px_var(--shadow-color)]",
-              isBottom ? "inset-x-0 bottom-0 rounded-t-lg" : "inset-y-0 right-0 w-[min(420px,92vw)] rounded-l-lg",
+              "glass-card fixed flex flex-col border border-border/80 bg-surface/95 shadow-2xl backdrop-blur-xl",
+              isBottom ? "inset-x-0 bottom-0 rounded-t-3xl max-h-[85vh]" : "inset-y-0 right-0 w-[min(420px,92vw)] rounded-l-3xl",
               className,
             )}
             initial={isBottom ? { y: "100%" } : { x: "100%" }}
             animate={isBottom ? { y: 0 } : { x: 0 }}
             exit={isBottom ? { y: "100%" } : { x: "100%" }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
+            transition={{ type: "spring", damping: 30, stiffness: 350 }}
           >
-            <div className="flex items-center justify-between gap-4 border-b-2 border-border px-5 py-3.5 bg-surface-2">
-              {title && <h2 className="text-[16px] font-black tracking-tight text-fg">{title}</h2>}
+            <div className="flex items-center justify-between border-b border-border/70 px-5 py-4">
+              {title ? <h2 className="text-base font-bold tracking-tight text-fg">{title}</h2> : <span />}
               <button
                 onClick={onClose}
                 aria-label="Tutup"
-                className="rounded-md border-2 border-border bg-surface p-1 text-fg transition-colors hover:bg-discount hover:text-white"
+                className="rounded-full p-1.5 text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg active:scale-95"
               >
-                <X size={16} strokeWidth={2.5} />
+                <X size={18} strokeWidth={2} />
               </button>
             </div>
-            <div className="overflow-y-auto p-5">{children}</div>
+            <div className="flex-1 overflow-y-auto p-5">{children}</div>
           </motion.div>
         </div>
       )}

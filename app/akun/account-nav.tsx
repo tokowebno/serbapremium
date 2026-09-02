@@ -29,14 +29,14 @@ export function AccountNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex shrink-0 items-center gap-2.5 rounded-md border-2 px-3.5 py-2.5 text-sm font-bold transition-all duration-100 lg:w-full",
+              "flex shrink-0 items-center gap-2.5 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 lg:w-full",
               active
-                ? "border-border bg-accent text-black shadow-[3px_3px_0px_var(--shadow-color)]"
-                : "border-transparent text-fg-muted hover:border-border hover:bg-surface hover:text-fg hover:shadow-[2px_2px_0px_var(--shadow-color)]",
+                ? "bg-accent text-accent-fg shadow-sm font-semibold"
+                : "text-fg-muted hover:bg-surface hover:text-fg",
             )}
             aria-current={active ? "page" : undefined}
           >
-            <item.icon size={16} strokeWidth={2.5} />
+            <item.icon size={16} strokeWidth={2} />
             {item.label}
           </Link>
         );

@@ -23,13 +23,13 @@ export default function PengaturanPage() {
   return (
     <div className="max-w-xl space-y-6">
       <form
-        className="space-y-4 rounded-lg border-2 border-border bg-surface p-6 shadow-[4px_4px_0px_var(--shadow-color)]"
+        className="glass-card space-y-4 rounded-2xl border border-border/80 bg-surface/90 p-6 shadow-sm backdrop-blur-md"
         onSubmit={(e) => {
           e.preventDefault();
           toast.push({ title: "Profil diperbarui" });
         }}
       >
-        <h2 className="text-sm font-black uppercase text-fg">Informasi Pribadi</h2>
+        <h2 className="text-base font-bold text-fg">Informasi Pribadi</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Nama Lengkap" htmlFor="nama">
             <Input id="nama" defaultValue={user?.name ?? ""} />
@@ -41,38 +41,41 @@ export default function PengaturanPage() {
         <Field label="Kata Sandi Baru" hint="Kosongkan jika tidak ingin mengubah." htmlFor="sandi">
           <Input id="sandi" type="password" placeholder="••••••••" />
         </Field>
-        <Button type="submit">Simpan Perubahan</Button>
+        <Button type="submit" className="rounded-full">Simpan Perubahan</Button>
       </form>
 
-      <div className="space-y-4 rounded-lg border-2 border-border bg-surface p-6 shadow-[4px_4px_0px_var(--shadow-color)]">
-        <h2 className="text-sm font-black uppercase text-fg">Notifikasi Akun</h2>
-        <div className="flex items-center justify-between gap-4 border-b-2 border-border pb-3">
+      <div className="glass-card space-y-4 rounded-2xl border border-border/80 bg-surface/90 p-6 shadow-sm backdrop-blur-md">
+        <h2 className="text-base font-bold text-fg">Notifikasi Akun</h2>
+        <div className="flex items-center justify-between gap-4 border-b border-border/70 pb-3">
           <div>
-            <p className="text-sm font-bold text-fg">Promo dan penawaran</p>
-            <p className="text-xs font-medium text-fg-muted">Kabar diskon dan voucher aplikasi.</p>
+            <p className="text-sm font-semibold text-fg">Promo dan penawaran</p>
+            <p className="text-xs font-normal text-fg-muted">Kabar diskon dan voucher aplikasi.</p>
           </div>
           <Switch checked={notif.promo} onChange={(v) => setNotif((s) => ({ ...s, promo: v }))} label="Promo dan penawaran" />
         </div>
-        <div className="flex items-center justify-between gap-4 border-b-2 border-border pb-3">
+        <div className="flex items-center justify-between gap-4 border-b border-border/70 pb-3">
           <div>
-            <p className="text-sm font-bold text-fg">Pembaruan lisensi</p>
-            <p className="text-xs font-medium text-fg-muted">Info update versi untuk aplikasi di koleksi Anda.</p>
+            <p className="text-sm font-semibold text-fg">Pembaruan lisensi</p>
+            <p className="text-xs font-normal text-fg-muted">Info update versi untuk aplikasi di koleksi Anda.</p>
           </div>
-          <Switch checked={notif.update} onChange={(v) => setNotif((s) => ({ ...s, update: v }))} label="Pembaruan aplikasi" />
+          <Switch checked={notif.update} onChange={(v) => setNotif((s) => ({ ...s, update: v }))} label="Pembaruan lisensi" />
         </div>
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-bold text-fg">Status pesanan</p>
-            <p className="text-xs font-medium text-fg-muted">Notifikasi saat pesanan diproses dan selesai.</p>
+            <p className="text-sm font-semibold text-fg">Status pesanan</p>
+            <p className="text-xs font-normal text-fg-muted">Notifikasi saat verifikasi pembayaran berhasil.</p>
           </div>
           <Switch checked={notif.pesanan} onChange={(v) => setNotif((s) => ({ ...s, pesanan: v }))} label="Status pesanan" />
         </div>
       </div>
 
-      <div className="flex justify-end">
-        <Button variant="danger" onClick={handleLogout}>
-          <LogOut size={15} strokeWidth={2.5} />
-          Keluar dari Akun
+      <div className="glass-card flex items-center justify-between rounded-2xl border border-rose-500/20 bg-rose-500/5 p-6 shadow-sm backdrop-blur-md">
+        <div>
+          <p className="text-sm font-semibold text-fg">Keluar Akun</p>
+          <p className="text-xs font-normal text-fg-muted">Keluar dari sesi akun Anda di browser ini.</p>
+        </div>
+        <Button variant="danger" size="sm" onClick={handleLogout} className="rounded-full">
+          <LogOut size={14} /> Keluar
         </Button>
       </div>
     </div>

@@ -16,7 +16,6 @@ interface LastOrder {
   total: number;
 }
 
-// Snapshot di-cache agar referensi stabil — syarat useSyncExternalStore.
 let cachedRaw: string | null = null;
 let cachedOrder: LastOrder | null = null;
 
@@ -63,16 +62,16 @@ export default function OrderSuccessPage() {
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full max-w-md rounded-xl border-2 border-border bg-surface p-8 shadow-[5px_5px_0px_var(--shadow-color)]"
+        className="glass-card w-full max-w-md rounded-2xl border border-border/80 bg-surface/90 p-6 sm:p-8 shadow-sm backdrop-blur-md"
       >
         <div className="flex flex-col items-center text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-border bg-accent-yellow shadow-[2px_2px_0px_var(--shadow-color)]">
-            <Clock size={28} className="text-black" strokeWidth={2.5} />
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20">
+            <Clock size={28} strokeWidth={2} />
           </span>
-          <h1 className="mt-4 text-2xl font-black tracking-tight text-fg">
+          <h1 className="mt-4 text-xl sm:text-2xl font-bold tracking-tight text-fg">
             {lang === "en" ? "Payment is being processed." : lang === "zh" ? "支付正在处理中。" : "Pembayaran sedang diproses."}
           </h1>
-          <p className="mt-1.5 text-xs font-bold leading-relaxed text-fg-muted">
+          <p className="mt-1.5 text-xs sm:text-sm font-normal leading-relaxed text-fg-muted">
             {lang === "en"
               ? "Thank you! We are verifying your payment. Apps will appear in your collection once verified."
               : lang === "zh"
@@ -81,39 +80,39 @@ export default function OrderSuccessPage() {
           </p>
         </div>
 
-        <dl className="mt-6 divide-y divide-border rounded-lg border-2 border-border bg-surface-2 px-4 text-sm shadow-[2px_2px_0px_var(--shadow-color)]">
+        <dl className="mt-6 divide-y divide-border/60 rounded-xl border border-border/70 bg-surface-2/70 px-4 text-sm">
           <div className="flex items-center justify-between gap-4 py-3">
-            <dt className="text-xs font-black uppercase text-fg-muted">{lang === "en" ? "Order Number" : lang === "zh" ? "订单编号" : "Nomor Pesanan"}</dt>
-            <dd className="font-mono font-black tabular-nums text-fg">{order.id}</dd>
+            <dt className="text-xs font-medium uppercase text-fg-muted">{lang === "en" ? "Order Number" : lang === "zh" ? "订单编号" : "Nomor Pesanan"}</dt>
+            <dd className="font-mono font-bold tabular-nums text-fg">{order.id}</dd>
           </div>
           <div className="flex items-center justify-between gap-4 py-3">
-            <dt className="text-xs font-black uppercase text-fg-muted">{lang === "en" ? "Date" : lang === "zh" ? "日期" : "Tanggal"}</dt>
-            <dd className="text-xs font-bold tabular-nums text-fg">{formatDate(order.date)}</dd>
+            <dt className="text-xs font-medium uppercase text-fg-muted">{lang === "en" ? "Date" : lang === "zh" ? "日期" : "Tanggal"}</dt>
+            <dd className="text-xs font-normal tabular-nums text-fg-muted">{formatDate(order.date)}</dd>
           </div>
           <div className="flex items-center justify-between gap-4 py-3">
-            <dt className="text-xs font-black uppercase text-fg-muted">{lang === "en" ? "Total" : lang === "zh" ? "总额" : "Total"}</dt>
-            <dd className="font-black tabular-nums text-fg">{formatPrice(order.total, lang)}</dd>
+            <dt className="text-xs font-medium uppercase text-fg-muted">{lang === "en" ? "Total" : lang === "zh" ? "总额" : "Total"}</dt>
+            <dd className="font-bold tabular-nums text-accent">{formatPrice(order.total, lang)}</dd>
           </div>
         </dl>
 
-        <ul className="mt-4 divide-y divide-border rounded-lg border-2 border-border px-4 text-sm bg-surface">
+        <ul className="mt-4 divide-y divide-border/60 rounded-xl border border-border/70 px-4 text-sm bg-surface/80">
           {order.items.map((item) => (
             <li key={item.name + item.platform} className="flex items-center justify-between gap-3 py-3">
-              <span className="font-black text-xs text-fg">{item.name}</span>
-              <span className="rounded-xs border border-border bg-surface-2 px-1.5 py-0.2 text-[10px] font-bold text-fg-muted">{item.platform}</span>
+              <span className="font-semibold text-xs sm:text-sm text-fg">{item.name}</span>
+              <span className="rounded-md bg-surface-2 px-2 py-0.5 text-[10px] font-medium text-fg-muted ring-1 ring-border/50">{item.platform}</span>
             </li>
           ))}
         </ul>
 
-        {/* Action Buttons: Cek Status Pesanan & Buka Koleksi */}
-        <div className="mt-6 flex flex-col gap-3">
-          <ButtonLink href={`/cek-pesanan?id=${order.id}`} size="lg" className="w-full">
-            <Search size={16} strokeWidth={2.8} /> {lang === "en" ? "Check Order Status" : lang === "zh" ? "查询订单状态" : "Cek Status Pesanan"}
+        {/* Action Buttons */}
+        <div className="mt-6 flex flex-col gap-2.5">
+          <ButtonLink href={`/cek-pesanan?id=${order.id}`} size="lg" className="w-full rounded-full">
+            <Search size={16} strokeWidth={2} /> {lang === "en" ? "Check Order Status" : lang === "zh" ? "查询订单状态" : "Cek Status Pesanan"}
           </ButtonLink>
-          <ButtonLink href="/akun/koleksi" variant="secondary" size="lg" className="w-full">
-            <Library size={16} strokeWidth={2.5} /> {lang === "en" ? "Open My Collection" : lang === "zh" ? "打开我的收藏" : "Buka Koleksi Saya"}
+          <ButtonLink href="/akun/koleksi" variant="secondary" size="lg" className="w-full rounded-full">
+            <Library size={16} strokeWidth={2} /> {lang === "en" ? "Open My Collection" : lang === "zh" ? "打开我的收藏" : "Buka Koleksi Saya"}
           </ButtonLink>
-          <ButtonLink href="/aplikasi" variant="ghost" size="sm" className="w-full text-xs font-bold text-fg-muted hover:text-fg">
+          <ButtonLink href="/aplikasi" variant="ghost" size="sm" className="w-full text-xs font-medium text-fg-muted hover:text-fg">
             <ShoppingBag size={14} /> {lang === "en" ? "Continue Shopping" : lang === "zh" ? "继续选购" : "Lanjut Belanja"}
           </ButtonLink>
         </div>

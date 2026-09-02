@@ -49,29 +49,32 @@ export function CategoryCard({
     <Link
       href={`/kategori/${category.slug}`}
       className={cn(
-        "group flex flex-col justify-between rounded-lg border-2 border-border bg-surface p-5 shadow-[4px_4px_0px_var(--shadow-color)] transition-all duration-150 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[7px_7px_0px_var(--shadow-color)]",
+        "group flex flex-col justify-between rounded-2xl border border-border/80 bg-surface/90 p-5 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-accent/40 hover:shadow-xl hover:-translate-y-1",
         className,
       )}
     >
       <div className="flex items-start justify-between">
-        <span className="flex h-12 w-12 items-center justify-center rounded-md border-2 border-border bg-accent-yellow text-black shadow-[2px_2px_0px_var(--shadow-color)] transition-transform duration-100 group-hover:scale-105">
-          <Icon size={22} strokeWidth={2.5} />
+        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-soft text-accent ring-1 ring-accent/20 transition-transform duration-200 group-hover:scale-105">
+          <Icon size={20} strokeWidth={2} />
         </span>
-        <span className="flex h-7 w-7 items-center justify-center rounded-xs border border-border bg-surface-2 opacity-0 transition-opacity duration-100 group-hover:opacity-100">
-          <ArrowUpRight size={15} strokeWidth={2.5} className="text-fg" />
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-surface-2 text-fg-muted opacity-0 transition-all duration-200 group-hover:opacity-100 group-hover:scale-105">
+          <ArrowUpRight size={15} strokeWidth={2} />
         </span>
       </div>
-      <div className="mt-6">
-        <h3 className="text-[17px] font-black tracking-tight text-fg group-hover:text-accent-blue dark:group-hover:text-accent">
+
+      <div className="mt-4">
+        <h3 className="text-[15px] font-semibold tracking-tight text-fg group-hover:text-accent transition-colors">
           {localized.name}
         </h3>
-        {count != null && (
-          <p className="mt-1 text-xs font-bold text-fg-muted">
-            <span className="rounded-xs border border-border bg-surface-2 px-1.5 py-0.2 text-fg tabular-nums">
-              {count}
-            </span>{" "}
-            {t.navbar?.apps ? t.navbar.apps.toLowerCase() : "aplikasi"}
+        {localized.description && (
+          <p className="mt-1 line-clamp-2 text-xs font-normal text-fg-muted">
+            {localized.description}
           </p>
+        )}
+        {count !== undefined && (
+          <span className="mt-3 inline-block rounded-full bg-surface-2 px-2.5 py-0.5 text-[11px] font-medium text-fg-muted">
+            {count} {t.filter?.appsCount || "aplikasi"}
+          </span>
         )}
       </div>
     </Link>

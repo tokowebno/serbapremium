@@ -15,18 +15,21 @@ export function Hero() {
   const apps = api.apps.featured().slice(0, 4);
 
   return (
-    <section className="relative overflow-hidden pt-24 pb-10 sm:pt-36 sm:pb-24">
+    <section className="relative overflow-hidden pt-24 pb-12 sm:pt-36 sm:pb-24">
+      {/* Ambient background glow orbs */}
+      <div className="pointer-events-none absolute inset-0 -z-10 ambient-bg opacity-70" />
+
       <div className="tk-container relative">
         <div className="mx-auto max-w-3xl text-center">
-          {/* Brutalist Tag */}
+          {/* Subtle Tag */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="mx-auto mb-3 sm:mb-5 w-fit"
+            transition={{ duration: 0.4 }}
+            className="mx-auto mb-4 sm:mb-6 w-fit"
           >
-            <span className="inline-flex items-center gap-1.5 sm:gap-2 rounded-xs sm:rounded-sm border-1.5 sm:border-2 border-border bg-accent-yellow px-2.5 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-black tracking-wider text-black uppercase shadow-[1.5px_1.5px_0px_var(--shadow-color)] sm:shadow-[2px_2px_0px_var(--shadow-color)]">
-              <Zap size={12} className="fill-current text-black sm:scale-125" />
+            <span className="mat-func inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3.5 py-1 text-xs font-semibold tracking-wide text-fg-muted shadow-sm">
+              <Zap size={13} className="text-accent" />
               {t.hero.badge || "SERBAPREMIUM · LISENSI DIGITAL RESMI"}
             </span>
           </motion.div>
@@ -35,21 +38,18 @@ export function Hero() {
           <motion.h1
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0.05 }}
-            className="text-[26px] sm:text-[46px] md:text-[60px] leading-[1.12] font-black tracking-tight text-fg"
+            transition={{ duration: 0.45, delay: 0.05 }}
+            className="text-[32px] sm:text-[50px] md:text-[62px] leading-[1.1] font-extrabold tracking-tight text-fg"
           >
             {t.hero.title1} <br className="hidden sm:inline" />
-            <span className="bg-accent px-1.5 sm:px-2 py-0.5 text-black border-1.5 sm:border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] sm:shadow-[3px_3px_0px_var(--shadow-color)] inline-block my-1">
-              {t.product.buyOnce}
-            </span>
-            , {t.hero.title2}
+            <span className="text-accent">{t.product.buyOnce}</span>, {t.hero.title2}
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0.1 }}
-            className="mx-auto mt-3 sm:mt-6 max-w-xl text-[13.5px] sm:text-[17px] font-medium leading-relaxed text-fg-muted px-2"
+            transition={{ duration: 0.45, delay: 0.1 }}
+            className="mx-auto mt-4 sm:mt-6 max-w-xl text-[14.5px] sm:text-[17px] font-normal leading-relaxed text-fg-muted px-2"
           >
             {t.hero.desc}
           </motion.p>
@@ -57,13 +57,13 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0.15 }}
-            className="mt-5 sm:mt-8 flex items-center justify-center gap-2.5 sm:gap-4 max-w-sm sm:max-w-none mx-auto"
+            transition={{ duration: 0.45, delay: 0.15 }}
+            className="mt-6 sm:mt-8 flex items-center justify-center gap-3 sm:gap-4 max-w-sm sm:max-w-none mx-auto"
           >
-            <ButtonLink href="/aplikasi" size="md" className="flex-1 sm:flex-none justify-center">
-              {t.hero.exploreBtn} <ArrowRight size={15} strokeWidth={2.5} />
+            <ButtonLink href="/aplikasi" size="lg" className="flex-1 sm:flex-none justify-center px-7 shadow-[var(--elev-2)]">
+              {t.hero.exploreBtn} <ArrowRight size={16} strokeWidth={2.5} />
             </ButtonLink>
-            <ButtonLink href="/promo" size="md" variant="glass" className="flex-1 sm:flex-none justify-center">
+            <ButtonLink href="/promo" size="lg" variant="secondary" className="flex-1 sm:flex-none justify-center px-7">
               {t.hero.promoBtn} 🔥
             </ButtonLink>
           </motion.div>
@@ -72,25 +72,25 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            className="mt-5 sm:mt-8 flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-[10px] sm:text-xs font-bold text-fg-muted"
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mt-6 sm:mt-9 flex flex-wrap items-center justify-center gap-2.5 sm:gap-4 text-xs font-medium text-fg-muted"
           >
-            <span className="inline-flex items-center gap-1 sm:gap-1.5 rounded-xs border border-border bg-surface px-2 sm:px-2.5 py-0.5 sm:py-1 shadow-[1px_1px_0px_var(--shadow-color)]">
-              <ShieldCheck size={12} className="text-success sm:scale-125" strokeWidth={2.5} /> {t.footer.warranty}
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-surface/70 border border-border/80 px-3 py-1 shadow-sm backdrop-blur-sm">
+              <ShieldCheck size={14} className="text-emerald-500" strokeWidth={2} /> {t.footer.warranty}
             </span>
-            <span className="inline-flex items-center gap-1 sm:gap-1.5 rounded-xs border border-border bg-surface px-2 sm:px-2.5 py-0.5 sm:py-1 shadow-[1px_1px_0px_var(--shadow-color)]">
-              <Sparkles size={12} className="text-warning sm:scale-125" strokeWidth={2.5} /> {t.footer.instantActivation}
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-surface/70 border border-border/80 px-3 py-1 shadow-sm backdrop-blur-sm">
+              <Sparkles size={14} className="text-amber-500" strokeWidth={2} /> {t.footer.instantActivation}
             </span>
           </motion.div>
         </div>
 
-        {/* Floating Brutalist Shelf */}
-        <div className="relative mx-auto mt-8 sm:mt-14 max-w-4xl">
+        {/* Floating Liquid Glass Shelf */}
+        <div className="relative mx-auto mt-10 sm:mt-16 max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.25 }}
-            className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center sm:justify-center gap-2 sm:gap-4"
+            transition={{ duration: 0.5, delay: 0.25 }}
+            className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center sm:justify-center gap-3 sm:gap-4"
           >
             {apps.map((app) => {
               const localized = getLocalizedApp(app, lang);
@@ -98,16 +98,16 @@ export function Hero() {
                 <a
                   key={app.id}
                   href={`/aplikasi/${app.slug}`}
-                  className="group flex items-center gap-2 sm:gap-3 rounded-md border-1.5 sm:border-2 border-border bg-surface p-2 sm:p-3 sm:pr-5 shadow-[2px_2px_0px_var(--shadow-color)] sm:shadow-[3px_3px_0px_var(--shadow-color)] transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_var(--shadow-color)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                  className="group flex items-center gap-2.5 sm:gap-3.5 rounded-2xl border border-border/70 bg-surface/80 p-2.5 sm:p-3 sm:pr-5 shadow-sm backdrop-blur-md transition-all duration-300 hover:border-accent/40 hover:shadow-lg hover:-translate-y-1"
                 >
-                  <AppIcon icon={app.icon} size="sm" className="shrink-0" />
+                  <AppIcon icon={app.icon} size="sm" className="shrink-0 group-hover:scale-105 transition-transform duration-200" />
                   <div className="text-left min-w-0 flex-1">
-                    <p className="text-[11.5px] sm:text-[14px] leading-tight font-black text-fg truncate group-hover:text-accent-blue dark:group-hover:text-accent">
+                    <p className="text-[12.5px] sm:text-[14px] leading-tight font-semibold text-fg truncate group-hover:text-accent transition-colors">
                       {localized.name}
                     </p>
                     <div className="mt-0.5 sm:mt-1 flex items-center justify-between sm:justify-start gap-1 sm:gap-2">
                       <Rating value={app.rating} showValue={false} size={10} />
-                      <span className="text-[10px] sm:text-xs font-bold tabular-nums text-fg">{formatPrice(app.price, lang)}</span>
+                      <span className="text-[11px] sm:text-xs font-semibold tabular-nums text-fg-muted">{formatPrice(app.price, lang)}</span>
                     </div>
                   </div>
                 </a>

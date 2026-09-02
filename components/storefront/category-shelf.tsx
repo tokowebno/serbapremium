@@ -19,13 +19,13 @@ export function CategoryShelf({ className }: { className?: string }) {
           <Link
             key={c.id}
             href={`/kategori/${c.slug}`}
-            className="group flex shrink-0 items-center gap-2.5 rounded-md border-2 border-border bg-surface px-3.5 py-2 text-fg shadow-[2px_2px_0px_var(--shadow-color)] transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-accent-yellow hover:text-black hover:shadow-[4px_4px_0px_var(--shadow-color)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+            className="group flex shrink-0 items-center gap-2.5 rounded-full border border-border/80 bg-surface/80 px-4 py-2 text-fg shadow-sm backdrop-blur-sm transition-all duration-200 hover:border-accent/40 hover:bg-surface hover:shadow-md hover:-translate-y-0.5 active:scale-95"
           >
-            <span className="flex h-6 w-6 items-center justify-center rounded-xs border border-border bg-surface-2 group-hover:bg-black group-hover:text-yellow-300">
-              <Icon size={14} strokeWidth={2.5} />
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent-soft text-accent">
+              <Icon size={13} strokeWidth={2} />
             </span>
-            <span className="text-[13.5px] font-bold whitespace-nowrap">{localized.name}</span>
-            <span className="rounded-xs border border-border bg-surface-2 px-1 py-0.2 text-[10px] font-black tabular-nums text-fg group-hover:bg-black group-hover:text-white">
+            <span className="text-[13px] font-medium whitespace-nowrap">{localized.name}</span>
+            <span className="rounded-full bg-surface-2 px-2 py-0.2 text-[10px] font-semibold tabular-nums text-fg-muted">
               {c.count}
             </span>
           </Link>

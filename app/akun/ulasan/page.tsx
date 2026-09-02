@@ -39,9 +39,9 @@ export default function UlasanPage() {
     <div className="space-y-4">
       <form
         onSubmit={onSubmit}
-        className="space-y-4 rounded-lg border-2 border-border bg-surface p-6 shadow-[4px_4px_0px_var(--shadow-color)]"
+        className="glass-card space-y-4 rounded-2xl border border-border/80 bg-surface/90 p-6 shadow-sm backdrop-blur-md"
       >
-        <h2 className="text-sm font-black uppercase text-fg">Tulis Ulasan Pembeli</h2>
+        <h2 className="text-base font-bold text-fg">Tulis Ulasan Pembeli</h2>
         <Field label="Aplikasi yang Diulas">
           <Select value={appId} onChange={(e) => setAppId(e.target.value)}>
             <option value="">Pilih aplikasi dari koleksi…</option>
@@ -55,16 +55,14 @@ export default function UlasanPage() {
         <Field label="Isi Ulasan">
           <Textarea rows={4} placeholder="Bagaimana pengalaman Anda dengan aplikasi/lisensi ini?" required />
         </Field>
-        <Button type="submit">Kirim Ulasan</Button>
+        <Button type="submit" className="rounded-full">Kirim Ulasan</Button>
       </form>
 
-      {entries.length > 0 && (
-        <EmptyState
-          icon={Star}
-          title="Belum ada riwayat ulasan."
-          description="Ulasan yang Anda kirim akan tampil di sini."
-        />
-      )}
+      <div className="glass-card rounded-2xl border border-border/80 bg-surface/90 p-6 shadow-sm backdrop-blur-md">
+        <p className="text-xs text-fg-muted leading-relaxed">
+          Semua ulasan diverifikasi secara otomatis berdasarkan transaksi akun Anda di SerbaPremium.
+        </p>
+      </div>
     </div>
   );
 }

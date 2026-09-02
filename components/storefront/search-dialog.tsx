@@ -60,34 +60,34 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
     queueMicrotask(() => setResults(api.apps.search(q.trim())));
   }, [q, open]);
 
-  const commitSearch = (term: string) => {
-    const next = [term, ...recent.filter((r) => r !== term)].slice(0, 5);
-    setRecent(next);
+  const saveRecent = (term: string) => {
     try {
+      const next = [term, ...recent.filter((r) => r.toLowerCase() !== term.toLowerCase())].slice(0, 5);
+      setRecent(next);
       localStorage.setItem(RECENT_KEY, JSON.stringify(next));
     } catch {
-      /* ignore */
+      /* localStorage not available */
     }
   };
 
   const goToResults = (term: string) => {
-    commitSearch(term);
+    saveRecent(term);
     onClose();
     router.push(`/aplikasi?q=${encodeURIComponent(term)}`);
   };
 
-  const popularCats = api.categories.list().slice(0, 5);
+  const popularCats = api.categories.withCount().slice(0, 4);
 
   return (
     <AnimatePresence>
       {open && (
         <div className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-[12vh]">
           <motion.div
-            className="absolute inset-0 bg-overlay"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            transition={{ duration: 0.2 }}
             onClick={onClose}
             aria-hidden="true"
           />
@@ -95,14 +95,14 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
             role="dialog"
             aria-modal="true"
             aria-label={t.navbar?.search || "Pencarian"}
-            className="relative w-full max-w-xl overflow-hidden rounded-lg border-2 border-border bg-surface shadow-[8px_8px_0px_var(--shadow-color)]"
+            className="glass-card relative w-full max-w-xl overflow-hidden rounded-2xl border border-border/80 bg-surface/95 shadow-2xl backdrop-blur-xl"
             initial={{ opacity: 0, y: -10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.98 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
           >
-            <div className="flex items-center gap-3 border-b-2 border-border bg-surface-2 px-5 py-3.5">
-              <Search size={18} strokeWidth={2.5} className="shrink-0 text-fg" />
+            <div className="flex items-center gap-3 border-b border-border/70 bg-surface-2/70 px-5 py-4">
+              <Search size={18} className="shrink-0 text-fg-muted" strokeWidth={2} />
               <input
                 ref={inputRef}
                 value={q}
@@ -111,13 +111,13 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                   if (e.key === "Enter" && q.trim()) goToResults(q.trim());
                 }}
                 placeholder={lang === "en" ? "Search applications, premium accounts, AI tools…" : lang === "zh" ? "搜索应用、高级会员、AI 生产力工具…" : "Cari aplikasi, akun premium, tools AI…"}
-                className="w-full bg-transparent text-[15px] font-bold text-fg outline-none placeholder:text-fg-faint"
+                className="w-full bg-transparent text-[15px] font-medium text-fg outline-none placeholder:text-fg-faint"
                 aria-label="Kata kunci pencarian"
               />
               <button
                 onClick={onClose}
                 aria-label="Tutup pencarian"
-                className="rounded-xs border border-border bg-surface px-1.5 py-0.2 text-[11px] font-black text-fg shadow-[1px_1px_0px_var(--shadow-color)]"
+                className="rounded-md bg-surface px-2 py-0.5 text-[11px] font-mono text-fg-faint ring-1 ring-border"
               >
                 ESC
               </button>
@@ -128,7 +128,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                 <div className="p-2">
                   {recent.length > 0 && (
                     <div className="mb-5">
-                      <p className="mb-2 text-xs font-black tracking-wider text-fg-muted uppercase">
+                      <p className="mb-2 text-xs font-semibold tracking-wide text-fg-muted uppercase">
                         {lang === "en" ? "Recent Searches" : lang === "zh" ? "最近搜索" : "Pencarian terbaru"}
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -136,7 +136,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                           <button
                             key={r}
                             onClick={() => setQ(r)}
-                            className="rounded-xs border-2 border-border bg-surface px-3 py-1 text-xs font-bold text-fg shadow-[1.5px_1.5px_0px_var(--shadow-color)] transition-all hover:bg-accent-yellow hover:text-black hover:-translate-x-0.5 hover:-translate-y-0.5"
+                            className="rounded-full bg-surface-2 px-3 py-1 text-xs font-medium text-fg ring-1 ring-border/50 transition-colors hover:bg-surface-3"
                           >
                             {r}
                           </button>
@@ -144,7 +144,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                       </div>
                     </div>
                   )}
-                  <p className="mb-2 text-xs font-black tracking-wider text-fg-muted uppercase">
+                  <p className="mb-2 text-xs font-semibold tracking-wide text-fg-muted uppercase">
                     {lang === "en" ? "Popular Categories" : lang === "zh" ? "热门分类" : "Kategori populer"}
                   </p>
                   <div className="grid gap-1.5">
@@ -156,25 +156,25 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                           key={cat.id}
                           href={`/kategori/${cat.slug}`}
                           onClick={onClose}
-                          className="flex items-center gap-3 rounded-md border-2 border-transparent p-2 transition-all hover:border-border hover:bg-surface-2 hover:shadow-[2px_2px_0px_var(--shadow-color)]"
+                          className="flex items-center gap-3 rounded-xl p-2.5 transition-colors hover:bg-surface-2"
                         >
-                          <span className="flex h-8 w-8 items-center justify-center rounded-xs border-2 border-border bg-accent-yellow text-black shadow-[1px_1px_0px_var(--shadow-color)]">
-                            <Icon size={15} strokeWidth={2.5} />
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-soft text-accent">
+                            <Icon size={16} strokeWidth={2} />
                           </span>
-                          <span className="text-sm font-bold text-fg">{localized.name}</span>
-                          <ArrowRight size={14} strokeWidth={2.5} className="ml-auto text-fg-muted" />
+                          <span className="text-sm font-medium text-fg">{localized.name}</span>
+                          <ArrowRight size={14} className="ml-auto text-fg-faint" />
                         </Link>
                       );
                     })}
                   </div>
                 </div>
               ) : results.length === 0 ? (
-                <p className="px-6 py-10 text-center text-sm font-bold text-fg-muted">
+                <p className="px-6 py-10 text-center text-sm font-medium text-fg-muted">
                   {lang === "en" ? `No results found for "${q}".` : lang === "zh" ? `未找到与 “${q}” 相关的产品。` : `Tidak ada hasil untuk "${q}".`}
                 </p>
               ) : (
                 <div className="space-y-1">
-                  <p className="px-2 py-1 text-xs font-black tracking-wider text-fg-muted uppercase">
+                  <p className="px-2 py-1 text-xs font-semibold tracking-wide text-fg-muted uppercase">
                     {results.length} {lang === "en" ? "results found" : lang === "zh" ? "条匹配结果" : "hasil ditemukan"}
                   </p>
                   {results.map((rawApp) => {
@@ -184,17 +184,17 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                         key={app.id}
                         href={`/aplikasi/${app.slug}`}
                         onClick={() => {
-                          commitSearch(q.trim());
+                          saveRecent(app.name);
                           onClose();
                         }}
-                        className="flex items-center gap-3 rounded-md border-2 border-transparent p-2.5 transition-all hover:border-border hover:bg-surface-2 hover:shadow-[2px_2px_0px_var(--shadow-color)]"
+                        className="flex items-center gap-3 rounded-xl p-2.5 transition-colors hover:bg-surface-2"
                       >
                         <AppIcon icon={app.icon} size="sm" />
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-black text-fg">{app.name}</p>
-                          <p className="truncate text-[13px] font-medium text-fg-muted">{app.tagline}</p>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold text-fg">{app.name}</p>
+                          <p className="truncate text-xs font-normal text-fg-muted">{app.tagline}</p>
                         </div>
-                        <span className="ml-auto shrink-0 text-sm font-black tabular-nums text-fg">
+                        <span className="shrink-0 text-sm font-semibold tabular-nums text-fg">
                           {formatPrice(app.price, lang)}
                         </span>
                       </Link>
@@ -203,6 +203,18 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                 </div>
               )}
             </div>
+
+            {q.trim() && (
+              <div className="border-t border-border/70 bg-surface-2/60 px-5 py-3 text-right">
+                <button
+                  onClick={() => goToResults(q.trim())}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline"
+                >
+                  {lang === "en" ? `View all results for "${q}"` : lang === "zh" ? `查看 “${q}” 的全部结果` : `Lihat semua hasil untuk "${q}"`}
+                  <ArrowRight size={13} strokeWidth={2} />
+                </button>
+              </div>
+            )}
           </motion.div>
         </div>
       )}

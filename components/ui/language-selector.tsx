@@ -57,11 +57,11 @@ export function LanguageSelector() {
       {isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <motion.div
-            className="absolute inset-0 bg-overlay backdrop-blur-xs"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            transition={{ duration: 0.2 }}
             onClick={handleClose}
             aria-hidden="true"
           />
@@ -70,28 +70,28 @@ export function LanguageSelector() {
             role="dialog"
             aria-modal="true"
             aria-label="Pilih Bahasa / Select Language"
-            className="relative w-full max-w-md rounded-xl border-2 border-border bg-surface p-6 shadow-[8px_8px_0px_var(--shadow-color)] sm:p-7"
+            className="glass-card relative w-full max-w-md rounded-2xl border border-border/80 bg-surface/95 p-6 shadow-2xl backdrop-blur-xl sm:p-7"
             initial={{ opacity: 0, scale: 0.94, y: 14 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 14 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
           >
-            <div className="flex items-start justify-between border-b-2 border-border pb-4">
+            <div className="flex items-start justify-between border-b border-border/70 pb-4">
               <div className="flex items-center gap-2.5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-sm border-2 border-border bg-accent-yellow text-black shadow-[1.5px_1.5px_0px_var(--shadow-color)]">
-                  <Globe size={18} strokeWidth={2.5} />
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-soft text-accent ring-1 ring-accent/20">
+                  <Globe size={18} strokeWidth={2} />
                 </span>
                 <div>
-                  <h2 className="text-lg font-black tracking-tight text-fg">Pilih Bahasa / Language</h2>
-                  <p className="text-xs font-bold text-fg-muted">Select your language & preferred currency</p>
+                  <h2 className="text-base sm:text-lg font-bold tracking-tight text-fg">Pilih Bahasa / Language</h2>
+                  <p className="text-xs font-medium text-fg-muted">Select your language & preferred currency</p>
                 </div>
               </div>
               <button
                 onClick={handleClose}
                 aria-label="Tutup"
-                className="rounded-md border-2 border-border bg-surface-2 p-1.5 text-fg transition-colors hover:bg-discount hover:text-white shadow-[1px_1px_0px_var(--shadow-color)]"
+                className="rounded-full p-2 text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg active:scale-95"
               >
-                <X size={16} strokeWidth={2.5} />
+                <X size={16} strokeWidth={2} />
               </button>
             </div>
 
@@ -102,25 +102,36 @@ export function LanguageSelector() {
                   <button
                     key={lang.code}
                     onClick={() => selectLanguage(lang.code)}
-                    className={`flex w-full items-center justify-between gap-3 rounded-md border-2 border-border p-3.5 text-left shadow-[2px_2px_0px_var(--shadow-color)] transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_var(--shadow-color)] active:translate-x-0.5 active:translate-y-0.5 ${
-                      active ? "bg-accent text-black font-black" : "bg-surface text-fg hover:bg-surface-2"
+                    className={`flex w-full items-center justify-between rounded-xl border p-3.5 text-left transition-all duration-200 ${
+                      active
+                        ? "border-accent bg-accent/10 shadow-sm ring-1 ring-accent/30 text-fg"
+                        : "border-border/80 bg-surface/60 text-fg hover:border-accent/40 hover:bg-surface"
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl leading-none">{lang.flag}</span>
+                      <span className="text-2xl">{lang.flag}</span>
                       <div>
-                        <p className="text-sm font-black leading-tight">{lang.name}</p>
-                        <p className="text-xs font-semibold opacity-75">{lang.local}</p>
+                        <p className="text-sm font-semibold text-fg">{lang.name}</p>
+                        <p className="text-xs font-normal text-fg-muted">{lang.local}</p>
                       </div>
                     </div>
                     {active && (
-                      <span className="flex h-6 w-6 items-center justify-center rounded-xs border border-border bg-black text-white shadow-[1px_1px_0px_var(--shadow-color)]">
-                        <Check size={14} strokeWidth={3} />
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-accent-fg shadow-xs">
+                        <Check size={14} strokeWidth={2.5} />
                       </span>
                     )}
                   </button>
                 );
               })}
+            </div>
+
+            <div className="mt-6 flex justify-end border-t border-border/70 pt-4">
+              <button
+                onClick={handleClose}
+                className="rounded-full bg-surface-2 px-5 py-2 text-xs font-semibold text-fg transition-colors hover:bg-surface-3 active:scale-95"
+              >
+                Lanjutkan / Continue
+              </button>
             </div>
           </motion.div>
         </div>

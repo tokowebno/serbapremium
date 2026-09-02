@@ -20,7 +20,7 @@ export function Tabs({
     <div
       role="tablist"
       className={cn(
-        "flex gap-1.5 overflow-x-auto rounded-md border-2 border-border bg-surface-2 p-1.5 shadow-[2px_2px_0px_var(--shadow-color)] no-scrollbar",
+        "flex gap-1 overflow-x-auto rounded-full bg-surface-2/80 p-1 shadow-[inset_0_0_0_1px_var(--border)] backdrop-blur-md no-scrollbar",
         className,
       )}
     >
@@ -31,10 +31,10 @@ export function Tabs({
           aria-selected={active === t.id}
           onClick={() => onChange(t.id)}
           className={cn(
-            "rounded-sm px-3.5 py-1.5 text-[13px] font-bold whitespace-nowrap transition-all duration-100",
+            "rounded-full px-4 py-1.5 text-[13px] font-medium whitespace-nowrap transition-all duration-200",
             active === t.id
-              ? "border-2 border-border bg-accent text-accent-fg shadow-[2px_2px_0px_var(--shadow-color)]"
-              : "border-2 border-transparent text-fg-muted hover:border-border hover:bg-surface hover:text-fg",
+              ? "bg-surface text-fg shadow-sm ring-1 ring-border"
+              : "text-fg-muted hover:text-fg hover:bg-surface/50",
           )}
         >
           {t.label}

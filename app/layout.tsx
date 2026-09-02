@@ -8,13 +8,20 @@ import { syncFromSupabase } from "@/lib/data-cache";
 import { getServerTranslation } from "@/lib/i18n";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://serbapremium.id"),
+  metadataBase: new URL("https://serbapremium.my.id"),
   title: {
     default: "SerbaPremium — Marketplace Aplikasi & Lisensi Digital Premium",
     template: "%s · SerbaPremium",
   },
   description:
     "Temukan aplikasi dan lisensi digital premium untuk berbagai perangkat. Pembelian satu kali, tanpa biaya langganan.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     title: "SerbaPremium — Marketplace Aplikasi & Lisensi Digital Premium",
     description:

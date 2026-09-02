@@ -1,13 +1,14 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search, ShoppingBag, Library } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/form";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { supabase, supabaseReady } from "@/lib/supabase";
+import { api } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 import { useTranslation } from "@/components/storefront/i18n-provider";
 
@@ -37,24 +38,126 @@ export default function CekPesananPage() {
     setLoading(true);
     setNotFound(false);
     setResult(null);
+
+    // 1. Cek Supabase (jika terhubung)
+    if (supabaseReady) {
+      try {
+        const { data, error } = await supabase
+          .from("orders")
+          .select("*")
+          .ilike("id", id)
+          .maybeSingle();
+
+        if (!error && data) {
+          const items = Array.isArray(data.items)
+            ? data.items.map((it: any) => ({
+                name: it.name || it.appId || "Item Digital",
+                platform: it.platform || "Web",
+                price: Number(it.price) || 0,
+              }))
+            : [];
+
+          setResult({
+            id: data.id,
+            user_name: data.user_name || "Pelanggan",
+            items,
+            total: Number(data.total) || 0,
+            payment_status: data.payment_status || "menunggu",
+            order_status: data.order_status || "diproses",
+            date: data.date || new Date().toISOString().slice(0, 10),
+          });
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.warn("Supabase fetch order failed, using local fallback:", err);
+      }
+    }
+
+    // 2. Cek LocalStorage pesanan yang pernah dibuat di browser ini
     try {
-      if (!supabaseReady) throw new Error("db not ready");
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .eq("id", id)
-        .maybeSingle();
-      if (error) throw error;
-      if (data) {
-        setResult(data as unknown as OrderResult);
-      } else {
-        setNotFound(true);
+      const localRaw =
+        localStorage.getItem("serbapremium:orders") ||
+        localStorage.getItem("tokono:orders");
+      if (localRaw) {
+        const list = JSON.parse(localRaw);
+        if (Array.isArray(list)) {
+          const match = list.find((o: any) => o.id && o.id.toUpperCase() === id);
+          if (match) {
+            setResult({
+              id: match.id,
+              user_name: match.user_name || "Pelanggan",
+              items: Array.isArray(match.items)
+                ? match.items.map((it: any) => ({
+                    name: it.name || it.appId || "Item Digital",
+                    platform: it.platform || "Web",
+                    price: Number(it.price) || 0,
+                  }))
+                : [],
+              total: Number(match.total) || 0,
+              payment_status: match.payment_status || "menunggu",
+              order_status: match.order_status || "diproses",
+              date: match.date || new Date().toISOString().slice(0, 10),
+            });
+            setLoading(false);
+            return;
+          }
+        }
+      }
+
+      // Cek sessionStorage last-order
+      const lastRaw =
+        sessionStorage.getItem("serbapremium:last-order") ||
+        sessionStorage.getItem("tokono:last-order");
+      if (lastRaw) {
+        const last = JSON.parse(lastRaw);
+        if (last && last.id && last.id.toUpperCase() === id) {
+          setResult({
+            id: last.id,
+            user_name: last.user_name || "Pelanggan",
+            items: Array.isArray(last.items)
+              ? last.items.map((it: any) => ({
+                  name: it.name || it.appId || "Item Digital",
+                  platform: it.platform || "Web",
+                  price: Number(it.price) || 0,
+                }))
+              : [],
+            total: Number(last.total) || 0,
+            payment_status: last.payment_status || "menunggu",
+            order_status: last.order_status || "diproses",
+            date: last.date || new Date().toISOString().slice(0, 10),
+          });
+          setLoading(false);
+          return;
+        }
       }
     } catch {
-      setNotFound(true);
-    } finally {
-      setLoading(false);
+      // ignore parse error
     }
+
+    // 3. Cek Mock Orders (untuk demo ID seperti TK-84521, dll)
+    const mockMatch = api.orders.list().find((o) => o.id.toUpperCase() === id);
+    if (mockMatch) {
+      setResult({
+        id: mockMatch.id,
+        user_name: mockMatch.userName,
+        items: mockMatch.items.map((it) => ({
+          name: api.apps.getById(it.appId)?.name || it.appId,
+          platform: it.platform,
+          price: it.price,
+        })),
+        total: mockMatch.total,
+        payment_status: mockMatch.paymentStatus,
+        order_status: mockMatch.orderStatus,
+        date: mockMatch.date,
+      });
+      setLoading(false);
+      return;
+    }
+
+    // 4. Tidak ditemukan
+    setNotFound(true);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -73,19 +176,19 @@ export default function CekPesananPage() {
     <div className="tk-container pt-28 pb-20">
       <div className="mx-auto max-w-xl">
         <div className="mb-2">
-          <span className="rounded-xs border border-border bg-accent px-2 py-0.5 text-[10px] font-black uppercase text-black shadow-[1px_1px_0px_var(--shadow-color)]">
+          <span className="rounded-full bg-accent-soft px-3 py-0.5 text-xs font-semibold uppercase text-accent">
             {lang === "en" ? "ORDER TRACKER" : lang === "zh" ? "订单实时追踪" : "LACAK TRANSAKSI"}
           </span>
         </div>
-        <h1 className="text-2xl font-black tracking-tight text-fg sm:text-3xl">
-          {t.navbar?.checkOrder || "Cek Status Pesanan"}
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-fg">
+          {t.navbar?.checkOrder || (lang === "en" ? "Check Order Status" : lang === "zh" ? "查询订单状态" : "Cek Status Pesanan")}
         </h1>
-        <p className="mt-2 text-sm font-medium leading-relaxed text-fg-muted">
+        <p className="mt-2 text-sm font-normal leading-relaxed text-fg-muted">
           {lang === "en"
-            ? "Enter your order ID (e.g. SP-123456 or TK-123456) to check realtime payment verification and license delivery status."
+            ? "Enter your order ID (e.g. SP-123456 or TK-84521) to check realtime payment verification and license delivery status."
             : lang === "zh"
-            ? "请输入您的订单号（例如 SP-123456 或 TK-123456）以查询支付核验状态与数字授权交付进度。"
-            : "Masukkan nomor pesanan Anda (contoh: SP-123456 atau TK-123456) untuk melihat status pembayaran dan pengiriman lisensi."}
+            ? "请输入您的订单号（例如 SP-123456 或 TK-84521）以查询支付核验状态与数字授权交付进度。"
+            : "Masukkan nomor pesanan Anda (contoh: SP-123456 atau TK-84521) untuk melihat status pembayaran dan pengiriman lisensi."}
         </p>
 
         <form onSubmit={cari} className="mt-6 flex gap-2">
@@ -93,11 +196,11 @@ export default function CekPesananPage() {
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="SP-123456"
-            className="font-mono uppercase font-bold"
+            className="font-mono uppercase font-semibold"
             aria-label="Nomor pesanan"
           />
-          <Button type="submit" disabled={loading}>
-            <Search size={16} strokeWidth={2.5} />
+          <Button type="submit" disabled={loading} className="rounded-full shrink-0 px-6">
+            <Search size={16} strokeWidth={2} />
             {loading ? (lang === "en" ? "Searching…" : lang === "zh" ? "查询中…" : "Mencari…") : (lang === "en" ? "Track Order" : lang === "zh" ? "查询订单" : "Cari Pesanan")}
           </Button>
         </form>
@@ -112,11 +215,11 @@ export default function CekPesananPage() {
         )}
 
         {result && (
-          <div className="mt-6 rounded-lg border-2 border-border bg-surface p-6 shadow-[4px_4px_0px_var(--shadow-color)]">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-border pb-4">
+          <div className="glass-card mt-6 rounded-2xl border border-border/80 bg-surface/90 p-6 shadow-sm backdrop-blur-md">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/70 pb-4">
               <div>
-                <p className="font-mono text-xl font-black tracking-tight text-fg">{result.id}</p>
-                <p className="text-xs font-bold text-fg-muted">{lang === "en" ? "Customer:" : lang === "zh" ? "客户姓名:" : "Nama:"} {result.user_name}</p>
+                <p className="font-mono text-xl font-bold tracking-tight text-fg">{result.id}</p>
+                <p className="text-xs font-medium text-fg-muted mt-0.5">{lang === "en" ? "Customer:" : lang === "zh" ? "客户姓名:" : "Nama:"} {result.user_name}</p>
               </div>
               <div className="flex items-center gap-2">
                 <StatusBadge status={result.payment_status} />
@@ -124,29 +227,38 @@ export default function CekPesananPage() {
               </div>
             </div>
 
-            <ul className="mt-4 divide-y-2 divide-border">
+            <ul className="mt-4 divide-y divide-border/60">
               {result.items.map((item, i) => (
                 <li key={i} className="flex items-center justify-between gap-3 py-3 text-sm">
-                  <span className="font-bold text-fg">{item.name}</span>
-                  <span className="text-xs font-bold text-fg-muted">
+                  <span className="font-semibold text-fg">{item.name}</span>
+                  <span className="text-xs font-medium text-fg-muted">
                     {item.platform} · {formatPrice(item.price, lang)}
                   </span>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-3 flex justify-between border-t-2 border-border pt-4 text-base font-black">
-              <span className="text-fg-muted">{t.checkout?.total || "Total Pembayaran"}</span>
-              <span className="tabular-nums text-fg">{formatPrice(result.total, lang)}</span>
+            <div className="mt-3 flex justify-between border-t border-border/70 pt-4 text-base font-bold">
+              <span className="text-fg-muted">{t.checkout?.total || (lang === "en" ? "Total Payment" : lang === "zh" ? "总计支付" : "Total Pembayaran")}</span>
+              <span className="tabular-nums text-accent">{formatPrice(result.total, lang)}</span>
             </div>
 
-            <p className="mt-4 rounded-sm border-2 border-border bg-accent px-3 py-2 text-xs font-bold text-black shadow-[2px_2px_0px_var(--shadow-color)]">
+            <p className="mt-4 rounded-xl bg-accent-soft p-3 text-xs font-medium text-fg border border-accent/20">
               {result.payment_status === "menunggu"
                 ? (lang === "en" ? "Payment is being verified. Your order will be processed shortly after confirmation." : lang === "zh" ? "付款正在核验中，确认收到款项后将立即为您处理发货。" : "Pembayaran sedang diverifikasi. Pesanan akan segera diproses setelah dana terkonfirmasi.")
                 : result.payment_status === "dibayar"
                   ? (lang === "en" ? "Payment confirmed! Your digital license and credentials are ready in My Collection." : lang === "zh" ? "付款已确认！您的账号与数字授权已可在 我的收藏 中查看。" : "Pembayaran telah dikonfirmasi! Akun/lisensi Anda siap diakses di menu Koleksi Saya.")
                   : (lang === "en" ? "Your order status has been updated by SerbaPremium." : lang === "zh" ? "您的订单状态已由 SerbaPremium 系统更新。" : "Status pesanan Anda telah diperbarui oleh sistem SerbaPremium.")}
             </p>
+
+            <div className="mt-5 flex gap-2.5">
+              <ButtonLink href="/akun/koleksi" variant="secondary" size="sm" className="flex-1 rounded-full text-xs">
+                <Library size={14} /> {lang === "en" ? "My Collection" : lang === "zh" ? "我的收藏" : "Koleksi Saya"}
+              </ButtonLink>
+              <ButtonLink href="/aplikasi" variant="ghost" size="sm" className="flex-1 rounded-full text-xs text-fg-muted hover:text-fg">
+                <ShoppingBag size={14} /> {lang === "en" ? "Explore Apps" : lang === "zh" ? "浏览应用" : "Jelajahi Aplikasi"}
+              </ButtonLink>
+            </div>
           </div>
         )}
       </div>

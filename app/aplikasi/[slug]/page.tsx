@@ -48,16 +48,16 @@ export default async function AppDetailPage({ params }: Props) {
   return (
     <div className="tk-container pt-20 sm:pt-28 pb-20 sm:pb-24">
       {/* Breadcrumb */}
-      <nav aria-label="Breadcrumb" className="mb-4 sm:mb-6 flex items-center gap-1.5 text-xs font-bold text-fg-muted overflow-x-auto whitespace-nowrap pb-1">
+      <nav aria-label="Breadcrumb" className="mb-4 sm:mb-6 flex items-center gap-1.5 text-xs font-medium text-fg-muted overflow-x-auto whitespace-nowrap pb-1">
         <Link href="/" className="transition-colors hover:text-fg">
           {t.navbar.home}
         </Link>
-        <ChevronRight size={13} strokeWidth={3} className="text-fg-muted shrink-0" />
+        <ChevronRight size={13} className="text-fg-faint shrink-0" />
         <Link href="/aplikasi" className="transition-colors hover:text-fg">
           {t.navbar.apps}
         </Link>
-        <ChevronRight size={13} strokeWidth={3} className="text-fg-muted shrink-0" />
-        <span className="rounded-xs border border-border bg-surface-2 px-1.5 py-0.5 text-fg font-black truncate max-w-[160px] sm:max-w-none">
+        <ChevronRight size={13} className="text-fg-faint shrink-0" />
+        <span className="rounded-full bg-surface-2 px-2.5 py-0.5 text-fg font-semibold truncate max-w-[160px] sm:max-w-none">
           {app.name}
         </span>
       </nav>
@@ -67,29 +67,29 @@ export default async function AppDetailPage({ params }: Props) {
         {/* Kolom Kiri: Identity Header + Description + Stats + Tabs */}
         <div className="flex flex-col gap-5 sm:gap-6 lg:col-span-7">
           {/* Identity Header */}
-          <header className="rounded-md sm:rounded-lg border-2 border-border bg-surface p-4 sm:p-8 shadow-[3px_3px_0px_var(--shadow-color)] sm:shadow-[5px_5px_0px_var(--shadow-color)]">
+          <header className="glass-card rounded-2xl border border-border/80 bg-surface/90 p-4 sm:p-8 shadow-sm backdrop-blur-md">
             <div className="flex flex-row items-center gap-4 sm:gap-5">
               <div className="w-fit shrink-0">
                 <AppIcon icon={app.icon} size="xl" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="mb-1 flex flex-wrap items-center gap-1.5 sm:gap-2">
-                  <span className="rounded-xs border border-border bg-accent-yellow px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] font-black uppercase text-black shadow-[1px_1px_0px_var(--shadow-color)]">
+                  <span className="rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] sm:text-[11px] font-semibold uppercase text-accent">
                     {category?.name ?? "Aplikasi"}
                   </span>
-                  <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-bold text-success">
-                    <ShieldCheck size={13} strokeWidth={2.5} /> {t.product.warranty || "Garansi Resmi"}
+                  <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                    <ShieldCheck size={14} strokeWidth={2} /> {t.product.warranty || "Garansi Resmi"}
                   </span>
                 </div>
-                <h1 className="text-lg sm:text-[34px] font-black tracking-tight text-fg leading-tight truncate sm:whitespace-normal">
+                <h1 className="text-lg sm:text-[32px] font-bold tracking-tight text-fg leading-tight truncate sm:whitespace-normal">
                   {app.name}
                 </h1>
                 {developer && (
-                  <p className="mt-1 text-xs font-bold text-fg-muted">
+                  <p className="mt-1 text-xs font-medium text-fg-muted">
                     {t.product.byDeveloper || "Disediakan oleh"}{" "}
                     <Link
                       href={`/pengembang/${developer.slug}`}
-                      className="text-accent-blue dark:text-accent underline decoration-2 hover:opacity-80"
+                      className="text-accent underline decoration-1 hover:opacity-80 font-semibold"
                     >
                       {developer.name}
                     </Link>
@@ -111,14 +111,14 @@ export default async function AppDetailPage({ params }: Props) {
           </div>
 
           {/* Description & Features */}
-          <div className="rounded-lg border-2 border-border bg-surface p-4 sm:p-6 shadow-[3px_3px_0px_var(--shadow-color)] sm:shadow-[4px_4px_0px_var(--shadow-color)]">
-            <h3 className="text-xs sm:text-sm font-black uppercase tracking-tight text-fg">
+          <div className="rounded-2xl border border-border/80 bg-surface/90 p-4 sm:p-6 shadow-sm backdrop-blur-sm">
+            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-fg-muted">
               {t.product.serviceDesc || "Deskripsi Layanan & Produk"}
             </h3>
-            <p className="mt-2 text-xs sm:text-[14.5px] font-medium leading-relaxed text-fg-muted">{app.description}</p>
+            <p className="mt-2 text-xs sm:text-[14.5px] font-normal leading-relaxed text-fg-muted">{app.description}</p>
 
-            <div className="mt-4 flex items-center gap-2.5 rounded-md border-2 border-border bg-accent/20 p-3 text-xs font-black text-fg shadow-[2px_2px_0px_var(--shadow-color)]">
-              <ShieldCheck size={18} className="text-success shrink-0" strokeWidth={2.5} />
+            <div className="mt-4 flex items-center gap-2.5 rounded-xl border border-accent/20 bg-accent-soft p-3 text-xs font-medium text-fg">
+              <ShieldCheck size={18} className="text-accent shrink-0" strokeWidth={2} />
               <span>
                 {lang === "en"
                   ? "⭐ Full Warranty Guaranteed: 100% replacement and support throughout the active duration."
@@ -128,11 +128,11 @@ export default async function AppDetailPage({ params }: Props) {
               </span>
             </div>
 
-            <div className="mt-4 sm:mt-5 flex flex-wrap items-center gap-2 border-t-2 border-border pt-3.5">
+            <div className="mt-4 sm:mt-5 flex flex-wrap items-center gap-2 border-t border-border/70 pt-3.5">
               <PlatformList platforms={app.platforms} />
               <Badge tone="neutral">{t.product.version || "Versi"} {app.version}</Badge>
-              <span className="inline-flex items-center gap-1 rounded-xs border border-border bg-accent px-2 py-0.5 text-xs font-black text-black shadow-[1px_1px_0px_var(--shadow-color)]">
-                <Zap size={12} strokeWidth={3} className="fill-current" />
+              <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-semibold text-accent">
+                <Zap size={12} strokeWidth={2.5} className="fill-current" />
                 {t.product.instantActivation || "Aktivasi Instan"}
               </span>
             </div>
@@ -151,7 +151,7 @@ export default async function AppDetailPage({ params }: Props) {
       </div>
 
       {/* Rekomendasi Produk Serupa */}
-      <section className="mt-16 border-t-2 border-border pt-12">
+      <section className="mt-16 border-t border-border/70 pt-12">
         <SectionHeader
           eyebrow={t.product.similarBadge || "Rekomendasi"}
           title={t.product.similarTitle || "Aplikasi & Lisensi Serupa"}

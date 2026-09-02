@@ -20,18 +20,18 @@ export function CategoryMarquee({ className }: { className?: string }) {
 
   return (
     <div
-      className={cn("marquee relative overflow-hidden border-y-2 border-border bg-surface-2 py-4 select-none", className)}
+      className={cn("marquee relative overflow-hidden border-y border-border/80 bg-surface-2/60 py-3.5 select-none backdrop-blur-sm", className)}
       aria-hidden="true"
     >
       <div className="marquee-track items-center gap-3 pr-3">
         {items.map((c, i) => (
           <span
             key={`${c.id}-${i}`}
-            className="flex shrink-0 items-center gap-2 rounded-sm border-2 border-border bg-surface px-3.5 py-1.5 text-[13px] font-bold text-fg shadow-[2px_2px_0px_var(--shadow-color)]"
+            className="flex shrink-0 items-center gap-2 rounded-full border border-border/80 bg-surface/80 px-3.5 py-1.5 text-xs font-medium text-fg shadow-xs backdrop-blur-sm"
           >
-            <c.icon size={15} strokeWidth={2.5} className="text-accent-blue dark:text-accent" />
+            <c.icon size={14} className="text-accent" />
             {c.name}
-            <span className="rounded-xs border border-border bg-surface-2 px-1 py-0.2 text-[10px] font-black tabular-nums text-fg-muted">
+            <span className="rounded-full bg-surface-2 px-1.5 py-0.2 text-[10px] font-semibold tabular-nums text-fg-muted">
               {c.count}
             </span>
           </span>

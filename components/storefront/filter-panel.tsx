@@ -28,8 +28,8 @@ export function useFilterState() {
 
 function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="border-b-2 border-border py-4 first:pt-0 last:border-0">
-      <p className="mb-2.5 text-xs font-black tracking-wider text-fg uppercase">{title}</p>
+    <div className="border-b border-border/70 py-4 first:pt-0 last:border-0">
+      <p className="mb-2.5 text-xs font-semibold tracking-wide text-fg-muted uppercase">{title}</p>
       {children}
     </div>
   );
@@ -50,24 +50,20 @@ function OptionRow({
     <button
       onClick={onClick}
       className={cn(
-        "flex w-full items-center gap-2.5 rounded-sm px-2 py-1.5 text-left text-[13.5px] transition-all hover:bg-surface-2",
-        checked ? "font-black text-fg" : "font-medium text-fg-muted",
+        "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-sm transition-colors hover:bg-surface-2",
+        checked ? "font-semibold text-fg" : "font-normal text-fg-muted",
       )}
     >
       <span
         className={cn(
-          "flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-xs border-2 border-border transition-colors shadow-[1px_1px_0px_var(--shadow-color)]",
-          checked ? "bg-accent text-black" : "bg-surface",
+          "flex h-4 w-4 shrink-0 items-center justify-center rounded-md border transition-colors",
+          checked ? "border-accent bg-accent text-accent-fg" : "border-border-strong bg-surface",
         )}
       >
-        {checked && <Check size={12} strokeWidth={3.5} />}
+        {checked && <Check size={11} strokeWidth={3} />}
       </span>
-      <span className="truncate">{label}</span>
-      {count != null && (
-        <span className="ml-auto rounded-xs border border-border bg-surface-2 px-1.5 py-0.2 text-[10px] font-bold tabular-nums text-fg">
-          {count}
-        </span>
-      )}
+      {label}
+      {count != null && <span className="ml-auto text-xs text-fg-faint tabular-nums">{count}</span>}
     </button>
   );
 }
@@ -78,18 +74,9 @@ export function FilterPanel({ onApplied }: { onApplied?: () => void }) {
   const { lang, t } = useTranslation();
 
   const priceRanges = [
-    {
-      id: "0-50000",
-      label: lang === "en" ? "Under $3.00" : lang === "zh" ? "低于 $3.00" : "Di bawah Rp50.000",
-    },
-    {
-      id: "50000-150000",
-      label: lang === "en" ? "$3.00 – $9.00" : lang === "zh" ? "$3.00 – $9.00" : "Rp50.000 – Rp150.000",
-    },
-    {
-      id: "150000-9999999",
-      label: lang === "en" ? "Over $9.00" : lang === "zh" ? "高于 $9.00" : "Di atas Rp150.000",
-    },
+    { id: "0-50000", label: t.filter?.prices?.under50k || "Di bawah Rp50.000", min: 0, max: 50000 },
+    { id: "50000-150000", label: t.filter?.prices?.between50k150k || "Rp50.000 – Rp150.000", min: 50000, max: 150000 },
+    { id: "150000-9999999", label: t.filter?.prices?.above150k || "Di atas Rp150.000", min: 150000, max: 9999999 },
   ];
 
   const setParam = useCallback(
@@ -109,8 +96,8 @@ export function FilterPanel({ onApplied }: { onApplied?: () => void }) {
     router.replace(`/aplikasi?${params.toString()}`, { scroll: false });
   };
 
-  const rawCategories = api.categories.withCount().filter((c) => c.count > 0);
-  const categories = rawCategories.map((c) => ({
+  const rawCats = api.categories.withCount().filter((c) => c.count > 0);
+  const categories = rawCats.map((c) => ({
     ...c,
     ...getLocalizedCategory(c, lang),
   }));
@@ -124,23 +111,16 @@ export function FilterPanel({ onApplied }: { onApplied?: () => void }) {
   };
 
   return (
-    <div className="rounded-lg border-2 border-border bg-surface p-5 shadow-[4px_4px_0px_var(--shadow-color)]">
-      <div className="flex items-center justify-between border-b-2 border-border pb-3">
-        <div className="flex items-center gap-2">
-          <span className="flex h-6 w-6 items-center justify-center rounded-xs border-2 border-border bg-accent-yellow shadow-[1px_1px_0px_var(--shadow-color)]">
-            <Filter size={13} strokeWidth={2.5} className="text-black" />
-          </span>
-          <p className="text-sm font-black tracking-tight uppercase text-fg">
-            {t.filter?.title || "Filter"}
-          </p>
+    <div className="flex flex-col">
+      <div className="flex items-center justify-between pb-3 border-b border-border/70">
+        <div className="flex items-center gap-1.5">
+          <Filter size={15} className="text-accent" />
+          <p className="text-sm font-bold tracking-tight text-fg">{t.filter?.title || "Filter"}</p>
         </div>
         {activeCount > 0 && (
-          <button
-            onClick={clearAll}
-            className="flex items-center gap-1 rounded-xs border border-border bg-surface-2 px-1.5 py-0.5 text-xs font-bold text-fg transition-colors hover:bg-discount hover:text-white"
-          >
-            <X size={11} strokeWidth={3} />
-            {t.filter?.clearAll || "Reset"}
+          <button onClick={clearAll} className="flex items-center gap-1 text-xs font-semibold text-discount hover:underline">
+            <X size={13} strokeWidth={2.5} />
+            {t.filter?.clearAll || "Hapus semua"}
           </button>
         )}
       </div>
@@ -180,19 +160,17 @@ export function FilterPanel({ onApplied }: { onApplied?: () => void }) {
         </div>
       </FilterGroup>
 
-      <FilterGroup title={t.filter?.onSale || "Promo"}>
+      <FilterGroup title={t.filter?.other || "Lainnya"}>
         <OptionRow
           checked={f.promoOnly}
-          label={lang === "en" ? "On Discount / Promo" : lang === "zh" ? "限时折扣特惠" : "Sedang Diskon / Promo"}
+          label={t.filter?.onSale || "Sedang promo"}
           onClick={() => setParam("promo", f.promoOnly ? "" : "1")}
         />
       </FilterGroup>
 
-      {onApplied && (
-        <Button className="mt-4 w-full" onClick={onApplied}>
-          {t.filter?.apply || "Terapkan Filter"}
-        </Button>
-      )}
+      <Button className="mt-4 rounded-full" onClick={onApplied}>
+        {t.filter?.apply || "Terapkan"}
+      </Button>
     </div>
   );
 }
@@ -200,40 +178,20 @@ export function FilterPanel({ onApplied }: { onApplied?: () => void }) {
 export function SortSelect() {
   const router = useRouter();
   const f = useFilterState();
-  const { lang, t } = useTranslation();
+  const { t } = useTranslation();
 
   const sortOptions: Array<{ id: SortKey; label: string }> = [
-    {
-      id: "popularitas",
-      label: t.filter?.sorts?.popularity || "Popularitas",
-    },
-    {
-      id: "terbaru",
-      label: t.filter?.sorts?.newest || "Terbaru",
-    },
-    {
-      id: "terlaris",
-      label: t.filter?.sorts?.bestseller || "Terlaris",
-    },
-    {
-      id: "harga-rendah",
-      label: t.filter?.sorts?.priceLow || "Harga terendah",
-    },
-    {
-      id: "harga-tinggi",
-      label: t.filter?.sorts?.priceHigh || "Harga tertinggi",
-    },
-    {
-      id: "rating",
-      label: t.filter?.sorts?.rating || "Rating tertinggi",
-    },
+    { id: "popularitas", label: t.filter?.sorts?.popularity || "Popularitas" },
+    { id: "terbaru", label: t.filter?.sorts?.newest || "Terbaru" },
+    { id: "terlaris", label: t.filter?.sorts?.bestseller || "Terlaris" },
+    { id: "harga-rendah", label: t.filter?.sorts?.priceLow || "Harga terendah" },
+    { id: "harga-tinggi", label: t.filter?.sorts?.priceHigh || "Harga tertinggi" },
+    { id: "rating", label: t.filter?.sorts?.rating || "Rating tertinggi" },
   ];
 
   return (
     <label className="flex items-center gap-2">
-      <span className="hidden text-xs font-black uppercase text-fg sm:inline">
-        {t.filter?.sortBy || "Urutkan"}
-      </span>
+      <span className="hidden text-xs font-semibold text-fg-muted sm:inline">{t.filter?.sortBy || "Urutkan"}</span>
       <select
         value={f.sort}
         onChange={(e) => {
@@ -241,7 +199,7 @@ export function SortSelect() {
           params.set("urutkan", e.target.value);
           router.replace(`/aplikasi?${params.toString()}`, { scroll: false });
         }}
-        className="h-9 cursor-pointer rounded-md border-2 border-border bg-surface px-3 text-[13px] font-bold text-fg shadow-[2px_2px_0px_var(--shadow-color)] outline-none focus:shadow-[4px_4px_0px_var(--shadow-color)]"
+        className="h-9 rounded-full border border-border/80 bg-surface/80 px-3 text-xs font-semibold shadow-xs outline-none focus:border-accent"
         aria-label="Urutkan aplikasi"
       >
         {sortOptions.map((o) => (

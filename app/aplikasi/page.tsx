@@ -61,14 +61,14 @@ export default async function AplikasiPage({
         </aside>
 
         <div className="min-w-0">
-          <div className="flex flex-wrap items-end justify-between gap-4 border-b-2 border-border pb-5">
+          <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border/70 pb-5">
             <div>
-              <div className="mb-1">
-                <span className="inline-block rounded-xs border border-border bg-accent px-2 py-0.5 text-[10px] font-black uppercase text-black shadow-[1px_1px_0px_var(--shadow-color)]">
+              <div className="mb-1.5">
+                <span className="inline-block rounded-full bg-accent-soft px-3 py-0.5 text-xs font-semibold uppercase text-accent">
                   {lang === "en" ? "SERBAPREMIUM CATALOG" : lang === "zh" ? "SERBAPREMIUM 全球产品目录" : "KATALOG SERBAPREMIUM"}
                 </span>
               </div>
-              <h1 className="text-2xl font-black tracking-tight text-fg sm:text-[32px]">
+              <h1 className="text-2xl font-bold tracking-tight text-fg sm:text-[32px]">
                 {q ? (
                   <>
                     {lang === "en" ? "Search results for: " : lang === "zh" ? "搜索结果: " : "Hasil pencarian: "}&ldquo;{q}&rdquo;
@@ -77,8 +77,8 @@ export default async function AplikasiPage({
                   lang === "en" ? "All Applications & Licenses" : lang === "zh" ? "全部应用与会员授权" : "Semua Aplikasi & Akun"
                 )}
               </h1>
-              <p className="mt-1 text-sm font-bold text-fg-muted">
-                {lang === "en" ? "Showing " : lang === "zh" ? "展示 " : "Menampilkan "}<span className="text-fg">{apps.length}</span> {lang === "en" ? "digital products" : lang === "zh" ? "款精选数字产品" : "produk digital"}
+              <p className="mt-1 text-sm font-normal text-fg-muted">
+                {lang === "en" ? "Showing " : lang === "zh" ? "展示 " : "Menampilkan "}<span className="text-fg font-semibold">{apps.length}</span> {lang === "en" ? "digital products" : lang === "zh" ? "款精选数字产品" : "produk digital"}
               </p>
             </div>
             <div className="flex items-center gap-2.5">

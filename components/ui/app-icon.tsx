@@ -14,7 +14,7 @@ const sizes = {
   "2xl": 96,
 };
 
-const logoPadding = 0.14;
+const logoPadding = 0.16;
 
 export function AppIcon({
   icon,
@@ -34,8 +34,8 @@ export function AppIcon({
     return (
       <span
         className={cn(
-          "relative inline-flex shrink-0 items-center justify-center overflow-hidden border-2 border-border bg-surface shadow-[2px_2px_0px_var(--shadow-color)]",
-          rounded && "rounded-md",
+          "relative inline-flex shrink-0 items-center justify-center overflow-hidden bg-surface shadow-[var(--elev-1)] ring-1 ring-border/50 transition-transform duration-200",
+          rounded && "rounded-[22%]",
           className,
         )}
         style={{ width: px, height: px }}
@@ -56,22 +56,23 @@ export function AppIcon({
   }
 
   const Icon = iconRegistry[icon.glyph] ?? iconFallback;
-  const iconSize = Math.round(px * 0.48);
+  const iconSize = Math.round(px * 0.44);
   return (
     <span
       className={cn(
-        "relative inline-flex shrink-0 items-center justify-center border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)]",
-        rounded && "rounded-md",
+        "relative inline-flex shrink-0 items-center justify-center shadow-[var(--elev-1)] ring-1 ring-black/5 transition-transform duration-200",
+        rounded && "rounded-[22%]",
         className,
       )}
       style={{
         width: px,
         height: px,
-        backgroundColor: icon.from || "#0a0a0a",
+        background: `linear-gradient(135deg, ${icon.from || "#10a37f"} 0%, ${icon.to || "#059669"} 100%)`,
       }}
       aria-hidden="true"
     >
-      <Icon size={iconSize} className="text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]" strokeWidth={2.5} />
+      <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-[inherit] bg-gradient-to-b from-white/25 to-transparent" />
+      <Icon size={iconSize} className="text-white/90" strokeWidth={1.75} />
     </span>
   );
 }

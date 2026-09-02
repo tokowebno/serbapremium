@@ -15,12 +15,12 @@ export function CartItemRow({ item }: { item: CartItem }) {
   const { lang, t } = useTranslation();
 
   return (
-    <div className="flex items-center gap-4 py-4">
+    <div className="flex items-center gap-4 py-4 border-b border-border/70 last:border-b-0">
       <AppIcon icon={item.icon} size="md" />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-base font-black tracking-tight text-fg">{item.name}</p>
-        <p className="text-xs font-semibold text-fg-muted">
-          {t.product.lifetime || "Lisensi digital"} · <span className="rounded-xs border border-border bg-surface-2 px-1 text-fg">{item.platform}</span>
+        <p className="truncate text-base font-semibold tracking-tight text-fg">{item.name}</p>
+        <p className="text-xs font-medium text-fg-muted mt-0.5">
+          {t.product.lifetime || "Lisensi digital"} · <span className="rounded-md bg-surface-2 px-1.5 py-0.5 text-[11px] text-fg font-medium ring-1 ring-border/50">{item.platform}</span>
         </p>
       </div>
       <div className="hidden sm:block">
@@ -31,7 +31,7 @@ export function CartItemRow({ item }: { item: CartItem }) {
           id={`platform-${item.appId}`}
           value={item.platform}
           onChange={() => {}}
-          className="h-8 rounded-sm border-2 border-border bg-surface px-2 text-xs font-bold text-fg shadow-[1px_1px_0px_var(--shadow-color)] outline-none"
+          className="h-8 rounded-full border border-border/80 bg-surface/80 px-2.5 text-xs font-medium text-fg shadow-xs outline-none"
         >
           {platforms.map((p) => (
             <option key={p} value={p}>
@@ -40,13 +40,13 @@ export function CartItemRow({ item }: { item: CartItem }) {
           ))}
         </select>
       </div>
-      <span className="w-28 text-right text-base font-black tabular-nums text-fg">{formatPrice(item.price, lang)}</span>
+      <span className="w-28 text-right text-base font-bold tabular-nums text-fg">{formatPrice(item.price, lang)}</span>
       <button
         onClick={() => remove(item.appId, item.platform)}
         aria-label={`Hapus ${item.name} dari keranjang`}
-        className="rounded-sm border-2 border-border bg-surface-2 p-1.5 text-fg shadow-[1.5px_1.5px_0px_var(--shadow-color)] transition-all hover:bg-discount hover:text-white active:translate-x-0.5 active:translate-y-0.5"
+        className="rounded-full p-2 text-fg-muted transition-colors hover:bg-rose-500/10 hover:text-rose-600 active:scale-95"
       >
-        <X size={15} strokeWidth={2.5} />
+        <X size={16} strokeWidth={2} />
       </button>
     </div>
   );
