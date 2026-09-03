@@ -366,8 +366,8 @@ export function CheckoutForm({
                 <label className="text-xs font-semibold uppercase tracking-wide text-fg-muted">
                   {lang === "en" ? "Select Payment Method" : lang === "zh" ? "选择付款方式" : "Metode Pembayaran"}
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
-                  {(["qris", "usdt_bnb", "usdt_tron"] as PaymentMethod[]).map((method) => {
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+                  {(["qris", "binance", "usdt_bnb", "usdt_tron"] as PaymentMethod[]).map((method) => {
                     const info = PAYMENT_INFO[method];
                     const active = paymentMethod === method;
                     return (

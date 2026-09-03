@@ -3075,7 +3075,7 @@
       "format": "cjs"
     },
     ".open-next/server-functions/default/node_modules/next/dist/server/load-manifest.js": {
-      "bytes": 451372,
+      "bytes": 451374,
       "imports": [
         {
           "path": "fs",
@@ -3526,8 +3526,8 @@
       ],
       "format": "cjs"
     },
-    ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pengembang/page.js": {
-      "bytes": 15296,
+    ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pengaturan/page.js": {
+      "bytes": 14215,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js",
@@ -3572,8 +3572,8 @@
       ],
       "format": "cjs"
     },
-    ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pengaturan/page.js": {
-      "bytes": 14215,
+    ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pengembang/page.js": {
+      "bytes": 15296,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js",
@@ -3664,8 +3664,8 @@
       ],
       "format": "cjs"
     },
-    ".open-next/server-functions/default/.next/server/app/pereman/(admin)/kategori/page.js": {
-      "bytes": 16283,
+    ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pengguna/page.js": {
+      "bytes": 11831,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js",
@@ -3756,8 +3756,8 @@
       ],
       "format": "cjs"
     },
-    ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pengguna/page.js": {
-      "bytes": 11831,
+    ".open-next/server-functions/default/.next/server/app/pereman/(admin)/kategori/page.js": {
+      "bytes": 16283,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js",
@@ -4309,52 +4309,6 @@
       ],
       "format": "cjs"
     },
-    ".open-next/server-functions/default/.next/server/app/kategori/[slug]/page.js": {
-      "bytes": 6023,
-      "imports": [
-        {
-          "path": ".open-next/server-functions/default/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js",
-          "kind": "require-call",
-          "original": "next/dist/compiled/next-server/app-page.runtime.prod.js"
-        },
-        {
-          "path": ".open-next/server-functions/default/node_modules/next/dist/server/app-render/action-async-storage.external.js",
-          "kind": "require-call",
-          "original": "next/dist/server/app-render/action-async-storage.external.js"
-        },
-        {
-          "path": ".open-next/server-functions/default/node_modules/next/dist/server/app-render/after-task-async-storage.external.js",
-          "kind": "require-call",
-          "original": "next/dist/server/app-render/after-task-async-storage.external.js"
-        },
-        {
-          "path": ".open-next/server-functions/default/node_modules/next/dist/server/app-render/work-async-storage.external.js",
-          "kind": "require-call",
-          "original": "next/dist/server/app-render/work-async-storage.external.js"
-        },
-        {
-          "path": ".open-next/server-functions/default/node_modules/next/dist/server/app-render/work-unit-async-storage.external.js",
-          "kind": "require-call",
-          "original": "next/dist/server/app-render/work-unit-async-storage.external.js"
-        },
-        {
-          "path": "path",
-          "kind": "require-call",
-          "external": true
-        },
-        {
-          "path": "url",
-          "kind": "require-call",
-          "external": true
-        },
-        {
-          "path": ".open-next/server-functions/default/.next/server/webpack-runtime.js",
-          "kind": "require-call",
-          "original": "../../../webpack-runtime.js"
-        }
-      ],
-      "format": "cjs"
-    },
     ".open-next/server-functions/default/.next/server/app/aplikasi/[slug]/page.js": {
       "bytes": 28212,
       "imports": [
@@ -4401,8 +4355,8 @@
       ],
       "format": "cjs"
     },
-    ".open-next/server-functions/default/.next/server/app/akun/pengaturan/page.js": {
-      "bytes": 12880,
+    ".open-next/server-functions/default/.next/server/app/kategori/[slug]/page.js": {
+      "bytes": 6023,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js",
@@ -4489,6 +4443,52 @@
           "path": ".open-next/server-functions/default/.next/server/webpack-runtime.js",
           "kind": "require-call",
           "original": "../../webpack-runtime.js"
+        }
+      ],
+      "format": "cjs"
+    },
+    ".open-next/server-functions/default/.next/server/app/akun/pengaturan/page.js": {
+      "bytes": 12880,
+      "imports": [
+        {
+          "path": ".open-next/server-functions/default/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js",
+          "kind": "require-call",
+          "original": "next/dist/compiled/next-server/app-page.runtime.prod.js"
+        },
+        {
+          "path": ".open-next/server-functions/default/node_modules/next/dist/server/app-render/action-async-storage.external.js",
+          "kind": "require-call",
+          "original": "next/dist/server/app-render/action-async-storage.external.js"
+        },
+        {
+          "path": ".open-next/server-functions/default/node_modules/next/dist/server/app-render/after-task-async-storage.external.js",
+          "kind": "require-call",
+          "original": "next/dist/server/app-render/after-task-async-storage.external.js"
+        },
+        {
+          "path": ".open-next/server-functions/default/node_modules/next/dist/server/app-render/work-async-storage.external.js",
+          "kind": "require-call",
+          "original": "next/dist/server/app-render/work-async-storage.external.js"
+        },
+        {
+          "path": ".open-next/server-functions/default/node_modules/next/dist/server/app-render/work-unit-async-storage.external.js",
+          "kind": "require-call",
+          "original": "next/dist/server/app-render/work-unit-async-storage.external.js"
+        },
+        {
+          "path": "path",
+          "kind": "require-call",
+          "external": true
+        },
+        {
+          "path": "url",
+          "kind": "require-call",
+          "external": true
+        },
+        {
+          "path": ".open-next/server-functions/default/.next/server/webpack-runtime.js",
+          "kind": "require-call",
+          "original": "../../../webpack-runtime.js"
         }
       ],
       "format": "cjs"
@@ -4667,8 +4667,8 @@
       ],
       "format": "cjs"
     },
-    ".open-next/server-functions/default/.next/server/app/akun/koleksi/page.js": {
-      "bytes": 13471,
+    ".open-next/server-functions/default/.next/server/app/akun/pesanan/page.js": {
+      "bytes": 12442,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js",
@@ -4713,8 +4713,8 @@
       ],
       "format": "cjs"
     },
-    ".open-next/server-functions/default/.next/server/app/akun/pesanan/page.js": {
-      "bytes": 12442,
+    ".open-next/server-functions/default/.next/server/app/akun/koleksi/page.js": {
+      "bytes": 13471,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js",
@@ -4898,7 +4898,7 @@
       "format": "cjs"
     },
     ".open-next/server-functions/default/.next/server/app/pembayaran/page.js": {
-      "bytes": 31108,
+      "bytes": 31118,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js",
@@ -5025,8 +5025,8 @@
       ],
       "format": "cjs"
     },
-    ".open-next/server-functions/default/.next/server/app/kategori/page.js": {
-      "bytes": 8184,
+    ".open-next/server-functions/default/.next/server/app/aplikasi/page.js": {
+      "bytes": 16192,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js",
@@ -5071,8 +5071,8 @@
       ],
       "format": "cjs"
     },
-    ".open-next/server-functions/default/.next/server/app/aplikasi/page.js": {
-      "bytes": 16192,
+    ".open-next/server-functions/default/.next/server/app/kategori/page.js": {
+      "bytes": 8184,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js",
@@ -5686,14 +5686,14 @@
           "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/pereman/(admin)/pembayaran/page.js"
         },
         {
-          "path": ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pengembang/page.js",
-          "kind": "require-call",
-          "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/pereman/(admin)/pengembang/page.js"
-        },
-        {
           "path": ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pengaturan/page.js",
           "kind": "require-call",
           "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/pereman/(admin)/pengaturan/page.js"
+        },
+        {
+          "path": ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pengembang/page.js",
+          "kind": "require-call",
+          "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/pereman/(admin)/pengembang/page.js"
         },
         {
           "path": ".open-next/server-functions/default/.next/server/app/pereman/(admin)/aktivitas/page.js",
@@ -5701,9 +5701,9 @@
           "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/pereman/(admin)/aktivitas/page.js"
         },
         {
-          "path": ".open-next/server-functions/default/.next/server/app/pereman/(admin)/kategori/page.js",
+          "path": ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pengguna/page.js",
           "kind": "require-call",
-          "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/pereman/(admin)/kategori/page.js"
+          "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/pereman/(admin)/pengguna/page.js"
         },
         {
           "path": ".open-next/server-functions/default/.next/server/app/pereman/(admin)/aplikasi/page.js",
@@ -5711,9 +5711,9 @@
           "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/pereman/(admin)/aplikasi/page.js"
         },
         {
-          "path": ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pengguna/page.js",
+          "path": ".open-next/server-functions/default/.next/server/app/pereman/(admin)/kategori/page.js",
           "kind": "require-call",
-          "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/pereman/(admin)/pengguna/page.js"
+          "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/pereman/(admin)/kategori/page.js"
         },
         {
           "path": ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pesanan/page.js",
@@ -5771,24 +5771,24 @@
           "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/api/pereman-cek/route.js"
         },
         {
-          "path": ".open-next/server-functions/default/.next/server/app/kategori/[slug]/page.js",
-          "kind": "require-call",
-          "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/kategori/[slug]/page.js"
-        },
-        {
           "path": ".open-next/server-functions/default/.next/server/app/aplikasi/[slug]/page.js",
           "kind": "require-call",
           "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/aplikasi/[slug]/page.js"
         },
         {
-          "path": ".open-next/server-functions/default/.next/server/app/akun/pengaturan/page.js",
+          "path": ".open-next/server-functions/default/.next/server/app/kategori/[slug]/page.js",
           "kind": "require-call",
-          "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/akun/pengaturan/page.js"
+          "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/kategori/[slug]/page.js"
         },
         {
           "path": ".open-next/server-functions/default/.next/server/app/lupa-kata-sandi/page.js",
           "kind": "require-call",
           "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/lupa-kata-sandi/page.js"
+        },
+        {
+          "path": ".open-next/server-functions/default/.next/server/app/akun/pengaturan/page.js",
+          "kind": "require-call",
+          "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/akun/pengaturan/page.js"
         },
         {
           "path": ".open-next/server-functions/default/.next/server/app/pereman/(admin)/page.js",
@@ -5811,14 +5811,14 @@
           "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/favicon.ico/route.js"
         },
         {
-          "path": ".open-next/server-functions/default/.next/server/app/akun/koleksi/page.js",
-          "kind": "require-call",
-          "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/akun/koleksi/page.js"
-        },
-        {
           "path": ".open-next/server-functions/default/.next/server/app/akun/pesanan/page.js",
           "kind": "require-call",
           "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/akun/pesanan/page.js"
+        },
+        {
+          "path": ".open-next/server-functions/default/.next/server/app/akun/koleksi/page.js",
+          "kind": "require-call",
+          "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/akun/koleksi/page.js"
         },
         {
           "path": ".open-next/server-functions/default/.next/server/app/cek-pesanan/page.js",
@@ -5851,14 +5851,14 @@
           "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/keranjang/page.js"
         },
         {
-          "path": ".open-next/server-functions/default/.next/server/app/kategori/page.js",
-          "kind": "require-call",
-          "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/kategori/page.js"
-        },
-        {
           "path": ".open-next/server-functions/default/.next/server/app/aplikasi/page.js",
           "kind": "require-call",
           "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/aplikasi/page.js"
+        },
+        {
+          "path": ".open-next/server-functions/default/.next/server/app/kategori/page.js",
+          "kind": "require-call",
+          "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/kategori/page.js"
         },
         {
           "path": ".open-next/server-functions/default/.next/server/pages/_document.js",
@@ -8113,7 +8113,7 @@
           "bytesInOutput": 22584
         },
         ".open-next/server-functions/default/node_modules/next/dist/server/load-manifest.js": {
-          "bytesInOutput": 409671
+          "bytesInOutput": 409673
         },
         ".open-next/server-functions/default/node_modules/next/dist/server/app-render/action-async-storage-instance.js": {
           "bytesInOutput": 501
@@ -8178,23 +8178,23 @@
         ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pembayaran/page.js": {
           "bytesInOutput": 13039
         },
-        ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pengembang/page.js": {
-          "bytesInOutput": 15715
-        },
         ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pengaturan/page.js": {
           "bytesInOutput": 14569
+        },
+        ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pengembang/page.js": {
+          "bytesInOutput": 15715
         },
         ".open-next/server-functions/default/.next/server/app/pereman/(admin)/aktivitas/page.js": {
           "bytesInOutput": 10332
         },
-        ".open-next/server-functions/default/.next/server/app/pereman/(admin)/kategori/page.js": {
-          "bytesInOutput": 16715
+        ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pengguna/page.js": {
+          "bytesInOutput": 12142
         },
         ".open-next/server-functions/default/.next/server/app/pereman/(admin)/aplikasi/page.js": {
           "bytesInOutput": 11324
         },
-        ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pengguna/page.js": {
-          "bytesInOutput": 12143
+        ".open-next/server-functions/default/.next/server/app/pereman/(admin)/kategori/page.js": {
+          "bytesInOutput": 16716
         },
         ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pesanan/page.js": {
           "bytesInOutput": 11310
@@ -8232,17 +8232,17 @@
         ".open-next/server-functions/default/.next/server/app/api/pereman-cek/route.js": {
           "bytesInOutput": 2776
         },
-        ".open-next/server-functions/default/.next/server/app/kategori/[slug]/page.js": {
-          "bytesInOutput": 6279
-        },
         ".open-next/server-functions/default/.next/server/app/aplikasi/[slug]/page.js": {
           "bytesInOutput": 29601
         },
-        ".open-next/server-functions/default/.next/server/app/akun/pengaturan/page.js": {
-          "bytesInOutput": 13196
+        ".open-next/server-functions/default/.next/server/app/kategori/[slug]/page.js": {
+          "bytesInOutput": 6279
         },
         ".open-next/server-functions/default/.next/server/app/lupa-kata-sandi/page.js": {
           "bytesInOutput": 7688
+        },
+        ".open-next/server-functions/default/.next/server/app/akun/pengaturan/page.js": {
+          "bytesInOutput": 13196
         },
         ".open-next/server-functions/default/.next/server/app/pereman/(admin)/page.js": {
           "bytesInOutput": 14722
@@ -8256,11 +8256,11 @@
         ".open-next/server-functions/default/.next/server/app/favicon.ico/route.js": {
           "bytesInOutput": 3025
         },
-        ".open-next/server-functions/default/.next/server/app/akun/koleksi/page.js": {
-          "bytesInOutput": 14056
-        },
         ".open-next/server-functions/default/.next/server/app/akun/pesanan/page.js": {
           "bytesInOutput": 12840
+        },
+        ".open-next/server-functions/default/.next/server/app/akun/koleksi/page.js": {
+          "bytesInOutput": 14056
         },
         ".open-next/server-functions/default/.next/server/app/cek-pesanan/page.js": {
           "bytesInOutput": 13808
@@ -8272,7 +8272,7 @@
           "bytesInOutput": 2292
         },
         ".open-next/server-functions/default/.next/server/app/pembayaran/page.js": {
-          "bytesInOutput": 32759
+          "bytesInOutput": 32769
         },
         ".open-next/server-functions/default/.next/server/app/icon.svg/route.js": {
           "bytesInOutput": 1839
@@ -8280,11 +8280,11 @@
         ".open-next/server-functions/default/.next/server/app/keranjang/page.js": {
           "bytesInOutput": 10408
         },
-        ".open-next/server-functions/default/.next/server/app/kategori/page.js": {
-          "bytesInOutput": 8488
-        },
         ".open-next/server-functions/default/.next/server/app/aplikasi/page.js": {
           "bytesInOutput": 16772
+        },
+        ".open-next/server-functions/default/.next/server/app/kategori/page.js": {
+          "bytesInOutput": 8488
         },
         "optional-deps-missing-dependency:/critters": {
           "bytesInOutput": 141
@@ -8458,7 +8458,7 @@
           "bytesInOutput": 62081
         }
       },
-      "bytes": 4063459
+      "bytes": 4063471
     }
   }
 }
