@@ -68,25 +68,25 @@ const PAYMENT_INFO: Record<
   },
   usdt_bnb: {
     name: {
-      id: "USDT (BNB Smart Chain / BEP-20)",
-      en: "USDT (BNB Smart Chain / BEP-20)",
-      zh: "USDT（BNB 智能链 / BEP-20）",
+      id: "BNB / USDT (BNB Smart Chain BEP-20)",
+      en: "BNB / USDT (BNB Smart Chain BEP-20)",
+      zh: "BNB / USDT（BNB 智能链 BEP-20）",
     },
-    badge: "USDT BEP-20",
+    badge: "BNB BEP-20",
     icon: "/logos/bnb.svg",
     network: "BNB Smart Chain (BEP-20)",
-    address: "0x334e12eB58f964A5c73B6370e7a17726353d9e80",
+    address: "0x141b43fCDb8D17c09e7b4235b2527309db674A27",
   },
   usdt_tron: {
     name: {
-      id: "USDT (Tron Network / TRC-20)",
-      en: "USDT (Tron Network / TRC-20)",
-      zh: "USDT（波场网络 / TRC-20）",
+      id: "Tron / USDT (Tron Network TRC-20)",
+      en: "Tron / USDT (Tron Network TRC-20)",
+      zh: "Tron / USDT（波场网络 TRC-20）",
     },
-    badge: "USDT TRC-20",
+    badge: "TRON TRC-20",
     icon: "/logos/tron.svg",
     network: "Tron (TRC-20)",
-    address: "TGEvT8aV7bN2mHdrpA4b3V4eA5m8H8b1k",
+    address: "TQTpRn6j1Pfwf38xP8CxqxJi18YX4v8Wcm",
   },
 };
 

@@ -26,12 +26,17 @@ export function OrderPaymentBox({
   };
 
   const isBinance = paymentMethod?.toLowerCase() === "binance";
-  const isUsdt = paymentMethod?.toLowerCase().startsWith("usdt");
-  const isBep20 = paymentMethod?.toLowerCase().includes("bep20");
+  const isUsdt =
+    paymentMethod?.toLowerCase().startsWith("usdt") ||
+    paymentMethod?.toLowerCase().includes("bnb") ||
+    paymentMethod?.toLowerCase().includes("tron");
+  const isBep20 =
+    paymentMethod?.toLowerCase().includes("bep20") ||
+    paymentMethod?.toLowerCase().includes("bnb");
   const usdtAddress = isBep20
-    ? "0x71C5e2c589647eeBBFFB7fc4691Ba95A78833974"
-    : "TTCkK7WjK4V9vHkZ3C5U6D2R1F8A9B3E";
-  const usdtNetwork = isBep20 ? "BEP20 (BSC)" : "TRC20 (Tron)";
+    ? "0x141b43fCDb8D17c09e7b4235b2527309db674A27"
+    : "TQTpRn6j1Pfwf38xP8CxqxJi18YX4v8Wcm";
+  const usdtNetwork = isBep20 ? "BNB Smart Chain (BEP-20)" : "Tron (TRC-20)";
   const usdtAmount = (total / 16000).toFixed(2);
 
   return (
