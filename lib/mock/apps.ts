@@ -381,9 +381,8 @@ const productSpecs: RawAppSpec[] = [
         accessType: "5TB Storage",
         price: 15000,
         originalPrice: 30000,
-        stock: 2574,
-        badge: "Promo 18M",
-        isDefault: true,
+        stock: 0,
+        badge: "Stok Habis",
       },
       {
         id: "gemini-pro-12m-5tb",

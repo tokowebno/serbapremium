@@ -3277,7 +3277,7 @@
       "format": "cjs"
     },
     ".open-next/server-functions/default/.next/server/chunks/7937.js": {
-      "bytes": 287181,
+      "bytes": 287151,
       "imports": [],
       "format": "cjs"
     },
@@ -3664,8 +3664,8 @@
       ],
       "format": "cjs"
     },
-    ".open-next/server-functions/default/.next/server/app/pereman/(admin)/kategori/page.js": {
-      "bytes": 16283,
+    ".open-next/server-functions/default/.next/server/app/pereman/(admin)/aplikasi/page.js": {
+      "bytes": 11015,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js",
@@ -3710,8 +3710,8 @@
       ],
       "format": "cjs"
     },
-    ".open-next/server-functions/default/.next/server/app/pereman/(admin)/aplikasi/page.js": {
-      "bytes": 11015,
+    ".open-next/server-functions/default/.next/server/app/pereman/(admin)/kategori/page.js": {
+      "bytes": 16283,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js",
@@ -4356,7 +4356,7 @@
       "format": "cjs"
     },
     ".open-next/server-functions/default/.next/server/app/aplikasi/[slug]/page.js": {
-      "bytes": 28212,
+      "bytes": 29549,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js",
@@ -5701,14 +5701,14 @@
           "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/pereman/(admin)/aktivitas/page.js"
         },
         {
-          "path": ".open-next/server-functions/default/.next/server/app/pereman/(admin)/kategori/page.js",
-          "kind": "require-call",
-          "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/pereman/(admin)/kategori/page.js"
-        },
-        {
           "path": ".open-next/server-functions/default/.next/server/app/pereman/(admin)/aplikasi/page.js",
           "kind": "require-call",
           "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/pereman/(admin)/aplikasi/page.js"
+        },
+        {
+          "path": ".open-next/server-functions/default/.next/server/app/pereman/(admin)/kategori/page.js",
+          "kind": "require-call",
+          "original": "/home/tino/Documents/webku/tokono/.open-next/server-functions/default/.next/server/app/pereman/(admin)/kategori/page.js"
         },
         {
           "path": ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pengguna/page.js",
@@ -8161,7 +8161,7 @@
           "bytesInOutput": 69866
         },
         ".open-next/server-functions/default/.next/server/chunks/7937.js": {
-          "bytesInOutput": 308445
+          "bytesInOutput": 308415
         },
         ".open-next/server-functions/default/.next/server/webpack-runtime.js": {
           "bytesInOutput": 2065
@@ -8187,11 +8187,11 @@
         ".open-next/server-functions/default/.next/server/app/pereman/(admin)/aktivitas/page.js": {
           "bytesInOutput": 10332
         },
-        ".open-next/server-functions/default/.next/server/app/pereman/(admin)/kategori/page.js": {
-          "bytesInOutput": 16715
-        },
         ".open-next/server-functions/default/.next/server/app/pereman/(admin)/aplikasi/page.js": {
           "bytesInOutput": 11324
+        },
+        ".open-next/server-functions/default/.next/server/app/pereman/(admin)/kategori/page.js": {
+          "bytesInOutput": 16715
         },
         ".open-next/server-functions/default/.next/server/app/pereman/(admin)/pengguna/page.js": {
           "bytesInOutput": 12143
@@ -8236,7 +8236,7 @@
           "bytesInOutput": 6279
         },
         ".open-next/server-functions/default/.next/server/app/aplikasi/[slug]/page.js": {
-          "bytesInOutput": 29601
+          "bytesInOutput": 31012
         },
         ".open-next/server-functions/default/.next/server/app/akun/pengaturan/page.js": {
           "bytesInOutput": 13196
@@ -8458,7 +8458,7 @@
           "bytesInOutput": 62081
         }
       },
-      "bytes": 4065320
+      "bytes": 4066701
     }
   }
 }

@@ -166,12 +166,13 @@ export function ProductVariantSelector({ app }: { app: App }) {
                 key={v.id}
                 type="button"
                 onClick={() => setSelectedVariant(v)}
-                disabled={isOutOfStock}
                 className={`group flex w-full items-center justify-between gap-3 rounded-xl border p-3.5 text-left transition-all duration-200 ${
                   active
-                    ? "border-accent bg-accent/10 shadow-xs ring-1 ring-accent text-fg"
+                    ? isOutOfStock
+                      ? "border-red-500/50 bg-red-500/5 ring-1 ring-red-500/30 text-fg"
+                      : "border-accent bg-accent/10 shadow-xs ring-1 ring-accent text-fg"
                     : isOutOfStock
-                      ? "border-border/40 bg-surface-2/40 opacity-50 cursor-not-allowed text-fg-faint"
+                      ? "border-border/50 bg-surface-2/40 opacity-60 text-fg-muted hover:opacity-80"
                       : "border-border/80 bg-surface/70 text-fg hover:border-accent/40 hover:bg-surface"
                 }`}
               >
@@ -180,17 +181,24 @@ export function ProductVariantSelector({ app }: { app: App }) {
                     <AppIcon icon={app.icon} size="xs" className="h-7 w-7 !min-h-7 !min-w-7 rounded-lg" />
                   </div>
                   <div className="truncate">
-                    <p className="text-[14px] font-semibold truncate text-fg">{localizeVariantName(v.name, lang)}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-[14px] font-semibold truncate text-fg">{localizeVariantName(v.name, lang)}</p>
+                      {isOutOfStock && (
+                        <span className="rounded-md bg-red-500/10 text-red-600 dark:text-red-400 px-1.5 py-0.5 text-[10px] font-bold shrink-0">
+                          {lang === "en" ? "Sold Out" : lang === "zh" ? "缺货" : "Stok Habis"}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-[11.5px] font-normal text-fg-muted mt-0.5">
                       {isOutOfStock
-                        ? (t.product.outOfStock || "Stok Habis")
+                        ? (lang === "en" ? "Out of Stock" : lang === "zh" ? "暂无库存" : "Stok Kosong / Habis")
                         : `${t.product.stock || "Stok:"} ${v.stock ?? app.stock}`}
                     </p>
                   </div>
                 </div>
 
                 <div className="shrink-0 text-right">
-                  <span className={`text-[14.5px] font-bold tabular-nums ${active ? "text-accent" : "text-fg"}`}>
+                  <span className={`text-[14.5px] font-bold tabular-nums ${active ? (isOutOfStock ? "text-red-500" : "text-accent") : (isOutOfStock ? "text-fg-muted line-through" : "text-fg")}`}>
                     {formatPrice(v.price, lang)}
                   </span>
                 </div>
@@ -210,42 +218,73 @@ export function ProductVariantSelector({ app }: { app: App }) {
         <div className="flex items-baseline justify-between mb-4">
           <div>
             <p className="text-xs font-medium text-fg-muted">{t.product.totalPayment || "Total Pembayaran"}</p>
-            <p className="text-2xl font-bold text-accent tabular-nums">{formatPrice(currentPrice, lang)}</p>
+            <p className={`text-2xl font-bold tabular-nums ${selectedVariant.stock === 0 ? "text-fg-muted line-through" : "text-accent"}`}>
+              {formatPrice(currentPrice, lang)}
+            </p>
           </div>
-          <span className="rounded-full bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 text-xs font-medium text-amber-600 dark:text-amber-400">
-            <Zap size={12} className="inline mr-1" />
-            {t.product.instantActivation || "Aktivasi Instan"}
-          </span>
+          {selectedVariant.stock === 0 ? (
+            <span className="rounded-full bg-red-500/10 border border-red-500/20 px-2.5 py-0.5 text-xs font-semibold text-red-600 dark:text-red-400">
+              {lang === "en" ? "Sold Out" : lang === "zh" ? "暂时缺货" : "Stok Habis"}
+            </span>
+          ) : (
+            <span className="rounded-full bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 text-xs font-medium text-amber-600 dark:text-amber-400">
+              <Zap size={12} className="inline mr-1" />
+              {t.product.instantActivation || "Aktivasi Instan"}
+            </span>
+          )}
         </div>
 
         {/* Action Buttons */}
         <div className="flex flex-col gap-2.5">
-          <Button
-            size="lg"
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm hover:shadow-md font-semibold rounded-full cursor-pointer transition-colors active:scale-[0.98]"
-            onClick={handleBuyNow}
-            disabled={selectedVariant.stock === 0 || isBuying}
-            loading={isBuying}
-          >
-            {isBuying ? (
-              lang === "en" ? "Preparing Checkout…" : lang === "zh" ? "正在准备结账…" : "Menyiapkan Pembayaran…"
-            ) : (
-              <span className="inline-flex items-center justify-center gap-2">
-                <span>{t.product.buyNow || (lang === "en" ? "Buy Now" : lang === "zh" ? "立即购买" : "Beli Sekarang")}</span>
-                {!isBuying && <ArrowRight size={17} strokeWidth={2.5} />}
-              </span>
-            )}
-          </Button>
-          <Button
-            size="lg"
-            variant="secondary"
-            className="w-full"
-            onClick={handleAddToCart}
-            disabled={selectedVariant.stock === 0 || isAdding}
-          >
-            <ShoppingBag size={17} strokeWidth={2} />
-            {isAdding ? (t.product.adding || "Menambahkan…") : (t.product.addToCart || "Tambah ke Keranjang")}
-          </Button>
+          {selectedVariant.stock === 0 ? (
+            <>
+              <button
+                type="button"
+                disabled
+                className="w-full h-12 py-3 px-6 rounded-full bg-surface-3 text-fg-muted font-bold text-sm sm:text-base border border-border/80 opacity-70 cursor-not-allowed flex items-center justify-center gap-2 shadow-inner"
+              >
+                <span>{lang === "en" ? "Sold Out" : lang === "zh" ? "已售罄 (缺货)" : "Stok Habis (Sold Out)"}</span>
+              </button>
+              <Button
+                size="lg"
+                variant="secondary"
+                className="w-full opacity-50 cursor-not-allowed"
+                disabled
+              >
+                <ShoppingBag size={17} strokeWidth={2} />
+                {lang === "en" ? "Item Unavailable" : lang === "zh" ? "暂不可加购" : "Stok Tidak Tersedia"}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                size="lg"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm hover:shadow-md font-semibold rounded-full cursor-pointer transition-colors active:scale-[0.98]"
+                onClick={handleBuyNow}
+                disabled={isBuying}
+                loading={isBuying}
+              >
+                {isBuying ? (
+                  lang === "en" ? "Preparing Checkout…" : lang === "zh" ? "正在准备结账…" : "Menyiapkan Pembayaran…"
+                ) : (
+                  <span className="inline-flex items-center justify-center gap-2">
+                    <span>{t.product.buyNow || (lang === "en" ? "Buy Now" : lang === "zh" ? "立即购买" : "Beli Sekarang")}</span>
+                    {!isBuying && <ArrowRight size={17} strokeWidth={2.5} />}
+                  </span>
+                )}
+              </Button>
+              <Button
+                size="lg"
+                variant="secondary"
+                className="w-full"
+                onClick={handleAddToCart}
+                disabled={isAdding}
+              >
+                <ShoppingBag size={17} strokeWidth={2} />
+                {isAdding ? (t.product.adding || "Menambahkan…") : (t.product.addToCart || "Tambah ke Keranjang")}
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>
