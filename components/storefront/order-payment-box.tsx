@@ -37,7 +37,10 @@ export function OrderPaymentBox({
     ? "0x141b43fCDb8D17c09e7b4235b2527309db674A27"
     : "TQTpRn6j1Pfwf38xP8CxqxJi18YX4v8Wcm";
   const usdtNetwork = isBep20 ? "BNB Smart Chain (BEP-20)" : "Tron (TRC-20)";
-  const usdtAmount = (total / 16000).toFixed(2);
+  const rawUsd = total / 16000;
+  const numId = parseInt((orderId || "").replace(/\D/g, "") || "123", 10);
+  const decimalUnique = (numId % 100) / 10000;
+  const usdtAmount = (rawUsd + decimalUnique).toFixed(4);
 
   return (
     <div className="mt-5 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 sm:p-5 text-left">
@@ -55,9 +58,9 @@ export function OrderPaymentBox({
           <p className="mt-1 text-xs font-normal leading-relaxed text-fg-muted">
             {isBinance
               ? lang === "en"
-                ? "If you haven't completed the payment yet, please open the Binance app and scan the QR Code or transfer to Binance Pay ID: 1275129025 so your order can be fulfilled immediately."
+                ? "If you haven't completed the payment yet, please open the Binance app and scan the QR Code or transfer to Binance Pay ID: 1275129025 with the exact amount so your order can be fulfilled immediately."
                 : lang === "zh"
-                ? "如果您尚未完成付款，请打开币安 Binance App 扫描下方二维码或向币安支付 ID: 1275129025 转账，以便系统快速为您核对并交付。"
+                ? "如果您尚未完成付款，请打开币安 Binance App 扫描下方二维码或向币安支付 ID: 1275129025 按准确金额转账，以便系统快速为您核对并交付。"
                 : "Jika Anda belum sempat transfer, silakan buka aplikasi Binance dan scan QR Code atau kirim ke Binance Pay ID: 1275129025 dengan nominal pas agar pesanan dapat segera diproses."
               : isUsdt
               ? lang === "en"
@@ -104,6 +107,13 @@ export function OrderPaymentBox({
                 <span>{copiedField === "binance-amount" ? (lang === "en" ? "Copied" : "Disalin") : (lang === "en" ? "Copy" : "Salin")}</span>
               </button>
             </div>
+            <p className="mt-2 text-[11px] text-fg-muted border-t border-[#F0B90B]/20 pt-2 leading-relaxed">
+              {lang === "en"
+                ? `Includes unique decimal code (+${decimalUnique.toFixed(4)}). Please transfer exactly $${usdtAmount} for automatic matching.`
+                : lang === "zh"
+                ? `已包含唯一小数识别码 (+${decimalUnique.toFixed(4)})。请准确转入 $${usdtAmount} 以便系统自动核对。`
+                : `Sudah termasuk kode unik desimal (+${decimalUnique.toFixed(4)}). Mohon transfer persis $${usdtAmount} agar verifikasi otomatis.`}
+            </p>
           </div>
 
           {/* Binance Pay ID */}

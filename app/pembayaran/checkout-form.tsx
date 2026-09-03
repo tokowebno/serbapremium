@@ -494,7 +494,7 @@ export function CheckoutForm({
                   <div className="rounded-2xl border border-[#F0B90B]/40 bg-[#F0B90B]/5 p-4 sm:p-5">
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-medium uppercase text-fg-muted">
-                        {lang === "en" ? "Total Binance Pay" : lang === "zh" ? "币安支付应付总额" : "Total Bayar via Binance"}
+                        {lang === "en" ? "Total Binance Pay (USD / USDT)" : lang === "zh" ? "币安支付应付总额 (USD / USDT)" : "Total Bayar via Binance (USD / USDT)"}
                       </p>
                       <span className="rounded-full bg-[#F0B90B]/20 text-[#D9A404] dark:text-[#F0B90B] px-2.5 py-0.5 text-[10px] font-bold">
                         Binance Pay
@@ -504,7 +504,7 @@ export function CheckoutForm({
                     <div className="mt-2 flex items-baseline justify-between gap-2">
                       <div>
                         <p className="text-2xl sm:text-3xl font-bold tracking-tight text-fg tabular-nums">
-                          ${baseUsd.toFixed(2)} <span className="text-lg font-bold text-fg-muted">USD / USDT</span>
+                          {totalUsdt} <span className="text-lg font-bold text-fg-muted">USDT / USD</span>
                         </p>
                         <p className="text-xs font-medium text-fg-muted mt-0.5">
                           ≈ Rp {subtotal.toLocaleString("id-ID")}
@@ -512,7 +512,7 @@ export function CheckoutForm({
                       </div>
                       <button
                         type="button"
-                        onClick={() => copyAmount(baseUsd.toFixed(2))}
+                        onClick={() => copyAmount(totalUsdt)}
                         className="flex items-center gap-1 rounded-full bg-[#F0B90B] px-3 py-1 text-xs font-bold text-[#181A20] shadow-sm hover:bg-[#e0ac07] active:scale-95"
                       >
                         {isAmountCopied ? <Check size={12} strokeWidth={2.5} /> : <Copy size={12} strokeWidth={2} />}
@@ -521,6 +521,16 @@ export function CheckoutForm({
                           : (lang === "en" ? "Copy Amount" : lang === "zh" ? "复制金额" : "Salin Nominal")}
                       </button>
                     </div>
+
+                    <p className="mt-2.5 text-xs font-normal leading-relaxed text-fg-muted border-t border-[#F0B90B]/20 pt-2.5">
+                      {lang === "en" ? (
+                        <>The <span className="font-semibold text-fg">decimal unique code (+{usdtDecimalUnique.toFixed(4)})</span> is included in the total above. Please transfer exactly <span className="font-semibold text-fg">{totalUsdt} USDT/USD</span> for automatic verification.</>
+                      ) : lang === "zh" ? (
+                        <>上方总额已包含 <span className="font-semibold text-fg">唯一识别码 (+{usdtDecimalUnique.toFixed(4)})</span>。请准确转入 <span className="font-semibold text-fg">{totalUsdt} USDT/USD</span> 以便系统自动核对。</>
+                      ) : (
+                        <><span className="font-semibold text-fg">Kode unik desimal (+{usdtDecimalUnique.toFixed(4)})</span> sudah termasuk dalam total di atas. Transfer persis <span className="font-semibold text-fg">{totalUsdt} USDT/USD</span> agar pesanan Anda langsung diproses otomatis.</>
+                      )}
+                    </p>
                   </div>
 
                   {/* Binance Pay ID */}
@@ -562,11 +572,11 @@ export function CheckoutForm({
                     </div>
                     <p className="max-w-xs text-center text-xs font-medium leading-relaxed text-fg-muted">
                       {lang === "en" ? (
-                        <>Open <span className="font-bold text-fg">Binance App</span> &gt; Scan the QR code above or send to Pay ID <span className="font-bold text-fg font-mono">1275129025</span> with exact amount <span className="font-bold text-fg">${baseUsd.toFixed(2)}</span>.</>
+                        <>Open <span className="font-bold text-fg">Binance App</span> &gt; Scan the QR code above or send to Pay ID <span className="font-bold text-fg font-mono">1275129025</span> with exact amount <span className="font-bold text-fg font-mono">${totalUsdt}</span>.</>
                       ) : lang === "zh" ? (
-                        <>打开 <span className="font-bold text-fg">币安 Binance App</span> 扫一扫上方二维码，或转账至币安支付 ID <span className="font-bold text-fg font-mono">1275129025</span>，金额 <span className="font-bold text-fg">${baseUsd.toFixed(2)}</span>。</>
+                        <>打开 <span className="font-bold text-fg">币安 Binance App</span> 扫一扫上方二维码，或转账至币安支付 ID <span className="font-bold text-fg font-mono">1275129025</span>，金额 <span className="font-bold text-fg font-mono">${totalUsdt}</span>。</>
                       ) : (
-                        <>Buka aplikasi <span className="font-bold text-fg">Binance</span> &gt; Scan QR di atas atau kirim ke Pay ID <span className="font-bold text-fg font-mono">1275129025</span> sejumlah <span className="font-bold text-fg">${baseUsd.toFixed(2)}</span>.</>
+                        <>Buka aplikasi <span className="font-bold text-fg">Binance</span> &gt; Scan QR di atas atau kirim ke Pay ID <span className="font-bold text-fg font-mono">1275129025</span> sejumlah <span className="font-bold text-fg font-mono">${totalUsdt}</span>.</>
                       )}
                     </p>
 
