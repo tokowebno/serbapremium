@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, Zap, ShoppingBag, ArrowRight } from "lucide-react";
+import { ShieldCheck, Zap, ShoppingBag, ArrowRight, Minus, Plus } from "lucide-react";
 import type { App, ProductVariant } from "@/types";
 import { formatPrice } from "@/lib/utils";
 import { useCart } from "./providers";
@@ -89,31 +89,43 @@ export function ProductVariantSelector({ app }: { app: App }) {
 
   const defaultVariant = variants.find((v) => v.stock !== 0) || variants[0];
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(defaultVariant);
+  const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [isBuying, setIsBuying] = useState(false);
 
+  const isSoldOut = selectedVariant.stock === 0;
+  const maxStock = selectedVariant.stock !== undefined ? Math.max(1, selectedVariant.stock) : 99;
   const currentPrice = selectedVariant.price;
+  const totalPrice = currentPrice * (isSoldOut ? 1 : quantity);
   const defaultPlatform = app.platforms[0] || "Web";
+
+  const handleSelectVariant = (v: ProductVariant) => {
+    setSelectedVariant(v);
+    if (v.stock !== undefined && v.stock > 0 && quantity > v.stock) {
+      setQuantity(v.stock);
+    }
+  };
 
   const handleAddToCart = () => {
     setIsAdding(true);
-    const customItemName =
+    const baseName =
       variants.length === 1 || selectedVariant.name.toLowerCase().includes(app.name.toLowerCase())
         ? selectedVariant.name
         : `${app.name} (${selectedVariant.name})`;
+    const customItemName = quantity > 1 ? `${baseName} (${quantity}x)` : baseName;
 
     cart.add(
       {
         ...app,
         name: customItemName,
-        price: currentPrice,
+        price: totalPrice,
       },
       defaultPlatform,
     );
 
     toast.push({
       title: t.product.addedToCart || "Ditambahkan ke Keranjang",
-      description: `${localizeVariantName(customItemName, lang)} — ${formatPrice(currentPrice, lang)}`,
+      description: `${localizeVariantName(customItemName, lang)} — ${formatPrice(totalPrice, lang)}`,
       tone: "success",
     });
     setTimeout(() => setIsAdding(false), 300);
@@ -121,17 +133,19 @@ export function ProductVariantSelector({ app }: { app: App }) {
 
   const handleBuyNow = () => {
     setIsBuying(true);
-    const customItemName =
+    const baseName =
       variants.length === 1 || selectedVariant.name.toLowerCase().includes(app.name.toLowerCase())
         ? selectedVariant.name
         : `${app.name} (${selectedVariant.name})`;
+    const customItemName = quantity > 1 ? `${baseName} (${quantity}x)` : baseName;
 
     const params = new URLSearchParams({
       app: app.slug,
       variant: selectedVariant.id,
       platform: defaultPlatform,
-      price: String(currentPrice),
+      price: String(totalPrice),
       title: customItemName,
+      qty: String(quantity),
     });
     setTimeout(() => {
       router.push(`/pembayaran?${params.toString()}`);
@@ -165,7 +179,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
               <button
                 key={v.id}
                 type="button"
-                onClick={() => setSelectedVariant(v)}
+                onClick={() => handleSelectVariant(v)}
                 className={`group flex w-full items-center justify-between gap-3 rounded-xl border p-3.5 text-left transition-all duration-200 ${
                   active
                     ? isOutOfStock
@@ -213,16 +227,74 @@ export function ProductVariantSelector({ app }: { app: App }) {
         </div>
       )}
 
+      {/* Pilihan Jumlah / Kuantitas Pembelian */}
+      <div className="mt-4.5 border-t border-border/70 pt-4 flex items-center justify-between">
+        <div>
+          <label className="text-xs font-bold uppercase tracking-wide text-fg">
+            {lang === "en" ? "Quantity" : lang === "zh" ? "购买数量" : "Jumlah Pembelian"}
+          </label>
+          <p className="text-[11.5px] text-fg-muted mt-0.5">
+            {isSoldOut
+              ? (lang === "en" ? "Out of stock" : lang === "zh" ? "库存不足" : "Stok tidak tersedia")
+              : (lang === "en" ? `Available: ${maxStock} pcs` : lang === "zh" ? `剩余库存: ${maxStock} 件` : `Tersedia: ${maxStock} item`)}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-1.5 bg-surface-2 rounded-xl p-1 border border-border shadow-xs">
+          <button
+            type="button"
+            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+            disabled={quantity <= 1 || isSoldOut}
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface text-fg font-bold shadow-2xs hover:bg-surface-3 transition-colors disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 cursor-pointer"
+            aria-label="Kurangi kuantitas"
+          >
+            <Minus size={14} strokeWidth={2.5} />
+          </button>
+          
+          <input
+            type="number"
+            min={1}
+            max={maxStock}
+            value={isSoldOut ? 0 : quantity}
+            onChange={(e) => {
+              const val = parseInt(e.target.value, 10);
+              if (!isNaN(val)) {
+                setQuantity(Math.max(1, Math.min(val, maxStock)));
+              }
+            }}
+            disabled={isSoldOut}
+            className="w-10 text-center font-bold text-sm bg-transparent text-fg focus:outline-hidden disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          />
+
+          <button
+            type="button"
+            onClick={() => setQuantity((q) => Math.min(maxStock, q + 1))}
+            disabled={quantity >= maxStock || isSoldOut}
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface text-fg font-bold shadow-2xs hover:bg-surface-3 transition-colors disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 cursor-pointer"
+            aria-label="Tambah kuantitas"
+          >
+            <Plus size={14} strokeWidth={2.5} />
+          </button>
+        </div>
+      </div>
+
       {/* Ringkasan Harga Terpilih */}
-      <div className="mt-5 border-t border-border/70 pt-4">
+      <div className="mt-4 border-t border-border/70 pt-4">
         <div className="flex items-baseline justify-between mb-4">
           <div>
             <p className="text-xs font-medium text-fg-muted">{t.product.totalPayment || "Total Pembayaran"}</p>
-            <p className={`text-2xl font-bold tabular-nums ${selectedVariant.stock === 0 ? "text-fg-muted line-through" : "text-accent"}`}>
-              {formatPrice(currentPrice, lang)}
-            </p>
+            <div className="flex items-baseline gap-2 mt-0.5">
+              <p className={`text-2xl sm:text-3xl font-bold tracking-tight tabular-nums ${isSoldOut ? "text-fg-muted line-through" : "text-accent"}`}>
+                {formatPrice(totalPrice, lang)}
+              </p>
+              {quantity > 1 && !isSoldOut && (
+                <span className="text-xs font-medium text-fg-muted">
+                  ({formatPrice(currentPrice, lang)} × {quantity})
+                </span>
+              )}
+            </div>
           </div>
-          {selectedVariant.stock === 0 ? (
+          {isSoldOut ? (
             <span className="rounded-full bg-red-500/10 border border-red-500/20 px-2.5 py-0.5 text-xs font-semibold text-red-600 dark:text-red-400">
               {lang === "en" ? "Sold Out" : lang === "zh" ? "暂时缺货" : "Stok Habis"}
             </span>
@@ -236,7 +308,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
 
         {/* Action Buttons */}
         <div className="flex flex-col gap-2.5">
-          {selectedVariant.stock === 0 ? (
+          {isSoldOut ? (
             <>
               <button
                 type="button"
