@@ -20,7 +20,7 @@ import { Input, Field } from "@/components/ui/form";
 
 import { supabase, supabaseReady } from "@/lib/supabase";
 
-type PaymentMethod = "qris" | "usdt_bnb" | "usdt_tron";
+type PaymentMethod = "qris" | "binance" | "usdt_bnb" | "usdt_tron";
 
 interface CheckoutItem {
   id: string;
@@ -54,6 +54,17 @@ const PAYMENT_INFO: Record<
     },
     badge: "IDR QRIS",
     icon: "/logos/qris-icon.svg",
+  },
+  binance: {
+    name: {
+      id: "Binance Pay (ID: 1275129025)",
+      en: "Binance Pay (ID: 1275129025)",
+      zh: "币安支付 / Binance Pay (ID: 1275129025)",
+    },
+    badge: "Binance Pay",
+    icon: "/logos/binance.svg",
+    network: "Binance Pay",
+    address: "1275129025",
   },
   usdt_bnb: {
     name: {
@@ -111,10 +122,10 @@ export function CheckoutForm({
   const [copied, setCopied] = useState(false);
   const [isAmountCopied, setIsAmountCopied] = useState(false);
   const [qrisDone, setQrisDone] = useState(false);
+  const [binanceDone, setBinanceDone] = useState(false);
   const [usdtDone, setUsdtDone] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Kode unik 3 digit acak agar mudah diverifikasi (misal: 123)
   const [uniqueCode] = useState(() => Math.floor(Math.random() * 800 + 100));
 
   useEffect(() => {
@@ -124,90 +135,87 @@ export function CheckoutForm({
     }
   }, [user, name, email]);
 
-  // Siapkan daftar item checkout
   let itemsToCheckout: CheckoutItem[] = [];
   if (customTitle && customPrice !== undefined) {
-    itemsToCheckout = [
-      {
-        id: initialSlug || "custom-item",
-        name: customTitle,
-        price: customPrice,
-        platform: customPlatform || "Web",
-      },
-    ];
+    itemsToCheckout = [{
+      id: initialSlug || "custom-item",
+      name: customTitle,
+      price: customPrice,
+      platform: customPlatform || "Digital",
+    }];
   } else if (initialSlug) {
     const app = api.apps.getBySlug(initialSlug);
     if (app) {
-      itemsToCheckout = [
-        {
-          id: app.id,
-          name: app.name,
-          price: app.price,
-          platform: customPlatform || app.platforms[0] || "Web",
-        },
-      ];
+      itemsToCheckout = [{
+        id: app.id,
+        name: app.name,
+        price: app.price,
+        platform: app.platforms[0] || "Universal",
+      }];
     }
-  } else {
-    itemsToCheckout = cartItems.map((c) => ({
-      id: c.appId,
-      name: c.name,
-      price: c.price,
-      platform: c.platform,
-    }));
+  } else if (cartItems.length > 0) {
+    itemsToCheckout = cartItems.map((it) => {
+      const app = api.apps.getById(it.appId);
+      return {
+        id: it.appId,
+        name: app ? app.name : "Digital Item",
+        price: app ? app.price : 0,
+        platform: it.platform,
+      };
+    });
   }
 
-  const subtotal = itemsToCheckout.reduce((sum, item) => sum + item.price, 0);
-
-  // Rate: 1 USDT ≈ Rp 16.000
-  const rawUsd = subtotal / 16000;
-  const baseUsd = Math.max(0.5, rawUsd);
-  // Kode unik 3-4 desimal untuk USDT (misal: 0.0123)
-  const usdtDecimalUnique = (uniqueCode % 900 + 100) / 10000;
+  const subtotal = itemsToCheckout.reduce((acc, item) => acc + item.price, 0);
+  const baseUsd = subtotal / 16000;
+  const usdtDecimalUnique = (uniqueCode % 100) / 10000;
   const totalUsdt = Number((baseUsd + usdtDecimalUnique).toFixed(4));
-
   const totalBayar = paymentMethod === "qris" ? subtotal + uniqueCode : subtotal;
 
-  const copyAddress = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* ignore */
-    }
+  const copyAddress = (address: string) => {
+    navigator.clipboard.writeText(address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
-  const copyAmount = async (amount: number | string) => {
-    try {
-      await navigator.clipboard.writeText(amount.toString());
-      setIsAmountCopied(true);
-      setTimeout(() => setIsAmountCopied(false), 2000);
-    } catch {
-      /* ignore */
-    }
+  const copyAmount = (amount: number | string) => {
+    navigator.clipboard.writeText(amount.toString());
+    setIsAmountCopied(true);
+    setTimeout(() => setIsAmountCopied(false), 2000);
   };
 
   const validateForm = () => {
     if (!name.trim()) {
-      setErrorMessage(lang === "en" ? "Please enter your full name." : lang === "zh" ? "请输入您的姓名。" : "Harap masukkan nama lengkap Anda.");
+      setErrorMessage(
+        lang === "en"
+          ? "Please enter your full name."
+          : lang === "zh"
+          ? "请输入您的完整姓名。"
+          : "Mohon isi nama lengkap Anda."
+      );
       return false;
     }
     if (!email.trim() || !email.includes("@")) {
-      setErrorMessage(lang === "en" ? "Please enter a valid email address." : lang === "zh" ? "请输入有效的电子邮件地址。" : "Harap masukkan alamat email yang valid.");
+      setErrorMessage(
+        lang === "en"
+          ? "Please enter a valid email address for delivery."
+          : lang === "zh"
+          ? "请输入有效的接收邮箱地址。"
+          : "Mohon masukkan alamat email yang valid untuk pengiriman lisensi."
+      );
       return false;
     }
-    setErrorMessage("");
     return true;
   };
 
   const goNext = () => {
     if (!validateForm()) return;
+    setErrorMessage("");
     setStepLoading(true);
     setTimeout(() => {
       setStepLoading(false);
       setStep(2);
       window.scrollTo({ top: 0, behavior: "smooth" });
-    }, 700);
+    }, 400);
   };
 
   const finishCheckout = async () => {
@@ -220,9 +228,7 @@ export function CheckoutForm({
     const orderData = {
       id: orderId,
       user_name: name.trim() || "Pelanggan",
-      buyer_email: email.trim(),
-      buyer_phone: phone.trim() || null,
-      items: itemsToCheckout.map((i) => ({ appId: i.id, name: i.name, platform: i.platform, price: i.price })),
+      items: itemsToCheckout,
       subtotal,
       discount: 0,
       total: totalBayar,
@@ -230,45 +236,41 @@ export function CheckoutForm({
       payment_status: "menunggu",
       order_status: "diproses",
       date: new Date().toISOString().slice(0, 10),
-      uniqueCode: paymentMethod === "qris" ? uniqueCode : undefined,
     };
 
     try {
       sessionStorage.setItem("serbapremium:last-order", JSON.stringify(orderData));
-      sessionStorage.setItem("tokono:last-order", JSON.stringify(orderData));
-
-      const raw = localStorage.getItem("serbapremium:orders") || localStorage.getItem("tokono:orders") || "[]";
+      const raw = localStorage.getItem("serbapremium:orders") || "[]";
       const existing = JSON.parse(raw);
       const list = Array.isArray(existing) ? existing : [];
       const updated = [orderData, ...list.filter((o: any) => o.id !== orderId)];
       localStorage.setItem("serbapremium:orders", JSON.stringify(updated));
-      localStorage.setItem("tokono:orders", JSON.stringify(updated));
     } catch {
       /* ignore storage full */
     }
 
     try {
       if (supabaseReady) {
-        await supabase.from("orders").insert({
-          id: orderId,
-          user_name: name.trim(),
-          buyer_email: email.trim(),
-          buyer_phone: phone.trim() || null,
-          items: itemsToCheckout.map((i) => ({ appId: i.id, name: i.name, platform: i.platform, price: i.price })),
-          subtotal,
-          discount: 0,
-          total: totalBayar,
-          payment_method: paymentMethod,
-          payment_status: "menunggu",
-          order_status: "diproses",
-          date: new Date().toISOString().slice(0, 10),
-        });
+        await supabase.from("orders").insert([
+          {
+            id: orderId,
+            user_name: name.trim() || "Pelanggan",
+            items: itemsToCheckout,
+            subtotal,
+            discount: 0,
+            total: totalBayar,
+            payment_method: paymentMethod,
+            payment_status: "menunggu",
+            order_status: "diproses",
+            date: new Date().toISOString().slice(0, 10),
+          },
+        ]);
       }
-    } catch (e) {
-      console.error("Supabase order insert error:", e);
+    } catch (err) {
+      console.warn("Supabase order insert failed, order saved locally:", err);
     }
 
-    if (!initialSlug) {
+    if (!initialSlug && !customTitle) {
       clearCart();
     }
 
@@ -487,7 +489,101 @@ export function CheckoutForm({
                 </button>
               </div>
 
-              {paymentMethod === "qris" ? (
+              {paymentMethod === "binance" ? (
+                <>
+                  <div className="rounded-2xl border border-[#F0B90B]/40 bg-[#F0B90B]/5 p-4 sm:p-5">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-medium uppercase text-fg-muted">
+                        {lang === "en" ? "Total Binance Pay" : lang === "zh" ? "币安支付应付总额" : "Total Bayar via Binance"}
+                      </p>
+                      <span className="rounded-full bg-[#F0B90B]/20 text-[#D9A404] dark:text-[#F0B90B] px-2.5 py-0.5 text-[10px] font-bold">
+                        Binance Pay
+                      </span>
+                    </div>
+
+                    <div className="mt-2 flex items-baseline justify-between gap-2">
+                      <div>
+                        <p className="text-2xl sm:text-3xl font-bold tracking-tight text-fg tabular-nums">
+                          ${baseUsd.toFixed(2)} <span className="text-lg font-bold text-fg-muted">USD / USDT</span>
+                        </p>
+                        <p className="text-xs font-medium text-fg-muted mt-0.5">
+                          ≈ Rp {subtotal.toLocaleString("id-ID")}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => copyAmount(baseUsd.toFixed(2))}
+                        className="flex items-center gap-1 rounded-full bg-[#F0B90B] px-3 py-1 text-xs font-bold text-[#181A20] shadow-sm hover:bg-[#e0ac07] active:scale-95"
+                      >
+                        {isAmountCopied ? <Check size={12} strokeWidth={2.5} /> : <Copy size={12} strokeWidth={2} />}
+                        {isAmountCopied
+                          ? (lang === "en" ? "Copied!" : lang === "zh" ? "已复制!" : "Disalin!")
+                          : (lang === "en" ? "Copy Amount" : lang === "zh" ? "复制金额" : "Salin Nominal")}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Binance Pay ID */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium uppercase text-fg-muted">
+                      {lang === "en" ? "Binance Pay ID / User ID" : lang === "zh" ? "币安支付 ID / 用户 ID" : "Binance Pay ID Penerima"}
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        readOnly
+                        value="1275129025"
+                        className="font-mono text-sm font-bold bg-surface"
+                      />
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => copyAddress("1275129025")}
+                        className="shrink-0"
+                      >
+                        {copied ? <Check size={14} /> : <Copy size={14} />}
+                        {copied
+                          ? (lang === "en" ? "Copied" : lang === "zh" ? "已复制" : "Tersalin")
+                          : (lang === "en" ? "Copy ID" : lang === "zh" ? "复制 ID" : "Salin ID")}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* QR Code Binance Pay */}
+                  <div className="flex flex-col items-center gap-3 py-2">
+                    <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-white p-3 shadow-sm">
+                      <img
+                        src="/binance.png"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = "/binance-qr.png";
+                        }}
+                        alt="Binance Pay QR Code"
+                        className="h-56 w-56 object-contain"
+                      />
+                    </div>
+                    <p className="max-w-xs text-center text-xs font-medium leading-relaxed text-fg-muted">
+                      {lang === "en" ? (
+                        <>Open <span className="font-bold text-fg">Binance App</span> &gt; Scan the QR code above or send to Pay ID <span className="font-bold text-fg font-mono">1275129025</span> with exact amount <span className="font-bold text-fg">${baseUsd.toFixed(2)}</span>.</>
+                      ) : lang === "zh" ? (
+                        <>打开 <span className="font-bold text-fg">币安 Binance App</span> 扫一扫上方二维码，或转账至币安支付 ID <span className="font-bold text-fg font-mono">1275129025</span>，金额 <span className="font-bold text-fg">${baseUsd.toFixed(2)}</span>。</>
+                      ) : (
+                        <>Buka aplikasi <span className="font-bold text-fg">Binance</span> &gt; Scan QR di atas atau kirim ke Pay ID <span className="font-bold text-fg font-mono">1275129025</span> sejumlah <span className="font-bold text-fg">${baseUsd.toFixed(2)}</span>.</>
+                      )}
+                    </p>
+
+                    <div className="w-full pt-1">
+                      {binanceDone ? (
+                        <div className="flex items-center justify-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                          <CheckCircle2 size={18} /> {lang === "en" ? "Your Binance Pay payment has been recorded." : lang === "zh" ? "您的币安支付已记录。" : "Pembayaran Binance Pay Anda tercatat."}
+                        </div>
+                      ) : (
+                        <Button size="lg" className="w-full h-13 text-base font-bold bg-[#F0B90B] hover:bg-[#e0ac07] text-[#181A20] shadow-[var(--elev-2)]" onClick={() => setBinanceDone(true)}>
+                          {lang === "en" ? "I Have Paid with Binance Pay" : lang === "zh" ? "我已完成币安支付" : "Saya Sudah Bayar via Binance"}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </>
+              ) : paymentMethod === "qris" ? (
                 <>
                   <div className="rounded-2xl border border-border/70 bg-surface-2/70 p-4 sm:p-5">
                     <p className="text-xs font-medium uppercase text-fg-muted">
