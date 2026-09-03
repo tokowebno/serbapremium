@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { useHydrated } from "@/lib/use-hydrated";
 import { formatDate, formatPrice } from "@/lib/utils";
 import { useTranslation } from "@/components/storefront/i18n-provider";
+import { OrderPaymentBox } from "@/components/storefront/order-payment-box";
 
 interface LastOrder {
   id: string;
@@ -103,6 +104,9 @@ export default function OrderSuccessPage() {
             </li>
           ))}
         </ul>
+
+        {/* Kotak Info Pembayaran QRIS & USDT jika belum bayar / sedang proses */}
+        <OrderPaymentBox orderId={order.id} total={order.total} lang={lang} />
 
         {/* Action Buttons */}
         <div className="mt-6 flex flex-col gap-2.5">

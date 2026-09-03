@@ -222,7 +222,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
         <div className="flex flex-col gap-2.5">
           <Button
             size="lg"
-            className="w-full bg-gradient-to-r from-accent via-indigo-600 to-accent bg-[length:200%_auto] hover:bg-[position:right_center] text-white shadow-lg shadow-accent/25 hover:shadow-accent/40 font-bold transition-all duration-300 cursor-pointer"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm hover:shadow-md font-semibold rounded-full cursor-pointer transition-colors active:scale-[0.98]"
             onClick={handleBuyNow}
             disabled={selectedVariant.stock === 0 || isBuying}
             loading={isBuying}
@@ -230,24 +230,9 @@ export function ProductVariantSelector({ app }: { app: App }) {
             {isBuying ? (
               lang === "en" ? "Preparing Checkout…" : lang === "zh" ? "正在准备结账…" : "Menyiapkan Pembayaran…"
             ) : (
-              <span className="inline-flex items-center justify-center gap-1.5">
-                {lang === "en" ? (
-                  <>
-                    <span className="text-amber-300 font-black tracking-wide drop-shadow-xs">Buy</span>
-                    <span className="text-white font-bold">Now</span>
-                  </>
-                ) : lang === "zh" ? (
-                  <>
-                    <span className="text-amber-300 font-black tracking-wide drop-shadow-xs">立即</span>
-                    <span className="text-white font-bold">购买</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-amber-300 font-black tracking-wide drop-shadow-xs">Beli</span>
-                    <span className="text-white font-bold">Sekarang</span>
-                  </>
-                )}
-                {!isBuying && <ArrowRight size={17} strokeWidth={2.5} className="ml-1 text-amber-300" />}
+              <span className="inline-flex items-center justify-center gap-2">
+                <span>{t.product.buyNow || (lang === "en" ? "Buy Now" : lang === "zh" ? "立即购买" : "Beli Sekarang")}</span>
+                {!isBuying && <ArrowRight size={17} strokeWidth={2.5} />}
               </span>
             )}
           </Button>

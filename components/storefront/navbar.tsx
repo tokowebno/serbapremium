@@ -135,11 +135,11 @@ export function Navbar() {
                 {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
               </button>
 
-              {/* Wishlist */}
+              {/* Wishlist (Desktop) */}
               <Link
                 href="/akun/keinginan"
                 aria-label={t.navbar.wishlist}
-                className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full text-fg-muted transition-all duration-200 hover:bg-surface/80 hover:text-fg hover:shadow-[var(--elev-1)] active:scale-95"
+                className="relative hidden sm:flex h-9 w-9 items-center justify-center rounded-full text-fg-muted transition-all duration-200 hover:bg-surface/80 hover:text-fg hover:shadow-[var(--elev-1)] active:scale-95"
               >
                 <Heart size={16} />
                 <AnimatePresence>
@@ -158,11 +158,11 @@ export function Navbar() {
                 </AnimatePresence>
               </Link>
 
-              {/* Cart */}
+              {/* Cart (Desktop) */}
               <Link
                 href="/keranjang"
                 aria-label={t.navbar.cart}
-                className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full text-fg-muted transition-all duration-200 hover:bg-surface/80 hover:text-fg hover:shadow-[var(--elev-1)] active:scale-95"
+                className="relative hidden sm:flex h-9 w-9 items-center justify-center rounded-full text-fg-muted transition-all duration-200 hover:bg-surface/80 hover:text-fg hover:shadow-[var(--elev-1)] active:scale-95"
               >
                 <ShoppingBag size={16} />
                 <AnimatePresence>

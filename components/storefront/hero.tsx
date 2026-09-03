@@ -73,13 +73,15 @@ export function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-6 sm:mt-9 flex flex-wrap items-center justify-center gap-2.5 sm:gap-4 text-xs font-medium text-fg-muted"
+            className="mt-6 sm:mt-9 flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-[11px] sm:text-xs font-medium text-fg-muted"
           >
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-surface/70 border border-border/80 px-3 py-1 shadow-sm backdrop-blur-sm">
-              <ShieldCheck size={14} className="text-emerald-500" strokeWidth={2} /> {t.footer.warranty}
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-surface/80 border border-border/80 px-2.5 sm:px-3 py-1 shadow-xs backdrop-blur-sm">
+              <ShieldCheck size={13} className="text-emerald-500 shrink-0" strokeWidth={2} />
+              <span>{t.footer.warranty}</span>
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-surface/70 border border-border/80 px-3 py-1 shadow-sm backdrop-blur-sm">
-              <Sparkles size={14} className="text-amber-500" strokeWidth={2} /> {t.footer.instantActivation}
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-surface/80 border border-border/80 px-2.5 sm:px-3 py-1 shadow-xs backdrop-blur-sm">
+              <Sparkles size={13} className="text-amber-500 shrink-0" strokeWidth={2} />
+              <span>{t.footer.instantActivation}</span>
             </span>
           </motion.div>
         </div>

@@ -14,27 +14,27 @@ export function BottomNav() {
 
   const navItems = [
     {
-      label: t.navbar?.home || "Beranda",
+      label: lang === "en" ? "Home" : lang === "zh" ? "首页" : "Beranda",
       href: "/",
       icon: Home,
     },
     {
-      label: t.navbar?.apps || "Aplikasi",
+      label: lang === "en" ? "Apps" : lang === "zh" ? "应用" : "Aplikasi",
       href: "/aplikasi",
       icon: Grid,
     },
     {
-      label: t.navbar?.promo || "Promo",
+      label: lang === "en" ? "Promo" : lang === "zh" ? "优惠" : "Promo",
       href: "/promo",
       icon: Flame,
     },
     {
-      label: t.navbar?.checkOrder || "Pesanan",
+      label: lang === "en" ? "Orders" : lang === "zh" ? "查单" : "Pesanan",
       href: "/cek-pesanan",
       icon: SearchCheck,
     },
     {
-      label: t.navbar?.cart || "Keranjang",
+      label: lang === "en" ? "Cart" : lang === "zh" ? "购物车" : "Keranjang",
       href: "/keranjang",
       icon: ShoppingBag,
       badge: count > 0 ? count : undefined,
@@ -44,9 +44,9 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Mobile Navigation"
-      className="fixed bottom-3 inset-x-3 z-50 lg:hidden mat-func rounded-2xl px-2 py-1.5 shadow-[var(--elev-3)] border border-white/40 dark:border-white/10"
+      className="fixed bottom-3 inset-x-3 z-50 lg:hidden mat-func rounded-2xl px-1.5 py-1.5 shadow-[var(--elev-3)] border border-white/40 dark:border-white/10"
     >
-      <div className="grid grid-cols-5 items-center gap-1">
+      <div className="grid grid-cols-5 items-center gap-0.5">
         {navItems.map((item) => {
           const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
           const Icon = item.icon;
@@ -70,7 +70,7 @@ export function BottomNav() {
                   </span>
                 )}
               </div>
-              <span className="mt-0.5 text-[10px] font-medium tracking-tight truncate max-w-[54px]">
+              <span className="mt-0.5 text-[10.5px] font-medium tracking-tight text-center whitespace-nowrap">
                 {item.label}
               </span>
             </Link>

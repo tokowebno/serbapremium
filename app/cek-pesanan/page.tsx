@@ -11,6 +11,7 @@ import { supabase, supabaseReady } from "@/lib/supabase";
 import { api } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 import { useTranslation } from "@/components/storefront/i18n-provider";
+import { OrderPaymentBox } from "@/components/storefront/order-payment-box";
 
 interface OrderResult {
   id: string;
@@ -243,13 +244,10 @@ export default function CekPesananPage() {
               <span className="tabular-nums text-accent">{formatPrice(result.total, lang)}</span>
             </div>
 
-            <p className="mt-4 rounded-xl bg-accent-soft p-3 text-xs font-medium text-fg border border-accent/20">
-              {result.payment_status === "menunggu"
-                ? (lang === "en" ? "Payment is being verified. Your order will be processed shortly after confirmation." : lang === "zh" ? "付款正在核验中，确认收到款项后将立即为您处理发货。" : "Pembayaran sedang diverifikasi. Pesanan akan segera diproses setelah dana terkonfirmasi.")
-                : result.payment_status === "dibayar"
-                  ? (lang === "en" ? "Payment confirmed! Your digital license and credentials are ready in My Collection." : lang === "zh" ? "付款已确认！您的账号与数字授权已可在 我的收藏 中查看。" : "Pembayaran telah dikonfirmasi! Akun/lisensi Anda siap diakses di menu Koleksi Saya.")
-                  : (lang === "en" ? "Your order status has been updated by SerbaPremium." : lang === "zh" ? "您的订单状态已由 SerbaPremium 系统更新。" : "Status pesanan Anda telah diperbarui oleh sistem SerbaPremium.")}
-            </p>
+            {/* Kotak Bayar QRIS / USDT jika status sedang proses / menunggu */}
+            {(result.payment_status === "menunggu" || result.order_status === "diproses") && (
+              <OrderPaymentBox orderId={result.id} total={result.total} lang={lang} />
+            )}
 
             <div className="mt-5 flex gap-2.5">
               <ButtonLink href="/akun/koleksi" variant="secondary" size="sm" className="flex-1 rounded-full text-xs">

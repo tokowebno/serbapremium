@@ -112,7 +112,7 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
           </div>
           <Link
             href={`/aplikasi/${app.slug}`}
-            className="rounded-full bg-gradient-to-r from-accent to-indigo-600 px-3.5 py-1.5 text-[11px] sm:text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:brightness-110 hover:shadow-md active:scale-95"
+            className="rounded-full bg-emerald-600 hover:bg-emerald-700 px-3.5 py-1.5 text-[11px] sm:text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:shadow-md active:scale-95"
           >
             {t.product.viewDetail || "Lihat Detail"}
           </Link>
