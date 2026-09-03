@@ -15,6 +15,8 @@ interface LastOrder {
   date: string;
   items: Array<{ name: string; platform: string }>;
   total: number;
+  payment_method?: string;
+  payment_status?: string;
 }
 
 let cachedRaw: string | null = null;
@@ -105,8 +107,13 @@ export default function OrderSuccessPage() {
           ))}
         </ul>
 
-        {/* Kotak Info Pembayaran QRIS & USDT jika belum bayar / sedang proses */}
-        <OrderPaymentBox orderId={order.id} total={order.total} lang={lang} />
+        {/* Kotak Info Pembayaran QRIS atau USDT jika belum bayar / sedang proses */}
+        <OrderPaymentBox
+          orderId={order.id}
+          total={order.total}
+          paymentMethod={order.payment_method || "qris"}
+          lang={lang}
+        />
 
         {/* Action Buttons */}
         <div className="mt-6 flex flex-col gap-2.5">

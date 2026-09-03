@@ -18,6 +18,7 @@ interface OrderResult {
   user_name: string;
   items: Array<{ name: string; platform: string; price: number }>;
   total: number;
+  payment_method?: string;
   payment_status: string;
   order_status: string;
   date: string;
@@ -63,6 +64,7 @@ export default function CekPesananPage() {
             user_name: data.user_name || "Pelanggan",
             items,
             total: Number(data.total) || 0,
+            payment_method: data.payment_method || "qris",
             payment_status: data.payment_status || "menunggu",
             order_status: data.order_status || "diproses",
             date: data.date || new Date().toISOString().slice(0, 10),
@@ -96,6 +98,7 @@ export default function CekPesananPage() {
                   }))
                 : [],
               total: Number(match.total) || 0,
+              payment_method: match.payment_method || "qris",
               payment_status: match.payment_status || "menunggu",
               order_status: match.order_status || "diproses",
               date: match.date || new Date().toISOString().slice(0, 10),
@@ -124,6 +127,7 @@ export default function CekPesananPage() {
                 }))
               : [],
             total: Number(last.total) || 0,
+            payment_method: last.payment_method || "qris",
             payment_status: last.payment_status || "menunggu",
             order_status: last.order_status || "diproses",
             date: last.date || new Date().toISOString().slice(0, 10),
@@ -148,6 +152,7 @@ export default function CekPesananPage() {
           price: it.price,
         })),
         total: mockMatch.total,
+        payment_method: (mockMatch as any).paymentMethod || "qris",
         payment_status: mockMatch.paymentStatus,
         order_status: mockMatch.orderStatus,
         date: mockMatch.date,
@@ -244,9 +249,14 @@ export default function CekPesananPage() {
               <span className="tabular-nums text-accent">{formatPrice(result.total, lang)}</span>
             </div>
 
-            {/* Kotak Bayar QRIS / USDT jika status sedang proses / menunggu */}
+            {/* Kotak Bayar QRIS / USDT sesuai metode awal jika status sedang proses / menunggu */}
             {(result.payment_status === "menunggu" || result.order_status === "diproses") && (
-              <OrderPaymentBox orderId={result.id} total={result.total} lang={lang} />
+              <OrderPaymentBox
+                orderId={result.id}
+                total={result.total}
+                paymentMethod={result.payment_method || "qris"}
+                lang={lang}
+              />
             )}
 
             <div className="mt-5 flex gap-2.5">
