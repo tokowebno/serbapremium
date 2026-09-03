@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Check, AlertCircle } from "lucide-react";
+import { Copy, Check, AlertCircle, Send } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 
 interface OrderPaymentBoxProps {
@@ -165,6 +165,19 @@ export function OrderPaymentBox({
           </div>
         </div>
       )}
+
+      {/* Telegram Admin Contact */}
+      <div className="mt-3.5 pt-3 border-t border-amber-500/20 text-center">
+        <a
+          href="https://t.me/serbapremiumy"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#229ED9] hover:underline"
+        >
+          <Send size={12} className="fill-current" />
+          <span>{lang === "en" ? "Need help? Contact Admin on Telegram: @serbapremiumy" : lang === "zh" ? "需要协助？联系 Telegram 客服：@serbapremiumy" : "Butuh bantuan? Hubungi Admin Telegram: @serbapremiumy"}</span>
+        </a>
+      </div>
     </div>
   );
 }

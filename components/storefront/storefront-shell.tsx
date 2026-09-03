@@ -7,6 +7,7 @@ import { Footer } from "./footer";
 import { CursorGlow } from "./cursor-glow";
 
 import { BottomNav } from "./bottom-nav";
+import { TelegramFloat } from "./telegram-float";
 
 /**
  * Membungkus storefront dengan navbar + footer + bottom nav mobile,
@@ -36,6 +37,7 @@ export function StorefrontShell({ children }: { children: React.ReactNode }) {
           </motion.div>
         </AnimatePresence>
       </main>
+      <TelegramFloat />
       <BottomNav />
       <Footer />
     </>

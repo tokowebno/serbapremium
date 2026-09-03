@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Zap } from "lucide-react";
+import { Zap, Send } from "lucide-react";
 import { api } from "@/lib/api";
 import { Reveal } from "@/components/ui/reveal";
 import { useTranslation } from "./i18n-provider";
@@ -24,6 +24,17 @@ export function Footer() {
           <p className="mt-3 max-w-xs text-sm font-normal leading-relaxed text-fg-muted">
             {t.footer.about}
           </p>
+          <div className="mt-4">
+            <a
+              href="https://t.me/serbapremiumy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-[#229ED9]/15 border border-[#229ED9]/30 px-3 py-1.5 text-xs font-semibold text-[#229ED9] hover:bg-[#229ED9] hover:text-white transition-all duration-200"
+            >
+              <Send size={13} className="fill-current" />
+              <span>Telegram Admin: @serbapremiumy</span>
+            </a>
+          </div>
         </div>
 
         <nav aria-label="Jelajahi">
@@ -61,7 +72,7 @@ export function Footer() {
             <li><Link className="text-sm font-medium text-fg-muted transition-colors hover:text-fg" href="/keranjang">{t.navbar.cart}</Link></li>
             <li><Link className="text-sm font-medium text-fg-muted transition-colors hover:text-fg" href="/cek-pesanan">{t.navbar.checkOrder}</Link></li>
             <li><Link className="text-sm font-medium text-fg-muted transition-colors hover:text-fg" href="/akun">{t.footer.myCollection}</Link></li>
-            <li><Link className="text-sm font-medium text-fg-muted transition-colors hover:text-fg" href="/promo">{t.navbar.promo}</Link></li>
+            <li><a className="text-sm font-medium text-[#229ED9] transition-colors hover:underline" href="https://t.me/serbapremiumy" target="_blank" rel="noopener noreferrer">Telegram: @serbapremiumy</a></li>
           </ul>
           <p className="mt-5 text-xs font-normal leading-5 text-fg-faint">
             {t.footer.secureTransaction}
