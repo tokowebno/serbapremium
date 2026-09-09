@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
-import { Check } from "lucide-react";
+import { Check, ShieldCheck, ShoppingCart } from "lucide-react";
 import type { App } from "@/types";
 import { api } from "@/lib/api";
 import { formatCompact, formatDate, seededRandom } from "@/lib/utils";
@@ -58,6 +58,112 @@ function Info({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
+function StructuredSummary({ summary, fallbackDescription, lang }: { summary?: string; fallbackDescription?: string; lang: string }) {
+  const text = summary || fallbackDescription || "";
+  if (!text) return null;
+
+  // Normalisasi baris jika 1. 2. 3. menumpuk dalam satu baris teks
+  const normalized = text
+    .replace(/\r\n/g, "\n")
+    .replace(/\s+(\d+\.\s+)/g, "\n$1")
+    .replace(/(CARA ORDER [^:\n]+:)/gi, "\n\n$1\n")
+    .replace(/(HOW TO ORDER [^:\n]+:)/gi, "\n\n$1\n")
+    .replace(/(购买流程[^：\n]+：)/g, "\n\n$1\n")
+    .replace(/(购买指引[^：\n]+：)/g, "\n\n$1\n")
+    .replace(/(HAL PENTING [^:\n]+:)/gi, "\n\n$1\n")
+    .replace(/(CATATAN PENGGUNAAN [^:\n]+:)/gi, "\n\n$1\n")
+    .replace(/(IMPORTANT USAGE [^:\n]+:)/gi, "\n\n$1\n")
+    .replace(/(重要使用须知[^：\n]+：)/g, "\n\n$1\n");
+
+  const lines = normalized.split("\n").map((l) => l.trim()).filter(Boolean);
+  let mode: "overview" | "steps" | "notes" = "overview";
+  const overviewLines: string[] = [];
+  const orderSteps: string[] = [];
+  const notes: string[] = [];
+
+  for (const line of lines) {
+    if (/^(CARA ORDER|HOW TO ORDER|购买流程|购买指引)/i.test(line)) {
+      mode = "steps";
+      continue;
+    }
+    if (/^(HAL PENTING|CATATAN PENGGUNAAN|IMPORTANT USAGE|重要使用须知)/i.test(line)) {
+      mode = "notes";
+      continue;
+    }
+
+    if (mode === "overview") {
+      overviewLines.push(line);
+    } else if (mode === "steps") {
+      const stepText = line.replace(/^\d+[\.\)]\s*/, "").trim();
+      if (stepText) orderSteps.push(stepText);
+    } else if (mode === "notes") {
+      const noteText = line.replace(/^[•\-\*]\s*/, "").trim();
+      if (noteText) notes.push(noteText);
+    }
+  }
+
+  const stepTitle =
+    lang === "en" ? "How to Order / Purchase Guide" : lang === "zh" ? "购买流程与下单指引" : "Cara Order / Pembelian";
+  const noteTitle =
+    lang === "en" ? "Important Usage Notes & Warranty" : lang === "zh" ? "重要使用须知与质保说明" : "Hal Penting & Catatan Penggunaan";
+
+  return (
+    <div className="space-y-4">
+      {/* Overview Card */}
+      {overviewLines.length > 0 && (
+        <div className="rounded-2xl border border-border/80 bg-surface/80 p-5 sm:p-6 shadow-sm backdrop-blur-sm">
+          <p className="text-[14.5px] font-normal leading-relaxed text-fg">
+            {overviewLines.join(" ")}
+          </p>
+        </div>
+      )}
+
+      {/* Step-by-Step Order Guide */}
+      {orderSteps.length > 0 && (
+        <div className="rounded-2xl border border-border/80 bg-surface/80 p-5 sm:p-6 shadow-sm backdrop-blur-sm">
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border/60">
+            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-accent/15 text-accent">
+              <ShoppingCart size={14} strokeWidth={2.5} />
+            </span>
+            <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-fg">{stepTitle}</h4>
+          </div>
+
+          <div className="space-y-3">
+            {orderSteps.map((step, idx) => (
+              <div key={idx} className="flex items-start gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/15 text-xs font-bold text-accent">
+                  {idx + 1}
+                </span>
+                <p className="text-sm font-medium leading-relaxed text-fg pt-0.5">{step}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Important Notes / Warranty Callout */}
+      {notes.length > 0 && (
+        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 sm:p-5 shadow-xs">
+          <div className="flex items-center gap-2 mb-3">
+            <ShieldCheck size={16} className="text-amber-600 dark:text-amber-400 shrink-0" strokeWidth={2.5} />
+            <h4 className="text-xs font-bold uppercase tracking-wider text-amber-900 dark:text-amber-300">
+              {noteTitle}
+            </h4>
+          </div>
+          <ul className="space-y-2">
+            {notes.map((note, idx) => (
+              <li key={idx} className="flex items-start gap-2 text-xs sm:text-[13px] font-medium leading-relaxed text-fg-muted">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0 mt-1.5" />
+                <span>{note}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ProductTabs({ slug }: { slug: string; reviews?: any[] }) {
   const [active, setActive] = useState("ringkasan");
   const { lang, t } = useTranslation();
@@ -83,9 +189,7 @@ export function ProductTabs({ slug }: { slug: string; reviews?: any[] }) {
       <div className="mt-6">
         {active === "ringkasan" && (
           <div className="max-w-2xl">
-            <div className="rounded-2xl border border-border/80 bg-surface/80 p-5 sm:p-6 shadow-sm backdrop-blur-sm">
-              <p className="text-[14.5px] font-normal leading-relaxed text-fg">{app.description}</p>
-            </div>
+            <StructuredSummary summary={app.summary} fallbackDescription={app.description} lang={lang} />
             <dl className="mt-4 grid gap-3 sm:grid-cols-2">
               <Info label={t.product?.byDeveloper || "Pengembang"}>
                 {developer ? (

@@ -1,4 +1,4 @@
-import type { App, Category, ProductVariant, Banner } from "@/types";
+import type { App, Category, ProductVariant, Banner, Platform } from "@/types";
 import type { LanguageCode } from "./dictionaries";
 
 export interface AppTranslation {
@@ -363,26 +363,32 @@ export const appTranslations: Record<string, Record<LanguageCode, AppTranslation
   },
 };
 
+import { multilingualCatalog } from "./multilingual-catalog";
+
 export function translateGenericText(text: string, lang: LanguageCode): string {
   if (!text || lang === "id") return text;
   let s = text;
   if (lang === "en") {
     s = s
-      .replace(/Lisensi premium (.+) dengan masa aktif (.+?)\. Dikirim otomatis ke email Anda setelah pembayaran terverifikasi — biasanya 1–30 menit\. Didukung bantuan penggantian selama masa aktif jika ada kendala\./gi, "Official premium license for $1 with $2 validity. Delivered automatically to your email within 1–30 minutes after payment verification. Includes full warranty and replacement support during the active period.")
-      .replace(/Akses model (.+) terbaru dan fitur premium tanpa batas\./gi, "Access latest $1 models and unlimited premium features.")
-      .replace(/Langganan premium (.+) untuk (.+?)\./gi, "Premium subscription for $1 to $2.")
-      .replace(/Dikirim otomatis setelah pembayaran \(1–30 menit\)/gi, "Automated instant delivery (1–30 mins)")
-      .replace(/Garansi penggantian selama masa aktif/gi, "Full replacement warranty during active period")
-      .replace(/Bantuan cepat via chat/gi, "Fast priority support via chat")
-      .replace(/Harga terbaik di kelasnya/gi, "Best price guaranteed")
-      .replace(/Akses via web setelah dikirim ke email\. Masa aktif (.+?)\./gi, "Access via web after email delivery. Valid for $1.")
-      .replace(/Masa aktif/gi, "Validity:")
+      .replace(/Paling Laris/gi, "Best Seller")
+      .replace(/Hemat/gi, "Best Value")
+      .replace(/Garansi Penuh/gi, "Full Warranty")
+      .replace(/Garansi Resmi/gi, "Official Warranty")
+      .replace(/Garansi/gi, "Warranty")
+      .replace(/Aktivasi Instan/gi, "Instant Activation")
+      .replace(/Stok Habis/gi, "Sold Out")
+      .replace(/Stok Kosong/gi, "Out of Stock")
+      .replace(/Stok:/gi, "Stock:")
+      .replace(/Total Pembayaran/gi, "Total Payment")
+      .replace(/Beli Sekarang/gi, "Buy Now")
+      .replace(/Tambah ke Keranjang/gi, "Add to Cart")
       .replace(/1 Bulan/gi, "1 Month")
       .replace(/2 Bulan/gi, "2 Months")
       .replace(/3 Bulan/gi, "3 Months")
       .replace(/6 Bulan/gi, "6 Months")
       .replace(/12 Bulan/gi, "12 Months")
       .replace(/1 Tahun/gi, "1 Year")
+      .replace(/2 Tahun/gi, "2 Years")
       .replace(/30 Hari/gi, "30 Days")
       .replace(/7 Hari/gi, "7 Days")
       .replace(/1 Hari/gi, "1 Day")
@@ -391,27 +397,42 @@ export function translateGenericText(text: string, lang: LanguageCode): string {
       .replace(/Akun Privat/gi, "Private Account")
       .replace(/Akun Private/gi, "Private Account")
       .replace(/Private/gi, "Private")
-      .replace(/Garansi Penuh/gi, "Full Warranty")
-      .replace(/Garansi/gi, "Warranty")
       .replace(/Email Pribadi/gi, "Personal Email")
-      .replace(/Akun Baru/gi, "New Account");
+      .replace(/Akun Baru/gi, "New Account")
+      .replace(/CARA ORDER \/ CARA PEMBELIAN:/gi, "HOW TO ORDER / PURCHASE GUIDE:")
+      .replace(/HAL PENTING \/ CATATAN PENGGUNAAN:/gi, "IMPORTANT USAGE NOTES:")
+      .replace(/Browser modern \(Chrome, Edge, Safari, Firefox\) dengan koneksi internet aktif\./gi, "Modern web browser (Chrome, Edge, Safari, Firefox) with active internet connection.")
+      .replace(/Browser modern \(Chrome, Edge, Safari, Firefox\) dengan JavaScript aktif dan koneksi internet\./gi, "Modern web browser (Chrome, Edge, Safari, Firefox) with JavaScript and internet.")
+      .replace(/Browser modern di semua perangkat dengan koneksi internet stabil\./gi, "Modern web browser on all devices with stable internet.")
+      .replace(/Semua browser modern di desktop dan mobile dengan koneksi internet aktif\./gi, "All modern browsers on desktop and mobile with active internet.")
+      .replace(/Android 8\.0 \(Oreo\) atau lebih baru dengan ruang penyimpanan kosong minimal 500 MB\./gi, "Android 8.0 (Oreo) or later with at least 500 MB free storage.")
+      .replace(/iOS 14\.0 atau lebih baru untuk iPhone dan iPadOS 14\.0\+\./gi, "iOS 14.0 or later for iPhone and iPadOS 14.0+.")
+      .replace(/Windows 10 \/ 11 64-bit\./gi, "Windows 10 / 11 64-bit.")
+      .replace(/macOS 11\.0 \(Big Sur\) ke atas \(Apple Silicon M-Series atau Intel\)\./gi, "macOS 11.0 (Big Sur) or later (Apple Silicon M-Series or Intel).")
+      .replace(/Distro Linux 64-bit \(Ubuntu, Debian, Fedora, Arch, dll\)\./gi, "64-bit Linux distributions (Ubuntu, Debian, Fedora, Arch, etc).")
+      .replace(/resmi dengan jaminan garansi penuh selama masa aktif\./gi, "official with full warranty protection during the active period.")
+      .replace(/resmi dengan proteksi garansi penuh selama masa aktif\./gi, "official with full warranty protection during the active period.");
   } else if (lang === "zh") {
     s = s
-      .replace(/Lisensi premium (.+) dengan masa aktif (.+?)\. Dikirim otomatis ke email Anda setelah pembayaran terverifikasi — biasanya 1–30 menit\. Didukung bantuan penggantian selama masa aktif jika ada kendala\./gi, "$1 正版高级会员/授权，有效期 $2。付款验证后 1–30 分钟内全自动发送至邮箱，质保期内支持免费换新。")
-      .replace(/Akses model (.+) terbaru dan fitur premium tanpa batas\./gi, "尊享最新 $1 模型与无限高级功能。")
-      .replace(/Langganan premium (.+) untuk (.+?)\./gi, "$1 高级订阅，专为 $2 量身打造。")
-      .replace(/Dikirim otomatis setelah pembayaran \(1–30 menit\)/gi, "付款后全自动极速发货 (1–30分钟)")
-      .replace(/Garansi penggantian selama masa aktif/gi, "质保期内免费售后换新")
-      .replace(/Bantuan cepat via chat/gi, "全天候极速客服支持")
-      .replace(/Harga terbaik di kelasnya/gi, "同类产品最高性价比")
-      .replace(/Akses via web setelah dikirim ke email\. Masa aktif (.+?)\./gi, "发送至邮箱后即可在网页端访问，有效期 $1。")
-      .replace(/Masa aktif/gi, "有效期：")
+      .replace(/Paling Laris/gi, "热销爆款")
+      .replace(/Hemat/gi, "超值特惠")
+      .replace(/Garansi Penuh/gi, "全额质保")
+      .replace(/Garansi Resmi/gi, "官方质保")
+      .replace(/Garansi/gi, "质保")
+      .replace(/Aktivasi Instan/gi, "自动秒开")
+      .replace(/Stok Habis/gi, "已售罄")
+      .replace(/Stok Kosong/gi, "暂无库存")
+      .replace(/Stok:/gi, "库存:")
+      .replace(/Total Pembayaran/gi, "应付总额")
+      .replace(/Beli Sekarang/gi, "立即购买")
+      .replace(/Tambah ke Keranjang/gi, "加入购物车")
       .replace(/1 Bulan/gi, "1 个月")
       .replace(/2 Bulan/gi, "2 个月")
       .replace(/3 Bulan/gi, "3 个月")
       .replace(/6 Bulan/gi, "6 个月")
       .replace(/12 Bulan/gi, "12 个月")
       .replace(/1 Tahun/gi, "1 年")
+      .replace(/2 Tahun/gi, "2 年")
       .replace(/30 Hari/gi, "30 天")
       .replace(/7 Hari/gi, "7 天")
       .replace(/1 Hari/gi, "1 天")
@@ -420,10 +441,21 @@ export function translateGenericText(text: string, lang: LanguageCode): string {
       .replace(/Akun Privat/gi, "独享专属账号")
       .replace(/Akun Private/gi, "独享专属账号")
       .replace(/Private/gi, "独享")
-      .replace(/Garansi Penuh/gi, "全额质保")
-      .replace(/Garansi/gi, "保修")
       .replace(/Email Pribadi/gi, "个人邮箱")
-      .replace(/Akun Baru/gi, "全新账号");
+      .replace(/Akun Baru/gi, "全新账号")
+      .replace(/CARA ORDER \/ CARA PEMBELIAN:/gi, "购买流程与下单指引：")
+      .replace(/HAL PENTING \/ CATATAN PENGGUNAAN:/gi, "重要使用须知：")
+      .replace(/Browser modern \(Chrome, Edge, Safari, Firefox\) dengan koneksi internet aktif\./gi, "现代主流浏览器（Chrome、Edge、Safari、Firefox）及稳定网络连接。")
+      .replace(/Browser modern \(Chrome, Edge, Safari, Firefox\) dengan JavaScript aktif dan koneksi internet\./gi, "现代主流浏览器（支持 JavaScript）及稳定网络连接。")
+      .replace(/Browser modern di semua perangkat dengan koneksi internet stabil\./gi, "支持全平台现代主流浏览器及稳定网络环境。")
+      .replace(/Semua browser modern di desktop dan mobile dengan koneksi internet aktif\./gi, "桌面端与移动端主流现代浏览器。")
+      .replace(/Android 8\.0 \(Oreo\) atau lebih baru dengan ruang penyimpanan kosong minimal 500 MB\./gi, "Android 8.0 及以上版本操作系统，建议预留 500 MB 可用储存空间。")
+      .replace(/iOS 14\.0 atau lebih baru untuk iPhone dan iPadOS 14\.0\+\./gi, "适用于 iPhone 及 iPad 的 iOS 14.0 及更高版本操作系统。")
+      .replace(/Windows 10 \/ 11 64-bit\./gi, "Windows 10 / 11 64 位操作系统。")
+      .replace(/macOS 11\.0 \(Big Sur\) ke atas \(Apple Silicon M-Series atau Intel\)\./gi, "macOS 11.0 (Big Sur) 及更高版本（支持 Apple Silicon M 系列与 Intel 芯片）。")
+      .replace(/Distro Linux 64-bit \(Ubuntu, Debian, Fedora, Arch, dll\)\./gi, "主流 64 位 Linux 发行版（Ubuntu、Debian、Fedora、Arch 等）。")
+      .replace(/resmi dengan jaminan garansi penuh selama masa aktif\./gi, "正版授权，有效期内尊享全额免费换新与质保服务。")
+      .replace(/resmi dengan proteksi garansi penuh selama masa aktif\./gi, "正版授权，有效期内尊享全额免费换新与质保服务。");
   }
   return s;
 }
@@ -433,6 +465,8 @@ export function translateGenericText(text: string, lang: LanguageCode): string {
  */
 export function getLocalizedApp(app: App, lang: LanguageCode): App {
   if (lang === "id") return app;
+
+  const multi = multilingualCatalog[app.name]?.[lang];
 
   const key = app.slug?.toLowerCase() || app.id?.toLowerCase() || "";
   const nameKey = app.name.toLowerCase();
@@ -446,21 +480,37 @@ export function getLocalizedApp(app: App, lang: LanguageCode): App {
     }
   }
 
-  const rawFeatures = trans?.features && trans.features.length > 0 ? trans.features : app.features || [];
+  const tagline = multi?.tagline || trans?.tagline || translateGenericText(app.tagline, lang);
+  const description = multi?.description || trans?.description || translateGenericText(app.description, lang);
+  const summary = multi?.summary || (app.summary ? translateGenericText(app.summary, lang) : undefined);
+  const rawFeatures = multi?.features || (app.features && app.features.length > 0 ? app.features : (trans?.features || []));
   const localizedFeatures = rawFeatures.map((f) => translateGenericText(f, lang));
+
+  const requirements: Partial<Record<Platform, string>> = {};
+  if (multi?.requirements && Object.keys(multi.requirements).length > 0) {
+    Object.assign(requirements, multi.requirements);
+  } else if (app.requirements) {
+    for (const [p, req] of Object.entries(app.requirements)) {
+      if (req) {
+        requirements[p as Platform] = translateGenericText(req, lang);
+      }
+    }
+  }
 
   const localizedVariants = app.variants?.map((v) => ({
     ...v,
     name: translateGenericText(v.name, lang),
-    description: v.description ? translateGenericText(v.description, lang) : undefined,
+    description: multi?.variantDescriptions?.[v.id] || (v.description ? translateGenericText(v.description, lang) : undefined),
     badge: v.badge ? translateGenericText(v.badge, lang) : undefined,
   }));
 
   return {
     ...app,
-    tagline: trans?.tagline || translateGenericText(app.tagline, lang),
-    description: trans?.description || translateGenericText(app.description, lang),
+    tagline,
+    description,
+    summary,
     features: localizedFeatures,
+    requirements,
     variants: localizedVariants,
   };
 }

@@ -42,6 +42,7 @@ export interface App {
   name: string;
   tagline: string;
   description: string;
+  summary?: string;
   developerId: string;
   categoryId: string;
   price: number;

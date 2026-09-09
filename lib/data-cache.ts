@@ -184,7 +184,7 @@ export function toApp(r: RawProduct): App {
     name: r.name,
     tagline: r.tagline,
     description: r.description,
-    developerId: "serbapremium-store",
+    developerId: "tokono-store",
     categoryId: r.category_id,
     price: r.price,
     stock: r.stock,
