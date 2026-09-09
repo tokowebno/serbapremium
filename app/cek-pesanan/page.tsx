@@ -21,6 +21,8 @@ interface OrderResult {
   payment_method?: string;
   payment_status: string;
   order_status: string;
+  tx_id?: string;
+  txId?: string;
   date: string;
 }
 
@@ -67,13 +69,15 @@ export default function CekPesananPage() {
             payment_method: data.payment_method || "qris",
             payment_status: data.payment_status || "menunggu",
             order_status: data.order_status || "diproses",
-            date: data.date || new Date().toISOString().slice(0, 10),
+            tx_id: data.tx_id || data.txId,
+            txId: data.tx_id || data.txId,
+            date: data.date || data.created_at || new Date().toISOString().slice(0, 10),
           });
           setLoading(false);
           return;
         }
       } catch (err) {
-        console.warn("Supabase fetch order failed, using local fallback:", err);
+        console.warn("Supabase fetch order error:", err);
       }
     }
 
@@ -101,6 +105,8 @@ export default function CekPesananPage() {
               payment_method: match.payment_method || "qris",
               payment_status: match.payment_status || "menunggu",
               order_status: match.order_status || "diproses",
+              tx_id: match.tx_id || match.txId,
+              txId: match.tx_id || match.txId,
               date: match.date || new Date().toISOString().slice(0, 10),
             });
             setLoading(false);
@@ -111,8 +117,8 @@ export default function CekPesananPage() {
 
       // Cek sessionStorage last-order
       const lastRaw =
-        sessionStorage.getItem("serbapremium:last-order") ||
-        sessionStorage.getItem("tokono:last-order");
+        sessionStorage.getItem("tokono:last-order") ||
+        sessionStorage.getItem("serbapremium:last-order");
       if (lastRaw) {
         const last = JSON.parse(lastRaw);
         if (last && last.id && last.id.toUpperCase() === id) {
@@ -130,6 +136,8 @@ export default function CekPesananPage() {
             payment_method: last.payment_method || "qris",
             payment_status: last.payment_status || "menunggu",
             order_status: last.order_status || "diproses",
+            tx_id: last.tx_id || last.txId,
+            txId: last.tx_id || last.txId,
             date: last.date || new Date().toISOString().slice(0, 10),
           });
           setLoading(false);
@@ -248,6 +256,13 @@ export default function CekPesananPage() {
               <span className="text-fg-muted">{t.checkout?.total || (lang === "en" ? "Total Payment" : lang === "zh" ? "总计支付" : "Total Pembayaran")}</span>
               <span className="tabular-nums text-accent">{formatPrice(result.total, lang)}</span>
             </div>
+
+            {(result.tx_id || result.txId) && (
+              <div className="mt-2 flex justify-between text-xs border-t border-border/50 pt-2">
+                <span className="text-fg-muted font-medium uppercase">TxID / Hash:</span>
+                <span className="font-mono font-bold text-fg truncate max-w-[200px]">{result.tx_id || result.txId}</span>
+              </div>
+            )}
 
             {/* Kotak Bayar QRIS / USDT sesuai metode awal jika status sedang proses / menunggu */}
             {(result.payment_status === "menunggu" || result.order_status === "diproses") && (

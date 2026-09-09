@@ -25,7 +25,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useState } from "react";
-import { SerbaPremiumIcon } from "@/components/ui/logo";
+import { TokonoIcon } from "@/components/ui/logo";
 import { cn } from "@/lib/utils";
 
 const sections = [
@@ -79,9 +79,9 @@ export function AdminSidebar() {
   const nav = (
     <nav className="flex h-full flex-col overflow-y-auto scrollbar-thin border-r-2 border-[#333] bg-[#0c0d0e]" aria-label="Navigasi admin">
       <div className="flex h-16 items-center gap-2.5 border-b-2 border-[#333] px-5">
-        <SerbaPremiumIcon size={26} />
+        <TokonoIcon size={26} />
         <span className="text-[15px] font-black tracking-tight text-white uppercase">
-          SERBA<span className="text-accent">PREMIUM</span> <span className="text-[10px] text-white/50">ADMIN</span>
+          TOK<span className="text-accent">ONO</span> <span className="text-[10px] text-white/50">ADMIN</span>
         </span>
       </div>
       <div className="flex-1 px-3 pb-6">

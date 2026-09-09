@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { useCart, useTheme, useWishlist } from "./providers";
 import { useTranslation } from "./i18n-provider";
 import { SearchDialog } from "./search-dialog";
-import { SerbaPremiumLogo } from "@/components/ui/logo";
+import { TokonoLogo } from "@/components/ui/logo";
 import { cn } from "@/lib/utils";
 
 const langFlags: Record<string, string> = {
@@ -63,13 +63,13 @@ export function Navbar() {
                 : "mat-func shadow-[var(--elev-1)]",
             )}
           >
-            {/* Brand SERBAPREMIUM */}
+            {/* Brand TOKONO */}
             <Link
               href="/"
               className="group flex shrink-0 items-center pl-1 pr-2"
-              aria-label="SerbaPremium — Beranda"
+              aria-label="Tokono — Beranda"
             >
-              <SerbaPremiumLogo iconSize={26} textSize="text-[16px]" />
+              <TokonoLogo iconSize={26} textSize="text-[16px]" />
             </Link>
 
             {/* Links desktop */}

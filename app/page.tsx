@@ -53,7 +53,7 @@ export default async function HomePage() {
         <SectionHeader
           eyebrow={t.home?.featuredBadge || (lang === "en" ? "FEATURED" : lang === "zh" ? "精选推荐" : "UNGGULAN")}
           title={t.home?.featuredTitle || (lang === "en" ? "Curated Apps & Licenses" : lang === "zh" ? "精选应用与正版授权" : "Aplikasi & Lisensi Pilihan")}
-          description={t.home?.featuredDesc || (lang === "en" ? "Top-rated verified digital licenses, handpicked by the SerbaPremium team." : lang === "zh" ? "经严格测试与高分评价的数字产品，由 SerbaPremium 团队官方甄选。" : "Produk digital dengan rating terbaik dan teruji, dikurasi langsung oleh tim SerbaPremium.")}
+          description={t.home?.featuredDesc || (lang === "en" ? "Top-rated verified digital licenses, handpicked by the Tokono team." : lang === "zh" ? "经严格测试与高分评价的数字产品，由 Tokono 团队官方甄选。" : "Produk digital dengan rating terbaik dan teruji, dikurasi langsung oleh tim Tokono.")}
           action={
             <ButtonLink href="/aplikasi" variant="secondary">
               {lang === "en" ? "View All Apps" : lang === "zh" ? "查看全部应用" : "Lihat Semua Aplikasi"}

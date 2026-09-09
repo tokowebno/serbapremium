@@ -201,7 +201,7 @@ export function OrderPaymentBox({
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).src = "/qris-placeholder.svg";
               }}
-              alt="QRIS SerbaPremium"
+              alt="QRIS Tokono"
               className="h-44 w-44 object-contain"
             />
           </div>
@@ -271,13 +271,13 @@ export function OrderPaymentBox({
       {/* Telegram Admin Contact */}
       <div className="mt-3.5 pt-3 border-t border-amber-500/20 text-center">
         <a
-          href="https://t.me/serbapremiumy"
+          href="https://t.me/tokonoo"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#229ED9] hover:underline"
         >
           <Send size={12} className="fill-current" />
-          <span>{lang === "en" ? "Need help? Contact Admin on Telegram: @serbapremiumy" : lang === "zh" ? "需要协助？联系 Telegram 客服：@serbapremiumy" : "Butuh bantuan? Hubungi Admin Telegram: @serbapremiumy"}</span>
+          <span>{lang === "en" ? "Need help? Contact Admin on Telegram: @tokonoo" : lang === "zh" ? "需要协助？联系 Telegram 客服：@tokonoo" : "Butuh bantuan? Hubungi Admin Telegram: @tokonoo"}</span>
         </a>
       </div>
     </div>

@@ -32,7 +32,7 @@ export default function SignUpPage() {
     if (Object.keys(next).length > 0) return;
 
     login({ name: name.trim(), email: email.trim() });
-    toast.push({ title: "Akun berhasil dibuat", description: "Selamat datang di SerbaPremium!" });
+    toast.push({ title: "Akun berhasil dibuat", description: "Selamat datang di Tokono!" });
     const nextUrl = searchParams.get("next");
     router.push(nextUrl ?? "/akun");
   };
@@ -45,7 +45,7 @@ export default function SignUpPage() {
             <Zap size={22} strokeWidth={2.8} className="fill-current" />
           </span>
           <p className="mt-3 text-lg font-black tracking-tighter uppercase text-fg">
-            SERBA<span className="text-accent-blue dark:text-accent">PREMIUM</span>
+            TOK<span className="text-accent-blue dark:text-accent">ONO</span>
           </p>
           <h1 className="mt-2 text-xl font-black tracking-tight text-fg">Daftar Akun Baru</h1>
           <p className="mt-1 text-xs font-medium text-fg-muted">Mulai koleksi aplikasi & tools premium Anda.</p>

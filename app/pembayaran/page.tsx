@@ -3,7 +3,7 @@ import { CheckoutForm } from "./checkout-form";
 
 export const metadata: Metadata = {
   title: "Pembayaran",
-  description: "Selesaikan pembelian aplikasi & akun premium Anda di SerbaPremium.",
+  description: "Selesaikan pembelian aplikasi & akun premium Anda di Tokono.",
 };
 
 interface Props {

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: {
     default: "Login Admin",
-    template: "%s · SerbaPremium Admin",
+    template: "%s · Tokono Admin",
   },
   robots: { index: false, follow: false },
 };

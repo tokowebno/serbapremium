@@ -28,7 +28,7 @@ export default function UlasanPage() {
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!appId) return;
-    toast.push({ title: "Ulasan terkirim", description: "Terima kasih atas ulasan Anda di SerbaPremium." });
+    toast.push({ title: "Ulasan terkirim", description: "Terima kasih atas ulasan Anda di Tokono." });
   };
 
   const owned = entries
@@ -60,7 +60,7 @@ export default function UlasanPage() {
 
       <div className="glass-card rounded-2xl border border-border/80 bg-surface/90 p-6 shadow-sm backdrop-blur-md">
         <p className="text-xs text-fg-muted leading-relaxed">
-          Semua ulasan diverifikasi secara otomatis berdasarkan transaksi akun Anda di SerbaPremium.
+          Semua ulasan diverifikasi secara otomatis berdasarkan transaksi akun Anda di Tokono.
         </p>
       </div>
     </div>

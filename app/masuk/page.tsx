@@ -28,7 +28,7 @@ export default function SignInPage() {
     setError(null);
     const name = email.split("@")[0].replace(/[._-]/g, " ");
     login({ name: name.charAt(0).toUpperCase() + name.slice(1), email: email.trim() });
-    toast.push({ title: "Berhasil masuk", description: "Selamat datang kembali di SerbaPremium." });
+    toast.push({ title: "Berhasil masuk", description: "Selamat datang kembali di Tokono." });
     const next = searchParams.get("next");
     router.push(next ?? "/akun");
   };
@@ -41,10 +41,10 @@ export default function SignInPage() {
             <Zap size={22} strokeWidth={2.8} className="fill-current" />
           </span>
           <p className="mt-3 text-lg font-black tracking-tighter uppercase text-fg">
-            SERBA<span className="text-accent-blue dark:text-accent">PREMIUM</span>
+            TOK<span className="text-accent-blue dark:text-accent">ONO</span>
           </p>
           <h1 className="mt-2 text-xl font-black tracking-tight text-fg">Masuk Akun</h1>
-          <p className="mt-1 text-xs font-medium text-fg-muted">Lanjutkan ke akun SerbaPremium Anda.</p>
+          <p className="mt-1 text-xs font-medium text-fg-muted">Lanjutkan ke akun Tokono Anda.</p>
         </div>
 
         <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4" noValidate>

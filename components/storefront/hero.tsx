@@ -30,7 +30,7 @@ export function Hero() {
           >
             <span className="mat-func inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3.5 py-1 text-xs font-semibold tracking-wide text-fg-muted shadow-sm">
               <Zap size={13} className="text-accent" />
-              {t.hero.badge || "SERBAPREMIUM · LISENSI DIGITAL RESMI"}
+              {t.hero.badge || "TOKONO · LISENSI DIGITAL RESMI"}
             </span>
           </motion.div>
 

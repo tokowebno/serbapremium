@@ -27,8 +27,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const app = api.apps.getBySlug(slug);
   if (!app) return { title: "Aplikasi tidak ditemukan" };
   return {
-    title: `${app.name} · SerbaPremium`,
-    description: `${app.tagline} Aktivasi instan, pembayaran aman otomatis bergaransi di SerbaPremium.`,
+    title: `${app.name} · Tokono`,
+    description: `${app.tagline} Aktivasi instan, pembayaran aman otomatis bergaransi di Tokono.`,
   };
 }
 

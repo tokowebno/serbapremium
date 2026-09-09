@@ -124,6 +124,7 @@ export function CheckoutForm({
   const [qrisDone, setQrisDone] = useState(false);
   const [binanceDone, setBinanceDone] = useState(false);
   const [usdtDone, setUsdtDone] = useState(false);
+  const [txId, setTxId] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   const [uniqueCode] = useState(() => Math.floor(Math.random() * 800 + 100));
@@ -224,7 +225,7 @@ export function CheckoutForm({
     setLoading(true);
     setErrorMessage("");
 
-    const orderId = `SP-${Date.now().toString().slice(-6)}`;
+    const orderId = `TK-${Date.now().toString().slice(-6)}`;
     const orderData = {
       id: orderId,
       user_name: name.trim() || "Pelanggan",
@@ -235,15 +236,19 @@ export function CheckoutForm({
       payment_method: paymentMethod,
       payment_status: "menunggu",
       order_status: "diproses",
+      tx_id: txId.trim() || undefined,
+      txId: txId.trim() || undefined,
       date: new Date().toISOString().slice(0, 10),
     };
 
     try {
+      sessionStorage.setItem("tokono:last-order", JSON.stringify(orderData));
       sessionStorage.setItem("serbapremium:last-order", JSON.stringify(orderData));
-      const raw = localStorage.getItem("serbapremium:orders") || "[]";
+      const raw = localStorage.getItem("tokono:orders") || localStorage.getItem("serbapremium:orders") || "[]";
       const existing = JSON.parse(raw);
       const list = Array.isArray(existing) ? existing : [];
       const updated = [orderData, ...list.filter((o: any) => o.id !== orderId)];
+      localStorage.setItem("tokono:orders", JSON.stringify(updated));
       localStorage.setItem("serbapremium:orders", JSON.stringify(updated));
     } catch {
       /* ignore storage full */
@@ -580,7 +585,19 @@ export function CheckoutForm({
                       )}
                     </p>
 
-                    <div className="w-full pt-1">
+                    <div className="w-full pt-1 space-y-2.5">
+                      <div className="w-full space-y-1.5 text-left">
+                        <label className="text-xs font-semibold text-fg-muted">
+                          {lang === "en" ? "Binance Order ID / TxID (Optional)" : lang === "zh" ? "币安订单号 / TxID（选填）" : "Binance Order ID / TxID (Opsional)"}
+                        </label>
+                        <Input
+                          value={txId}
+                          onChange={(e) => setTxId(e.target.value)}
+                          placeholder={lang === "en" ? "Enter Binance Pay Order ID or TxID..." : lang === "zh" ? "输入币安支付订单号或 TxID..." : "Masukkan Binance Order ID / TxID..."}
+                          className="bg-surface font-mono text-xs"
+                        />
+                      </div>
+
                       {binanceDone ? (
                         <div className="flex items-center justify-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
                           <CheckCircle2 size={18} /> {lang === "en" ? "Your Binance Pay payment has been recorded." : lang === "zh" ? "您的币安支付已记录。" : "Pembayaran Binance Pay Anda tercatat."}
@@ -620,7 +637,7 @@ export function CheckoutForm({
                       ) : lang === "zh" ? (
                         <>上方总额已包含 <span className="font-semibold text-fg">验证码 {uniqueCode}</span>。请务必支付精确金额，以便系统自动确认。</>
                       ) : (
-                        <><span className="font-semibold text-fg">Kode unik {uniqueCode}</span> sudah termasuk di nominal di atas — bayar persis sejumlah itu agar pesanan mudah dikenali dan diproses otomatis oleh robot SerbaPremium.</>
+                        <><span className="font-semibold text-fg">Kode unik {uniqueCode}</span> sudah termasuk di nominal di atas — bayar persis sejumlah itu agar pesanan mudah dikenali dan diproses otomatis oleh robot Tokono.</>
                       )}
                     </p>
                   </div>
@@ -758,7 +775,19 @@ export function CheckoutForm({
                   </div>
 
                   {/* 3. Tombol Konfirmasi Pembayaran */}
-                  <div className="pt-1">
+                  <div className="pt-1 space-y-2.5">
+                    <div className="w-full space-y-1.5 text-left">
+                      <label className="text-xs font-semibold text-fg-muted">
+                        {lang === "en" ? "Transaction Hash / TxID (Optional)" : lang === "zh" ? "交易哈希 / TxID（选填）" : "Hash Transaksi / TxID (Opsional)"}
+                      </label>
+                      <Input
+                        value={txId}
+                        onChange={(e) => setTxId(e.target.value)}
+                        placeholder={lang === "en" ? "Enter TxID / ID Hash..." : lang === "zh" ? "输入交易哈希 TxID..." : "Masukkan TxID / ID Hash bukti transfer..."}
+                        className="bg-surface font-mono text-xs"
+                      />
+                    </div>
+
                     {usdtDone ? (
                       <div className="flex items-center justify-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
                         <CheckCircle2 size={18} /> {lang === "en" ? "Your USDT transfer has been recorded." : lang === "zh" ? "您的 USDT 转账已记录。" : "Transfer USDT Anda tercatat."}

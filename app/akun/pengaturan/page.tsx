@@ -16,7 +16,7 @@ export default function PengaturanPage() {
 
   const handleLogout = () => {
     logout();
-    toast.push({ title: "Berhasil keluar", description: "Sampai jumpa lagi di SerbaPremium." });
+    toast.push({ title: "Berhasil keluar", description: "Sampai jumpa lagi di Tokono." });
     router.push("/");
   };
 

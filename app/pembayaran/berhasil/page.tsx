@@ -17,6 +17,8 @@ interface LastOrder {
   total: number;
   payment_method?: string;
   payment_status?: string;
+  tx_id?: string;
+  txId?: string;
 }
 
 let cachedRaw: string | null = null;
@@ -92,6 +94,12 @@ export default function OrderSuccessPage() {
             <dt className="text-xs font-medium uppercase text-fg-muted">{lang === "en" ? "Date" : lang === "zh" ? "日期" : "Tanggal"}</dt>
             <dd className="text-xs font-normal tabular-nums text-fg-muted">{formatDate(order.date)}</dd>
           </div>
+          {(order.tx_id || order.txId) && (
+            <div className="flex items-center justify-between gap-4 py-3">
+              <dt className="text-xs font-medium uppercase text-fg-muted">TxID / Hash</dt>
+              <dd className="font-mono text-xs font-bold text-fg truncate max-w-[170px]">{order.tx_id || order.txId}</dd>
+            </div>
+          )}
           <div className="flex items-center justify-between gap-4 py-3">
             <dt className="text-xs font-medium uppercase text-fg-muted">{lang === "en" ? "Total" : lang === "zh" ? "总额" : "Total"}</dt>
             <dd className="font-bold tabular-nums text-accent">{formatPrice(order.total, lang)}</dd>

@@ -17,8 +17,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const developer = api.developers.getBySlug(slug);
   if (!developer) return { title: "Pengembang tidak ditemukan" };
   return {
-    title: `${developer.name} · SerbaPremium`,
-    description: `${developer.description} Temukan produk resmi di SerbaPremium.`,
+    title: `${developer.name} · Tokono`,
+    description: `${developer.description} Temukan produk resmi di Tokono.`,
   };
 }
 
@@ -94,7 +94,7 @@ export default async function PengembangPage({ params }: Props) {
           <EmptyState
             icon={Globe}
             title="Belum ada aplikasi"
-            description="Pengembang ini belum menerbitkan aplikasi di SerbaPremium."
+            description="Pengembang ini belum menerbitkan aplikasi di Tokono."
             action={{ label: "Jelajahi Katalog", href: "/aplikasi" }}
           />
         ) : (

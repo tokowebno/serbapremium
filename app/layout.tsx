@@ -8,10 +8,10 @@ import { syncFromSupabase } from "@/lib/data-cache";
 import { getServerTranslation } from "@/lib/i18n";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://serbapremium.my.id"),
+  metadataBase: new URL("https://tokono.cc.cd"),
   title: {
-    default: "SerbaPremium — Marketplace Aplikasi & Lisensi Digital Premium",
-    template: "%s · SerbaPremium",
+    default: "Tokono — Marketplace Aplikasi & Lisensi Digital Premium",
+    template: "%s · Tokono",
   },
   description:
     "Temukan aplikasi dan lisensi digital premium untuk berbagai perangkat. Pembelian satu kali, tanpa biaya langganan.",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "SerbaPremium — Marketplace Aplikasi & Lisensi Digital Premium",
+    title: "Tokono — Marketplace Aplikasi & Lisensi Digital Premium",
     description:
       "Temukan aplikasi dan lisensi digital premium untuk berbagai perangkat. Pembelian satu kali, tanpa biaya langganan.",
     type: "website",

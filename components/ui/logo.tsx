@@ -1,7 +1,7 @@
 import { Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function SerbaPremiumIcon({
+export function TokonoIcon({
   className,
   size = 28,
 }: {
@@ -16,12 +16,12 @@ export function SerbaPremiumIcon({
       )}
       style={{ width: size, height: size }}
     >
-      <Zap size={Math.round(size * 0.55)} className="fill-current stroke-current" strokeWidth={1.5} />
+      <Zap size={Math.round(size * 0.55)} className="fill-current stroke-current text-accent" strokeWidth={1.5} />
     </span>
   );
 }
 
-export function SerbaPremiumLogo({
+export function TokonoLogo({
   className,
   iconSize = 28,
   textSize = "text-[16px]",
@@ -32,10 +32,17 @@ export function SerbaPremiumLogo({
 }) {
   return (
     <span className={cn("inline-flex items-center gap-2 select-none", className)}>
-      <SerbaPremiumIcon size={iconSize} />
+      <TokonoIcon size={iconSize} />
       <span className={cn("font-bold tracking-tight text-fg", textSize)}>
-        Serba<span className="text-accent">Premium</span>
+        Tok<span className="text-accent">ono</span>
       </span>
     </span>
   );
 }
+
+export const SerbaPremiumIcon = TokonoIcon;
+export const SerbaPremiumLogo = TokonoLogo;
+export const GPTlunaIcon = TokonoIcon;
+export const GPTlunaLogo = TokonoLogo;
+export const LogoIcon = TokonoIcon;
+export const Logo = TokonoLogo;
