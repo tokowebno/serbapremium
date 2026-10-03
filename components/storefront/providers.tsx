@@ -13,6 +13,7 @@ import { MotionConfig } from "framer-motion";
 import type { Platform } from "@/types";
 import type { App } from "@/types";
 import { ToastProvider } from "@/components/ui/toast";
+import { USDT_RATE } from "@/lib/utils";
 
 /* ---------- Tema ---------- */
 
@@ -72,17 +73,39 @@ export function useWishlist() {
   return ctx;
 }
 
-/* ---------- Autentikasi ---------- */
+/* ---------- Autentikasi & Dompet Saldo ---------- */
+
+export interface WalletTransaction {
+  id: string;
+  type: "deposit" | "purchase";
+  amount: number; // in IDR
+  amountUsd: number; // in USD
+  title: string;
+  date: string;
+  orderCode?: string;
+  status: "success" | "pending";
+}
 
 export interface AuthUser {
   name: string;
   email: string;
+  balance?: number;
 }
 
 interface AuthValue {
   user: AuthUser | null;
+  isAuthenticated: boolean;
   login: (user: AuthUser) => void;
   logout: () => void;
+  balance: number;
+  balanceUsd: number;
+  deposit: (amountIdr: number, title?: string, orderCode?: string) => void;
+  deduct: (amountIdr: number, title?: string, orderCode?: string) => boolean;
+  transactions: WalletTransaction[];
+  isTopUpOpen: boolean;
+  topUpNeeded: number | null;
+  openTopUp: (neededIdr?: number) => void;
+  closeTopUp: () => void;
 }
 
 const AuthContext = createContext<AuthValue | null>(null);
@@ -98,12 +121,15 @@ export function useAuth() {
 interface LibraryEntry {
   appId: string;
   purchasedAt: string;
+  licenseKey?: string;
+  accountEmail?: string;
+  accountPassword?: string;
 }
 
 interface LibraryValue {
   entries: LibraryEntry[];
   has: (appId: string) => boolean;
-  add: (appId: string) => void;
+  add: (appId: string, extra?: Partial<LibraryEntry>) => void;
 }
 
 const LibraryContext = createContext<LibraryValue | null>(null);
@@ -141,13 +167,38 @@ function usePersistedState<T>(key: string, legacyKey: string, initial: T): [T, (
 
 export function Providers({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<"light" | "dark">("light");
-  const [cart, setCart] = usePersistedState<CartEntry[]>("serbapremium:cart", "tokono:cart", []);
-  const [wishlist, setWishlist] = usePersistedState<string[]>("serbapremium:wishlist", "tokono:wishlist", []);
-  const [library, setLibrary] = usePersistedState<LibraryEntry[]>("serbapremium:library", "tokono:library", []);
-  const [authUser, setAuthUser] = usePersistedState<AuthUser | null>("serbapremium:user", "tokono:user", null);
+  const [cart, setCart] = usePersistedState<CartEntry[]>("texasai:cart", "gptluna:cart", []);
+  const [wishlist, setWishlist] = usePersistedState<string[]>("texasai:wishlist", "gptluna:wishlist", []);
+  const [library, setLibrary] = usePersistedState<LibraryEntry[]>("texasai:library", "gptluna:library", []);
+  const [authUser, setAuthUser] = usePersistedState<AuthUser | null>("texasai:user", "gptluna:user", null);
+  const [userBalance, setUserBalance] = usePersistedState<number>("texasai:balance", "gptluna:balance", 0);
+  const [transactions, setTransactions] = usePersistedState<WalletTransaction[]>("texasai:transactions", "gptluna:transactions", []);
+
+  // Top Up Modal State
+  const [isTopUpOpen, setIsTopUpOpen] = useState(false);
+  const [topUpNeeded, setTopUpNeeded] = useState<number | null>(null);
+
+  const openTopUp = useCallback((neededIdr?: number) => {
+    setTopUpNeeded(neededIdr || null);
+    setIsTopUpOpen(true);
+  }, []);
+
+  const closeTopUp = useCallback(() => {
+    setIsTopUpOpen(false);
+    setTopUpNeeded(null);
+  }, []);
 
   useEffect(() => {
-    const stored = localStorage.getItem("serbapremium:theme") || localStorage.getItem("tokono:theme");
+    const handleOpen = (e: Event) => {
+      const custom = e as CustomEvent<{ needed?: number }>;
+      openTopUp(custom.detail?.needed);
+    };
+    window.addEventListener("open-topup-modal", handleOpen);
+    return () => window.removeEventListener("open-topup-modal", handleOpen);
+  }, [openTopUp]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("texasai:theme") || localStorage.getItem("gptluna:theme") || localStorage.getItem("tokono:theme");
     // Default terang; gelap hanya jika pengguna pernah memilih gelap secara eksplisit.
     const initial = stored === "dark" ? "dark" : "light";
     // Ditunda agar tidak setState sinkron dalam effect.
@@ -157,7 +208,7 @@ export function Providers({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
     try {
-      localStorage.setItem("serbapremium:theme", theme);
+      localStorage.setItem("texasai:theme", theme);
     } catch {
       /* abaikan */
     }
@@ -206,21 +257,77 @@ export function Providers({ children }: { children: ReactNode }) {
     () => ({
       entries: library,
       has: (appId) => library.some((e) => e.appId === appId),
-      add: (appId) => {
-        if (library.some((e) => e.appId === appId)) return;
-        setLibrary((prev) => [...prev, { appId, purchasedAt: new Date().toISOString().slice(0, 10) }]);
+      add: (appId, extra) => {
+        setLibrary((prev) => [
+          ...prev.filter((e) => e.appId !== appId),
+          { appId, purchasedAt: new Date().toISOString().slice(0, 10), ...extra },
+        ]);
       },
     }),
     [library, setLibrary],
   );
 
+  const deposit = useCallback(
+    (amountIdr: number, title?: string, orderCode?: string) => {
+      setUserBalance((prev) => prev + amountIdr);
+      setTransactions((prev) => [
+        {
+          id: `tx-dep-${Date.now()}`,
+          type: "deposit",
+          amount: amountIdr,
+          amountUsd: Number((amountIdr / USDT_RATE).toFixed(2)),
+          title: title || "Top Up Saldo Akun",
+          date: new Date().toISOString(),
+          orderCode,
+          status: "success",
+        },
+        ...prev,
+      ]);
+    },
+    [setUserBalance, setTransactions],
+  );
+
+  const deduct = useCallback(
+    (amountIdr: number, title?: string, orderCode?: string): boolean => {
+      if (userBalance < amountIdr) {
+        return false;
+      }
+      setUserBalance((prev) => Math.max(0, prev - amountIdr));
+      setTransactions((prev) => [
+        {
+          id: `tx-buy-${Date.now()}`,
+          type: "purchase",
+          amount: amountIdr,
+          amountUsd: Number((amountIdr / USDT_RATE).toFixed(2)),
+          title: title || "Pembelian Produk",
+          date: new Date().toISOString(),
+          orderCode,
+          status: "success",
+        },
+        ...prev,
+      ]);
+      return true;
+    },
+    [userBalance, setUserBalance, setTransactions],
+  );
+
   const authValue = useMemo<AuthValue>(
     () => ({
       user: authUser,
+      isAuthenticated: !!authUser,
       login: (u) => setAuthUser(u),
       logout: () => setAuthUser(null),
+      balance: userBalance,
+      balanceUsd: Number((userBalance / USDT_RATE).toFixed(2)),
+      deposit,
+      deduct,
+      transactions,
+      isTopUpOpen,
+      topUpNeeded,
+      openTopUp,
+      closeTopUp,
     }),
-    [authUser, setAuthUser],
+    [authUser, setAuthUser, userBalance, deposit, deduct, transactions, isTopUpOpen, topUpNeeded, openTopUp, closeTopUp],
   );
 
   return (

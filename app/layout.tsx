@@ -10,8 +10,8 @@ import { getServerTranslation } from "@/lib/i18n";
 export const metadata: Metadata = {
   metadataBase: new URL("https://tokono.cc.cd"),
   title: {
-    default: "Tokono — Marketplace Aplikasi & Lisensi Digital Premium",
-    template: "%s · Tokono",
+    default: "TexasAi — Marketplace Aplikasi & Lisensi Digital Premium",
+    template: "%s · TexasAi",
   },
   description:
     "Temukan aplikasi dan lisensi digital premium untuk berbagai perangkat. Pembelian satu kali, tanpa biaya langganan.",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "Tokono — Marketplace Aplikasi & Lisensi Digital Premium",
+    title: "TexasAi — Marketplace Aplikasi & Lisensi Digital Premium",
     description:
       "Temukan aplikasi dan lisensi digital premium untuk berbagai perangkat. Pembelian satu kali, tanpa biaya langganan.",
     type: "website",

@@ -21,10 +21,10 @@ export const descriptionsData: Record<string, ProductContentSpec> = {
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih durasi paket Meitu VIP yang Anda butuhkan (7 Hari, 30 Hari, 90 Hari, atau 1 Tahun) dan tentukan jumlah pesanan.
 2. Klik tombol "Beli Sekarang", lalu lengkapi informasi kontak (Nama & Email/WhatsApp aktif) pada formulir pemesanan.
-3. Selesaikan pembayaran menggunakan metode pilihan Anda (QRIS otomatis, Binance Pay, BNB BEP-20, atau Tron TRC-20) sesuai nominal pas termasuk kode unik.
+3. Selesaikan pembayaran menggunakan metode pilihan Anda (QRIS otomatis, BNB BEP-20, atau Tron TRC-20) sesuai nominal pas termasuk kode unik.
 4. Detail akun login Meitu VIP (Email & Password resmi) akan dikirimkan otomatis ke email dan halaman invoice pesanan Anda dalam waktu 1–15 menit.
 5. Buka aplikasi Meitu di ponsel Android atau iPhone Anda, lakukan login dengan data yang diberikan, dan seluruh fitur VIP akan langsung aktif.
-6. Klaim bantuan atau garansi penggantian akun baru 100% dengan menghubungi admin Telegram @tokonoo jika mengalami kendala selama masa aktif.
+6. Klaim bantuan atau garansi penggantian akun baru 100% dengan menghubungi admin Telegram @texxasai jika mengalami kendala selama masa aktif.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Gunakan kredensial akun khusus yang diberikan untuk login pada aplikasi resmi Meitu.
@@ -51,105 +51,110 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
   "ChatGPT Plus Apple Pay": {
     name: "ChatGPT Plus Apple Pay",
-    tagline: "Langganan Resmi OpenAI: GPT-5.6 Sol, Reasoning Mode, Canvas, DALL-E & Advanced Voice",
-    serviceDescription: "Langganan resmi OpenAI ChatGPT Plus dengan metode penagihan Apple Pay resmi yang terkenal sangat stabil, aman, dan minim risiko suspend dibanding metode kartu virtual biasa. Memberikan prioritas penuh ke model AI tercanggih (GPT-5.6 Sol, mode penalaran tingkat tinggi), batas pesan tinggi, pembuatan gambar DALL-E, analisis data Python, dan mode suara interaktif.",
-    summary: `ChatGPT Plus adalah asisten kecerdasan buatan terlengkap untuk profesional, developer, akademisi, dan kreator. Dengan paket Plus, Anda mendapatkan akses tanpa antrean ke model penalaran terkuat, fitur Canvas untuk kolaborasi penulisan dan pemrograman realtime, serta kemampuan menganalisis dokumen data berukuran besar.
+    tagline: "Langganan Resmi OpenAI: Generasi GPT-6 Flagship (GPT-6 Astra, GPT-6.1 Sol & Luna), Dots Autonomous Agents & GPT-Live-1",
+    serviceDescription: "Langganan resmi OpenAI ChatGPT Plus, Pro, dan Business dengan metode penagihan Apple Pay resmi yang stabil dan aman. Memberikan akses prioritas ke generasi model terdepan GPT-6 (GPT-6 Astra, GPT-6.1 Sol, dan GPT-6 Luna), agen otonom 'Dots' yang selalu aktif di cloud, percakapan suara real-time GPT-Live-1 full-duplex, riset web mendalam Deep Research, dan ruang kerja Canvas interaktif.",
+    summary: `ChatGPT Plus & Pro menghadirkan akses ke generasi model kecerdasan buatan terdepan GPT-6 dari OpenAI. Didukung model unggulan GPT-6 Astra untuk penalaran mutakhir, GPT-6.1 Sol untuk rekayasa coding dan komputasi intensif, agen otonom Dots yang bekerja mandiri di cloud, teknologi audio full-duplex GPT-Live-1, serta Deep Research untuk kompilasi riset mendalam.
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih varian paket ChatGPT Plus yang Anda inginkan (Plus Apple Pay 1 Bulan, Go 3 Bulan, Pro 1 Bulan, atau Business 1 Bulan).
 2. Masukkan nama dan email aktif Anda pada formulir checkout untuk penerimaan kredensial atau aktivasi akun.
-3. Bayar menggunakan QRIS otomatis, Binance Pay, BNB BEP-20, atau Tron TRC-20 sesuai total tagihan termasuk kode unik.
-4. Detail akun ChatGPT Plus siap pakai (Email & Password terverifikasi langganan resmi) akan dikirimkan otomatis dalam 1–15 menit.
-5. Login di situs resmi chatgpt.com atau aplikasi resmi ChatGPT di iOS, Android, macOS, dan Windows.
-6. Nikmati seluruh fitur Plus tanpa batas antrean dengan garansi penggantian akun baru 100% jika terjadi kendala langganan.
+3. Bayar menggunakan QRIS otomatis, BNB BEP-20, atau Tron TRC-20 sesuai total tagihan termasuk kode unik.
+4. Detail akun ChatGPT Plus siap pakai akan dikirimkan otomatis dalam 1–15 menit ke email dan invoice.
+5. Login di situs resmi https://chatgpt.com atau aplikasi resmi ChatGPT di iOS, Android, macOS, dan Windows.
+6. Nikmati seluruh fitur Plus dengan garansi penggantian akun 100% jika terjadi kendala langganan via Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Akun dapat digunakan di browser web maupun aplikasi resmi ChatGPT di seluruh perangkat Anda.
-• Riwayat chat dan workspace tersimpan aman di cloud OpenAI. Hubungi admin Telegram @tokonoo jika memerlukan bantuan.`,
+• Riwayat chat dan workspace tersimpan aman di platform OpenAI.`,
     features: [
-      "Akses prioritas penuh ke model unggulan GPT-5.6 Sol dengan slider Reasoning Effort",
-      "Batas kuota pesan (message limit) hingga 5x lebih tinggi dibanding paket gratis",
-      "Fitur Canvas interaktif untuk penulisan artikel, revisi naskah, dan coding realtime",
-      "Pembuatan gambar AI resolusi tinggi terintegrasi dengan DALL-E",
-      "Advanced Data Analysis: unggah file CSV, Excel, PDF tebal, dan jalankan kode Python",
-      "Mode Suara Lanjutan (Advanced Voice Mode) untuk percakapan lisan alami"
+      "Akses prioritas ke model frontier generasi GPT-6: GPT-6 Astra, GPT-6.1 Sol, dan GPT-6 Luna",
+      "Dukungan agen otonom 'Dots' di lingkungan cloud terisolasi untuk eksekusi tugas berkelanjutan",
+      "Teknologi suara full-duplex generasi terbaru GPT-Live-1 dengan latensi ultra rendah",
+      "Fitur otonom Deep Research untuk sintesis laporan riset web multi-sumber",
+      "Batas kuota pesan jauh lebih tinggi dibanding akun gratis (hingga Pro 5X)",
+      "Fitur Canvas interaktif untuk penulisan artikel dan rekayasa kode realtime",
+      "Advanced Data Analysis: analisis berkas spreadsheet, CSV, PDF, dan eksekusi Python terisolasi"
     ],
     requirements: {
-      Web: "Browser modern (Chrome, Edge, Safari, Firefox) dengan JavaScript aktif dan koneksi internet.",
+      Web: "Browser modern (Chrome, Edge, Safari, Firefox) dengan koneksi internet aktif.",
       Android: "Aplikasi resmi ChatGPT di Google Play Store (Android 6.0+).",
       iOS: "Aplikasi resmi ChatGPT di Apple App Store (iOS 16.1+).",
-      macOS: "Aplikasi desktop resmi ChatGPT untuk macOS (Apple Silicon M-Series / Intel) macOS 14+.",
+      macOS: "Aplikasi desktop resmi ChatGPT untuk macOS (macOS 14+).",
       Windows: "Aplikasi desktop resmi ChatGPT Windows 10/11 64-bit."
     },
-    version: "2026.3 OpenAI Official",
+    version: "OpenAI GPT-6 Series (October 2026 Official)",
     variantDescriptions: {
       "chatgpt-plus-1m": "Akun ChatGPT Plus 1 Bulan via Apple Pay billing resmi dengan garansi penuh 30 hari.",
-      "chatgpt-go-3m": "Paket ChatGPT Go 3 Bulan hemat untuk produktivitas belajar dan kerja harian.",
-      "chatgpt-pro-1m": "Akun ChatGPT Pro 1 Bulan dengan alokasi komputasi dan batas pesan tertinggi.",
+      "chatgpt-go-3m": "Paket ChatGPT Go 3 Bulan untuk produktivitas belajar dan kerja harian.",
+      "chatgpt-pro-1m": "Akun ChatGPT Pro 1 Bulan dengan alokasi komputasi GPT-6 Astra tinggi.",
       "chatgpt-biz-1m": "Akun ChatGPT Business 1 Bulan untuk kolaborasi tim kerja dan privasi enterprise."
     }
   },
 
   "Gemini AI Pro": {
     name: "Gemini AI Pro",
-    tagline: "Google AI Premium: Gemini 1.5 Pro, 1 Juta Token Context & Google One Cloud Storage",
-    serviceDescription: "Langganan resmi Google One AI Premium yang memberikan akses eksklusif ke model kecerdasan buatan Gemini 1.5 Pro dengan jendela konteks raksasa 1.000.000 token, generator gambar Imagen 3, dan integrasi cerdas di Google Workspace (Docs, Gmail, Sheets). Sangat ideal untuk membaca buku tebal, ratusan halaman PDF, atau repositori kode besar dalam satu prompt.",
-    summary: `Gemini AI Pro dari Google dirancang untuk produktivitas tingkat lanjut. Anda dapat memasukkan video berdurasi 1 jam, ratusan lembar berkas keuangan, atau puluhan dokumen riset sekaligus untuk dianalisis secara mendalam tanpa khawatir kehabisan batas konteks token.
+    tagline: "Google AI Premium: Flagship Gemini 4 Argon & Gemini 3.8 Flash, Jendela Konteks 1M Token & Deep Research",
+    serviceDescription: "Langganan resmi Google One AI Premium yang menghadirkan akses eksklusif ke model generasi mutakhir Google DeepMind: Gemini 4 Argon (arsitektur frontier untuk penalaran mendalam dan rekayasa software) serta Gemini 3.8 Flash & Gemini 3.8 Live. Dilengkapi jendela konteks 1.000.000 token, agen otonom Deep Research, generator visual Imagen 3, integrasi cerdas Google Workspace (Docs, Gmail, Sheets), dan penyimpanan Google One Cloud (5TB / 30TB Ultra).",
+    summary: `Google One AI Premium menghadirkan akses ke Gemini Advanced dengan model frontier generasi terbaru Gemini 4 Argon dan Gemini 3.8 Flash. Memiliki kapasitas output 1 Juta (1.000.000) token untuk analisis dokumen masif, penalaran arsitektur bertingkat, audio real-time Gemini Live, dan integrasi langsung di Google Docs, Gmail, Sheets, dan Slides.
 
 CARA ORDER / CARA PEMBELIAN:
-1. Pilih variasi paket Gemini AI Pro yang tersedia (Gemini Pro 12 Bulan 5TB atau Gemini Ultra 1 Bulan 30TB).
+1. Pilih variasi paket Gemini AI Pro yang tersedia (Gemini Ultra 1 Bulan 30TB).
 2. Isi data kontak Anda (Nama & Email/WhatsApp) pada form pembelian.
-3. Lakukan pembayaran via QRIS, Binance Pay, BNB, atau Tron dengan nominal pas termasuk kode unik.
+3. Lakukan pembayaran via QRIS, BNB, atau Tron dengan nominal pas termasuk kode unik.
 4. Kredensial akun Google dengan status langganan AI Premium aktif akan dikirimkan otomatis ke email dan dashboard pesanan Anda.
-5. Login di gemini.google.com atau aplikasi Google Gemini di smartphone.
-6. Untuk varian dengan stok habis (Sold Out), silakan pilih variasi aktif lainnya yang tersedia.
+5. Login di https://gemini.google.com atau aplikasi Google Gemini di smartphone.
+6. Full garansi masa aktif dengan konsultasi cepat via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Akun Google siap pakai dengan fitur AI Premium aktif dan penyimpanan Google One Cloud.
-• Didukung full garansi masa aktif dengan konsultasi cepat via admin Telegram @tokonoo.`,
+• Varian yang berstatus Stok Habis tidak dapat dipilih hingga restock berikutnya.`,
     features: [
-      "Akses penuh ke model Gemini 1.5 Pro generasi terbaru dari Google DeepMind",
-      "Jendela konteks ultra besar 1.000.000 token (analisis dokumen tebal & video panjang)",
+      "Akses penuh ke model frontier terbaru Google: Gemini 4 Argon dan Gemini 3.8 Flash",
+      "Kapasitas output hingga 1.000.000 (1M) token untuk pemrosesan teks dan data raksasa",
+      "Fitur percakapan audio realtime generasi mutakhir Gemini 3.8 Live",
       "Integrasi AI langsung di Gmail, Google Docs, Google Slides, dan Google Sheets",
-      "Generator gambar AI generasi terbaru Google Imagen 3",
-      "Fitur Deep Research untuk sintesis data otomatis dari berbagai sumber web"
+      "Generator visual AI foto-realistis Google Imagen 3",
+      "Fitur Deep Research otonom untuk riset dan sintesis informasi multi-sumber",
+      "Penyimpanan Google One Cloud super besar (5TB / 30TB Ultra)"
     ],
     requirements: {
       Web: "Browser modern (Google Chrome, Microsoft Edge, Safari, Firefox) dengan koneksi internet aktif.",
       Android: "Aplikasi Google Gemini / Google App di Android 10.0 ke atas.",
       iOS: "Aplikasi Google Gemini di iOS 16.0+."
     },
-    version: "v1.5 Pro Google One",
+    version: "Google Gemini 4 Generation (October 2026 Official)",
     variantDescriptions: {
       "gemini-pro-18m-5tb": "Akun Google One AI Premium 18 Bulan 5TB (Stok Habis / Sold Out).",
-      "gemini-pro-12m-5tb": "Akun Google One AI Premium 12 Bulan dengan kapasitas cloud storage 5TB.",
+      "gemini-pro-12m-5tb": "Akun Google One AI Premium 12 Bulan 5TB (Stok Habis / Sold Out).",
       "gemini-ultra-1m-30tb": "Akun Google Gemini Ultra 1 Bulan dengan kapasitas cloud super besar 30TB."
     }
   },
 
   "Claude AI Pro": {
     name: "Claude AI Pro",
-    tagline: "Model AI Tercanggih Anthropic: Claude 3.5 Sonnet, Artifacts & 200K Context Window",
-    serviceDescription: "Langganan premium Claude AI Pro dari Anthropic yang menghadirkan model tercanggih untuk coding, penalaran logika kompleks, dan penulisan bernuansa alami (Claude 3.5 Sonnet & Claude 3 Opus). Dilengkapi fitur Artifacts untuk me-render kode program, diagram, dan antarmuka web interaktif secara realtime di samping percakapan chat.",
-    summary: `Claude AI Pro diakui sebagai salah satu AI terbaik dunia untuk software engineer, peneliti, dan penulis profesional. Jendela konteks 200.000 token memungkinkan Anda menganalisis repositori kode proyek, dokumen teknis panjang, dan laporan keuangan komprehensif dengan akurasi sangat tinggi.
+    tagline: "Langganan Resmi Anthropic Claude: Generasi 5.5 Terbaru (Claude Opus 5.5 & Sonnet 5.5), Fable 5.1, 1M Context & Claude Code",
+    serviceDescription: "Langganan resmi Claude Pro & Claude Max dari Anthropic dengan akses prioritas tanpa batas antrean ke seluruh model generasi 5.5 terbaru (Claude Opus 5.5, Claude Sonnet 5.5, dan Claude Fable 5.1). Mendukung jendela konteks 1 Juta (1M) token, adaptive extended thinking, integrasi agen koding otonom Claude Code CLI, kuota pesan masif (tersedia opsi Max 5x & 20x), fitur Projects workspace, dan visualisasi Artifacts interaktif.",
+    summary: `Langganan Claude Pro & Max dari Anthropic menghadirkan kemampuan pemrosesan bahasa alami, analisis dokumen, dan pemrograman terstruktur nomor satu di dunia dengan arsitektur generasi 5.5. Dilengkapi model terdepan Claude Opus 5.5 dan Sonnet 5.5 dengan jendela konteks 1 Juta (1.000.000) token, fitur Adaptive Extended Thinking untuk memecahkan persoalan logika dan arsitektur bertingkat, integrasi Claude Code CLI, Claude Projects untuk mengelola konteks dokumen kerja, dan Artifacts untuk menampilkan hasil kode dan diagram secara langsung.
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih variasi paket yang diinginkan (Akun Claude Max 5x/20x atau API Key Token 100M/200M).
 2. Masukkan nama dan email Anda pada formulir checkout pemesanan.
-3. Selesaikan transaksi melalui QRIS, Binance Pay, BNB, atau Tron.
+3. Selesaikan transaksi melalui QRIS, BNB, atau Tron.
 4. Data login akun Claude Pro atau API Key instan akan otomatis dikirimkan ke email dan invoice status pesanan.
-5. Untuk Akun Pro: Buka claude.ai dan login dengan kredensial yang diberikan. Untuk API Key: Masukkan key ke IDE/aplikasi Anda.
-6. Dapatkan jaminan garansi penggantian akun baru 100% jika terjadi kendala selama masa durasi aktif.
+5. Login ke https://claude.ai atau gunakan API Key pada aplikasi pilihan Anda.
+6. Dapatkan jaminan garansi penggantian akun baru 100% jika terjadi kendala selama masa durasi aktif via Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
-• Gunakan sesi akun secara wajar sesuai kapasitas pemakaian yang ditentukan penyedia.
+• Gunakan akun sesuai kapasitas pemakaian dan ketentuan resmi Anthropic.
 • Simpan kredensial login atau API Key di tempat yang aman.`,
     features: [
-      "Akses prioritas tanpa batas antrean ke Claude 3.5 Sonnet dan Claude 3 Opus",
-      "Fitur Artifacts interaktif untuk preview kode React, HTML, SVG, dan diagram Mermaid realtime",
-      "Batas kuota pesan 5x lebih banyak dibanding akun gratis",
-      "Jendela konteks besar 200.000 token (~150.000 kata dalam satu sesi chat)",
-      "Fitur Claude Projects untuk mengelompokkan dokumen referensi dan prompt khusus tim"
+      "Akses prioritas ke model flagship terbaru Anthropic: Claude Opus 5.5, Sonnet 5.5, dan Claude Fable 5.1",
+      "Jendela konteks raksasa hingga 1.000.000 (1M) token untuk penalaran dokumen dan kode masif",
+      "Mode Adaptive Extended Thinking untuk rekayasa perangkat lunak dan riset logika kompleks",
+      "Dukungan penuh agen coding otonom Claude Code CLI",
+      "Fitur Artifacts interaktif untuk preview kode, HTML, SVG, UI, dan diagram secara realtime",
+      "Batas kuota pesan jauh lebih besar dibanding paket gratis (Paket Pro & Claude Max 5x / 20x)",
+      "Fitur Claude Projects untuk pengelompokan dokumen referensi dan custom instructions"
     ],
     requirements: {
       Web: "Browser modern (Chrome, Safari, Firefox, Edge) di desktop atau laptop.",
@@ -158,38 +163,39 @@ HAL PENTING / CATATAN PENGGUNAAN:
       macOS: "Aplikasi desktop Claude untuk macOS atau via browser.",
       Windows: "Aplikasi desktop Claude Windows atau via browser."
     },
-    version: "3.5 Sonnet / Opus Edition",
+    version: "Anthropic 5.5 Generation (October 2026 Official)",
     variantDescriptions: {
-      "claude-api-100m": "API Key Claude Token 100M resmi untuk integrasi bot, tools, atau Cursor IDE (Exp 1 Hari).",
-      "claude-api-200m": "API Key Claude Token 200M kapasitas besar untuk aplikasi enterprise dan riset (Exp 1 Hari).",
-      "claude-max-5x-1m": "Akun Claude AI Max 5x 1 Bulan untuk kebutuhan chat dan coding harian intensif.",
-      "claude-max-20x-1m": "Akun Claude AI Max 20x 1 Bulan untuk developer dan workflow profesional beban tinggi."
+      "claude-api-100m": "API Key Claude Token 100M resmi untuk integrasi bot, tools, atau IDE (Exp 1 Hari).",
+      "claude-api-200m": "API Key Claude Token 200M resmi kapasitas besar untuk integrasi dan riset (Exp 1 Hari).",
+      "claude-max-5x-1m": "Akun Claude AI Max 5x 1 Bulan untuk kebutuhan penggunaan intensif.",
+      "claude-max-20x-1m": "Akun Claude AI Max 20x 1 Bulan untuk workflow profesional beban tinggi."
     }
   },
 
   "Perplexity AI Pro": {
     name: "Perplexity AI Pro",
-    tagline: "Mesin Pencari AI Cerdas dengan Sitasi Sumber Terpercaya, Copilot & Multi-Model Switcher",
-    serviceDescription: "Langganan resmi Perplexity AI Pro untuk riset dan pencarian informasi cerdas tanpa iklan. Menggabungkan penjelajahan web realtime dengan sitasi sumber akademis terpercaya, upload file tanpa batas, serta kebebasan beralih antara model AI terdepan di dunia seperti Claude 3.5 Sonnet, GPT-4o, dan Sonar Large.",
-    summary: `Perplexity Pro mengubah cara Anda mencari informasi di internet. Daripada membuka puluhan tab pencarian manual, Perplexity Pro memberikan rangkuman terstruktur yang dilengkapi tautan sumber asli, grafik interaktif, dan penalaran bertingkat (Pro Search).
+    tagline: "Mesin Pencari AI Cerdas: Pro Search, Deep Research & Switch Model Frontier (Claude 5.5, GPT-6.1, Gemini 4, Sonar)",
+    serviceDescription: "Langganan resmi Perplexity AI Pro untuk riset dan pencarian informasi cerdas tanpa iklan. Menggabungkan penjelajahan web realtime dengan sitasi sumber terverifikasi, kapabilitas Deep Research multi-langkah, unggah berkas tanpa batas, serta kebebasan memilih model AI frontier terkemuka (Anthropic Claude Sonnet 5.5, OpenAI GPT-6.1 Sol, Google Gemini 4 Argon, Sonar Reasoning).",
+    summary: `Perplexity Pro menyederhanakan proses riset informasi online dengan menyajikan jawaban komprehensif yang dilengkapi sitasi sumber langsung, grafik interaktif, dan kemampuan Pro Search bertingkat. Pengguna dapat mengunggah berkas dokumen untuk dianalisis dan beralih model AI generasi terbaru sesuai kebutuhan.
 
 CARA ORDER / CARA PEMBELIAN:
-1. Pilih variasi paket Perplexity Pro (Pro 1 Bulan, Education Pro, atau Max 1 Bulan) lalu klik "Beli Sekarang".
+1. Pilih variasi paket Perplexity Pro yang tersedia lalu klik "Beli Sekarang".
 2. Lengkapi formulir pemesanan dengan nama dan email aktif Anda.
-3. Bayar melalui QRIS, Binance Pay, BNB, atau Tron sesuai nominal pas.
+3. Bayar melalui QRIS, BNB, atau Tron sesuai nominal yang tertera.
 4. Detail akun Perplexity Pro siap pakai akan otomatis dikirimkan ke email dan status pesanan.
-5. Login di perplexity.ai atau aplikasi mobile/desktop Perplexity, lalu aktifkan mode Pro Search.
-6. Garansi penuh berlaku selama masa aktif dengan dukungan teknis admin Telegram @tokonoo.
+5. Login di https://perplexity.ai atau aplikasi Perplexity, lalu aktifkan mode Pro Search.
+6. Garansi penuh berlaku selama masa aktif dengan dukungan admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Akun berstatus Pro aktif dengan kuota Pro Search harian besar dan kredit bulanan generator gambar.
-• Bebas memilih model default (Claude 3.5 Sonnet / GPT-4o) pada menu pengaturan profil akun.`,
+• Model AI dapat dipilih langsung melalui menu pengaturan profil akun.`,
     features: [
-      "Akses Pro Search (Copilot) harian tanpa batas dengan penjelajahan multi-sumber mendalam",
-      "Bebas beralih model AI utama: Claude 3.5 Sonnet, GPT-4o, dan Sonar Large 32k",
-      "Unggah dan analisis berkas tanpa batas (PDF, CSV, Word, teks kode)",
-      "Pencarian akademis terverifikasi dengan sitasi jurnal ilmiah asli",
-      "Kredit bulanan untuk pembuatan gambar AI (Playground v3, FLUX, DALL-E)"
+      "Akses Pro Search harian dengan penjelajahan multi-sumber mendalam",
+      "Bebas beralih model AI frontier: Claude Sonnet 5.5, GPT-6.1 Sol, Gemini 4 Argon, dan Sonar Reasoning",
+      "Fitur Deep Research untuk eksplorasi dan sintesis dokumen riset terperinci",
+      "Unggah dan analisis berkas dokumen tanpa batas (PDF, CSV, teks, kode)",
+      "Pencarian akademis terstruktur dengan sitasi sumber ilmiah dan web tepercaya",
+      "Kredit bulanan untuk pembuatan gambar AI terintegrasi"
     ],
     requirements: {
       Web: "Semua browser modern di desktop dan mobile dengan koneksi internet aktif.",
@@ -198,87 +204,89 @@ HAL PENTING / CATATAN PENGGUNAAN:
       macOS: "Aplikasi native Perplexity macOS atau via web.",
       Windows: "Aplikasi native Perplexity Windows atau via web."
     },
-    version: "2026 Pro Edition",
+    version: "Perplexity Pro 2026.10 Official",
     variantDescriptions: {
-      "perplexity-pro-1m": "Akun Perplexity AI Pro 1 Bulan siap pakai dengan fitur Pro Search tak terbatas.",
-      "perplexity-edu-1m": "Akun Perplexity Education Pro 1 Bulan khusus riset akademis dan literatur ilmiah.",
-      "perplexity-max-1m": "Akun Perplexity Max 1 Bulan dengan alokasi komputasi prioritas tertinggi."
+      "perplexity-pro-1m": "Akun Perplexity AI Pro 1 Bulan siap pakai dengan fitur Pro Search.",
+      "perplexity-edu-1m": "Akun Perplexity Education Pro 1 Bulan untuk riset akademis dan literatur.",
+      "perplexity-max-1m": "Akun Perplexity Max 1 Bulan dengan alokasi komputasi prioritas tinggi."
     }
   },
 
   "Cursor AI Pro": {
     name: "Cursor AI Pro",
-    tagline: "Code Editor AI Terbaik untuk Developer: Composer Multi-File, Tab Autocomplete & Indexing",
-    serviceDescription: "Langganan resmi Cursor AI Pro — code editor berbasis VS Code yang diintegrasikan langsung dengan model AI terdepan (Claude 3.5 Sonnet, GPT-4o). Dilengkapi fitur Composer untuk membuat dan mengedit banyak file sekaligus dari instruksi teks, Cursor Tab untuk autocomplete multi-baris prediktif, dan pemahaman penuh struktur codebase proyek.",
-    summary: `Cursor AI Pro adalah senjata utama software engineer modern. Anda dapat menjelaskan fitur baru dalam bahasa alami dan Cursor Composer akan otomatis membuat arsitektur file, mengimpor dependency, serta memperbaiki bug di seluruh folder proyek Anda secara akurat.
+    tagline: "AI Code Editor Berbasis VS Code: Dukungan Claude Sonnet 5.5, GPT-6.1 Sol, Grok 4.7 & Composer Multi-File",
+    serviceDescription: "Langganan resmi Cursor AI Pro — code editor berbasis VS Code yang diintegrasikan langsung dengan model coding terbaik dunia (Claude Sonnet 5.5, Claude Opus 5.5, GPT-6.1 Sol, Grok 4.7). Dilengkapi fitur Composer untuk membuat dan mengedit banyak berkas sekaligus dari instruksi teks, Cursor Tab untuk autocomplete prediktif multi-baris, dan indexing codebase repositori secara menyeluruh.",
+    summary: `Cursor AI Pro dirancang untuk meningkatkan efisiensi pengembangan perangkat lunak. Melalui Composer, developer dapat mendeskripsikan perubahan arsitektur atau fitur baru dalam bahasa alami untuk dieksekusi di beberapa berkas sekaligus, didukung indexing codebase lokal dan autocompletion cerdas Cursor Tab.
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih durasi paket Cursor AI Pro yang Anda butuhkan (1 Bulan, Pro+ 3x, Ultra 20x, atau 1 Tahun).
 2. Isi data kontak Anda pada halaman checkout pemesanan.
-3. Selesaikan pembayaran menggunakan QRIS, Binance Pay, BNB, atau Tron.
+3. Selesaikan pembayaran menggunakan QRIS, BNB, atau Tron.
 4. Kredensial akun Cursor Pro aktif akan dikirimkan otomatis ke email Anda dalam waktu 1–15 menit.
-5. Unduh aplikasi Cursor di cursor.com, login dengan akun yang diberikan, dan buka folder proyek Anda.
-6. Garansi penggantian akun baru 100% jika terjadi masalah selama durasi paket aktif.
+5. Unduh aplikasi Cursor di https://cursor.com, login dengan akun yang diberikan, dan buka folder proyek Anda.
+6. Garansi penggantian akun baru 100% jika terjadi kendala selama durasi paket aktif via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
-• Cursor kompatibel 100% dengan seluruh ekstensi, tema, keybindings, dan konfigurasi VS Code Anda.
-• Fitur Fast Requests akan langsung aktif di dashboard editor Anda.`,
+• Cursor kompatibel penuh dengan seluruh ekstensi, tema, dan keybindings VS Code.
+• Fitur Fast Requests bulanan langsung aktif di dashboard editor Anda.`,
     features: [
-      "500 Fast Premium Requests bulanan ke model Claude 3.5 Sonnet & GPT-4o",
-      "Unlimited Slow Requests tanpa batas setelah kuota Fast habis",
-      "Cursor Composer: AI agent untuk membuat dan memodifikasi multi-file secara simultan",
-      "Cursor Tab: Autocomplete prediktif multi-baris berkecepatan milidetik",
-      "Full Codebase Indexing untuk pemahaman menyeluruh atas seluruh file proyek Anda"
+      "Alokasi Fast Requests bulanan untuk model frontier tercepat (Claude Sonnet 5.5, GPT-6.1 Sol, Grok 4.7)",
+      "Akses slow requests tanpa batas setelah kuota Fast habis",
+      "Cursor Composer: agen AI otonom untuk membuat dan memodifikasi multi-file secara simultan",
+      "Cursor Tab: autocomplete multi-baris prediktif berkecepatan tinggi",
+      "Full Codebase Indexing untuk pemahaman menyeluruh atas seluruh repositori proyek",
+      "Kompatibilitas 100% dengan ekosistem ekstensi dan konfigurasi VS Code"
     ],
     requirements: {
       Windows: "Windows 10 / 11 64-bit.",
       macOS: "macOS 11.0 (Big Sur) ke atas (Apple Silicon M-Series atau Intel).",
       Linux: "Distro Linux 64-bit (Ubuntu, Debian, Fedora, Arch, dll)."
     },
-    version: "v0.45+ Pro Build",
+    version: "Cursor Pro 2026.10 Official",
     variantDescriptions: {
-      "cursor-pro-1m": "Akun Cursor Pro 1 Bulan dengan 500 Fast Requests dan Composer aktif.",
-      "cursor-pro-plus-3x-1m": "Akun Cursor Pro+ 3x 1 Bulan untuk developer dengan beban kerja tinggi.",
-      "cursor-ultra-20x-1m": "Akun Cursor Ultra 20x 1 Bulan untuk tim engineering dan proyek skala besar.",
-      "cursor-pro-1y": "Akun Cursor Pro 1 Tahun penuh dengan garansi resmi dan hemat biaya."
+      "cursor-pro-1m": "Akun Cursor Pro 1 Bulan dengan alokasi Fast Requests bulanan dan Composer aktif.",
+      "cursor-pro-plus-3x-1m": "Akun Cursor Pro+ 3x 1 Bulan untuk alur kerja pengembangan intensif.",
+      "cursor-ultra-20x-1m": "Akun Cursor Ultra 20x 1 Bulan untuk kapasitas kredit agen tingkat tinggi.",
+      "cursor-pro-1y": "Akun Cursor Pro 1 Tahun dengan proteksi garansi penuh selama masa aktif."
     }
   },
 
   "Grok Super AI": {
     name: "Grok Super AI",
-    tagline: "Akses Eksklusif xAI Grok 2 & Grok 3 dengan Data Real-Time X dan Generator Gambar Flux",
-    serviceDescription: "Langganan resmi Super Grok AI dari xAI (Elon Musk) yang memberikan akses prioritas ke model Grok generasi terbaru dengan pemahaman tren dunia terkini secara realtime dari platform X (Twitter), penalaran mendalam tanpa sensor berlebih, dan generator gambar fotorealistik Flux.",
-    summary: `Grok AI unggul dalam kecepatan analisis berita terkini, tren pasar finansial, isu global, serta pembuatan konten kreatif dengan sudut pandang tajam dan data yang selalu diperbarui setiap detik langsung dari percakapan publik di platform X.
+    tagline: "Langganan Resmi xAI Grok: Model Flagship Grok 4.7, Think Mode, Grok Imagine Image 2.0 & Real-Time X",
+    serviceDescription: "Langganan resmi SuperGrok dari xAI yang memberikan akses prioritas ke model flagship terbaru Grok 4.7 (rilis September 2026 dengan reinforcement learning canggih untuk coding dan agentic tasks), konteks 500K token, mode penalaran mendalam Think Mode, Grok DeepSearch, generator visual Grok Imagine Image 2.0 & Video 1.5, serta integrasi data real-time platform X (Twitter).",
+    summary: `SuperGrok dari xAI menghadirkan kemampuan pemrosesan informasi dengan integrasi data real-time dari platform X. Dilengkapi mode penalaran Think Mode untuk memecahkan persoalan logika dan sains rumit, Grok DeepSearch untuk menyusun rangkuman investigasi mendalam, serta generator visual kreatif Grok Imagine Image 2.0 & Video 1.5.
 
 CARA ORDER / CARA PEMBELIAN:
-1. Pilih varian paket Super Grok yang diinginkan (7 Hari, 1 Bulan Lite/Standar/Plus, atau 1 Tahun).
+1. Pilih varian paket SuperGrok yang diinginkan (Lite, Standar, Plus, atau Tahunan).
 2. Lengkapi formulir pembelian dan lakukan checkout.
-3. Bayar via QRIS, Binance Pay, BNB, atau Tron sesuai nominal pas.
-4. Kredensial akun X / Grok dengan status Super Grok aktif akan dikirimkan otomatis ke email Anda.
-5. Login di grok.com atau aplikasi X di ponsel/komputer Anda dan mulai berinteraksi dengan Grok.
-6. Full garansi penggantian akun selama durasi langganan aktif via admin Telegram @tokonoo.
+3. Bayar via QRIS, BNB, atau Tron sesuai nominal pas.
+4. Kredensial akun dengan status SuperGrok aktif akan dikirimkan otomatis ke email Anda.
+5. Login di https://grok.com atau aplikasi resmi Grok.
+6. Full garansi penggantian akun selama durasi langganan aktif via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
-• Gunakan akun sesuai dengan ketentuan komunitas dan panduan penggunaan platform resmi.`,
+• Gunakan akun sesuai dengan ketentuan penggunaan platform resmi xAI / grok.com.`,
     features: [
-      "Akses penuh ke model unggulan xAI Grok 2 & Grok 3 generasi terbaru",
-      "Integrasi informasi dan tren berita realtime dari seluruh jaringan platform X",
-      "Generator gambar AI canggih Flux dengan detail fotorealistik tinggi",
-      "Mode penalaran Think Mode untuk memecahkan persoalan matematika dan coding kompleks",
-      "Pilihan gaya interaksi cerdas (Fun Mode & Normal Mode) yang adaptif"
+      "Akses prioritas ke model flagship terbaru Grok 4.7 dari xAI (500K context window)",
+      "Pelatihan reinforcement learning tingkat tinggi untuk eksekusi coding dan tugas agentic kompleks",
+      "Mode penalaran Think Mode dengan self-verification otomatis",
+      "Fitur Grok DeepSearch untuk eksplorasi dan sintesis informasi mendalam",
+      "Generator visual Grok Imagine Image 2.0 & Video 1.5 kualitas sinematik",
+      "Integrasi analisis tren dan topik real-time langsung dari platform X"
     ],
     requirements: {
       Web: "Browser modern di semua perangkat dengan koneksi internet stabil.",
-      Android: "Aplikasi X atau browser Android 8.0+.",
-      iOS: "Aplikasi X atau browser iOS 15.0+."
+      Android: "Aplikasi resmi Grok / X di Android 8.0+.",
+      iOS: "Aplikasi resmi Grok / X di iOS 15.0+."
     },
-    version: "Grok 3 / 2026 Edition",
+    version: "xAI Grok 4.7 Flagship (October 2026 Official)",
     variantDescriptions: {
-      "grok-7d": "Akun Super Grok aktif 7 Hari untuk kebutuhan riset kilat dan uji coba fitur.",
-      "grok-lite-1m": "Akun Super Grok Lite 1 Bulan hemat untuk akses chat dan analisis tren.",
-      "grok-std-1m": "Akun Super Grok 1 Bulan Standar paling populer dengan akses fitur penuh.",
-      "grok-heavy-1m": "Akun Super Grok Heavy 1 Bulan untuk kreator konten dan analisis data intensif.",
-      "grok-1y": "Akun Super Grok 1 Tahun penuh dengan garansi resmi dan hemat biaya."
+      "grok-7d": "Akun SuperGrok 7 Hari dengan garansi penuh selama masa aktif.",
+      "grok-lite-1m": "Akun SuperGrok Lite 1 Bulan hemat untuk akses chat dan riset.",
+      "grok-std-1m": "Akun SuperGrok 1 Bulan dengan akses fitur lengkap.",
+      "grok-heavy-1m": "Akun SuperGrok Heavy 1 Bulan untuk kebutuhan intensif.",
+      "grok-1y": "Akun SuperGrok 1 Tahun penuh dengan garansi resmi."
     }
   },
 
@@ -291,10 +299,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket 1 Bulan Akun Private Pro Tier Lovable AI lalu klik "Beli Sekarang".
 2. Masukkan nama dan email Anda pada form checkout.
-3. Selesaikan pembayaran menggunakan QRIS, Binance Pay, BNB, atau Tron.
+3. Selesaikan pembayaran menggunakan QRIS, BNB, atau Tron.
 4. Kredensial akun Lovable Pro (Email & Password) akan dikirimkan otomatis ke email Anda dalam 1–15 menit.
 5. Login di lovable.dev, mulai bangun aplikasi web baru, dan hubungkan repositori GitHub Anda.
-6. Garansi 30 hari penuh dengan bantuan teknis via admin Telegram @tokonoo.
+6. Garansi 30 hari penuh dengan bantuan teknis via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Akun private eksklusif untuk Anda dengan alokasi kredit Pro tier aktif.
@@ -324,7 +332,7 @@ HAL PENTING / CATATAN PENGGUNAAN:
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket 1 Bulan Akun Akses Early Pro Manus AI.
 2. Lengkapi data pemesanan pada form checkout.
-3. Bayar via QRIS, Binance Pay, BNB, atau Tron sesuai tagihan.
+3. Bayar via QRIS, BNB, atau Tron sesuai tagihan.
 4. Kredensial login akun Manus AI Pro akan dikirimkan otomatis ke email Anda.
 5. Buka platform web Manus AI di browser desktop, login, dan berikan tugas komprehensif pertama Anda.
 6. Garansi penuh 30 hari selama masa aktif langganan.
@@ -356,10 +364,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket ElevenLabs yang Anda butuhkan (Redeem 300K, 1M, 3M Credits, atau ElevenReader Ultra 1 Tahun).
 2. Lakukan checkout dan isi informasi kontak Anda.
-3. Selesaikan pembayaran melalui QRIS, Binance Pay, BNB, atau Tron.
+3. Selesaikan pembayaran melalui QRIS, BNB, atau Tron.
 4. Kode voucher redeem resmi atau detail akun akan dikirimkan instan ke email dan invoice Anda.
 5. Untuk Kode Redeem: Masuk ke elevenlabs.io, buka menu Subscription / Billing, lalu masukkan kode voucher Anda untuk menambah kuota kredit secara instan.
-6. Garansi resmi berlaku selama durasi paket yang Anda pilih via admin Telegram @tokonoo.
+6. Garansi resmi berlaku selama durasi paket yang Anda pilih via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Kode voucher redeem resmi dapat langsung ditukarkan ke akun ElevenLabs pribadi Anda.
@@ -391,10 +399,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket 1 Bulan Akun Standard (625 Credits) Runway Gen-3 AI Pro.
-2. Lakukan pembelian dan selesaikan pembayaran via QRIS, Binance Pay, BNB, atau Tron.
+2. Lakukan pembelian dan selesaikan pembayaran via QRIS, BNB, atau Tron.
 3. Kredensial akun Runway siap pakai akan dikirim otomatis ke email Anda dalam 1–15 menit.
 4. Login di runwayml.com, masuk ke menu Gen-3 Alpha, dan mulai render video AI Anda.
-5. Garansi 30 hari penuh dengan bantuan admin Telegram @tokonoo.
+5. Garansi 30 hari penuh dengan bantuan admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Alokasi 625 kredit dapat digunakan untuk render video Gen-3 Alpha dan fitur kreatif lainnya tanpa watermark.`,
@@ -417,33 +425,36 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
   "Leonardo AI Pro": {
     name: "Leonardo AI Pro",
-    tagline: "Platform Seni AI & Desain Game: 8.500 Kredit, Custom Models & Motion Video AI",
-    serviceDescription: "Langganan akun Leonardo AI Pro dengan alokasi 8.500 Token Kredit untuk menghasilkan ilustrasi digital memukau, aset game 3D, konsep seni, foto fotorealistik dengan model Leonardo Phoenix, dan animasi video pendek berkecepatan tinggi.",
-    summary: `Leonardo AI menawarkan studio pembuatan gambar AI paling fleksibel bagi desainer dan artist digital. Dilengkapi fitur Realtime Canvas, Universal Upscaler untuk memperjelas detail gambar, serta ratusan model komunitas siap pakai.
+    tagline: "Platform Kreatif Visual AI: Model Generatif Canggih, Realtime Canvas & Motion Video",
+    serviceDescription: "Langganan resmi Leonardo AI Pro dengan alokasi kredit token untuk menghasilkan ilustrasi digital, konsep visual, aset game, dan foto berkualitas tinggi menggunakan model generasi visual terkini (Lucid Origin, Phoenix, Leonardo Diffusion), serta fitur Realtime Canvas dan animasi Motion.",
+    summary: `Leonardo AI menyediakan rangkaian alat pembuatan aset visual bertenaga kecerdasan buatan untuk ilustrator, desainer grafis, dan kreator konten. Dilengkapi antarmuka Realtime Canvas untuk menggambar sketsa interaktif, AI Canvas Editor untuk inpainting dan outpainting, serta fitur animasi Motion.
 
 CARA ORDER / CARA PEMBELIAN:
-1. Pilih paket Leonardo AI 8.500 Credits 1 Bulan lalu klik "Beli Sekarang".
-2. Selesaikan transaksi menggunakan QRIS, Binance Pay, BNB, atau Tron.
-3. Data akun Leonardo AI Pro akan dikirimkan otomatis ke email Anda.
-4. Login di leonardo.ai atau aplikasi iOS Leonardo, lalu mulai kreasi seni Anda.
-5. Garansi penuh 30 hari dengan support admin Telegram @tokonoo.
+1. Pilih paket Leonardo AI yang tersedia lalu klik "Beli Sekarang".
+2. Masukkan nama dan email aktif pada form checkout pemesanan.
+3. Selesaikan transaksi menggunakan QRIS, BNB, atau Tron.
+4. Kredensial akun Leonardo AI Pro akan dikirimkan otomatis ke email dan invoice Anda.
+5. Login di https://leonardo.ai atau aplikasi iOS Leonardo, lalu mulai berkarya.
+6. Garansi penuh berlaku selama masa aktif dengan dukungan admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
-• Saldo 8.500 kredit memungkinkan pembuatan ratusan gambar resolusi tinggi tanpa antre.`,
+• Saldo kredit token dapat digunakan untuk render gambar resolusi tinggi dan fitur kreatif tanpa watermark.`,
     features: [
-      "Alokasi 8.500 Fast Token Credits untuk render gambar tanpa antre",
-      "Akses ke model unggulan Leonardo Phoenix dan FLUX",
-      "Fitur Realtime Canvas: coretan sketsa langsung berubah menjadi gambar AI",
-      "Motion Video AI: ubah gambar statis menjadi animasi video dinamis",
-      "AI Canvas Editor untuk Inpainting, Outpainting, dan pengeditan detail"
+      "Alokasi Fast Token Credits bulanan untuk generasi gambar berkecepatan tinggi",
+      "Akses ke model visual generatif unggulan Leonardo (Phoenix, Lucid Origin, FLUX)",
+      "Fitur Realtime Canvas: coretan sketsa langsung bertransformasi menjadi visual AI",
+      "Fitur Motion Video AI untuk mengubah gambar statis menjadi animasi video dinamis",
+      "AI Canvas Editor untuk Inpainting, Outpainting, dan pengeditan detail terarah",
+      "Generasi privat dengan hak penggunaan komersial penuh"
     ],
     requirements: {
-      Web: "Browser modern di PC, Laptop, atau Tablet.",
+      Web: "Browser modern di PC, laptop, atau tablet dengan koneksi internet stabil.",
       iOS: "Aplikasi resmi Leonardo.Ai di iOS App Store."
     },
-    version: "Pro Studio 2026",
+    version: "Official Subscription",
     variantDescriptions: {
-      "leonardo-pro-1m": "Akun Leonardo AI Pro 1 Bulan dengan saldo 8.500 Fast Credits dan akses Phoenix."
+      "leonardo-1": "Akun Leonardo AI Pro 1 Bulan dengan alokasi Fast Credits dan akses fitur lengkap.",
+      "leonardo-pro-1m": "Akun Leonardo AI Pro 1 Bulan dengan alokasi Fast Credits dan akses Phoenix."
     }
   },
 
@@ -455,7 +466,7 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket 1 Bulan Akun Pro Unlimited Wispr Flow.
-2. Lakukan checkout dan bayar melalui QRIS, Binance Pay, BNB, atau Tron.
+2. Lakukan checkout dan bayar melalui QRIS, BNB, atau Tron.
 3. Kredensial akun Wispr Flow Pro akan dikirimkan langsung ke email Anda.
 4. Unduh aplikasi Wispr Flow di macOS atau Windows, login, dan aktifkan shortcut mic.
 5. Mulai bicara di aplikasi apa pun dan teks rapi akan otomatis terketik instan.
@@ -489,10 +500,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih durasi paket Spotify Premium yang Anda inginkan (3 Bulan, 6 Bulan, atau 1 Tahun).
 2. Masukkan nama dan email/nomor kontak Anda pada formulir pemesanan.
-3. Selesaikan pembayaran melalui QRIS otomatis, Binance Pay, BNB, atau Tron.
+3. Selesaikan pembayaran melalui QRIS otomatis, BNB, atau Tron.
 4. Data akses (Tautan Undangan Family Plan resmi atau Akun Siap Pakai) akan dikirimkan otomatis ke email Anda dalam 1–15 menit.
 5. Untuk Tautan Undangan: Klik tautan tersebut saat login di akun Spotify pribadi Anda, konfirmasi alamat sesuai instruksi, dan akun langsung berubah status menjadi Premium.
-6. Hubungi admin Telegram @tokonoo jika butuh bantuan aktivasi atau klaim garansi 100%.
+6. Hubungi admin Telegram @texxasai jika butuh bantuan aktivasi atau klaim garansi 100%.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Untuk opsi invite link, pastikan akun Spotify Anda belum pernah bergabung dalam Family Plan lain dalam 12 bulan terakhir.`,
@@ -526,10 +537,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih varian Netflix (Slot 1 Profil 4K Full Warranty atau Akun Admin 5 Slot 1 Bulan).
-2. Isi data pemesanan dan selesaikan pembayaran melalui QRIS, Binance Pay, BNB, atau Tron.
+2. Isi data pemesanan dan selesaikan pembayaran melalui QRIS, BNB, atau Tron.
 3. Email, Password, nomor profil yang dialokasikan, beserta PIN profil akan dikirim otomatis ke email dan invoice Anda.
 4. Buka aplikasi Netflix atau netflix.com, login dengan kredensial tersebut, dan masuk ke profil khusus Anda.
-5. Garansi penuh penggantian akun/profil selama masa aktif jika mengalami kendala login via admin Telegram @tokonoo.
+5. Garansi penuh penggantian akun/profil selama masa aktif jika mengalami kendala login via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Untuk varian 1 Slot, harap hanya login dan menonton pada 1 profil yang telah ditentukan. Dilarang mengubah data email/password akun utama.`,
@@ -563,10 +574,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih variasi durasi YouTube Premium (1 Bulan, 3 Bulan, 6 Bulan, atau 1 Tahun).
 2. Masukkan alamat email Google / YouTube aktif Anda pada formulir checkout.
-3. Selesaikan pembayaran melalui QRIS, Binance Pay, BNB, atau Tron.
+3. Selesaikan pembayaran melalui QRIS, BNB, atau Tron.
 4. Undangan Family Plan resmi dari YouTube akan dikirimkan langsung ke email Anda dalam 1–15 menit.
 5. Buka email masuk dari Google, klik "Accept Invitation / Gabung Keluarga", dan akun Anda seketika aktif Premium.
-6. Full garansi selama masa aktif dengan bantuan admin Telegram @tokonoo jika terjadi kendala.
+6. Full garansi selama masa aktif dengan bantuan admin Telegram @texxasai jika terjadi kendala.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Email Google Anda tidak boleh sedang tergabung dalam grup keluarga Google lain dalam 12 bulan terakhir.`,
@@ -601,9 +612,9 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih variasi paket Disney+ Hotstar (Sharing Profil 1 Bulan / 3 Bulan atau Akun Private 1 Bulan).
-2. Lakukan pembelian dan selesaikan pembayaran via QRIS, Binance Pay, BNB, atau Tron.
+2. Lakukan pembelian dan selesaikan pembayaran via QRIS, BNB, atau Tron.
 3. Data login (Nomor HP/Email terdaftar) akan dikirimkan ke email atau kontak Anda.
-4. Buka aplikasi Disney+ Hotstar, masukkan nomor yang diberikan, dan minta kode OTP login ke admin Telegram @tokonoo.
+4. Buka aplikasi Disney+ Hotstar, masukkan nomor yang diberikan, dan minta kode OTP login ke admin Telegram @texxasai.
 5. Setelah login berhasil, Anda dapat langsung menikmati seluruh tayangan.
 6. Garansi penuh berlaku selama masa durasi paket aktif.
 
@@ -637,10 +648,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket Prime Video yang diinginkan (Sharing 1 Perangkat atau Akun Private Penuh).
-2. Lakukan pemesanan dan bayar dengan QRIS, Binance Pay, BNB, atau Tron.
+2. Lakukan pemesanan dan bayar dengan QRIS, BNB, atau Tron.
 3. Data akun (Email & Password Prime Video) akan dikirimkan langsung ke email Anda.
 4. Login di primevideo.com atau aplikasi Prime Video di Smart TV / Smartphone.
-5. Garansi aktif 100% selama 30 hari periode langganan via admin Telegram @tokonoo.
+5. Garansi aktif 100% selama 30 hari periode langganan via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Akun siap pakai dengan langganan aktif. Dilarang mengubah data profil pembayaran akun.`,
@@ -705,11 +716,11 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih varian durasi Apple TV+ (1 Bulan atau 3 Bulan).
-2. Selesaikan pembayaran melalui QRIS, Binance Pay, BNB, atau Tron.
+2. Selesaikan pembayaran melalui QRIS, BNB, atau Tron.
 3. Kredensial Apple ID khusus dengan langganan Apple TV+ aktif akan dikirimkan ke email Anda.
 4. Login Apple ID tersebut pada menu Media & Purchases (atau aplikasi Apple TV di Android/Smart TV/Web).
 5. Buka aplikasi Apple TV dan tonton seluruh serial Apple Originals.
-6. Garansi aktif penuh selama masa langganan via admin Telegram @tokonoo.
+6. Garansi aktif penuh selama masa langganan via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Hanya gunakan akun untuk login pada layanan Media & Purchases / Apple TV app, bukan untuk iCloud pribadi utama Anda.`,
@@ -745,7 +756,7 @@ CARA ORDER / CARA PEMBELIAN:
 3. Detail akun login akan dikirimkan otomatis ke email dan invoice Anda.
 4. Gunakan VPN region US/Global jika diperlukan saat membuka platform Paramount+.
 5. Login di paramountplus.com atau aplikasi resmi Paramount+.
-6. Garansi penuh penggantian selama 30 hari masa aktif via admin Telegram @tokonoo.
+6. Garansi penuh penggantian selama 30 hari masa aktif via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Gunakan 1 perangkat login sesuai alokasi paket sharing.`,
@@ -776,7 +787,7 @@ HAL PENTING / CATATAN PENGGUNAAN:
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih provider VPN yang Anda inginkan (ExpressVPN 1M, Surfshark 2M Code, Proton Plus/Unlimited 1M, atau NordVPN 3M).
 2. Lengkapi data pemesanan pada form checkout.
-3. Lakukan pembayaran via QRIS, Binance Pay, BNB, atau Tron.
+3. Lakukan pembayaran via QRIS, BNB, atau Tron.
 4. Kode aktivasi resmi atau akun premium VPN akan dikirimkan langsung ke email Anda.
 5. Unduh aplikasi resmi provider VPN di perangkat Anda, masukkan kode aktivasi / login, dan hubungkan ke ribuan server.
 6. Full garansi selama masa aktif varian yang Anda pilih.
@@ -816,10 +827,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket Canva Pro (1 Tahun atau Lifetime Access).
 2. Masukkan alamat email akun Canva Anda yang aktif pada formulir checkout.
-3. Selesaikan pembayaran melalui QRIS, Binance Pay, BNB, atau Tron.
+3. Selesaikan pembayaran melalui QRIS, BNB, atau Tron.
 4. Undangan tim resmi Canva Pro akan dikirimkan langsung ke email Anda dalam 1–15 menit.
 5. Buka email, klik "Gabung Tim / Join Team", dan akun Canva Anda seketika berubah status menjadi Canva Pro.
-6. Garansi penuh selama masa aktif paket dengan support admin Telegram @tokonoo.
+6. Garansi penuh selama masa aktif paket dengan support admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Desain pribadi Anda tetap 100% aman dan privat di akun Anda sendiri, tidak dapat dilihat oleh anggota tim lain.`,
@@ -853,10 +864,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih variasi paket CapCut Pro yang Anda butuhkan (1 Bulan Personal Email, 6 Bulan Share/Personal, atau 1 Tahun Full Warranty).
 2. Lengkapi data pemesanan di checkout.
-3. Selesaikan pembayaran via QRIS, Binance Pay, BNB, atau Tron.
+3. Selesaikan pembayaran via QRIS, BNB, atau Tron.
 4. Instruksi aktivasi atau akun CapCut Pro akan dikirimkan otomatis ke email Anda.
 5. Login di aplikasi CapCut (PC / Android / iOS) dan nikmati seluruh aset Pro.
-6. Full garansi penggantian selama masa aktif jika terjadi kendala langganan via admin Telegram @tokonoo.
+6. Full garansi penggantian selama masa aktif jika terjadi kendala langganan via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Dapat digunakan untuk CapCut Desktop di Windows/Mac maupun CapCut Mobile di smartphone.`,
@@ -891,10 +902,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih durasi paket Figma Pro (1 Tahun atau 2 Tahun).
 2. Masukkan alamat email akun Figma yang ingin diaktifkan.
-3. Bayar menggunakan QRIS, Binance Pay, BNB, atau Tron.
+3. Bayar menggunakan QRIS, BNB, atau Tron.
 4. Undangan tim workspace Figma Pro akan dikirimkan langsung ke email Anda.
 5. Buka email, terima undangan tim, dan akun Anda otomatis mendapatkan status Figma Pro.
-6. Garansi penuh 100% selama durasi paket yang Anda beli via admin Telegram @tokonoo.
+6. Garansi penuh 100% selama durasi paket yang Anda beli via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Aktivasi langsung ke email Figma pribadi Anda sehingga proyek dan desain lama Anda tetap aman 100%.`,
@@ -925,10 +936,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket 1 Bulan Akun Workspace Pro Framer lalu lakukan checkout.
-2. Selesaikan pembayaran via QRIS, Binance Pay, BNB, atau Tron.
+2. Selesaikan pembayaran via QRIS, BNB, atau Tron.
 3. Data akun Framer Pro akan dikirimkan otomatis ke email Anda.
 4. Login di framer.com, mulai buat website, dan hubungkan domain pilihan Anda.
-5. Garansi penuh selama 30 hari masa aktif via admin Telegram @tokonoo.
+5. Garansi penuh selama 30 hari masa aktif via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Akun siap pakai dengan paket Pro aktif. Simpan akses login Anda dengan baik.`,
@@ -961,7 +972,7 @@ CARA ORDER / CARA PEMBELIAN:
 2. Selesaikan pembayaran menggunakan QRIS atau Crypto.
 3. Kredensial akun Gamma Pro (Email & Password) akan dikirimkan otomatis ke email Anda.
 4. Login di gamma.app, masukkan outline materi, dan generate slide presentasi Anda.
-5. Garansi penggantian akun jika terjadi kendala selama masa aktif via admin Telegram @tokonoo.
+5. Garansi penggantian akun jika terjadi kendala selama masa aktif via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Gunakan saldo kredit AI untuk membuat presentasi dan dokumen interaktif tanpa watermark.`,
@@ -992,7 +1003,7 @@ CARA ORDER / CARA PEMBELIAN:
 2. Lakukan checkout dan selesaikan pembayaran via QRIS / Crypto.
 3. Kredensial akun HeyGen Pro akan dikirimkan otomatis ke email Anda.
 4. Login di app.heygen.com, pilih avatar AI favorit, ketik naskah, dan render video Anda.
-5. Garansi penuh 30 hari selama masa langganan aktif via admin Telegram @tokonoo.
+5. Garansi penuh 30 hari selama masa langganan aktif via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Kredit 15 dapat digunakan untuk me-render video avatar kualitas tinggi tanpa watermark.`,
@@ -1021,10 +1032,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih varian Notion yang Anda butuhkan (Notion Plus 1 Bulan atau Notion Business 1 Tahun).
 2. Masukkan detail kontak Anda di form checkout.
-3. Selesaikan pembayaran melalui QRIS, Binance Pay, BNB, atau Tron.
+3. Selesaikan pembayaran melalui QRIS, BNB, atau Tron.
 4. Data akun Workspace Notion Plus atau instruksi aktivasi akan dikirimkan instan ke email Anda.
 5. Login di notion.so atau aplikasi desktop Notion dan mulai atur workspace Anda.
-6. Garansi penuh berlaku selama masa aktif paket yang dipilih via admin Telegram @tokonoo.
+6. Garansi penuh berlaku selama masa aktif paket yang dipilih via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Simpan data catatan Anda di workspace resmi Notion dengan backup otomatis di cloud.`,
@@ -1061,7 +1072,7 @@ CARA ORDER / CARA PEMBELIAN:
 3. Akun Microsoft resmi atau link aktivasi Family resmi akan dikirimkan otomatis ke email Anda.
 4. Login di portal.office.com atau aplikasi Office di laptop/ponsel Anda.
 5. Unduh dan install installer resmi Microsoft Office di Windows/Mac.
-6. Full garansi 100% selama durasi paket aktif via admin Telegram @tokonoo.
+6. Full garansi 100% selama durasi paket aktif via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Lisensi resmi Microsoft yang dapat diinstal pada hingga 5 perangkat aktif secara bersamaan (PC, Mac, Tablet, HP).`,
@@ -1094,10 +1105,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih durasi paket QuillBot Premium (1 Bulan atau 1 Tahun).
-2. Selesaikan pembayaran melalui QRIS, Binance Pay, BNB, atau Tron.
+2. Selesaikan pembayaran melalui QRIS, BNB, atau Tron.
 3. Detail akun QuillBot Premium (Email & Password) akan dikirimkan otomatis ke email Anda.
 4. Login di quillbot.com atau instal ekstensi QuillBot di browser Chrome / Microsoft Word.
-5. Garansi penuh penggantian selama periode langganan aktif via admin Telegram @tokonoo.
+5. Garansi penuh penggantian selama periode langganan aktif via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Gunakan pada 1 perangkat aktif sesuai ketentuan paket. Dilarang mengubah data password akun.`,
@@ -1131,7 +1142,7 @@ CARA ORDER / CARA PEMBELIAN:
 2. Lengkapi formulir pemesanan dan lakukan pembayaran via QRIS / Crypto.
 3. Kredensial akun Zoom Pro siap pakai akan dikirimkan otomatis ke email Anda.
 4. Login di aplikasi Zoom desktop/mobile atau via zoom.us, lalu mulai jadwalkan rapat Anda.
-5. Garansi penuh selama masa aktif paket yang Anda pilih via admin Telegram @tokonoo.
+5. Garansi penuh selama masa aktif paket yang Anda pilih via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Akun siap pakai berstatus Host Pro aktif. Anda dapat langsung menjadwalkan meeting berdurasi panjang.`,
@@ -1164,10 +1175,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket 1 Tahun Akun CamScanner Premium HD.
-2. Selesaikan pembayaran melalui QRIS, Binance Pay, BNB, atau Tron.
+2. Selesaikan pembayaran melalui QRIS, BNB, atau Tron.
 3. Data akun CamScanner Premium (Email & Password) akan dikirimkan otomatis ke email Anda.
 4. Login di aplikasi CamScanner di ponsel Android atau iPhone Anda.
-5. Garansi penuh 1 tahun selama masa langganan aktif via admin Telegram @tokonoo.
+5. Garansi penuh 1 tahun selama masa langganan aktif via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Gunakan data login yang diberikan. Nikmati fitur ekspor HD tanpa watermark selamanya selama masa aktif.`,
@@ -1199,7 +1210,7 @@ CARA ORDER / CARA PEMBELIAN:
 2. Lakukan checkout dan selesaikan pembayaran via QRIS / Crypto.
 3. Kredensial akun Supabase Pro akan dikirimkan langsung ke email Anda.
 4. Login di supabase.com, buat project database PostgreSQL baru, dan integrasikan API ke aplikasi Anda.
-5. Garansi penuh 30 hari selama masa aktif via admin Telegram @tokonoo.
+5. Garansi penuh 30 hari selama masa aktif via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Akun private dengan saldo Pro aktif. Simpan API Keys dan DB Password Anda dengan aman.`,
@@ -1227,10 +1238,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket Replit Core $60 Credit 30D Full Warranty.
-2. Bayar menggunakan QRIS, Binance Pay, BNB, atau Tron.
+2. Bayar menggunakan QRIS, BNB, atau Tron.
 3. Data akun Replit Core akan dikirimkan otomatis ke email Anda.
 4. Login di replit.com, buat Repl baru, dan jalankan proyek aplikasi Anda.
-5. Garansi penuh penggantian akun selama 30 hari masa aktif via admin Telegram @tokonoo.
+5. Garansi penuh penggantian akun selama 30 hari masa aktif via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Gunakan kredit $60 untuk alokasi CPU/RAM tinggi pada Repl Anda dan deployment cloud.`,
@@ -1263,7 +1274,7 @@ CARA ORDER / CARA PEMBELIAN:
 2. Selesaikan transaksi melalui QRIS atau Crypto.
 3. Data akun Railway dengan saldo kredit aktif akan dikirimkan ke email Anda.
 4. Login di railway.app, sambungkan repo GitHub Anda, dan deploy project pertama Anda.
-5. Garansi penuh selama 30 hari periode langganan via admin Telegram @tokonoo.
+5. Garansi penuh selama 30 hari periode langganan via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Pastikan mengatur batasan resource pemakaian container agar saldo kredit mencukupi sepanjang bulan.`,
@@ -1291,10 +1302,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket 1 Bulan Instance N8N Cloud Siap Pakai lalu lakukan checkout.
-2. Selesaikan pembayaran melalui QRIS, Binance Pay, BNB, atau Tron.
+2. Selesaikan pembayaran melalui QRIS, BNB, atau Tron.
 3. Tautan instance n8n khusus beserta kredensial login admin akan dikirimkan ke email Anda.
 4. Buka URL instance di browser, login, dan mulai susun diagram alur otomatisasi Anda.
-5. Garansi penuh selama 30 hari masa aktif dengan dukungan teknis admin Telegram @tokonoo.
+5. Garansi penuh selama 30 hari masa aktif dengan dukungan teknis admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Instance n8n aktif 24 jam non-stop di server cloud berkecepatan tinggi.`,
@@ -1325,7 +1336,7 @@ CARA ORDER / CARA PEMBELIAN:
 2. Lakukan checkout dan bayar dengan QRIS atau Crypto.
 3. Kredensial akun Linear Pro akan dikirimkan otomatis ke email Anda.
 4. Login di linear.app atau aplikasi desktop Linear, lalu buat tim dan proyek Anda.
-5. Garansi penuh 30 hari selama masa aktif via admin Telegram @tokonoo.
+5. Garansi penuh 30 hari selama masa aktif via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Gunakan akun untuk mengelola tim engineering dan backlog proyek Anda.`,
@@ -1355,10 +1366,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket 1 Bulan Akun Dev Credit Tier PostHog Cloud Scale.
-2. Selesaikan pembayaran via QRIS, Binance Pay, BNB, atau Tron.
+2. Selesaikan pembayaran via QRIS, BNB, atau Tron.
 3. Detail akun PostHog akan dikirimkan otomatis ke email Anda.
 4. Login di us.posthog.com / eu.posthog.com, salin snippet tracking ke website/aplikasi Anda.
-5. Garansi penuh 30 hari selama masa aktif via admin Telegram @tokonoo.
+5. Garansi penuh 30 hari selama masa aktif via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Dapat diintegrasikan ke React, Next.js, Vue, iOS, Android, Node.js, dan Python dengan mudah.`,
@@ -1387,10 +1398,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket DUOLINGO SUPER Slot - 12 MONTHS (Full Warranty).
 2. Masukkan alamat email akun Duolingo yang ingin diaktifkan pada form checkout.
-3. Selesaikan pembayaran melalui QRIS, Binance Pay, BNB, atau Tron.
+3. Selesaikan pembayaran melalui QRIS, BNB, atau Tron.
 4. Undangan resmi Super Duolingo Family akan dikirimkan ke email Anda dalam 1–15 menit.
 5. Buka email, klik "Accept Invitation / Gabung Keluarga", dan akun Anda otomatis aktif Super Duolingo 1 Tahun.
-6. Garansi penuh 1 tahun selama masa aktif dengan bantuan admin Telegram @tokonoo.
+6. Garansi penuh 1 tahun selama masa aktif dengan bantuan admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Aktivasi langsung ke akun Duolingo pribadi Anda, seluruh progres belajar, streak hari, dan teman Anda tetap terjaga 100%.`,
@@ -1421,10 +1432,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih durasi paket Coursera Plus (1 Bulan Akun Private atau 1 Tahun Akun Edu/Org Access).
 2. Isi data kontak Anda pada form pemesanan.
-3. Bayar melalui QRIS, Binance Pay, BNB, atau Tron sesuai nominal pas.
+3. Bayar melalui QRIS, BNB, atau Tron sesuai nominal pas.
 4. Data akun Coursera Plus siap pakai akan dikirimkan otomatis ke email Anda.
 5. Login di coursera.org, daftarkan diri ke kursus mana pun yang Anda inginkan, dan mulai belajar.
-6. Full garansi selama masa aktif paket yang Anda pilih via admin Telegram @tokonoo.
+6. Full garansi selama masa aktif paket yang Anda pilih via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Sertifikat digital resmi atas nama Anda dapat diunduh dan dipajang langsung di profil LinkedIn Anda.`,
@@ -1455,11 +1466,11 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih denominasi Robux yang diinginkan (100, 500, 1.000, atau 2.000 Robux).
-2. Lakukan checkout dan selesaikan pembayaran via QRIS, Binance Pay, BNB, atau Tron.
+2. Lakukan checkout dan selesaikan pembayaran via QRIS, BNB, atau Tron.
 3. Kode PIN voucher digital 10–16 digit akan dikirimkan instan ke email dan invoice status pesanan.
 4. Buka browser, login ke akun Anda di roblox.com/redeem.
 5. Masukkan kode voucher yang diterima dan klik tombol "Redeem". Saldo Robux akan langsung bertambah seketika.
-6. Garansi kode valid 100% saat di-redeem via admin Telegram @tokonoo.
+6. Garansi kode valid 100% saat di-redeem via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Pastikan Anda login ke akun Roblox yang benar sebelum menekan tombol redeem. Kode voucher bersifat sekali pakai.`,
@@ -1495,10 +1506,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih variasi paket Discord Nitro (1 Bulan Basic, 1 Bulan Full + 2 Boosts, atau 1 Tahun Full).
 2. Masukkan detail kontak Anda di checkout.
-3. Selesaikan pembayaran melalui QRIS, Binance Pay, BNB, atau Tron.
+3. Selesaikan pembayaran melalui QRIS, BNB, atau Tron.
 4. Tautan Gift Link resmi Discord Nitro atau instruksi aktivasi akan dikirimkan otomatis ke email Anda.
 5. Buka tautan Gift Link di browser/aplikasi Discord Anda dan klik "Accept Gift".
-6. Garansi penuh selama masa aktif varian yang Anda beli via admin Telegram @tokonoo.
+6. Garansi penuh selama masa aktif varian yang Anda beli via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Aktivasi via Gift Link resmi langsung masuk ke akun Discord pribadi Anda tanpa perlu login password.`,
@@ -1537,7 +1548,7 @@ CARA ORDER / CARA PEMBELIAN:
 3. Untuk Voucher: Kode digital 15 digit akan dikirimkan langsung. Untuk Akun: Data username & password email akan dikirimkan.
 4. Buka aplikasi Steam atau store.steampowered.com/account/redeemwalletcode.
 5. Masukkan kode voucher dan saldo Steam Wallet Anda seketika bertambah.
-6. Garansi kode valid 100% saat penukaran via admin Telegram @tokonoo.
+6. Garansi kode valid 100% saat penukaran via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Voucher berlaku untuk akun Steam dengan mata uang Rupiah (IDR).`,
@@ -1572,7 +1583,7 @@ CARA ORDER / CARA PEMBELIAN:
 2. Lakukan checkout dan selesaikan pembayaran via QRIS / Crypto.
 3. Data akun lengkap dengan format: Email | Password | Recovery Email akan dikirimkan otomatis ke email dan invoice Anda.
 4. Login di outlook.live.com atau aplikasi email favorit Anda via protokol IMAP/POP3.
-5. Garansi ganti baru 100% jika akun mengalami kendala login saat pertama kali diterima via admin Telegram @tokonoo.
+5. Garansi ganti baru 100% jika akun mengalami kendala login saat pertama kali diterima via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Harap langsung amankan akun atau gunakan sesuai kebutuhan pendaftaran layanan Anda.`,
@@ -1606,10 +1617,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih durasi paket LinkedIn Premium Career (1 Bulan atau 6 Bulan).
 2. Masukkan detail nama dan email Anda pada form pemesanan.
-3. Selesaikan pembayaran melalui QRIS, Binance Pay, BNB, atau Tron.
+3. Selesaikan pembayaran melalui QRIS, BNB, atau Tron.
 4. Tautan Gift Link aktivasi resmi LinkedIn akan dikirimkan otomatis ke email Anda.
 5. Klik tautan aktivasi tersebut saat login di akun LinkedIn pribadi Anda, dan status akun akan langsung berubah menjadi LinkedIn Premium.
-6. Full garansi resmi selama masa aktif paket yang dipilih via admin Telegram @tokonoo.
+6. Full garansi resmi selama masa aktif paket yang dipilih via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Aktivasi langsung masuk ke akun LinkedIn pribadi Anda tanpa perlu memberikan password akun.`,
@@ -1641,9 +1652,9 @@ HAL PENTING / CATATAN PENGGUNAAN:
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket jumlah followers yang Anda butuhkan (1.000, 2.500, atau 5.000 Followers HQ).
 2. Cantumkan USERNAME Instagram Anda yang benar pada kolom catatan/form pemesanan.
-3. Selesaikan pembayaran melalui QRIS, Binance Pay, BNB, atau Tron.
+3. Selesaikan pembayaran melalui QRIS, BNB, atau Tron.
 4. Pesanan akan otomatis diproses masuk secara bertahap dalam waktu 1–24 jam demi keamanan akun.
-5. Garansi refill (isi ulang gratis) selama 30 hari jika terjadi penurunan jumlah followers via admin Telegram @tokonoo.
+5. Garansi refill (isi ulang gratis) selama 30 hari jika terjadi penurunan jumlah followers via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • PASTIKAN AKUN INSTAGRAM ANDA DALAM STATUS PUBLIK (TIDAK DI-PRIVATE) selama proses pengisian berlangsung. Jangan pernah mengubah username saat proses berjalan.`,
@@ -1678,7 +1689,7 @@ CARA ORDER / CARA PEMBELIAN:
 2. Lakukan checkout dan selesaikan pembayaran via QRIS / Crypto.
 3. Data akun lengkap (Username, Password, dan Email Akses) akan dikirimkan otomatis ke email Anda.
 4. Login di aplikasi TikTok atau TikTok Live Studio di PC Anda.
-5. Garansi ganti akun baru jika terjadi kendala login pada saat pertama kali diterima via admin Telegram @tokonoo.
+5. Garansi ganti akun baru jika terjadi kendala login pada saat pertama kali diterima via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Gunakan data login yang diberikan dan segera ganti kata sandi serta kaitkan nomor HP pribadi Anda setelah akun berhasil diakses.`,
@@ -1687,7 +1698,7 @@ HAL PENTING / CATATAN PENGGUNAAN:
       "Fitur Showcase Keranjang Kuning TikTok Shop aktif",
       "Opsi Akun Region USA (US) 2024 dengan akses program monetisasi Creator Rewards",
       "Lengkap dengan akses login email pertama untuk keamanan penuh",
-      "Garansi login pertama 100% dengan bantuan admin Telegram @tokonoo"
+      "Garansi login pertama 100% dengan bantuan admin Telegram @texxasai"
     ],
     requirements: {
       Android: "Aplikasi TikTok di Android 8.0+.",
@@ -1710,10 +1721,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket API DeepSeek V4 Flash Unlimited Token 30 Days.
 2. Masukkan email Anda pada form checkout pemesanan.
-3. Selesaikan pembayaran melalui QRIS, Binance Pay, BNB, atau Tron.
+3. Selesaikan pembayaran melalui QRIS, BNB, atau Tron.
 4. API Key DeepSeek beserta endpoint URL resmi akan dikirimkan instan ke email dan invoice Anda dalam 1–15 menit.
 5. Salin API Key ke environment variable aplikasi Anda atau konfigurasi model di Cursor / Next.js / Python.
-6. Dukungan teknis integrasi tersedia via admin Telegram @tokonoo.
+6. Dukungan teknis integrasi tersedia via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Simpan API Key di file .env yang aman. Kompatibel dengan endpoint chat completions standar.`,
@@ -1741,10 +1752,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket TradingView Premium 30 Days lalu lakukan checkout.
-2. Selesaikan pembayaran via QRIS, Binance Pay, BNB, atau Tron.
+2. Selesaikan pembayaran via QRIS, BNB, atau Tron.
 3. Data akun TradingView Premium (Email & Password) akan dikirimkan otomatis ke email Anda.
 4. Login di tradingview.com atau aplikasi TradingView di PC/Smartphone.
-5. Garansi penggantian akun jika terjadi kendala langganan via admin Telegram @tokonoo.
+5. Garansi penggantian akun jika terjadi kendala langganan via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Akun siap pakai dengan status Premium aktif. Anda dapat langsung menyimpan custom layout dan template indikator Anda.`,
@@ -1777,7 +1788,7 @@ CARA ORDER / CARA PEMBELIAN:
 2. Lakukan checkout dan selesaikan pembayaran via QRIS / Crypto.
 3. Data akun Wink VIP akan dikirimkan otomatis ke email Anda.
 4. Buka aplikasi Wink di ponsel Android atau iPhone, login dengan akun yang diberikan.
-5. Garansi penuh 100% selama masa aktif paket dengan admin Telegram @tokonoo.
+5. Garansi penuh 100% selama masa aktif paket dengan admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Gunakan akun khusus yang diberikan. Jangan mengubah password atau info profil.`,
@@ -1807,10 +1818,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih durasi paket Freepik - Magnific API Web Panel (30 Hari, 60 Hari, atau 90 Hari).
-2. Selesaikan pembayaran melalui QRIS, Binance Pay, BNB, atau Tron.
+2. Selesaikan pembayaran melalui QRIS, BNB, atau Tron.
 3. Tautan akses panel web khusus beserta kredensial login akan dikirimkan langsung ke email Anda.
 4. Buka web panel di browser, masukkan file gambar atau cari aset Freepik, dan unduh hasil resolusi tinggi seketika.
-5. Full garansi selama masa durasi paket aktif via admin Telegram @tokonoo.
+5. Full garansi selama masa durasi paket aktif via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Akses melalui panel web resmi berkecepatan tinggi tanpa batas kuota unduhan harian yang merepotkan.`,
@@ -1843,7 +1854,7 @@ CARA ORDER / CARA PEMBELIAN:
 2. Lakukan checkout dan bayar via QRIS / Crypto.
 3. Kredensial akun Akool Pro akan dikirimkan otomatis ke email Anda.
 4. Login di akool.com, upload video/foto sumber, dan mulai generate face swap berkualitas studio.
-5. Didukung garansi penuh selama masa aktif varian yang dipilih via admin Telegram @tokonoo.
+5. Didukung garansi penuh selama masa aktif varian yang dipilih via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Gunakan kredit komputasi untuk render video face swap tanpa watermark.`,
@@ -1873,10 +1884,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket MiniMax yang Anda butuhkan (API MiniMax M3 Unlimited 14 Days atau Redeem 300K Credits).
-2. Selesaikan pembayaran melalui QRIS, Binance Pay, BNB, atau Tron.
+2. Selesaikan pembayaran melalui QRIS, BNB, atau Tron.
 3. API Key atau kode redeem resmi akan dikirimkan otomatis ke email dan invoice Anda.
 4. Gunakan API Key pada SDK / backend aplikasi Anda untuk memanggil endpoint MiniMax.
-5. Bantuan teknis integrasi tersedia via admin Telegram @tokonoo.
+5. Bantuan teknis integrasi tersedia via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Simpan kredensial API Key di file konfigurasi backend Anda dengan aman.`,
@@ -1906,11 +1917,11 @@ HAL PENTING / CATATAN PENGGUNAAN:
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket iCloud Slot 2TB - 1 Month Full Warranty.
 2. Masukkan Apple ID (email Apple) Anda pada kolom catatan pemesanan.
-3. Selesaikan pembayaran via QRIS, Binance Pay, BNB, atau Tron.
+3. Selesaikan pembayaran via QRIS, BNB, atau Tron.
 4. Undangan resmi Apple Family Sharing untuk slot 2TB akan dikirimkan ke Apple ID Anda.
 5. Buka Pengaturan (Settings) di iPhone/iPad/Mac, klik notifikasi undangan keluarga Apple, dan terima undangan.
 6. Kapasitas iCloud Anda seketika bertambah menjadi 2TB dengan privasi data 100% aman terpisah.
-7. Garansi penuh selama masa aktif dengan bantuan admin Telegram @tokonoo.
+7. Garansi penuh selama masa aktif dengan bantuan admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Foto, file, dan dokumen pribadi Anda 100% AMAN DAN PRIVAT. Anggota keluarga lain TIDAK BISA melihat foto, pesan, atau data Anda.`,
@@ -1940,10 +1951,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket Scribd Premium 1 Month - Full Warranty.
-2. Lakukan checkout dan bayar dengan QRIS, Binance Pay, BNB, atau Tron.
+2. Lakukan checkout dan bayar dengan QRIS, BNB, atau Tron.
 3. Data akun Scribd Premium (Email & Password) akan dikirimkan langsung ke email Anda.
 4. Login di scribd.com atau aplikasi Scribd di Android / iOS.
-5. Garansi penuh penggantian akun jika terjadi masalah selama 30 hari masa aktif via admin Telegram @tokonoo.
+5. Garansi penuh penggantian akun jika terjadi masalah selama 30 hari masa aktif via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Gunakan data login yang diberikan. Anda dapat mengunduh buku untuk dibaca saat offline.`,
@@ -1974,10 +1985,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket Autodesk App All (3 Years Warranty 1 Year).
 2. Masukkan alamat email akun Autodesk Anda pada formulir pemesanan.
-3. Selesaikan pembayaran melalui QRIS, Binance Pay, BNB, atau Tron.
+3. Selesaikan pembayaran melalui QRIS, BNB, atau Tron.
 4. Lisensi resmi Autodesk akan diaktifkan langsung ke email akun Autodesk Anda dalam waktu 1–24 jam.
 5. Login di manage.autodesk.com, unduh software yang diinginkan, dan aktivasi otomatis saat login di aplikasi desktop.
-6. Garansi resmi 1 tahun penuh dengan support admin Telegram @tokonoo.
+6. Garansi resmi 1 tahun penuh dengan support admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Lisensi resmi langsung terhubung ke email Autodesk Anda, dapat mengunduh installer asli dari server resmi Autodesk.`,
@@ -2006,10 +2017,10 @@ HAL PENTING / CATATAN PENGGUNAAN:
 
 CARA ORDER / CARA PEMBELIAN:
 1. Pilih paket Krea Basic 5100 Credit 1 Month Warranty 1 Day.
-2. Selesaikan transaksi via QRIS, Binance Pay, BNB, atau Tron.
+2. Selesaikan transaksi via QRIS, BNB, atau Tron.
 3. Data akun Krea AI Basic akan dikirimkan otomatis ke email Anda.
 4. Login di krea.ai dan mulai gunakan fitur Realtime Generation serta AI Enhancer.
-5. Bantuan aktivasi dan klaim garansi tersedia via admin Telegram @tokonoo.
+5. Bantuan aktivasi dan klaim garansi tersedia via admin Telegram @texxasai.
 
 HAL PENTING / CATATAN PENGGUNAAN:
 • Akun siap pakai dengan saldo 5.100 kredit aktif. Gunakan untuk upscaling dan generasi video AI.`,

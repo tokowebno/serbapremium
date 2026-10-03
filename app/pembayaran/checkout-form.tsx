@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ShieldCheck,
@@ -10,9 +10,14 @@ import {
   AlertCircle,
   CheckCircle2,
   ArrowRight,
+  RefreshCw,
+  ExternalLink,
+  Clock,
+  Sparkles,
+  QrCode,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, USDT_RATE } from "@/lib/utils";
 import { useCart, useAuth } from "@/components/storefront/providers";
 import { useTranslation } from "@/components/storefront/i18n-provider";
 import { Button } from "@/components/ui/button";
@@ -20,7 +25,7 @@ import { Input, Field } from "@/components/ui/form";
 
 import { supabase, supabaseReady } from "@/lib/supabase";
 
-type PaymentMethod = "qris" | "binance" | "usdt_bnb" | "usdt_tron";
+type PaymentMethod = "qris" | "usdt_bnb" | "usdt_tron" | "solana" | "ton";
 
 interface CheckoutItem {
   id: string;
@@ -36,6 +41,17 @@ export interface CheckoutFormProps {
   customPlatform?: string;
 }
 
+interface BorderPayData {
+  id: string;
+  reference_id: string;
+  status: string;
+  amount: number;
+  customer_pays: number;
+  pay_url: string;
+  qr_string: string;
+  expires_at: string;
+}
+
 const PAYMENT_INFO: Record<
   PaymentMethod,
   {
@@ -48,23 +64,12 @@ const PAYMENT_INFO: Record<
 > = {
   qris: {
     name: {
-      id: "QRIS (Semua Bank & E-Wallet)",
-      en: "QRIS (Indonesian Banks & E-Wallets)",
-      zh: "QRIS（印尼全币种银行与电子钱包）",
+      id: "QRIS Otomatis (Semua Bank & E-Wallet)",
+      en: "Automated QRIS (Indonesian Banks & E-Wallets)",
+      zh: "QRIS 自动扫码支付（印尼所有银行与电子钱包）",
     },
-    badge: "IDR QRIS",
+    badge: "IDR QRIS Otomatis",
     icon: "/logos/qris-icon.svg",
-  },
-  binance: {
-    name: {
-      id: "Binance Pay (ID: 1275129025)",
-      en: "Binance Pay (ID: 1275129025)",
-      zh: "币安支付 / Binance Pay (ID: 1275129025)",
-    },
-    badge: "Binance Pay",
-    icon: "/logos/binance.svg",
-    network: "Binance Pay",
-    address: "1275129025",
   },
   usdt_bnb: {
     name: {
@@ -88,6 +93,28 @@ const PAYMENT_INFO: Record<
     network: "Tron (TRC-20)",
     address: "TQTpRn6j1Pfwf38xP8CxqxJi18YX4v8Wcm",
   },
+  solana: {
+    name: {
+      id: "Solana / SOL (Solana SPL Network)",
+      en: "Solana / SOL (Solana SPL Network)",
+      zh: "Solana / SOL（Solana 网络）",
+    },
+    badge: "SOLANA SOL",
+    icon: "/logos/solana.svg",
+    network: "Solana (SPL)",
+    address: "7JKwQ81LiXgKw4ekSCurNeqXk3jYv3vDMJcDyCLyW64Y",
+  },
+  ton: {
+    name: {
+      id: "TON / GRAM (The Open Network)",
+      en: "TON / GRAM (The Open Network)",
+      zh: "TON / GRAM（The Open Network）",
+    },
+    badge: "TON / GRAM",
+    icon: "/logos/ton.svg",
+    network: "The Open Network (TON)",
+    address: "UQA2ka2a3umUuzmr3ymBM6x7FV3DZOLQ92fRsS_KdElex77P",
+  },
 };
 
 export function CheckoutForm({
@@ -100,15 +127,21 @@ export function CheckoutForm({
   const searchParams = useSearchParams();
   const { items: cartItems, clear: clearCart } = useCart();
   const { user } = useAuth();
-  const { lang, t } = useTranslation();
+  const { lang } = useTranslation();
 
   // Ambil parameter jika user klik "Beli Sekarang" dari halaman detail
   const initialSlug = propInitialSlug || searchParams.get("app") || undefined;
-  const customPrice = propCustomPrice !== undefined ? propCustomPrice : (searchParams.get("price") ? Number(searchParams.get("price")) : undefined);
+  const customPrice =
+    propCustomPrice !== undefined
+      ? propCustomPrice
+      : searchParams.get("price")
+      ? Number(searchParams.get("price"))
+      : undefined;
   const customTitle = propCustomTitle || searchParams.get("title") || undefined;
-  const customPlatform = propCustomPlatform || searchParams.get("platform") || undefined;
+  const customPlatform =
+    propCustomPlatform || searchParams.get("platform") || undefined;
 
-  // Step 1: Info Pembeli & Metode Pembayaran | Step 2: Bayar (QRIS / USDT)
+  // Step 1: Info Pembeli & Metode Pembayaran | Step 2: Bayar (QRIS / USDT / Binance)
   const [step, setStep] = useState<1 | 2>(1);
 
   // Form State
@@ -117,17 +150,30 @@ export function CheckoutForm({
   const [phone, setPhone] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("qris");
 
+  const [orderId, setOrderId] = useState<string>(
+    () => `TK-${Date.now().toString().slice(-6)}`
+  );
+
   const [loading, setLoading] = useState(false);
   const [stepLoading, setStepLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isAmountCopied, setIsAmountCopied] = useState(false);
+  const [isQrCopied, setIsQrCopied] = useState(false);
   const [qrisDone, setQrisDone] = useState(false);
-  const [binanceDone, setBinanceDone] = useState(false);
   const [usdtDone, setUsdtDone] = useState(false);
   const [txId, setTxId] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
+  // BorderPay QRIS Gateway State
+  const [borderpayData, setBorderpayData] = useState<BorderPayData | null>(null);
+  const [checkingStatus, setCheckingStatus] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [paymentVerified, setPaymentVerified] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+
   const [uniqueCode] = useState(() => Math.floor(Math.random() * 800 + 100));
+
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -138,21 +184,25 @@ export function CheckoutForm({
 
   let itemsToCheckout: CheckoutItem[] = [];
   if (customTitle && customPrice !== undefined) {
-    itemsToCheckout = [{
-      id: initialSlug || "custom-item",
-      name: customTitle,
-      price: customPrice,
-      platform: customPlatform || "Digital",
-    }];
+    itemsToCheckout = [
+      {
+        id: initialSlug || "custom-item",
+        name: customTitle,
+        price: customPrice,
+        platform: customPlatform || "Digital",
+      },
+    ];
   } else if (initialSlug) {
     const app = api.apps.getBySlug(initialSlug);
     if (app) {
-      itemsToCheckout = [{
-        id: app.id,
-        name: app.name,
-        price: app.price,
-        platform: app.platforms[0] || "Universal",
-      }];
+      itemsToCheckout = [
+        {
+          id: app.id,
+          name: app.name,
+          price: app.price,
+          platform: app.platforms[0] || "Universal",
+        },
+      ];
     }
   } else if (cartItems.length > 0) {
     itemsToCheckout = cartItems.map((it) => {
@@ -167,10 +217,16 @@ export function CheckoutForm({
   }
 
   const subtotal = itemsToCheckout.reduce((acc, item) => acc + item.price, 0);
-  const baseUsd = subtotal / 16000;
+  const baseUsd = subtotal / USDT_RATE;
   const usdtDecimalUnique = (uniqueCode % 100) / 10000;
   const totalUsdt = Number((baseUsd + usdtDecimalUnique).toFixed(4));
-  const totalBayar = paymentMethod === "qris" ? subtotal + uniqueCode : subtotal;
+  // Jika BorderPay QRIS aktif, pakai subtotal langsung (BorderPay dynamic QR sudah spesifik)
+  const totalBayar =
+    paymentMethod === "qris"
+      ? borderpayData
+        ? borderpayData.customer_pays
+        : subtotal
+      : subtotal;
 
   const copyAddress = (address: string) => {
     navigator.clipboard.writeText(address);
@@ -182,6 +238,12 @@ export function CheckoutForm({
     navigator.clipboard.writeText(amount.toString());
     setIsAmountCopied(true);
     setTimeout(() => setIsAmountCopied(false), 2000);
+  };
+
+  const copyQrString = (qr: string) => {
+    navigator.clipboard.writeText(qr);
+    setIsQrCopied(true);
+    setTimeout(() => setIsQrCopied(false), 2000);
   };
 
   const validateForm = () => {
@@ -208,46 +270,185 @@ export function CheckoutForm({
     return true;
   };
 
-  const goNext = () => {
+  // Generate BorderPay Payment on Step 1 -> Step 2
+  const createBorderPayPayment = async (currentOrderId: string) => {
+    try {
+      const res = await fetch("/api/payments/borderpay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: subtotal,
+          reference_id: currentOrderId,
+          customer_name: name.trim(),
+          customer_email: email.trim(),
+        }),
+      });
+
+      const json = await res.json();
+      if (json.ok && json.data) {
+        setBorderpayData(json.data);
+        return json.data as BorderPayData;
+      } else {
+        console.warn("BorderPay error:", json.error);
+        return null;
+      }
+    } catch (err) {
+      console.error("Failed to connect to BorderPay API:", err);
+      return null;
+    }
+  };
+
+  const checkPaymentStatusManual = useCallback(
+    async (silent = false) => {
+      if (!borderpayData?.reference_id && !orderId) return;
+      const refId = borderpayData?.reference_id || orderId;
+
+      if (!silent) setCheckingStatus(true);
+      try {
+        const res = await fetch(
+          `/api/payments/borderpay/status?id=${encodeURIComponent(refId)}`
+        );
+        const json = await res.json();
+
+        if (json.ok && json.status === "paid") {
+          setPaymentVerified(true);
+          setQrisDone(true);
+          if (!silent) {
+            setStatusMessage(
+              lang === "en"
+                ? "Payment received! Redirecting..."
+                : lang === "zh"
+                ? "支付成功！正在跳转..."
+                : "Pembayaran Berhasil! Mengalihkan..."
+            );
+          }
+          // Simpan order dan redirect
+          setTimeout(() => {
+            finishCheckout("lunas");
+          }, 1200);
+        } else {
+          if (!silent) {
+            setStatusMessage(
+              lang === "en"
+                ? "Payment not yet detected. Please complete transfer."
+                : lang === "zh"
+                ? "尚未检测到付款，请完成扫码转账。"
+                : "Pembayaran belum terdeteksi. Silakan scan dan bayar QRIS."
+            );
+            setTimeout(() => setStatusMessage(null), 3500);
+          }
+        }
+      } catch (err) {
+        if (!silent) {
+          setStatusMessage("Gagal memeriksa status. Coba sesaat lagi.");
+          setTimeout(() => setStatusMessage(null), 3000);
+        }
+      } finally {
+        if (!silent) setCheckingStatus(false);
+      }
+    },
+    [borderpayData, orderId, lang]
+  );
+
+  // Polling status secara otomatis tiap 3.5 detik saat di Step 2 dan QRIS
+  useEffect(() => {
+    if (
+      step === 2 &&
+      paymentMethod === "qris" &&
+      borderpayData?.reference_id &&
+      !paymentVerified
+    ) {
+      pollingRef.current = setInterval(() => {
+        checkPaymentStatusManual(true);
+      }, 3500);
+
+      return () => {
+        if (pollingRef.current) clearInterval(pollingRef.current);
+      };
+    }
+  }, [step, paymentMethod, borderpayData, paymentVerified, checkPaymentStatusManual]);
+
+  // Countdown timer expiration
+  useEffect(() => {
+    if (borderpayData?.expires_at) {
+      const targetTime = new Date(borderpayData.expires_at).getTime();
+
+      const updateTimer = () => {
+        const now = Date.now();
+        const diff = Math.max(0, Math.floor((targetTime - now) / 1000));
+        setTimeLeft(diff);
+      };
+
+      updateTimer();
+      const timerInterval = setInterval(updateTimer, 1000);
+      return () => clearInterval(timerInterval);
+    }
+  }, [borderpayData]);
+
+  const goNext = async () => {
     if (!validateForm()) return;
     setErrorMessage("");
     setStepLoading(true);
-    setTimeout(() => {
-      setStepLoading(false);
-      setStep(2);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }, 400);
+
+    const newOrderId = `TK-${Date.now().toString().slice(-6)}`;
+    setOrderId(newOrderId);
+
+    if (paymentMethod === "qris") {
+      // Create live BorderPay QRIS
+      const bpData = await createBorderPayPayment(newOrderId);
+      if (!bpData) {
+        // Fallback jika API sedang gangguan
+        console.warn("Proceeding with standard QRIS display");
+      }
+    }
+
+    setStepLoading(false);
+    setStep(2);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const finishCheckout = async () => {
+  const finishCheckout = async (forcedStatus?: string) => {
     if (!validateForm()) return;
 
     setLoading(true);
     setErrorMessage("");
 
-    const orderId = `TK-${Date.now().toString().slice(-6)}`;
+    const effectiveStatus =
+      forcedStatus ||
+      (paymentVerified ? "lunas" : qrisDone || usdtDone ? "menunggu" : "menunggu");
+
+    const currentOrderId = borderpayData?.reference_id || orderId;
+
     const orderData = {
-      id: orderId,
+      id: currentOrderId,
       user_name: name.trim() || "Pelanggan",
       items: itemsToCheckout,
       subtotal,
       discount: 0,
       total: totalBayar,
       payment_method: paymentMethod,
-      payment_status: "menunggu",
-      order_status: "diproses",
-      tx_id: txId.trim() || undefined,
-      txId: txId.trim() || undefined,
+      payment_status: effectiveStatus,
+      order_status: effectiveStatus === "lunas" ? "diproses" : "menunggu",
+      tx_id: txId.trim() || borderpayData?.id || undefined,
+      txId: txId.trim() || borderpayData?.id || undefined,
+      borderpay_id: borderpayData?.id || undefined,
+      pay_url: borderpayData?.pay_url || undefined,
       date: new Date().toISOString().slice(0, 10),
     };
 
     try {
       sessionStorage.setItem("tokono:last-order", JSON.stringify(orderData));
       sessionStorage.setItem("serbapremium:last-order", JSON.stringify(orderData));
-      const raw = localStorage.getItem("tokono:orders") || localStorage.getItem("serbapremium:orders") || "[]";
+      const raw =
+        localStorage.getItem("tokono:orders") ||
+        localStorage.getItem("serbapremium:orders") ||
+        "[]";
       const existing = JSON.parse(raw);
       const list = Array.isArray(existing) ? existing : [];
-      const updated = [orderData, ...list.filter((o: any) => o.id !== orderId)];
+      const updated = [
+        orderData,
+        ...list.filter((o: any) => o.id !== currentOrderId),
+      ];
       localStorage.setItem("tokono:orders", JSON.stringify(updated));
       localStorage.setItem("serbapremium:orders", JSON.stringify(updated));
     } catch {
@@ -258,15 +459,15 @@ export function CheckoutForm({
       if (supabaseReady) {
         await supabase.from("orders").insert([
           {
-            id: orderId,
+            id: currentOrderId,
             user_name: name.trim() || "Pelanggan",
             items: itemsToCheckout,
             subtotal,
             discount: 0,
             total: totalBayar,
             payment_method: paymentMethod,
-            payment_status: "menunggu",
-            order_status: "diproses",
+            payment_status: effectiveStatus,
+            order_status: effectiveStatus === "lunas" ? "diproses" : "menunggu",
             date: new Date().toISOString().slice(0, 10),
           },
         ]);
@@ -279,27 +480,61 @@ export function CheckoutForm({
       clearCart();
     }
 
-    router.push(`/pembayaran/berhasil?orderId=${orderId}`);
+    router.push(
+      `/pembayaran/berhasil?orderId=${currentOrderId}${
+        effectiveStatus === "lunas" ? "&status=lunas" : ""
+      }`
+    );
   };
 
   const steps = [
-    { num: 1, label: lang === "en" ? "Information & Method" : lang === "zh" ? "信息与支付方式" : "Info & Metode" },
-    { num: 2, label: lang === "en" ? "Payment & Transfer" : lang === "zh" ? "支付与转账" : "Pembayaran & Transfer" },
+    {
+      num: 1,
+      label:
+        lang === "en"
+          ? "Information & Method"
+          : lang === "zh"
+          ? "信息与支付方式"
+          : "Info & Metode",
+    },
+    {
+      num: 2,
+      label:
+        lang === "en"
+          ? "Payment & QRIS"
+          : lang === "zh"
+          ? "支付与扫码"
+          : "Pembayaran & QRIS",
+    },
   ];
 
   if (itemsToCheckout.length === 0) {
     return (
       <div className="tk-container py-24 text-center">
         <div className="mx-auto max-w-md glass-card rounded-2xl p-8 border border-border/80">
-          <p className="text-lg font-bold text-fg">Keranjang belanja Anda masih kosong</p>
-          <p className="mt-2 text-sm text-fg-muted">Pilih produk atau lisensi yang ingin Anda beli terlebih dahulu.</p>
-          <Button className="mt-6 rounded-full" onClick={() => router.push("/aplikasi")}>
+          <p className="text-lg font-bold text-fg">
+            Keranjang belanja Anda masih kosong
+          </p>
+          <p className="mt-2 text-sm text-fg-muted">
+            Pilih produk atau lisensi yang ingin Anda beli terlebih dahulu.
+          </p>
+          <Button
+            className="mt-6 rounded-full"
+            onClick={() => router.push("/aplikasi")}
+          >
             Jelajahi Aplikasi
           </Button>
         </div>
       </div>
     );
   }
+
+  // Format countdown mm:ss
+  const formatTimer = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  };
 
   return (
     <div className="tk-container pt-24 sm:pt-28 pb-20 sm:pb-24">
@@ -328,7 +563,9 @@ export function CheckoutForm({
               >
                 {s.label}
               </span>
-              {i < steps.length - 1 && <span className="text-fg-faint text-xs">→</span>}
+              {i < steps.length - 1 && (
+                <span className="text-fg-faint text-xs">→</span>
+              )}
             </div>
           );
         })}
@@ -341,10 +578,18 @@ export function CheckoutForm({
             <div className="flex flex-col gap-5">
               <div>
                 <span className="rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase text-accent">
-                  {lang === "en" ? "STEP 1" : lang === "zh" ? "步骤 1" : "LANGKAH 1"}
+                  {lang === "en"
+                    ? "STEP 1"
+                    : lang === "zh"
+                    ? "步骤 1"
+                    : "LANGKAH 1"}
                 </span>
                 <h2 className="mt-1 text-base sm:text-xl font-bold tracking-tight text-fg">
-                  {lang === "en" ? "Buyer Information & Payment Method" : lang === "zh" ? "选择付款方式与填写信息" : "Informasi Pembeli & Metode Pembayaran"}
+                  {lang === "en"
+                    ? "Buyer Information & Payment Method"
+                    : lang === "zh"
+                    ? "选择付款方式与填写信息"
+                    : "Informasi Pembeli & Metode Pembayaran"}
                 </h2>
               </div>
 
@@ -354,14 +599,18 @@ export function CheckoutForm({
                   <p className="text-[11px] font-medium text-fg-muted uppercase">
                     {lang === "en" ? "Product" : lang === "zh" ? "商品" : "Produk"}
                   </p>
-                  <p className="truncate text-xs sm:text-sm font-semibold text-fg">{itemsToCheckout[0]?.name || "Item Digital"}</p>
+                  <p className="truncate text-xs sm:text-sm font-semibold text-fg">
+                    {itemsToCheckout[0]?.name || "Item Digital"}
+                  </p>
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-[11px] font-medium text-fg-muted uppercase">
                     {lang === "en" ? "Total" : lang === "zh" ? "总计" : "Total"}
                   </p>
                   <p className="text-sm sm:text-base font-bold text-accent tabular-nums">
-                    {paymentMethod === "qris" ? formatPrice(subtotal, lang) : `$${baseUsd.toFixed(2)}`}
+                    {paymentMethod === "qris"
+                      ? formatPrice(subtotal, lang)
+                      : `$${baseUsd.toFixed(2)}`}
                   </p>
                 </div>
               </div>
@@ -369,10 +618,22 @@ export function CheckoutForm({
               {/* Pilihan Metode Pembayaran */}
               <div className="space-y-2">
                 <label className="text-xs font-semibold uppercase tracking-wide text-fg-muted">
-                  {lang === "en" ? "Select Payment Method" : lang === "zh" ? "选择付款方式" : "Metode Pembayaran"}
+                  {lang === "en"
+                    ? "Select Payment Method"
+                    : lang === "zh"
+                    ? "选择付款方式"
+                    : "Metode Pembayaran"}
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
-                  {(["qris", "binance", "usdt_bnb", "usdt_tron"] as PaymentMethod[]).map((method) => {
+                  {(
+                    [
+                      "qris",
+                      "usdt_bnb",
+                      "usdt_tron",
+                      "solana",
+                      "ton",
+                    ] as PaymentMethod[]
+                  ).map((method) => {
                     const info = PAYMENT_INFO[method];
                     const active = paymentMethod === method;
                     return (
@@ -393,7 +654,9 @@ export function CheckoutForm({
                               alt={info.badge}
                               className="h-6 w-6 rounded-md object-contain border border-border/40 bg-white p-0.5 shadow-xs"
                             />
-                            <span className="text-xs font-bold uppercase tracking-tight">{info.badge}</span>
+                            <span className="text-xs font-bold uppercase tracking-tight">
+                              {info.badge}
+                            </span>
                           </div>
                           {active && (
                             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent text-accent-fg shadow-xs">
@@ -402,7 +665,7 @@ export function CheckoutForm({
                           )}
                         </div>
                         <p className="text-[11px] font-medium text-fg-muted line-clamp-2">
-                          {info.name[lang] || info.name.id}
+                          {info.name[lang as "id" | "en" | "zh"] || info.name.id}
                         </p>
                       </button>
                     );
@@ -412,18 +675,39 @@ export function CheckoutForm({
 
               {/* Input Form */}
               <div className="space-y-4 pt-2 border-t border-border/70">
-                <Field label={lang === "en" ? "Full Name" : lang === "zh" ? "姓名" : "Nama Lengkap"} htmlFor="nama-lengkap">
+                <Field
+                  label={
+                    lang === "en"
+                      ? "Full Name"
+                      : lang === "zh"
+                      ? "姓名"
+                      : "Nama Lengkap"
+                  }
+                  htmlFor="nama-lengkap"
+                >
                   <Input
                     id="nama-lengkap"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder={lang === "en" ? "Your full name" : lang === "zh" ? "您的姓名" : "Nama Anda"}
+                    placeholder={
+                      lang === "en"
+                        ? "Your full name"
+                        : lang === "zh"
+                        ? "您的姓名"
+                        : "Nama Anda"
+                    }
                     autoComplete="name"
                   />
                 </Field>
 
                 <Field
-                  label={lang === "en" ? "Email Address (Account/License delivery)" : lang === "zh" ? "电子邮箱（接收授权与凭据）" : "Alamat Email (Pengiriman Lisensi/Akun)"}
+                  label={
+                    lang === "en"
+                      ? "Email Address (Account/License delivery)"
+                      : lang === "zh"
+                      ? "电子邮箱（接收授权与凭据）"
+                      : "Alamat Email (Pengiriman Lisensi/Akun)"
+                  }
                   htmlFor="email-address"
                 >
                   <Input
@@ -437,7 +721,13 @@ export function CheckoutForm({
                 </Field>
 
                 <Field
-                  label={lang === "en" ? "WhatsApp / Phone (Optional)" : lang === "zh" ? "手机号 / WhatsApp（选填）" : "No. HP / WhatsApp (Opsional)"}
+                  label={
+                    lang === "en"
+                      ? "WhatsApp / Phone (Optional)"
+                      : lang === "zh"
+                      ? "手机号 / WhatsApp（选填）"
+                      : "No. HP / WhatsApp (Opsional)"
+                  }
                   htmlFor="phone-number"
                 >
                   <Input
@@ -458,14 +748,30 @@ export function CheckoutForm({
               </div>
 
               <div className="mt-4 flex justify-end">
-                <Button size="lg" onClick={goNext} disabled={stepLoading || loading} loading={stepLoading} className="w-full sm:w-auto h-13 sm:h-12 px-8 text-base font-bold shadow-[var(--elev-2)]">
-                  {stepLoading ? (lang === "en" ? "Generating Invoice…" : lang === "zh" ? "生成账单中…" : "Menyiapkan Tagihan Pembayaran…") : (lang === "en" ? "Proceed to Payment" : lang === "zh" ? "前往付款" : "Lanjut ke Pembayaran")}
+                <Button
+                  size="lg"
+                  onClick={goNext}
+                  disabled={stepLoading || loading}
+                  loading={stepLoading}
+                  className="w-full sm:w-auto h-13 sm:h-12 px-8 text-base font-bold shadow-[var(--elev-2)]"
+                >
+                  {stepLoading
+                    ? lang === "en"
+                      ? "Generating Payment Gateway…"
+                      : lang === "zh"
+                      ? "正在生成专属支付账单…"
+                      : "Membuat QRIS Otomatis…"
+                    : lang === "en"
+                    ? "Proceed to Payment"
+                    : lang === "zh"
+                    ? "前往付款"
+                    : "Lanjut ke Pembayaran"}
                   {!stepLoading && <ArrowRight size={18} strokeWidth={2.5} />}
                 </Button>
               </div>
             </div>
           ) : (
-            /* STEP 2: DETAIL PEMBAYARAN, KODE UNIK, QRIS / USDT */
+            /* STEP 2: DETAIL PEMBAYARAN, QRIS / BINANCE / USDT */
             <div className="flex flex-col gap-5">
               <div className="flex items-center justify-between border-b border-border/70 pb-3.5">
                 <div className="flex items-center gap-3">
@@ -480,8 +786,16 @@ export function CheckoutForm({
                     </span>
                     <h2 className="mt-0.5 text-base sm:text-lg font-bold tracking-tight text-fg">
                       {paymentMethod === "qris"
-                        ? (lang === "en" ? "QRIS Payment" : lang === "zh" ? "QRIS 扫码支付" : "Pembayaran QRIS")
-                        : (lang === "en" ? `${PAYMENT_INFO[paymentMethod].badge} Payment` : lang === "zh" ? `${PAYMENT_INFO[paymentMethod].badge} 付款` : `Pembayaran ${PAYMENT_INFO[paymentMethod].badge}`)}
+                        ? lang === "en"
+                          ? "Instant Dynamic QRIS"
+                          : lang === "zh"
+                          ? "实时动态 QRIS 扫码"
+                          : "QRIS Otomatis Instan"
+                        : lang === "en"
+                        ? `${PAYMENT_INFO[paymentMethod].badge} Payment`
+                        : lang === "zh"
+                        ? `${PAYMENT_INFO[paymentMethod].badge} 付款`
+                        : `Pembayaran ${PAYMENT_INFO[paymentMethod].badge}`}
                     </h2>
                   </div>
                 </div>
@@ -490,201 +804,292 @@ export function CheckoutForm({
                   onClick={() => setStep(1)}
                   className="text-xs font-semibold text-fg-muted hover:text-fg underline"
                 >
-                  {lang === "en" ? "← Change Info" : lang === "zh" ? "← 修改信息" : "← Ubah Data"}
+                  {lang === "en"
+                    ? "← Change Info"
+                    : lang === "zh"
+                    ? "← 修改信息"
+                    : "← Ubah Data"}
                 </button>
               </div>
 
-              {paymentMethod === "binance" ? (
+              {/* QRIS SECTION */}
+              {paymentMethod === "qris" ? (
                 <>
-                  <div className="rounded-2xl border border-[#F0B90B]/40 bg-[#F0B90B]/5 p-4 sm:p-5">
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs font-medium uppercase text-fg-muted">
-                        {lang === "en" ? "Total Binance Pay (USD / USDT)" : lang === "zh" ? "币安支付应付总额 (USD / USDT)" : "Total Bayar via Binance (USD / USDT)"}
-                      </p>
-                      <span className="rounded-full bg-[#F0B90B]/20 text-[#D9A404] dark:text-[#F0B90B] px-2.5 py-0.5 text-[10px] font-bold">
-                        Binance Pay
-                      </span>
-                    </div>
-
-                    <div className="mt-2 flex items-baseline justify-between gap-2">
-                      <div>
-                        <p className="text-2xl sm:text-3xl font-bold tracking-tight text-fg tabular-nums">
-                          {totalUsdt} <span className="text-lg font-bold text-fg-muted">USDT / USD</span>
-                        </p>
-                        <p className="text-xs font-medium text-fg-muted mt-0.5">
-                          ≈ Rp {subtotal.toLocaleString("id-ID")}
-                        </p>
+                  {/* Status Banner */}
+                  {paymentVerified ? (
+                    <div className="flex items-center justify-between rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-4 text-emerald-600 dark:text-emerald-400 animate-fade-in">
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 text-white shadow-sm">
+                          <Check size={20} strokeWidth={3} />
+                        </span>
+                        <div>
+                          <p className="text-sm font-bold">
+                            {lang === "en"
+                              ? "Payment Verified Successfully!"
+                              : lang === "zh"
+                              ? "支付已自动核验成功！"
+                              : "Pembayaran Berhasil Diverifikasi Otomatis!"}
+                          </p>
+                          <p className="text-xs opacity-80">
+                            {lang === "en"
+                              ? "Your order is being processed."
+                              : lang === "zh"
+                              ? "您的订单正在处理中。"
+                              : "Pesanan Anda langsung diproses otomatis."}
+                          </p>
+                        </div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => copyAmount(totalUsdt)}
-                        className="flex items-center gap-1 rounded-full bg-[#F0B90B] px-3 py-1 text-xs font-bold text-[#181A20] shadow-sm hover:bg-[#e0ac07] active:scale-95"
-                      >
-                        {isAmountCopied ? <Check size={12} strokeWidth={2.5} /> : <Copy size={12} strokeWidth={2} />}
-                        {isAmountCopied
-                          ? (lang === "en" ? "Copied!" : lang === "zh" ? "已复制!" : "Disalin!")
-                          : (lang === "en" ? "Copy Amount" : lang === "zh" ? "复制金额" : "Salin Nominal")}
-                      </button>
+                      <Sparkles size={22} className="shrink-0 animate-pulse text-emerald-500" />
+                    </div>
+                  ) : (
+                    <div className="rounded-2xl border border-border/70 bg-surface-2/70 p-4 sm:p-5">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-medium uppercase text-fg-muted">
+                          {lang === "en"
+                            ? "Total amount to pay"
+                            : lang === "zh"
+                            ? "应付总额"
+                            : "Total yang harus dibayar"}
+                        </p>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          {lang === "en"
+                            ? "Auto Verified 24/7"
+                            : lang === "zh"
+                            ? "24/7 自动入账"
+                            : "Verifikasi Otomatis 24/7"}
+                        </span>
+                      </div>
+
+                      <div className="mt-1 flex items-baseline justify-between gap-2">
+                        <p className="text-2xl sm:text-3xl font-bold tracking-tight text-accent tabular-nums">
+                          {formatPrice(totalBayar, lang)}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => copyAmount(totalBayar)}
+                          className="flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-fg shadow-sm hover:bg-accent-hover active:scale-95"
+                        >
+                          {isAmountCopied ? (
+                            <Check size={12} strokeWidth={2.5} />
+                          ) : (
+                            <Copy size={12} strokeWidth={2} />
+                          )}
+                          {isAmountCopied
+                            ? lang === "en"
+                              ? "Copied!"
+                              : lang === "zh"
+                              ? "已复制!"
+                              : "Disalin!"
+                            : lang === "en"
+                            ? "Copy Amount"
+                            : lang === "zh"
+                            ? "复制金额"
+                            : "Salin Nominal"}
+                        </button>
+                      </div>
+
+                      {/* Order Ref & Timer */}
+                      <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-2.5 text-xs text-fg-muted">
+                        <span className="font-mono font-medium">
+                          Ref:{" "}
+                          <span className="text-fg font-bold">
+                            {borderpayData?.reference_id || orderId}
+                          </span>
+                        </span>
+                        {timeLeft !== null && (
+                          <span
+                            className={`inline-flex items-center gap-1 font-semibold tabular-nums ${
+                              timeLeft <= 120
+                                ? "text-rose-500"
+                                : "text-amber-600 dark:text-amber-400"
+                            }`}
+                          >
+                            <Clock size={13} />
+                            {lang === "en" ? "Expires in:" : "Berlaku:"}{" "}
+                            {formatTimer(timeLeft)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* QRIS Image & Scan Frame */}
+                  <div className="flex flex-col items-center gap-3.5 py-1">
+                    <div className="relative overflow-hidden rounded-2xl border-2 border-accent/30 bg-white p-3.5 shadow-md text-center">
+                      <div className="mb-2 flex items-center justify-center gap-2 border-b border-gray-200 pb-1.5">
+                        <img
+                          src="/logos/qris-icon.svg"
+                          alt="QRIS"
+                          className="h-5 object-contain"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLElement).style.display = "none";
+                          }}
+                        />
+                        <span className="text-[11px] font-bold text-gray-800 tracking-wider">
+                          QRIS STANDAR NASIONAL
+                        </span>
+                      </div>
+
+                      <div className="relative flex items-center justify-center">
+                        <img
+                          src={
+                            borderpayData?.qr_string
+                              ? `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(
+                                  borderpayData.qr_string
+                                )}&margin=8`
+                              : "/qris.png"
+                          }
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src =
+                              "/qris-placeholder.svg";
+                          }}
+                          alt="QRIS Standar Nasional"
+                          className="h-56 w-56 sm:h-60 sm:w-60 object-contain rounded-lg"
+                        />
+
+                        {paymentVerified && (
+                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/95 rounded-lg backdrop-blur-xs">
+                            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg">
+                              <Check size={36} strokeWidth={3} />
+                            </span>
+                            <p className="mt-2 text-sm font-bold text-gray-900">
+                              LUNAS
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
-                    <p className="mt-2.5 text-xs font-normal leading-relaxed text-fg-muted border-t border-[#F0B90B]/20 pt-2.5">
+                    {/* QR String Copy & Link */}
+                    {borderpayData && (
+                      <div className="flex flex-wrap items-center justify-center gap-2">
+                        {borderpayData.qr_string && (
+                          <button
+                            type="button"
+                            onClick={() => copyQrString(borderpayData.qr_string)}
+                            className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-surface px-3 py-1 text-xs font-semibold text-fg hover:bg-surface-2 transition-colors"
+                          >
+                            <QrCode size={13} />
+                            {isQrCopied ? "QR String Disalin!" : "Salin QR String"}
+                          </button>
+                        )}
+                        {borderpayData.pay_url && (
+                          <a
+                            href={borderpayData.pay_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent hover:bg-accent/20 transition-colors"
+                          >
+                            <ExternalLink size={13} />
+                            {lang === "en"
+                              ? "Open Payment Page"
+                              : lang === "zh"
+                              ? "打开支付页面"
+                              : "Buka Halaman Pembayaran"}
+                          </a>
+                        )}
+                      </div>
+                    )}
+
+                    <p className="max-w-xs text-center text-xs font-medium leading-relaxed text-fg-muted">
                       {lang === "en" ? (
-                        <>The <span className="font-semibold text-fg">decimal unique code (+{usdtDecimalUnique.toFixed(4)})</span> is included in the total above. Please transfer exactly <span className="font-semibold text-fg">{totalUsdt} USDT/USD</span> for automatic verification.</>
+                        <>
+                          Scan with any Indonesian Bank or E-Wallet (BCA, Mandiri,
+                          BRI, BNI, GoPay, OVO, DANA, ShopeePay). Payment is{" "}
+                          <span className="font-bold text-fg">
+                            verified automatically in seconds
+                          </span>
+                          .
+                        </>
                       ) : lang === "zh" ? (
-                        <>上方总额已包含 <span className="font-semibold text-fg">唯一识别码 (+{usdtDecimalUnique.toFixed(4)})</span>。请准确转入 <span className="font-semibold text-fg">{totalUsdt} USDT/USD</span> 以便系统自动核对。</>
+                        <>
+                          使用印尼任意银行或电子钱包（BCA、Mandiri、GoPay、OVO、DANA
+                          等）扫码。系统将{" "}
+                          <span className="font-bold text-fg">秒级自动核验</span>。
+                        </>
                       ) : (
-                        <><span className="font-semibold text-fg">Kode unik desimal (+{usdtDecimalUnique.toFixed(4)})</span> sudah termasuk dalam total di atas. Transfer persis <span className="font-semibold text-fg">{totalUsdt} USDT/USD</span> agar pesanan Anda langsung diproses otomatis.</>
+                        <>
+                          Pindai QRIS di atas dengan m-Banking / e-Wallet (BCA,
+                          Mandiri, BRI, BNI, GoPay, OVO, DANA, ShopeePay). Sistem{" "}
+                          <span className="font-bold text-fg">
+                            langsung memverifikasi otomatis
+                          </span>
+                          .
+                        </>
                       )}
                     </p>
-                  </div>
 
-                  {/* Binance Pay ID */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium uppercase text-fg-muted">
-                      {lang === "en" ? "Binance Pay ID / User ID" : lang === "zh" ? "币安支付 ID / 用户 ID" : "Binance Pay ID Penerima"}
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        readOnly
-                        value="1275129025"
-                        className="font-mono text-sm font-bold bg-surface"
-                      />
+                    {/* Status Feedback */}
+                    {statusMessage && (
+                      <div className="w-full rounded-xl border border-accent/40 bg-accent/10 p-3 text-center text-xs font-semibold text-fg animate-fade-in">
+                        {statusMessage}
+                      </div>
+                    )}
+
+                    {/* Action Controls for QRIS */}
+                    <div className="w-full pt-1 space-y-2.5">
                       <Button
                         type="button"
                         variant="secondary"
-                        onClick={() => copyAddress("1275129025")}
-                        className="shrink-0"
+                        size="lg"
+                        disabled={checkingStatus || paymentVerified}
+                        loading={checkingStatus}
+                        onClick={() => checkPaymentStatusManual(false)}
+                        className="w-full h-12 text-sm font-bold border-border"
                       >
-                        {copied ? <Check size={14} /> : <Copy size={14} />}
-                        {copied
-                          ? (lang === "en" ? "Copied" : lang === "zh" ? "已复制" : "Tersalin")
-                          : (lang === "en" ? "Copy ID" : lang === "zh" ? "复制 ID" : "Salin ID")}
+                        <RefreshCw size={16} className={checkingStatus ? "animate-spin" : ""} />
+                        {checkingStatus
+                          ? lang === "en"
+                            ? "Checking status…"
+                            : "Sedang mengecek status…"
+                          : lang === "en"
+                          ? "Check Payment Status Now"
+                          : "Cek Status Pembayaran Sekarang"}
                       </Button>
-                    </div>
-                  </div>
 
-                  {/* QR Code Binance Pay */}
-                  <div className="flex flex-col items-center gap-3 py-2">
-                    <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-white p-3 shadow-sm">
-                      <img
-                        src="/binance.png"
-                        onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).src = "/binance-qr.png";
-                        }}
-                        alt="Binance Pay QR Code"
-                        className="h-56 w-56 object-contain"
-                      />
-                    </div>
-                    <p className="max-w-xs text-center text-xs font-medium leading-relaxed text-fg-muted">
-                      {lang === "en" ? (
-                        <>Open <span className="font-bold text-fg">Binance App</span> &gt; Scan the QR code above or send to Pay ID <span className="font-bold text-fg font-mono">1275129025</span> with exact amount <span className="font-bold text-fg font-mono">${totalUsdt}</span>.</>
-                      ) : lang === "zh" ? (
-                        <>打开 <span className="font-bold text-fg">币安 Binance App</span> 扫一扫上方二维码，或转账至币安支付 ID <span className="font-bold text-fg font-mono">1275129025</span>，金额 <span className="font-bold text-fg font-mono">${totalUsdt}</span>。</>
-                      ) : (
-                        <>Buka aplikasi <span className="font-bold text-fg">Binance</span> &gt; Scan QR di atas atau kirim ke Pay ID <span className="font-bold text-fg font-mono">1275129025</span> sejumlah <span className="font-bold text-fg font-mono">${totalUsdt}</span>.</>
-                      )}
-                    </p>
-
-                    <div className="w-full pt-1 space-y-2.5">
-                      <div className="w-full space-y-1.5 text-left">
-                        <label className="text-xs font-semibold text-fg-muted">
-                          {lang === "en" ? "Binance Order ID / TxID (Optional)" : lang === "zh" ? "币安订单号 / TxID（选填）" : "Binance Order ID / TxID (Opsional)"}
-                        </label>
-                        <Input
-                          value={txId}
-                          onChange={(e) => setTxId(e.target.value)}
-                          placeholder={lang === "en" ? "Enter Binance Pay Order ID or TxID..." : lang === "zh" ? "输入币安支付订单号或 TxID..." : "Masukkan Binance Order ID / TxID..."}
-                          className="bg-surface font-mono text-xs"
-                        />
-                      </div>
-
-                      {binanceDone ? (
-                        <div className="flex items-center justify-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                          <CheckCircle2 size={18} /> {lang === "en" ? "Your Binance Pay payment has been recorded." : lang === "zh" ? "您的币安支付已记录。" : "Pembayaran Binance Pay Anda tercatat."}
-                        </div>
-                      ) : (
-                        <Button size="lg" className="w-full h-13 text-base font-bold bg-[#F0B90B] hover:bg-[#e0ac07] text-[#181A20] shadow-[var(--elev-2)]" onClick={() => setBinanceDone(true)}>
-                          {lang === "en" ? "I Have Paid with Binance Pay" : lang === "zh" ? "我已完成币安支付" : "Saya Sudah Bayar via Binance"}
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </>
-              ) : paymentMethod === "qris" ? (
-                <>
-                  <div className="rounded-2xl border border-border/70 bg-surface-2/70 p-4 sm:p-5">
-                    <p className="text-xs font-medium uppercase text-fg-muted">
-                      {lang === "en" ? "Total amount to pay" : lang === "zh" ? "应付总额" : "Total yang harus dibayar"}
-                    </p>
-                    <div className="mt-1 flex items-baseline justify-between gap-2">
-                      <p className="text-2xl sm:text-3xl font-bold tracking-tight text-accent tabular-nums">
-                        {formatPrice(totalBayar, lang)}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => copyAmount(totalBayar)}
-                        className="flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-fg shadow-sm hover:bg-accent-hover active:scale-95"
-                      >
-                        {isAmountCopied ? <Check size={12} strokeWidth={2.5} /> : <Copy size={12} strokeWidth={2} />}
-                        {isAmountCopied
-                          ? (lang === "en" ? "Copied!" : lang === "zh" ? "已复制!" : "Disalin!")
-                          : (lang === "en" ? "Copy Amount" : lang === "zh" ? "复制金额" : "Salin Nominal")}
-                      </button>
-                    </div>
-                    <p className="mt-2.5 text-xs font-normal leading-relaxed text-fg-muted border-t border-border/50 pt-2.5">
-                      {lang === "en" ? (
-                        <>The <span className="font-semibold text-fg">unique code {uniqueCode}</span> is included in the total above. Please pay this exact total for automatic verification.</>
-                      ) : lang === "zh" ? (
-                        <>上方总额已包含 <span className="font-semibold text-fg">验证码 {uniqueCode}</span>。请务必支付精确金额，以便系统自动确认。</>
-                      ) : (
-                        <><span className="font-semibold text-fg">Kode unik {uniqueCode}</span> sudah termasuk di nominal di atas — bayar persis sejumlah itu agar pesanan mudah dikenali dan diproses otomatis oleh robot Tokono.</>
-                      )}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col items-center gap-3 py-2">
-                    <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-white p-3 shadow-sm">
-                      <img
-                        src="/qris.png"
-                        onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).src = "/qris-placeholder.svg";
-                        }}
-                        alt="QRIS"
-                        className="h-56 w-56 object-contain"
-                      />
-                    </div>
-                    <p className="max-w-xs text-center text-xs font-medium leading-relaxed text-fg-muted">
-                      {lang === "en" ? (
-                        <>Scan the QRIS above, pay the exact amount of <span className="font-bold text-fg">{formatPrice(totalBayar, lang)}</span>, then click the button below.</>
-                      ) : lang === "zh" ? (
-                        <>扫描上方 QRIS 二维码，支付准确金额 <span className="font-bold text-fg">{formatPrice(totalBayar, lang)}</span>，然后点击下方按钮。</>
-                      ) : (
-                        <>Pindai QRIS di atas, bayar sesuai nominal <span className="font-bold text-fg">{formatPrice(totalBayar, lang)}</span>, lalu tekan tombol di bawah.</>
-                      )}
-                    </p>
-
-                    <div className="w-full pt-1">
                       {qrisDone ? (
                         <div className="flex items-center justify-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                          <CheckCircle2 size={18} /> {lang === "en" ? "Your payment has been recorded." : lang === "zh" ? "您的付款已记录。" : "Pembayaran Anda tercatat."}
+                          <CheckCircle2 size={18} />{" "}
+                          {lang === "en"
+                            ? "Your payment request is submitted."
+                            : "Pembayaran Anda sedang kami proses."}
                         </div>
                       ) : (
-                        <Button size="lg" className="w-full h-13 text-base font-bold shadow-[var(--elev-2)]" onClick={() => setQrisDone(true)}>
-                          {lang === "en" ? "I Have Paid" : lang === "zh" ? "我已完成支付" : "Saya Sudah Bayar"}
+                        <Button
+                          size="lg"
+                          className="w-full h-13 text-base font-bold shadow-[var(--elev-2)]"
+                          onClick={() => finishCheckout("menunggu")}
+                          disabled={loading}
+                          loading={loading}
+                        >
+                          {lang === "en"
+                            ? "I Have Paid / Complete Order"
+                            : "Saya Sudah Bayar / Selesaikan Pesanan"}
                         </Button>
                       )}
                     </div>
                   </div>
                 </>
+
               ) : (
+                /* USDT BEP20 / TRC20 SECTION */
                 <>
                   <div className="rounded-2xl border border-border/70 bg-surface-2/70 p-4 sm:p-5">
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-medium uppercase text-fg-muted">
-                        {lang === "en" ? "Total USDT amount to send" : lang === "zh" ? "应付 USDT 数量" : "Total USDT yang harus dikirim"}
+                        {lang === "en"
+                          ? "Total USDT amount to send"
+                          : lang === "zh"
+                          ? "应付 USDT 数量"
+                          : "Total USDT yang harus dikirim"}
                       </p>
                       <span className="rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-semibold text-accent">
-                        {lang === "en" ? "1 USDT ≈ 1 USD" : lang === "zh" ? "1 USDT ≈ 1 USD" : "1 USDT ≈ Rp 16.000"}
+                        {lang === "en"
+                          ? "1 USDT ≈ 1 USD"
+                          : lang === "zh"
+                          ? "1 USDT ≈ 1 USD"
+                          : "1 USDT ≈ Rp 16.000"}
                       </span>
                     </div>
 
@@ -694,7 +1099,11 @@ export function CheckoutForm({
                           {totalUsdt} <span className="text-lg font-bold text-fg">USDT</span>
                         </p>
                         <p className="text-xs font-medium text-fg-muted mt-0.5">
-                          {lang === "en" ? `≈ $${totalUsdt.toFixed(2)} USD` : lang === "zh" ? `≈ $${totalUsdt.toFixed(2)} USD` : `≈ $${totalUsdt.toFixed(2)} USD (Rp ${subtotal.toLocaleString("id-ID")})`}
+                          {lang === "en"
+                            ? `≈ $${totalUsdt.toFixed(2)} USD`
+                            : lang === "zh"
+                            ? `≈ $${totalUsdt.toFixed(2)} USD`
+                            : `≈ $${totalUsdt.toFixed(2)} USD (Rp ${subtotal.toLocaleString("id-ID")})`}
                         </p>
                       </div>
                       <button
@@ -702,29 +1111,74 @@ export function CheckoutForm({
                         onClick={() => copyAmount(totalUsdt)}
                         className="flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-fg shadow-sm hover:bg-accent-hover active:scale-95"
                       >
-                        {isAmountCopied ? <Check size={12} strokeWidth={2.5} /> : <Copy size={12} strokeWidth={2} />}
+                        {isAmountCopied ? (
+                          <Check size={12} strokeWidth={2.5} />
+                        ) : (
+                          <Copy size={12} strokeWidth={2} />
+                        )}
                         {isAmountCopied
-                          ? (lang === "en" ? "Copied!" : lang === "zh" ? "已复制!" : "Disalin!")
-                          : (lang === "en" ? "Copy Amount" : lang === "zh" ? "复制金额" : "Salin Nominal")}
+                          ? lang === "en"
+                            ? "Copied!"
+                            : lang === "zh"
+                            ? "已复制!"
+                            : "Disalin!"
+                          : lang === "en"
+                          ? "Copy Amount"
+                          : lang === "zh"
+                          ? "复制金额"
+                          : "Salin Nominal"}
                       </button>
                     </div>
 
                     <p className="mt-2.5 text-xs font-normal leading-relaxed text-fg-muted border-t border-border/50 pt-2.5">
                       {lang === "en" ? (
-                        <>The <span className="font-semibold text-fg">decimal unique code (+{usdtDecimalUnique.toFixed(4)} USDT)</span> is included in the total. Please transfer exactly <span className="font-semibold text-fg">{totalUsdt} USDT</span> for automated verification.</>
+                        <>
+                          The{" "}
+                          <span className="font-semibold text-fg">
+                            decimal unique code (+{usdtDecimalUnique.toFixed(4)} USDT)
+                          </span>{" "}
+                          is included in the total. Please transfer exactly{" "}
+                          <span className="font-semibold text-fg">
+                            {totalUsdt} USDT
+                          </span>{" "}
+                          for automated verification.
+                        </>
                       ) : lang === "zh" ? (
-                        <>上方总额已包含 <span className="font-semibold text-fg">识别码 (+{usdtDecimalUnique.toFixed(4)} USDT)</span>。请准确转入 <span className="font-semibold text-fg">{totalUsdt} USDT</span> 以便系统自动核对。</>
+                        <>
+                          上方总额已包含{" "}
+                          <span className="font-semibold text-fg">
+                            识别码 (+{usdtDecimalUnique.toFixed(4)} USDT)
+                          </span>
+                          。请准确转入{" "}
+                          <span className="font-semibold text-fg">
+                            {totalUsdt} USDT
+                          </span>{" "}
+                          以便系统自动核对。
+                        </>
                       ) : (
-                        <><span className="font-semibold text-fg">Kode unik desimal (+{usdtDecimalUnique.toFixed(4)} USDT)</span> sudah termasuk dalam nominal di atas. Transfer persis <span className="font-semibold text-fg">{totalUsdt} USDT</span> agar sistem otomatis mengenali transfer Anda.</>
+                        <>
+                          <span className="font-semibold text-fg">
+                            Kode unik desimal (+{usdtDecimalUnique.toFixed(4)} USDT)
+                          </span>{" "}
+                          sudah termasuk dalam nominal di atas. Transfer persis{" "}
+                          <span className="font-semibold text-fg">
+                            {totalUsdt} USDT
+                          </span>{" "}
+                          agar sistem otomatis mengenali transfer Anda.
+                        </>
                       )}
                     </p>
                   </div>
 
-                  {/* 1. Detail Jaringan & Alamat Wallet di ATAS */}
+                  {/* Detail Jaringan & Alamat Wallet */}
                   <div className="space-y-3.5">
                     <div>
                       <p className="text-xs font-medium uppercase text-fg-muted">
-                        {lang === "en" ? "Transfer Network" : lang === "zh" ? "转账网络 (Network)" : "Jaringan Transfer (Network)"}
+                        {lang === "en"
+                          ? "Transfer Network"
+                          : lang === "zh"
+                          ? "转账网络 (Network)"
+                          : "Jaringan Transfer (Network)"}
                       </p>
                       <p className="mt-1 font-mono text-sm font-semibold text-fg bg-surface px-3.5 py-2.5 rounded-xl border border-border">
                         {PAYMENT_INFO[paymentMethod].network}
@@ -733,7 +1187,11 @@ export function CheckoutForm({
 
                     <div>
                       <p className="text-xs font-medium uppercase text-fg-muted">
-                        {lang === "en" ? "Recipient Wallet Address" : lang === "zh" ? "收款钱包地址" : "Alamat Wallet Penerima"}
+                        {lang === "en"
+                          ? "Recipient Wallet Address"
+                          : lang === "zh"
+                          ? "收款钱包地址"
+                          : "Alamat Wallet Penerima"}
                       </p>
                       <div className="mt-1.5 flex items-center gap-2">
                         <Input
@@ -744,23 +1202,35 @@ export function CheckoutForm({
                         <Button
                           type="button"
                           variant="secondary"
-                          onClick={() => copyAddress(PAYMENT_INFO[paymentMethod].address ?? "")}
+                          onClick={() =>
+                            copyAddress(PAYMENT_INFO[paymentMethod].address ?? "")
+                          }
                           className="shrink-0"
                         >
                           {copied ? <Check size={14} /> : <Copy size={14} />}
                           {copied
-                            ? (lang === "en" ? "Copied" : lang === "zh" ? "已复制" : "Tersalin")
-                            : (lang === "en" ? "Copy" : lang === "zh" ? "复制" : "Salin")}
+                            ? lang === "en"
+                              ? "Copied"
+                              : lang === "zh"
+                              ? "已复制"
+                              : "Tersalin"
+                            : lang === "en"
+                            ? "Copy"
+                            : lang === "zh"
+                            ? "复制"
+                            : "Salin"}
                         </Button>
                       </div>
                     </div>
                   </div>
 
-                  {/* 2. QR Code Alamat Wallet USD / USDT di BAWAH */}
+                  {/* QR Code Alamat Wallet USD / USDT */}
                   <div className="flex flex-col items-center gap-3 pt-2 pb-1 border-t border-border/60">
                     <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-white p-3 shadow-sm">
                       <img
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(PAYMENT_INFO[paymentMethod].address ?? "")}&margin=10`}
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+                          PAYMENT_INFO[paymentMethod].address ?? ""
+                        )}&margin=10`}
                         alt={`QR Code Wallet ${PAYMENT_INFO[paymentMethod].badge}`}
                         className="h-52 w-52 object-contain"
                       />
@@ -774,27 +1244,50 @@ export function CheckoutForm({
                     </p>
                   </div>
 
-                  {/* 3. Tombol Konfirmasi Pembayaran */}
+                  {/* Tombol Konfirmasi Pembayaran */}
                   <div className="pt-1 space-y-2.5">
                     <div className="w-full space-y-1.5 text-left">
                       <label className="text-xs font-semibold text-fg-muted">
-                        {lang === "en" ? "Transaction Hash / TxID (Optional)" : lang === "zh" ? "交易哈希 / TxID（选填）" : "Hash Transaksi / TxID (Opsional)"}
+                        {lang === "en"
+                          ? "Transaction Hash / TxID (Optional)"
+                          : lang === "zh"
+                          ? "交易哈希 / TxID（选填）"
+                          : "Hash Transaksi / TxID (Opsional)"}
                       </label>
                       <Input
                         value={txId}
                         onChange={(e) => setTxId(e.target.value)}
-                        placeholder={lang === "en" ? "Enter TxID / ID Hash..." : lang === "zh" ? "输入交易哈希 TxID..." : "Masukkan TxID / ID Hash bukti transfer..."}
+                        placeholder={
+                          lang === "en"
+                            ? "Enter TxID / ID Hash..."
+                            : lang === "zh"
+                            ? "输入交易哈希 TxID..."
+                            : "Masukkan TxID / ID Hash bukti transfer..."
+                        }
                         className="bg-surface font-mono text-xs"
                       />
                     </div>
 
                     {usdtDone ? (
                       <div className="flex items-center justify-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                        <CheckCircle2 size={18} /> {lang === "en" ? "Your USDT transfer has been recorded." : lang === "zh" ? "您的 USDT 转账已记录。" : "Transfer USDT Anda tercatat."}
+                        <CheckCircle2 size={18} />{" "}
+                        {lang === "en"
+                          ? "Your USDT transfer has been recorded."
+                          : lang === "zh"
+                          ? "您的 USDT 转账已记录。"
+                          : "Transfer USDT Anda tercatat."}
                       </div>
                     ) : (
-                      <Button size="lg" className="w-full h-13 text-base font-bold shadow-[var(--elev-2)]" onClick={() => setUsdtDone(true)}>
-                        {lang === "en" ? "I Have Transferred USDT" : lang === "zh" ? "我已转账 USDT" : "Saya Sudah Transfer USDT"}
+                      <Button
+                        size="lg"
+                        className="w-full h-13 text-base font-bold shadow-[var(--elev-2)]"
+                        onClick={() => setUsdtDone(true)}
+                      >
+                        {lang === "en"
+                          ? "I Have Transferred USDT"
+                          : lang === "zh"
+                          ? "我已转账 USDT"
+                          : "Saya Sudah Transfer USDT"}
                       </Button>
                     )}
                   </div>
@@ -809,11 +1302,31 @@ export function CheckoutForm({
 
               {/* Tombol Aksi Bawah */}
               <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                <Button variant="secondary" size="lg" onClick={() => setStep(1)} className="w-full sm:w-1/3 h-14 text-sm font-bold">
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  onClick={() => setStep(1)}
+                  className="w-full sm:w-1/3 h-14 text-sm font-bold"
+                >
                   {lang === "en" ? "← Back" : lang === "zh" ? "← 返回" : "← Kembali"}
                 </Button>
-                <Button size="lg" onClick={finishCheckout} disabled={loading} className="w-full sm:flex-1 h-14 text-base sm:text-lg font-bold shadow-[var(--elev-2)]">
-                  {loading ? (lang === "en" ? "Confirming Order…" : lang === "zh" ? "确认订单中…" : "Mengonfirmasi Pesanan…") : (lang === "en" ? "Complete Order 🚀" : lang === "zh" ? "完成订单 🚀" : "Selesaikan Pembayaran 🚀")}
+                <Button
+                  size="lg"
+                  onClick={() => finishCheckout()}
+                  disabled={loading}
+                  className="w-full sm:flex-1 h-14 text-base sm:text-lg font-bold shadow-[var(--elev-2)]"
+                >
+                  {loading
+                    ? lang === "en"
+                      ? "Confirming Order…"
+                      : lang === "zh"
+                      ? "确认订单中…"
+                      : "Mengonfirmasi Pesanan…"
+                    : lang === "en"
+                    ? "Complete Order"
+                    : lang === "zh"
+                    ? "完成订单"
+                    : "Selesaikan Pembayaran"}
                 </Button>
               </div>
             </div>

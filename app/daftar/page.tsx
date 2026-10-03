@@ -7,6 +7,7 @@ import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/form";
 import { useToast } from "@/components/ui/toast";
+import { TexasAiIcon } from "@/components/ui/logo";
 import { useAuth } from "@/components/storefront/providers";
 
 export default function SignUpPage() {
@@ -32,7 +33,7 @@ export default function SignUpPage() {
     if (Object.keys(next).length > 0) return;
 
     login({ name: name.trim(), email: email.trim() });
-    toast.push({ title: "Akun berhasil dibuat", description: "Selamat datang di Tokono!" });
+    toast.push({ title: "Akun berhasil dibuat", description: "Selamat datang di TexasAi!" });
     const nextUrl = searchParams.get("next");
     router.push(nextUrl ?? "/akun");
   };
@@ -41,11 +42,13 @@ export default function SignUpPage() {
     <div className="flex min-h-[100dvh] items-center justify-center px-5 pt-32 pb-20">
       <div className="w-full max-w-sm rounded-lg border-2 border-border bg-surface p-8 shadow-[6px_6px_0px_var(--shadow-color)]">
         <div className="flex flex-col items-center text-center">
-          <span className="flex h-11 w-11 items-center justify-center rounded-sm border-2 border-border bg-accent text-black shadow-[2px_2px_0px_var(--shadow-color)]">
-            <Zap size={22} strokeWidth={2.8} className="fill-current" />
-          </span>
-          <p className="mt-3 text-lg font-black tracking-tighter uppercase text-fg">
-            TOK<span className="text-accent-blue dark:text-accent">ONO</span>
+          <Link href="/" className="group mb-3 flex items-center justify-center" aria-label="TexasAi — Beranda">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-border/80 bg-surface shadow-xs transition-transform duration-200 group-hover:scale-105">
+              <TexasAiIcon size={34} />
+            </div>
+          </Link>
+          <p className="text-lg font-black tracking-tight text-fg">
+            <span>Texas</span><span className="text-accent ml-0.5 font-extrabold">AI</span>
           </p>
           <h1 className="mt-2 text-xl font-black tracking-tight text-fg">Daftar Akun Baru</h1>
           <p className="mt-1 text-xs font-medium text-fg-muted">Mulai koleksi aplikasi & tools premium Anda.</p>

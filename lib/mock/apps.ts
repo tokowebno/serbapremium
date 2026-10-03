@@ -3,7 +3,7 @@ import customOrder from "./custom-order.json";
 import { descriptionsData } from "./product-descriptions";
 
 /**
- * Katalog Resmi Produk GPTluna (Audit Pasar Indonesia 2026).
+ * Katalog Resmi Produk TexasAi (Audit Pasar Indonesia 2026).
  * Seluruh data produk disusun berdasarkan kondisi pasar asli 2026,
  * membedakan paket resmi vs jenis akses reseller (Family Invite, Sharing 1P1U PIN, Private, Redeem Code),
  * dengan varian dinamis yang tidak diseragamkan dan mempertahankan 100% stok asli toko.
@@ -231,7 +231,7 @@ export interface RawAppSpec {
 }
 
 /**
- * Data Audit Lengkap 49 Produk Digital GPTluna 2026.
+ * Data Audit Lengkap 49 Produk Digital TexasAi 2026.
  * Seluruh harga pasar diverifikasi, varian realistis, deskripsi akurat, dan stok 100% dipertahankan.
  */
 const productSpecs: RawAppSpec[] = [
@@ -392,15 +392,15 @@ const productSpecs: RawAppSpec[] = [
         accessType: "5TB Storage",
         price: 28160,
         originalPrice: 50000,
-        stock: 67,
-        badge: "1 Tahun",
+        stock: 0,
+        badge: "Stok Habis",
       },
       {
         id: "gemini-ultra-1m-30tb",
         name: "Gemini Ultra 1Month 30TB",
         duration: "1 Bulan",
         accessType: "30TB Ultra",
-        price: 686400,
+        price: 237000,
         originalPrice: 950000,
         stock: 13,
         badge: "Ultra 30TB",
@@ -414,13 +414,13 @@ const productSpecs: RawAppSpec[] = [
     glyph: "sparkles",
     colorKey: "claude",
     tagline: "Akses Model Claude Terbaru & Artifacts Premium (Full Garansi)",
-    description: "Langganan Claude Pro dari Anthropic dengan akses ke model AI tercanggih dan terbaru (kemampuan hybrid thinking & coding instan), kuota 5x lebih besar dibanding gratis, pembuatan Project Workspace, dan eksekusi Artifacts interaktif. Full garansi.",
+    description: "Langganan resmi Claude Pro dari Anthropic dengan akses prioritas ke model Claude terbaru, batas kuota lebih tinggi dibanding akun gratis, pembuatan Project Workspace, dan fitur Artifacts interaktif. Dilengkapi full garansi.",
     platforms: ["Web", "Android", "iOS", "macOS", "Windows"],
     features: [
-      "Akses prioritas ke generasi model Claude terbaru (Full Garansi)",
-      "Mode Extended Thinking untuk coding & analisis rumit",
-      "Fitur Artifacts, Projects & Upload dokumen besar",
-      "Garansi akses penuh & reset kuota prioritas 100%",
+      "Akses prioritas ke model resmi Claude terbaru dari Anthropic",
+      "Mode Extended Thinking untuk penalaran dan analisis mendalam",
+      "Fitur Artifacts interaktif dan Claude Projects terintegrasi",
+      "Garansi penggantian akun penuh selama masa aktif berlangganan",
     ],
     variants: [
       {
@@ -583,13 +583,13 @@ const productSpecs: RawAppSpec[] = [
     glyph: "bot",
     colorKey: "grok",
     tagline: "AI Realtime xAI dengan Akses X Premium Terintegrasi",
-    description: "Akses AI Grok generasi terbaru dari xAI Elon Musk dengan data terkini langsung dari platform X. Dilengkapi analisis berita realtime tanpa sensor kaku, mode fun & savage, serta generator visual kualitas tinggi.",
+    description: "Langganan resmi Grok dari xAI dengan integrasi data realtime dari platform X, kemampuan penalaran mendalam, mode percakapan fleksibel, dan generator gambar AI berkualitas tinggi. Dilengkapi full garansi.",
     platforms: ["Web", "Android", "iOS"],
     features: [
-      "Akses model Grok 2 & Grok 3 dengan pengetahuan realtime",
-      "Sudah termasuk lencana X Premium (Centang Biru) di akun",
-      "Generator gambar AI terintegrasi & analisis thread X",
-      "Garansi aktif penuh selama 30 hari",
+      "Akses ke model resmi Grok dari xAI dengan pengetahuan realtime",
+      "Integrasi informasi dan tren realtime dari platform X",
+      "Generator gambar AI terintegrasi & analisis mendalam",
+      "Garansi aktif penuh selama masa berlangganan",
     ],
     variants: [
       {

@@ -113,11 +113,11 @@ export function MockScreenshot({
 
         {variant === "terminal" && (
           <div className="flex flex-col gap-1.5 rounded bg-black/25 p-3 font-mono text-[10px] leading-4 text-white/80">
-            <span>$ tokomo build --release</span>
+            <span>$ texasai build --release</span>
             <span className="text-white/50">▸ compiling 128 modul</span>
             <span className="text-white/50">▸ optimisasi selesai dalam 1.2 detik</span>
-            <span>$ tokomo test</span>
-            <span className="text-white/80">✓ 42 pengujian lulus</span>
+            <span>$ texasai test</span>
+            <span className="text-emerald-400">✓ 42 pengujian lulus</span>
           </div>
         )}
 

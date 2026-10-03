@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowUpRight, Heart } from "lucide-react";
+import { ArrowUpRight, Heart, Sparkles, Zap } from "lucide-react";
 import Link from "next/link";
 import type { App } from "@/types";
 import { AppIcon } from "@/components/ui/app-icon";
@@ -10,7 +10,7 @@ import { PlatformBadge } from "@/components/ui/platform-badge";
 import { useWishlist } from "./providers";
 import { useTranslation } from "./i18n-provider";
 import { getLocalizedApp } from "@/lib/i18n/product-translations";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, USDT_RATE } from "@/lib/utils";
 
 export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
   const { has, toggle } = useWishlist();
@@ -18,11 +18,13 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
   const wished = has(app.id);
   const localized = getLocalizedApp(app, lang);
 
-  // Cari harga termurah dari variasi (jika ada)
+  // Cari harga termurah dari variasi
   const minPrice =
     app.variants && app.variants.length > 0
       ? Math.min(...app.variants.map((v) => v.price))
       : app.price;
+
+  const approxUsd = (minPrice / USDT_RATE).toFixed(2);
 
   return (
     <motion.div
@@ -32,11 +34,11 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
       transition={{ duration: 0.35, delay: Math.min(index * 0.04, 0.25), ease: "easeOut" }}
       className="group relative h-full"
     >
-      <div className="flex h-full flex-col rounded-2xl border border-border/80 bg-surface/90 p-3.5 sm:p-5 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-accent/40 hover:shadow-xl hover:-translate-y-1">
+      <div className="flex h-full flex-col rounded-2xl border border-border/80 bg-surface/90 p-3.5 sm:p-5 shadow-sm backdrop-blur-md transition-all duration-300 hover:border-cyan-500/40 hover:shadow-xl hover:shadow-cyan-500/5 hover:-translate-y-1">
         {/* Header card: Icon + Wishlist button */}
         <div className="flex items-start justify-between gap-2">
           <Link href={`/aplikasi/${app.slug}`} className="block transition-transform duration-200 group-hover:scale-105">
-            <AppIcon icon={app.icon} size="md" />
+            <AppIcon icon={app.icon} size="md" className="rounded-xl shadow-sm" />
           </Link>
           <button
             type="button"
@@ -46,7 +48,7 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
               toggle(app.id);
             }}
             aria-label={wished ? "Hapus dari daftar keinginan" : "Tambahkan ke daftar keinginan"}
-            className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-surface-2/80 text-fg-muted transition-all duration-200 hover:bg-surface hover:text-fg hover:shadow-sm active:scale-95"
+            className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-surface-2/80 text-fg-muted transition-all duration-200 hover:bg-surface hover:text-fg hover:shadow-xs active:scale-95 cursor-pointer"
           >
             <Heart
               size={15}
@@ -61,11 +63,11 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
         <div className="mt-3 sm:mt-4 flex-1">
           <Link href={`/aplikasi/${app.slug}`} className="block">
             <div className="flex items-center justify-between gap-1">
-              <h3 className="truncate text-[14px] sm:text-[16px] font-semibold tracking-tight text-fg group-hover:text-accent transition-colors">
+              <h3 className="truncate text-[14px] sm:text-[16px] font-bold tracking-tight text-fg group-hover:text-accent transition-colors">
                 {localized.name}
               </h3>
               <span className="hidden sm:flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                <ArrowUpRight size={13} strokeWidth={2} className="text-fg-muted" />
+                <ArrowUpRight size={13} strokeWidth={2.2} className="text-fg-muted" />
               </span>
             </div>
             <p className="mt-0.5 sm:mt-1 line-clamp-1 text-[11.5px] sm:text-[13px] font-normal text-fg-muted">{localized.tagline}</p>
@@ -75,9 +77,9 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
           <div className="mt-2.5 sm:mt-3 flex flex-wrap items-center gap-1.5 sm:gap-2">
             <Rating value={app.rating} showValue={true} size={11} />
             <span
-              className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+              className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                 app.stock > 0
-                  ? "bg-accent-soft text-accent"
+                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
                   : "bg-surface-3 text-fg-faint"
               }`}
             >
@@ -101,20 +103,27 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
         </div>
 
         {/* Harga & Aksi Bawah */}
-        <div className="mt-3.5 sm:mt-4 flex items-center justify-between border-t border-border/70 pt-3 gap-2">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-medium text-fg-muted">
+        <div className="mt-3.5 sm:mt-4 flex flex-col sm:flex-row sm:items-center justify-between border-t border-border/70 pt-2.5 sm:pt-3 gap-2">
+          <div className="flex flex-col min-w-0">
+            <span className="text-[10px] font-semibold text-fg-muted uppercase">
               {lang === "en" ? "Starts from" : lang === "zh" ? "起价" : "Mulai dari"}
             </span>
-            <span className="text-[14px] sm:text-[16px] font-bold tracking-tight tabular-nums text-fg">
-              {formatPrice(minPrice, lang)}
-            </span>
+            <div className="flex items-baseline gap-1 truncate">
+              <span className="text-[14px] sm:text-[16px] font-black tracking-tight tabular-nums text-fg truncate">
+                {formatPrice(minPrice, lang)}
+              </span>
+              <span className="text-[10px] sm:text-[10.5px] font-medium text-fg-muted shrink-0">
+                (${approxUsd})
+              </span>
+            </div>
           </div>
+
           <Link
             href={`/aplikasi/${app.slug}`}
-            className="rounded-full bg-emerald-600 hover:bg-emerald-700 px-3.5 py-1.5 text-[11px] sm:text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:shadow-md active:scale-95"
+            className="w-full sm:w-auto inline-flex items-center justify-center shrink-0 rounded-full bg-accent hover:opacity-90 px-3 py-1.5 text-[11px] sm:text-xs font-bold text-accent-fg shadow-xs transition-all duration-200 active:scale-95 whitespace-nowrap"
           >
-            {t.product.viewDetail || "Lihat Detail"}
+            <span>{t.product.viewDetail || "Akses AI"}</span>
+            <span className="ml-1">→</span>
           </Link>
         </div>
       </div>

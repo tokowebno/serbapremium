@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, Heart, History, LayoutDashboard, Settings, Star } from "lucide-react";
+import { BookOpen, Heart, History, LayoutDashboard, Settings, Star, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const menu = [
   { label: "Ringkasan", href: "/akun", icon: LayoutDashboard },
+  { label: "Dompet & Isi Saldo", href: "/isi-saldo", icon: Wallet },
   { label: "Koleksi Saya", href: "/akun/koleksi", icon: BookOpen },
   { label: "Riwayat Pembelian", href: "/akun/pesanan", icon: History },
   { label: "Daftar Keinginan", href: "/akun/keinginan", icon: Heart },

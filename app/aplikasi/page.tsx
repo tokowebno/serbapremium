@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Aplikasi",
   description:
-    "Jelajahi semua aplikasi premium di Tokono. Filter berdasarkan kategori, platform, harga, dan promo.",
+    "Jelajahi semua aplikasi premium di TexasAi. Filter berdasarkan kategori, platform, harga, dan promo.",
 };
 
 const PLATFORMS = ["Android", "iOS", "Windows", "macOS", "Linux"] as const;
@@ -65,7 +65,7 @@ export default async function AplikasiPage({
             <div>
               <div className="mb-1.5">
                 <span className="inline-block rounded-full bg-accent-soft px-3 py-0.5 text-xs font-semibold uppercase text-accent">
-                  {lang === "en" ? "TOKONO CATALOG" : lang === "zh" ? "TOKONO 全球产品目录" : "KATALOG TOKONO"}
+                  {lang === "en" ? "TEXASAI CATALOG" : lang === "zh" ? "TEXASAI 全球产品目录" : "KATALOG TEXASAI"}
                 </span>
               </div>
               <h1 className="text-2xl font-bold tracking-tight text-fg sm:text-[32px]">

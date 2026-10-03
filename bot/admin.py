@@ -1,14 +1,16 @@
 """
 ZELVA AI - Admin Panel & Management Module
 Restricted to authorized Telegram Admin IDs.
+Configured with Telegram Premium Custom Emojis (<tg-emoji>)
 """
 
+import random
 import logging
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
 
-from config import ADMIN_IDS
+from config import ADMIN_IDS, LOG_CHANNEL, BOT_USERNAME, UI_ICONS
 from database import get_admin_stats, get_all_users, update_user_balance, get_connection
 
 logger = logging.getLogger(__name__)
@@ -29,13 +31,13 @@ async def admin_dashboard(update: Update, context: ContextTypes.DEFAULT_TYPE, is
     stats = get_admin_stats()
     
     text = (
-        "<b>ZELVA AI — Admin Dashboard</b>\n"
-        "━━━━━━━━━━━━━━━━━━━\n"
-        f"👥 Total Users: <b>{stats['total_users']}</b>\n"
-        f"📦 Total Orders: <b>{stats['total_orders']}</b>\n"
-        f"💰 Total Revenue: <b>${stats['revenue_usd']:.2f}</b> (Rp {stats['revenue_idr']:,})\n".replace(",", ".") +
-        "━━━━━━━━━━━━━━━━━━━\n"
-        "Select an administrative action below:"
+        '<b><tg-emoji emoji-id="5877651964208091297">🤖</tg-emoji> Digital AI — Admin Dashboard</b>\n'
+        '━━━━━━━━━━━━━━━━━━━\n'
+        f'<tg-emoji emoji-id="6017118468661317152">👥</tg-emoji> Total Users: <b>{stats["total_users"]}</b>\n'
+        f'<tg-emoji emoji-id="5312361253610475399">📦</tg-emoji> Total Orders: <b>{stats["total_orders"]}</b>\n'
+        f'<tg-emoji emoji-id="5287780412746120236">💰</tg-emoji> Total Revenue: <b>${stats["revenue_usd"]:.2f}</b> (Rp {stats["revenue_idr"]:,})\n'.replace(",", ".") +
+        '━━━━━━━━━━━━━━━━━━━\n'
+        'Select an administrative action below:'
     )
 
     buttons = [
@@ -80,14 +82,15 @@ async def handle_admin_callback(update: Update, context: ContextTypes.DEFAULT_TY
         stats = get_admin_stats()
         orders = stats.get("recent_orders", [])
         
-        text = "<b>Recent Customer Orders:</b>\n━━━━━━━━━━━━━━━━━━━\n"
+        text = '<b><tg-emoji emoji-id="5431721976769027887">📜</tg-emoji> Recent Customer Orders:</b>\n━━━━━━━━━━━━━━━━━━━\n'
         if not orders:
             text += "No orders recorded yet."
         else:
             for ord in orders:
-                status_emoji = "✅" if ord["status"] == "completed" else "⏳"
+                ord_code = ord.get("order_code") or f"DGT{ord['id']:06d}"
+                status_emoji = '<tg-emoji emoji-id="6102856637343600044">✅</tg-emoji>' if ord["status"] == "completed" else "⏳"
                 text += (
-                    f"{status_emoji} <b>Order #{ord['id']}</b> — User <code>{ord['user_id']}</code>\n"
+                    f"{status_emoji} <b>Order #{ord_code}</b> — User <code>{ord['user_id']}</code>\n"
                     f"   Product: {ord['product_name']} ({ord['plan_name']})\n"
                     f"   Price: ${ord['price_usd']:.2f} (Rp {ord['price_idr']:,})\n".replace(",", ".") +
                     f"   Status: <b>{ord['status'].upper()}</b>\n\n"
@@ -98,7 +101,7 @@ async def handle_admin_callback(update: Update, context: ContextTypes.DEFAULT_TY
 
     elif data == "admin:users":
         users = get_all_users()
-        text = f"<b>Registered Users ({len(users)}):</b>\n━━━━━━━━━━━━━━━━━━━\n"
+        text = f'<b><tg-emoji emoji-id="6017118468661317152">👥</tg-emoji> Registered Users ({len(users)}):</b>\n━━━━━━━━━━━━━━━━━━━\n'
         for u in users[:15]:
             username_str = f"@{u['username']}" if u['username'] else "No username"
             text += f"• <code>{u['user_id']}</code> | {username_str} | Bal: ${u['balance_usd']:.2f}\n"
@@ -112,9 +115,9 @@ async def handle_admin_callback(update: Update, context: ContextTypes.DEFAULT_TY
     elif data == "admin:broadcast_prompt":
         context.user_data["admin_state"] = "awaiting_broadcast"
         text = (
-            "<b>📢 Broadcast Message Mode</b>\n\n"
-            "Please send the message you would like to broadcast to all registered bot users in your next reply.\n\n"
-            "Type <code>/cancel</code> to abort."
+            '<b><tg-emoji emoji-id="6181322172263308706">📢</tg-emoji> Broadcast Message Mode</b>\n\n'
+            'Please send the message you would like to broadcast to all registered bot users in your next reply.\n\n'
+            'Type <code>/cancel</code> to abort.'
         )
         buttons = [[InlineKeyboardButton("← Cancel", callback_data="admin:refresh")]]
         await query.edit_message_text(text=text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(buttons))
@@ -122,15 +125,127 @@ async def handle_admin_callback(update: Update, context: ContextTypes.DEFAULT_TY
     elif data == "admin:balance_prompt":
         context.user_data["admin_state"] = "awaiting_balance_input"
         text = (
-            "<b>💳 Adjust User Balance</b>\n\n"
-            "Send user ID, amount USD, and amount IDR in the format:\n"
-            "<code>USER_ID AMOUNT_USD AMOUNT_IDR</code>\n\n"
-            "Example to add $10 (Rp 150.000) to user 12345678:\n"
-            "<code>12345678 10 150000</code>\n\n"
-            "Type <code>/cancel</code> to abort."
+            '<b><tg-emoji emoji-id="5287780412746120236">💳</tg-emoji> Adjust User Balance</b>\n\n'
+            'Send user ID, amount USD, and amount IDR in the format:\n'
+            '<code>USER_ID AMOUNT_USD AMOUNT_IDR</code>\n\n'
+            'Example to add $10 (Rp 150.000) to user 12345678:\n'
+            '<code>12345678 10 150000</code>\n\n'
+            'Type <code>/cancel</code> to abort.'
         )
         buttons = [[InlineKeyboardButton("← Cancel", callback_data="admin:refresh")]]
         await query.edit_message_text(text=text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(buttons))
+
+    elif data.startswith("admin:appr_dep:"):
+        from database import approve_deposit, get_user_balance
+        dep_id = int(data.split(":")[2])
+        success, dep = approve_deposit(dep_id)
+        if success and dep:
+            uid = dep["user_id"]
+            amt = float(dep["amount_usd"] or 0.0)
+            curr_usd, _ = get_user_balance(uid)
+            await query.edit_message_text(
+                f'<tg-emoji emoji-id="6102856637343600044">✅</tg-emoji> <b>DEPOSIT APPROVED</b> by admin\n'
+                f'Order: <code>#{dep["order_code"]}</code>\n'
+                f'User: <code>{uid}</code>\n'
+                f'Network: <b>{dep["network"]}</b>\n'
+                f'Amount: <b>+{amt:.2f} USDT</b>\n'
+                f'TxID: <code>{dep["txid"]}</code>',
+                parse_mode=ParseMode.HTML
+            )
+            try:
+                await context.bot.send_message(
+                    chat_id=uid,
+                    text=(
+                        f'<tg-emoji emoji-id="5330237710655306682">🎉</tg-emoji> <b>Deposit Approved!</b>\n\n'
+                        f'Amount of <b>{amt:.2f} USDT</b> has been added to your wallet balance.\n'
+                        f'<tg-emoji emoji-id="5287780412746120236">💎</tg-emoji> Current balance: <b>{curr_usd:.2f} USDT</b>.\n\n'
+                        f'Thank you for shopping with us!'
+                    ),
+                    parse_mode=ParseMode.HTML
+                )
+            except Exception:
+                pass
+
+            # Notify referrer if exists
+            try:
+                from database import get_user
+                u_db = get_user(uid)
+                if u_db and u_db.get("referrer_id") and u_db["referrer_id"] > 0:
+                    ref_id = u_db["referrer_id"]
+                    comm_usd = round(amt * 0.15, 2)
+                    if comm_usd > 0:
+                        ref_u = get_user(ref_id)
+                        ref_lang = ref_u.get("language", "en") if ref_u else "en"
+                        if ref_lang == "id":
+                            ref_txt = (
+                                f"💰 <b>Komisi Referral Masuk!</b>\n\n"
+                                f"Teman yang kamu undang baru saja berhasil isi saldo sebesar <b>{amt:.2f} USDT</b>.\n"
+                                f"🎁 Komisi <b>+${comm_usd:.2f} USDT (15%)</b> telah ditambahkan ke saldo dompet kamu!"
+                            )
+                        else:
+                            ref_txt = (
+                                f"💰 <b>Referral Deposit Commission!</b>\n\n"
+                                f"Your referral just completed a deposit of <b>{amt:.2f} USDT</b>.\n"
+                                f"🎁 <b>+${comm_usd:.2f} USDT (15%)</b> commission credited to your wallet balance!"
+                            )
+                        await context.bot.send_message(chat_id=ref_id, text=ref_txt, parse_mode=ParseMode.HTML)
+            except Exception:
+                pass
+
+            # Broadcast to live orders channel / group
+            if LOG_CHANNEL:
+                try:
+                    rand_prefix = random.randint(1000, 9999)
+                    id_masked = f"{rand_prefix}***"
+                    await context.bot.send_message(
+                        chat_id=LOG_CHANNEL,
+                        text=(
+                            f'<tg-emoji emoji-id="5287780412746120236">💎</tg-emoji> <b>WALLET TOP UP SUCCESSFUL</b>\n'
+                            f'━━━━━━━━━━━━━━━━━━━\n'
+                            f'<tg-emoji emoji-id="5330237710655306682">👾</tg-emoji> <b>Order:</b> <code>#{dep["order_code"]}</code>\n'
+                            f'<tg-emoji emoji-id="6017118468661317152">👤</tg-emoji> <b>User:</b> <code>{id_masked}</code>\n'
+                            f'<tg-emoji emoji-id="5287780412746120236">💰</tg-emoji> <b>Amount:</b> <b>+{amt:.2f} USDT</b>\n'
+                            f'<tg-emoji emoji-id="5287292843763713628">🌐</tg-emoji> <b>Network:</b> <b>{dep["network"]}</b>\n'
+                            f'<tg-emoji emoji-id="5431721976769027887">⏱️</tg-emoji> <b>Status:</b> <b>Instant Approved</b> <tg-emoji emoji-id="6102856637343600044">✅</tg-emoji>\n'
+                            f'━━━━━━━━━━━━━━━━━━━\n'
+                            f'<tg-emoji emoji-id="5877651964208091297">🤖</tg-emoji> <i>Top up wallet & buy AI subscriptions at @{BOT_USERNAME}</i>'
+                        ),
+                        parse_mode=ParseMode.HTML,
+                        disable_web_page_preview=True
+                    )
+                except Exception:
+                    pass
+        else:
+            await query.answer("Deposit already processed.", show_alert=True)
+
+    elif data.startswith("admin:rej_dep:"):
+        from database import reject_deposit
+        dep_id = int(data.split(":")[2])
+        success, dep = reject_deposit(dep_id)
+        if success and dep:
+            uid = dep["user_id"]
+            amt = float(dep["amount_usd"] or 0.0)
+            await query.edit_message_text(
+                f'<tg-emoji emoji-id="6181322172263308706">❌</tg-emoji> <b>DEPOSIT REJECTED</b> by admin\n'
+                f'Order: <code>#{dep["order_code"]}</code>\n'
+                f'User: <code>{uid}</code>\n'
+                f'Amount: <b>{amt:.2f} USDT</b>',
+                parse_mode=ParseMode.HTML
+            )
+            try:
+                await context.bot.send_message(
+                    chat_id=uid,
+                    text=(
+                        f'<tg-emoji emoji-id="6181322172263308706">⚠️</tg-emoji> <b>Top Up Ditolak</b>\n\n'
+                        f'Pesanan top-up <code>#{dep["order_code"]}</code> ({amt:.2f} USDT) tidak dapat diverifikasi.\n'
+                        f'Silakan hubungi customer support jika ini adalah kesalahan.'
+                    ),
+                    parse_mode=ParseMode.HTML
+                )
+            except Exception:
+                pass
+        else:
+            await query.answer("Deposit already processed.", show_alert=True)
 
 async def handle_admin_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> bool:
     """Handle broadcast messages or balance adjustments from admin"""
@@ -158,14 +273,14 @@ async def handle_admin_text(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             try:
                 await context.bot.send_message(
                     chat_id=u["user_id"],
-                    text=f"📢 <b>Announcement from ZELVA AI:</b>\n\n{text}",
+                    text=f'<tg-emoji emoji-id="6181322172263308706">📢</tg-emoji> <b>Announcement from Digital AI:</b>\n\n{text}',
                     parse_mode=ParseMode.HTML
                 )
                 sent_count += 1
             except Exception as e:
                 logger.debug(f"Failed to send broadcast to {u['user_id']}: {e}")
                 
-        await update.message.reply_text(f"✅ Broadcast complete! Delivered to {sent_count}/{len(users)} users.")
+        await update.message.reply_text(f'<tg-emoji emoji-id="6102856637343600044">✅</tg-emoji> Broadcast complete! Delivered to {sent_count}/{len(users)} users.')
         return True
 
     elif state == "awaiting_balance_input":
@@ -185,15 +300,15 @@ async def handle_admin_text(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             )
             
             await update.message.reply_text(
-                f"✅ Balance updated for User <code>{target_uid}</code>!\n"
-                f"New Balance: <b>${new_usd:.2f}</b> (Rp {new_idr:,})".replace(",", ".")
+                f'<tg-emoji emoji-id="6102856637343600044">✅</tg-emoji> Balance updated for User <code>{target_uid}</code>!\n'
+                f'New Balance: <b>${new_usd:.2f}</b> (Rp {new_idr:,})'.replace(",", ".")
             )
             
             # Notify user
             try:
                 await context.bot.send_message(
                     chat_id=target_uid,
-                    text=f"💳 <b>Wallet Credited!</b>\nYour wallet has been credited with <b>${amount_usd:.2f}</b> (Rp {amount_idr:,}).\nCurrent Balance: <b>${new_usd:.2f}</b>".replace(",", "."),
+                    text=f'<tg-emoji emoji-id="5287780412746120236">💳</tg-emoji> <b>Wallet Credited!</b>\nYour wallet has been credited with <b>${amount_usd:.2f}</b> (Rp {amount_idr:,}).\nCurrent Balance: <b>${new_usd:.2f}</b>'.replace(",", "."),
                     parse_mode=ParseMode.HTML
                 )
             except Exception:

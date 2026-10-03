@@ -8,6 +8,7 @@ import { CursorGlow } from "./cursor-glow";
 
 import { BottomNav } from "./bottom-nav";
 import { TelegramFloat } from "./telegram-float";
+import { TopUpModal } from "./top-up-modal";
 
 /**
  * Membungkus storefront dengan navbar + footer + bottom nav mobile,
@@ -24,7 +25,7 @@ export function StorefrontShell({ children }: { children: React.ReactNode }) {
     <>
       <CursorGlow />
       <Navbar />
-      <main className="flex-1 pb-16 lg:pb-0">
+      <main className="flex-1 pb-28 lg:pb-0">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={pathname}
@@ -39,6 +40,7 @@ export function StorefrontShell({ children }: { children: React.ReactNode }) {
       </main>
       <TelegramFloat />
       <BottomNav />
+      <TopUpModal />
       <Footer />
     </>
   );

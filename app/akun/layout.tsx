@@ -3,7 +3,7 @@ import { AccountNav } from "./account-nav";
 
 export const metadata: Metadata = {
   title: "Koleksi & Akun",
-  description: "Kelola koleksi, pesanan, dan daftar keinginan Tokono Anda.",
+  description: "Kelola koleksi, pesanan, dan daftar keinginan TexasAi Anda.",
 };
 
 export default function AccountLayout({ children }: { children: React.ReactNode }) {

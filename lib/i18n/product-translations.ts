@@ -74,53 +74,53 @@ export const categoryTranslations: Record<string, Record<LanguageCode, CategoryT
 export const appTranslations: Record<string, Record<LanguageCode, AppTranslation>> = {
   chatgpt: {
     id: {
-      tagline: "Akses Model AI Terbaru, Reasoning, Canvas & DALL-E",
-      description: "Berlangganan ChatGPT Plus resmi untuk mendapatkan akses prioritas ke GPT-4o, fitur penalaran (reasoning), canvas cerdas, analisis data, pembuatan gambar DALL-E, dan browsing web realtime tanpa batas.",
-      features: ["Akses prioritas GPT-4o & o1 Reasoning", "Canvas interaktif untuk coding & penulisan", "Analisis data tingkat lanjut & Python interpreter", "Generasi gambar DALL-E 3 kualitas tinggi", "Akses web browsing realtime"],
+      tagline: "Akses Flagship OpenAI GPT-6 (GPT-6 Astra, GPT-6.1 Sol & Luna), Dots Autonomous Agents & GPT-Live-1",
+      description: "Langganan resmi OpenAI ChatGPT Plus, Pro & Business menghadirkan akses prioritas ke generasi mutakhir GPT-6 (GPT-6 Astra, GPT-6.1 Sol, dan GPT-6 Luna), agen otonom 'Dots' di lingkungan cloud terisolasi, percakapan suara real-time ultra cepat GPT-Live-1, kapabilitas riset otonom Deep Research, dan ruang kerja Canvas interaktif.",
+      features: ["Akses prioritas model frontier generasi GPT-6: GPT-6 Astra, GPT-6.1 Sol & Luna", "Dukungan agen otonom 'Dots' di cloud untuk eksekusi tugas otonom berkelanjutan", "Teknologi audio percakapan full-duplex generasi mutakhir GPT-Live-1", "Fitur otonom Deep Research untuk riset web multi-sumber mendalam", "Canvas interaktif untuk penulisan artikel & rekayasa coding terstruktur", "Advanced Data Analysis dengan lingkungan eksekusi Python terisolasi"],
     },
     en: {
-      tagline: "Access Latest AI Models, Reasoning, Canvas & DALL-E",
-      description: "Official ChatGPT Plus subscription providing priority access to GPT-4o, advanced reasoning models, interactive canvas, data analysis, high-resolution DALL-E image generation, and realtime web browsing.",
-      features: ["Priority access to GPT-4o & o1 Reasoning", "Interactive Canvas for coding & writing", "Advanced Data Analysis with Python interpreter", "High quality DALL-E 3 image generation", "Realtime Web Browsing"],
+      tagline: "Access OpenAI Flagship GPT-6 (GPT-6 Astra, Sol & Luna), Dots Autonomous Agents & GPT-Live-1",
+      description: "Official OpenAI ChatGPT Plus, Pro & Business subscription offering priority access to the cutting-edge GPT-6 generation (GPT-6 Astra, GPT-6.1 Sol, and GPT-6 Luna), always-on cloud-native 'Dots' autonomous agents, real-time full-duplex GPT-Live-1 voice, autonomous Deep Research, and interactive Canvas.",
+      features: ["Priority access to flagship GPT-6 models: GPT-6 Astra, GPT-6.1 Sol & Luna", "Persistent 'Dots' autonomous cloud agents for continuous task execution", "Next-gen ultra-low latency full-duplex GPT-Live-1 voice technology", "Autonomous Deep Research tool for synthesis of extensive web sources", "Interactive Canvas workspace for structured coding and editorial writing", "Advanced Data Analysis with sandbox Python execution environment"],
     },
     zh: {
-      tagline: "畅享最新顶尖 AI 模型、深度推理、智能画布与 DALL-E 绘图",
-      description: "官方 ChatGPT Plus 会员服务，为您提供 GPT-4o 与 o1 深度推理模型的优先访问权、智能代码与写作画布、高级数据分析与代码解释器、高精度 DALL-E 3 图像生成及全网实时搜索功能。",
-      features: ["优先使用 GPT-4o 及 o1 深度推理模型", "支持代码与文章写作的交互式 Canvas 画布", "高级数据分析与 Python 解释器环境", "高清 DALL-E 3 AI 图像生成", "实时全网联网搜索能力"],
+      tagline: "畅享 OpenAI 旗舰 GPT-6 时代 (GPT-6 Astra, GPT-6.1 Sol & Luna)、Dots 自主代理与 GPT-Live-1",
+      description: "官方正版 ChatGPT Plus, Pro 与 Business 订阅，为您开通前沿 GPT-6 系列旗舰模型 (GPT-6 Astra, GPT-6.1 Sol 与 GPT-6 Luna) 全天候优先访问权、全天候云端常驻 'Dots' 自主代理、低延迟全双工 GPT-Live-1 语音交互、Deep Research 深度自主调研与 Canvas 协同画布。",
+      features: ["优先使用 OpenAI 旗舰 GPT-6 系列大模型 (GPT-6 Astra, GPT-6.1 Sol, GPT-6 Luna)", "原生支持常驻云端 'Dots' 自主代理，实现连续不间断任务推进", "全新一代 GPT-Live-1 全双工超低延迟语音拟真交互", "内置 Deep Research 全网自主深度研究与多源学术报告合成", "交互式 Canvas 画布支持复杂代码重构与大型文章创作", "高级数据分析与独立 Python 沙盒代码安全执行环境"],
     },
   },
   claude: {
     id: {
-      tagline: "Akses Model Claude Terbaru & Artifacts Premium",
-      description: "Tingkatkan produktivitas dengan Claude Pro. Nikmati batas kuota pesan 5x lebih tinggi, akses prioritas model Claude 3.5 Sonnet & Opus, visualisasi interaktif Artifacts, dan jendela konteks hingga 200K token.",
-      features: ["Akses penuh Claude 3.5 Sonnet & Opus", "Fitur Artifacts untuk preview kode & UI realtime", "Kapasitas pesan 5x lebih banyak", "Jendela konteks super besar 200K token", "Dukungan upload dokumen PDF/kode ukuran besar"],
+      tagline: "Akses Model Frontier Anthropic Claude 5.5 (Opus 5.5, Sonnet 5.5, Fable 5.1), 1M Token & Claude Code",
+      description: "Tingkatkan produktivitas ke level tertinggi dengan Claude Pro & Max dari Anthropic. Nikmati batas kuota pesan masif, akses prioritas seluruh model AI frontier generasi 5.5 (Claude Opus 5.5, Claude Sonnet 5.5, dan Claude Fable 5.1), jendela konteks 1 Juta (1M) token, adaptive extended thinking, integrasi agen coding otonom Claude Code CLI, Projects workspace, dan visualisasi interaktif Artifacts.",
+      features: ["Akses prioritas generasi 5.5 terbaru Anthropic: Claude Opus 5.5, Claude Sonnet 5.5 & Claude Fable 5.1", "Jendela konteks raksasa 1.000.000 (1M) token untuk analisis codebase & dokumen masif", "Fitur Adaptive Extended Thinking untuk penalaran logika murni dan rekayasa arsitektur", "Dukungan penuh agen coding otonom Claude Code CLI", "Fitur Artifacts untuk preview kode, HTML, SVG, dan UI realtime", "Kapasitas kuota pesan jauh lebih tinggi (Paket Pro & Claude Max 5x/20x)", "Fitur Claude Projects untuk pengelompokan repositori dan instruksi kerja"],
     },
     en: {
-      tagline: "Access Latest Claude Models & Premium Artifacts",
-      description: "Supercharge your workflow with Claude Pro. Enjoy 5x higher usage limits, priority access to Claude 3.5 Sonnet & Opus, interactive Artifacts code preview, and a massive 200K token context window.",
-      features: ["Full access to Claude 3.5 Sonnet & Opus", "Interactive Artifacts for realtime code & UI preview", "5x higher message usage limits", "Massive 200K token context window", "Support for large PDF and code document uploads"],
+      tagline: "Access Anthropic Claude 5.5 Generation (Opus 5.5, Sonnet 5.5, Fable 5.1), 1M Context & Claude Code",
+      description: "Supercharge your workflow with Claude Pro & Claude Max from Anthropic. Enjoy massive message limits, priority access to the cutting-edge 5.5 model family (Claude Opus 5.5, Claude Sonnet 5.5, and Claude Fable 5.1), a 1 Million token context window, adaptive extended thinking, autonomous Claude Code CLI integration, Claude Projects, and interactive Artifacts.",
+      features: ["Priority access to Anthropic's flagship 5.5 series: Claude Opus 5.5, Sonnet 5.5 & Fable 5.1", "Massive 1,000,000 (1M) token context window for large codebases and complex documents", "Adaptive Extended Thinking for advanced mathematical reasoning and engineering", "Native autonomous Claude Code CLI coding agent integration", "Interactive Artifacts for realtime code, HTML, SVG, and web UI execution", "Substantially increased message capacity (Pro & Claude Max 5x/20x plans)", "Claude Projects workspace with dedicated knowledge bases"],
     },
     zh: {
-      tagline: "体验 Claude 顶尖大模型与全交互式 Artifacts 实时工件",
-      description: "通过 Claude Pro 升级您的生产力。享有 5 倍日常消息用量额度、Claude 3.5 Sonnet 与 Opus 模型的全天候优先访问、Artifacts 代码与 UI 实时可视化运行，以及高达 200K Token 的超大上下文窗口。",
-      features: ["全面支持 Claude 3.5 Sonnet 与 Opus 模型", "Artifacts 交互式工件实时预览代码与界面", "日常消息发送额度提升 5 倍", "200K Token 超大文本上下文理解", "支持上传与分析大型 PDF、数据表和代码库"],
+      tagline: "畅享 Anthropic Claude 5.5 世代 (Opus 5.5, Sonnet 5.5, Fable 5.1)、100万Token 上下文与 Claude Code",
+      description: "通过 Anthropic 官方 Claude Pro & Max 升级您的生产力。享有超大消息用量额度、前沿 5.5 系列旗舰大模型全天候优先访问 (Claude Opus 5.5, Claude Sonnet 5.5 与 Claude Fable 5.1)、高达 100 万 Token 的上下文处理能力、Claude Code CLI 自主编程终端代理、自适应 Extended Thinking 深度思考、Claude Projects 项目空间以及 Artifacts 实时工件支持。",
+      features: ["优先访问 Anthropic 5.5 时代全系前沿旗舰 (Claude Opus 5.5, Sonnet 5.5, Fable 5.1)", "支持高达 100 万 (1,000,000) Token 超长上下文长文本与全代码库解析", "自适应 Extended Thinking 深度思考模式，攻克复杂数理与高阶工程难题", "深度原生集成 Claude Code CLI 自主编程终端代理", "Artifacts 交互式工件实时可视化渲染代码、网页与图表", "日常消息发送额度大幅提升（Pro 与 Max 5x/20x 套餐）", "Claude Projects 专属项目知识库与自定义业务提示词管理"],
     },
   },
   gemini: {
     id: {
-      tagline: "Model Google AI Premium Terbaru & Cloud Storage",
-      description: "Paket Google One AI Premium menghadirkan akses eksklusif ke model Gemini Advanced 1.5 Pro dengan konteks 1 Juta token, integrasi cerdas Google Workspace (Docs, Gmail, Sheets), dan penyimpanan cloud hingga 2TB.",
-      features: ["Gemini Advanced dengan model 1.5 Pro", "Konteks raksasa 1.000.000 token", "Integrasi AI langsung di Gmail, Docs, dan Slides", "Penyimpanan Google One Cloud hingga 2TB", "Fitur keamanan Google Cloud terjamin"],
+      tagline: "Google AI Premium: Flagship Gemini 4 Argon & Gemini 3.8 Flash, Jendela Konteks 1M Token & Deep Research",
+      description: "Paket Google One AI Premium menghadirkan akses eksklusif ke model generasi mutakhir Google DeepMind: Gemini 4 Argon (arsitektur frontier untuk penalaran mendalam dan rekayasa software) serta Gemini 3.8 Flash & Gemini 3.8 Live. Dilengkapi kapasitas output 1 Juta token, agen otonom Deep Research, generator visual Imagen 3, integrasi cerdas Google Workspace (Docs, Gmail, Sheets), dan penyimpanan Google One Cloud (5TB / 30TB Ultra).",
+      features: ["Akses penuh ke model frontier terbaru Google: Gemini 4 Argon dan Gemini 3.8 Flash", "Kapasitas output hingga 1.000.000 (1M) token untuk pemrosesan teks dan data raksasa", "Fitur percakapan audio realtime generasi mutakhir Gemini 3.8 Live", "Integrasi AI langsung di Gmail, Google Docs, Google Slides, dan Google Sheets", "Fitur otonom Deep Research Google untuk sintesis riset multi-sumber", "Penyimpanan Google One Cloud super besar (5TB / 30TB Ultra)"],
     },
     en: {
-      tagline: "Latest Google Premium AI Model & Massive Cloud Storage",
-      description: "Google One AI Premium plan gives you exclusive access to Gemini Advanced with a 1 Million token context window, seamless Google Workspace integration (Docs, Gmail, Sheets), and up to 2TB cloud storage.",
-      features: ["Gemini Advanced powered by 1.5 Pro", "Giant 1,000,000 token context window", "Built-in AI integration in Gmail, Docs, and Slides", "Up to 2TB Google One Cloud storage", "Guaranteed Google Cloud security features"],
+      tagline: "Google AI Premium: Gemini 4 Argon & Gemini 3.8 Flash, 1M Token Output & Deep Research",
+      description: "Google One AI Premium plan delivers exclusive access to Google DeepMind's cutting-edge models: Gemini 4 Argon (advanced reasoning and complex software engineering) alongside Gemini 3.8 Flash and Gemini 3.8 Live. Features 1 Million token output capacity, autonomous Deep Research, Imagen 3 generation, seamless Google Workspace integration, and Google One cloud storage (5TB / 30TB Ultra).",
+      features: ["Gemini Advanced powered by flagship Gemini 4 Argon & Gemini 3.8 Flash", "Massive 1,000,000 token output capacity for enterprise document and code synthesis", "Ultra-low latency audio conversations with Gemini 3.8 Live", "Native AI integration in Gmail, Docs, Sheets, and Slides", "Autonomous Deep Research tool for comprehensive web and academic investigations", "Google One Cloud storage inclusion (5TB / 30TB Ultra)"],
     },
     zh: {
-      tagline: "谷歌顶级 AI 模型体验与超大云端储存空间",
-      description: "Google One AI Premium 套餐为您带来 Gemini Advanced 1.5 Pro 模型的尊享权限，支持高达 100 万 Token 的上下文长文本解析，无缝深度集成于 Gmail、Google 文档与表格，并附赠高达 2TB 的云端存储空间。",
-      features: ["搭载 1.5 Pro 架构的 Gemini Advanced 旗舰模型", "支持 100 万 Token 超大规模上下文解析", "直接集成于 Gmail、Docs 与 Slides 协同办公", "包含高达 2TB 的 Google One 云端储存空间", "企业级 Google Cloud 安全与隐私保护"],
+      tagline: "Google AI Premium：Gemini 4 Argon 与 Gemini 3.8 Flash 旗舰大模型与 Google One 云盘",
+      description: "Google One AI Premium 套餐为您带来 Google DeepMind 最新一代旗舰大模型 Gemini 4 Argon (专注于深度逻辑推理与系统级软件架构) 以及 Gemini 3.8 Flash / Gemini 3.8 Live 的尊享权限，支持高达 100 万 Token 的单次输出与长文本解析，内置自主 Deep Research 深度调研，无缝深度集成于 Gmail、Google 文档与表格，并包含 Google One 云端存储。",
+      features: ["搭载最新一代 Gemini 4 Argon 与 Gemini 3.8 Flash 架构的 Gemini Advanced 旗舰模型", "支持高达 100 万 Token 超大规模输出与长文本精准解析", "支持全新超低延迟双向实时语音 Gemini 3.8 Live", "内置 Deep Research 全网深度自主调研与学术综述", "直接无缝集成于 Gmail、Docs 与 Slides 协同办公", "包含 Google One 高速云端储存空间 (5TB / 30TB Ultra)"],
     },
   },
   youtube: {
@@ -176,19 +176,19 @@ export const appTranslations: Record<string, Record<LanguageCode, AppTranslation
   },
   cursor: {
     id: {
-      tagline: "AI Code Editor Cerdas Berbasis VS Code & Agent Composer",
-      description: "Editor kode paling revolusioner bertenaga AI. Hadirkan fitur Composer multi-file, integrasi model Claude 3.5 Sonnet dan GPT-4o, indexing codebase lokal instan, dan auto-complete cerdas super cepat.",
-      features: ["Composer multi-file editing yang dapat merevisi seluruh proyek", "Model AI coding terbaik: Claude 3.5 Sonnet & GPT-4o", "Indexing codebase instan untuk konteks proyek akurat", "Tab AI auto-complete super cepat", "Ekosistem ekstensi 100% kompatibel dengan VS Code"],
+      tagline: "AI Code Editor Cerdas Berbasis VS Code & Agent Composer (Claude Sonnet 5.5, GPT-6.1 Sol, Grok 4.7)",
+      description: "Editor kode revolusioner bertenaga AI. Hadirkan fitur Composer multi-file otonom, integrasi langsung model coding frontier terdepan (Claude Sonnet 5.5, GPT-6.1 Sol, Grok 4.7), indexing codebase lokal instan, dan autocompletion cerdas Cursor Tab.",
+      features: ["Composer multi-file editing otonom yang dapat merevisi seluruh arsitektur proyek", "Model AI coding frontier terdepan: Claude Sonnet 5.5, GPT-6.1 Sol & Grok 4.7", "Indexing codebase lokal instan untuk pemahaman konteks proyek 100% presisi", "Cursor Tab AI autocomplete super responsif", "Ekosistem ekstensi 100% kompatibel dengan VS Code"],
     },
     en: {
-      tagline: "Smart AI Code Editor on VS Code with Agent Composer",
-      description: "The most revolutionary AI-first code editor. Features full multi-file Composer, native Claude 3.5 Sonnet and GPT-4o integration, instant local codebase indexing, and lightning-fast smart auto-complete.",
-      features: ["Multi-file Composer capable of refactoring entire codebases", "Top-tier AI models: Claude 3.5 Sonnet & GPT-4o", "Instant codebase indexing for precise project context", "Ultra-fast smart Tab auto-complete predictions", "100% full compatibility with VS Code extension ecosystem"],
+      tagline: "Smart AI Code Editor on VS Code with Agent Composer (Claude Sonnet 5.5, GPT-6.1 Sol, Grok 4.7)",
+      description: "The premier AI-first code editor. Features autonomous multi-file Composer, native frontier model integrations (Claude Sonnet 5.5, GPT-6.1 Sol, Grok 4.7), instant local codebase indexing, and lightning-fast Cursor Tab autocomplete.",
+      features: ["Autonomous multi-file Composer capable of refactoring entire project architectures", "Top-tier frontier coding models: Claude Sonnet 5.5, GPT-6.1 Sol & Grok 4.7", "Instant local codebase indexing for precise multi-repository context", "Ultra-fast predictive Cursor Tab smart completions", "100% full compatibility with VS Code extension ecosystem"],
     },
     zh: {
-      tagline: "基于 VS Code 打造的革命性 AI 代码编辑器与多文件协同 Agent",
-      description: "目前全球开发者最喜爱的 AI 原生代码编辑器。内置强大的多文件协同 Composer 代理、深度集成 Claude 3.5 Sonnet 与 GPT-4o 编程模型、本地代码库秒级索引与极速智能 Tab 代码补全。",
-      features: ["强大的 Composer 多文件架构自动重构与编写", "首发接入 Claude 3.5 Sonnet 与 GPT-4o 顶尖模型", "本地全项目代码智能索引与精准上下文理解", "毫秒级极速智能 Tab 代码预测与自动补全", "100% 无缝兼容 VS Code 插件生态与配置环境"],
+      tagline: "基于 VS Code 打造的 AI 原生代码编辑器 (集成 Claude Sonnet 5.5, GPT-6.1 Sol, Grok 4.7)",
+      description: "全球顶尖开发者青睐的 AI 原生代码编辑器。内置强大的多文件自主协同 Composer 代理、深度原生集成 Claude Sonnet 5.5, GPT-6.1 Sol 与 Grok 4.7 前沿编程大模型、本地代码库秒级索引与极速智能 Tab 代码补全。",
+      features: ["强大的 Composer 多文件架构自动重构与端到端代码编写", "原生接入前沿编程旗舰：Claude Sonnet 5.5, GPT-6.1 Sol 与 Grok 4.7", "本地全项目代码智能索引与精准架构级上下文理解", "毫秒级极速智能 Cursor Tab 代码预测与自动补全", "100% 无缝兼容 VS Code 插件生态与配置环境"],
     },
   },
   manus: {
@@ -227,19 +227,36 @@ export const appTranslations: Record<string, Record<LanguageCode, AppTranslation
   },
   perplexity: {
     id: {
-      tagline: "Mesin Pencari AI Cerdas dengan Pilihan Model Terbaru",
-      description: "Pencarian generasi baru yang menggabungkan kecerdasan Claude 3.5, GPT-4o, dan Sonar dengan kutipan sumber terverifikasi realtime, Pro Search tanpa batas, dan upload file dokumen.",
-      features: ["Pro Search tanpa batas dengan penalaran bertahap", "Pilihan bebas model: Claude 3.5 Sonnet, GPT-4o & Sonar", "Upload dan analisis dokumen PDF/data tanpa batas", "Generasi gambar AI terintegrasi", "Kutipan sumber akurat dan dapat diverifikasi langsung"],
+      tagline: "Mesin Pencari AI Cerdas dengan Pilihan Model Frontier Terbaru (Claude Sonnet 5.5, GPT-6.1 Sol, Gemini 4)",
+      description: "Pencarian cerdas yang menggabungkan kecerdasan model AI frontier mutakhir (Claude Sonnet 5.5, GPT-6.1 Sol, Gemini 4 Argon, Sonar Reasoning) dengan kutipan sumber terverifikasi realtime, Pro Search tanpa batas, dan upload file dokumen.",
+      features: ["Pro Search harian dengan penalaran bertahap", "Pilihan bebas model frontier: Claude Sonnet 5.5, GPT-6.1 Sol, Gemini 4 Argon & Sonar", "Upload dan analisis dokumen PDF/data tanpa batas", "Generasi gambar AI terintegrasi", "Kutipan sumber akurat dan dapat diverifikasi langsung"],
     },
     en: {
-      tagline: "Intelligent AI Search Engine with Realtime Verified Sources",
-      description: "Next-generation conversational search engine powered by Claude 3.5, GPT-4o, and Sonar with realtime verified citations, unlimited Pro Search queries, and document file analysis.",
-      features: ["Unlimited Pro Search queries with multi-step reasoning", "Freedom to switch models: Claude 3.5, GPT-4o & Sonar", "Unlimited document and PDF upload & analysis", "Integrated AI image generation capabilities", "Accurate realtime citations and clickable sources"],
+      tagline: "Intelligent AI Search Engine with Frontier Models (Claude Sonnet 5.5, GPT-6.1 Sol, Gemini 4)",
+      description: "Next-generation conversational search engine powered by frontier AI models (Claude Sonnet 5.5, GPT-6.1 Sol, Gemini 4 Argon, Sonar Reasoning) with realtime verified citations, daily Pro Search queries, and document file analysis.",
+      features: ["Daily Pro Search queries with multi-step reasoning", "Freedom to switch frontier models: Claude Sonnet 5.5, GPT-6.1 Sol, Gemini 4 Argon & Sonar", "Unlimited document and PDF upload & analysis", "Integrated AI image generation capabilities", "Accurate realtime citations and clickable sources"],
     },
     zh: {
-      tagline: "新一代智能 AI 搜索引擎，提供全网精准溯源与深度调研",
-      description: "结合 Claude 3.5 Sonnet、GPT-4o 与 Sonar 模型的专业对话式 AI 搜索引擎，支持无限次 Pro 深度搜索模式、全网实时来源溯源与多格式学术文献解析。",
-      features: ["无限次 Pro 级智能多步深度推理搜索", "自由切换 Claude 3.5、GPT-4o 与 Sonar 模型", "支持上传海量学术文献、PDF 与数据报告解析", "内置多风格 AI 创意配图与信息图生成", "100% 精确标注信息来源出处与可信链接"],
+      tagline: "新一代智能 AI 搜索引擎 (自由切换 Claude Sonnet 5.5, GPT-6.1 Sol, Gemini 4 Argon)",
+      description: "结合来自 Claude Sonnet 5.5、GPT-6.1 Sol、Gemini 4 Argon 及 Sonar 前沿大模型的专业对话式 AI 搜索引擎，支持 Pro 深度搜索模式、全网实时来源溯源与多格式学术文献解析。",
+      features: ["支持 Pro 级智能多步深度推理搜索", "自由切换来自 Claude Sonnet 5.5、GPT-6.1 Sol、Gemini 4 Argon 及 Sonar 模型", "支持上传海量学术文献、PDF 与数据报告解析", "内置多风格 AI 创意配图与信息图生成", "100% 精确标注信息来源出处与可信链接"],
+    },
+  },
+  grok: {
+    id: {
+      tagline: "Langganan Resmi xAI Grok: Model Frontier Grok 4.7, Think Mode, Grok Imagine & Real-Time X",
+      description: "Akses resmi SuperGrok dari xAI dengan model penalaran frontier mutakhir Grok 4.7 (500K konteks, RL coding), integrasi tren data real-time platform X, mode penalaran mendalam Think Mode, dan generator visual Grok Imagine Image 2.0 & Video 1.5.",
+      features: ["Akses prioritas model frontier generasi terbaru Grok 4.7 dari xAI", "Integrasi pengetahuan dan tren terkini detik-ke-detik dari platform X", "Mode penalaran mendalam Think Mode untuk sains, matematika & koding tingkat lanjut", "Grok DeepSearch untuk riset dan investigasi multi-sumber mendalam", "Generator visual Grok Imagine Image 2.0 & Video 1.5 fotorealistik"],
+    },
+    en: {
+      tagline: "Official xAI Grok Subscription: Frontier Model Grok 4.7, Think Mode, Grok Imagine & Real-Time X",
+      description: "Official SuperGrok access from xAI featuring flagship model Grok 4.7 (500K context, RL coding), real-time platform X intelligence, deep reasoning Think Mode, and Grok Imagine Image 2.0 & Video 1.5 visual generator.",
+      features: ["Priority access to xAI's latest flagship frontier model Grok 4.7", "Real-time world events and trend data from platform X", "Think Mode deep reasoning for complex math, science, and coding", "Grok DeepSearch for multi-source web synthesis", "Integrated Grok Imagine Image 2.0 & Video 1.5 generation"],
+    },
+    zh: {
+      tagline: "xAI 官方正版 Grok 订阅：旗舰 Grok 4.7 大模型、Think Mode 与 X 实时数据",
+      description: "xAI 官方 SuperGrok 会员服务，为您提供最新一代 Grok 4.7 旗舰大模型 (500K 上下文、RL 深度强化编程) 优先访问权、X (Twitter) 全球实时社交数据联动、Think Mode 深度思考推理与 Grok Imagine 2.0 / Video 1.5 视觉生成支持。",
+      features: ["优先使用 xAI 旗舰级 Grok 4.7 前沿大模型", "全网最强 X 实时全球突发事件与趋势深度分析", "内置 Think Mode 深度思考模式攻克数理与高级编程难题", "Grok DeepSearch 全网长文调研与情报整理", "集成顶级 Grok Imagine 2.0 图像与 Video 1.5 视频渲染模型"],
     },
   },
   nord: {

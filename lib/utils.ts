@@ -6,9 +6,12 @@ export function formatRupiah(n: number): string {
   return `Rp${n.toLocaleString("id-ID")}`;
 }
 
+// Kurs USDT/IDR real-time resmi (1 USDT ≈ Rp 17.904)
+export const USDT_RATE = 17904;
+
 export function formatPrice(n: number, lang: string = "id"): string {
   if (lang === "en" || lang === "zh") {
-    const usd = n / 16000;
+    const usd = n / USDT_RATE;
     return `$${usd.toFixed(2)}`;
   }
   return `Rp${n.toLocaleString("id-ID")}`;

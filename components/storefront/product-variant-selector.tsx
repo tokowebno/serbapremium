@@ -1,15 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { ShieldCheck, Zap, ShoppingBag, ArrowRight, Minus, Plus } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import {
+  ShieldCheck,
+  Zap,
+  ShoppingBag,
+  ArrowRight,
+  Minus,
+  Plus,
+  Wallet,
+  LogIn,
+  CheckCircle2,
+  AlertCircle,
+  PlusCircle,
+  Lock,
+} from "lucide-react";
 import type { App, ProductVariant } from "@/types";
-import { formatPrice } from "@/lib/utils";
-import { useCart } from "./providers";
+import { formatPrice, formatRupiah } from "@/lib/utils";
+import { useCart, useAuth, useLibrary } from "./providers";
 import { useToast } from "@/components/ui/toast";
 import { AppIcon } from "@/components/ui/app-icon";
 import { useTranslation } from "@/components/storefront/i18n-provider";
 import { Button } from "@/components/ui/button";
+import { supabase, supabaseReady } from "@/lib/supabase";
 
 function localizeVariantName(name: string, lang: string): string {
   if (lang === "id") return name;
@@ -62,9 +76,12 @@ function localizeVariantName(name: string, lang: string): string {
 
 export function ProductVariantSelector({ app }: { app: App }) {
   const router = useRouter();
+  const pathname = usePathname();
   const cart = useCart();
   const toast = useToast();
   const { lang, t } = useTranslation();
+  const { user, isAuthenticated, balance, balanceUsd, deduct, openTopUp } = useAuth();
+  const library = useLibrary();
 
   const rawVariants: ProductVariant[] =
     app.variants && app.variants.length > 0
@@ -91,13 +108,16 @@ export function ProductVariantSelector({ app }: { app: App }) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(defaultVariant);
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
-  const [isBuying, setIsBuying] = useState(false);
+  const [isPayingWithBalance, setIsPayingWithBalance] = useState(false);
+  const [purchasedSuccess, setPurchasedSuccess] = useState(false);
 
   const isSoldOut = selectedVariant.stock === 0;
   const maxStock = selectedVariant.stock !== undefined ? Math.max(1, selectedVariant.stock) : 99;
   const currentPrice = selectedVariant.price;
   const totalPrice = currentPrice * (isSoldOut ? 1 : quantity);
   const defaultPlatform = app.platforms[0] || "Web";
+  const hasEnoughBalance = balance >= totalPrice;
+  const balanceDeficit = totalPrice - balance;
 
   const handleSelectVariant = (v: ProductVariant) => {
     setSelectedVariant(v);
@@ -131,25 +151,81 @@ export function ProductVariantSelector({ app }: { app: App }) {
     setTimeout(() => setIsAdding(false), 300);
   };
 
-  const handleBuyNow = () => {
-    setIsBuying(true);
+  // 1-Click Pay with Balance
+  const handlePayWithBalance = async () => {
+    if (!isAuthenticated) {
+      router.push(`/masuk?next=${encodeURIComponent(pathname)}`);
+      return;
+    }
+
+    if (!hasEnoughBalance) {
+      router.push(`/isi-saldo?needed=${totalPrice}&app=${app.slug}&variant=${selectedVariant.id}`);
+      return;
+    }
+
+    setIsPayingWithBalance(true);
+    const orderCode = `TK-${Date.now().toString().slice(-6)}`;
     const baseName =
       variants.length === 1 || selectedVariant.name.toLowerCase().includes(app.name.toLowerCase())
         ? selectedVariant.name
         : `${app.name} (${selectedVariant.name})`;
     const customItemName = quantity > 1 ? `${baseName} (${quantity}x)` : baseName;
 
-    const params = new URLSearchParams({
-      app: app.slug,
-      variant: selectedVariant.id,
-      platform: defaultPlatform,
-      price: String(totalPrice),
-      title: customItemName,
-      qty: String(quantity),
+    const success = deduct(totalPrice, `Beli ${customItemName}`, orderCode);
+    if (!success) {
+      toast.push({
+        title: "Saldo Tidak Mencukupi",
+        description: "Silakan isi saldo Anda terlebih dahulu.",
+        tone: "error",
+      });
+      setIsPayingWithBalance(false);
+      return;
+    }
+
+    // Add to user library
+    library.add(app.slug, {
+      accountEmail: user?.email,
+      licenseKey: `LIC-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
     });
+
+    // Record order in Supabase
+    if (supabaseReady && supabase) {
+      try {
+        await supabase.from("orders").insert({
+          order_code: orderCode,
+          customer_name: user?.name || "Member",
+          customer_email: user?.email || "member@texasai.com",
+          customer_phone: "-",
+          total_price: totalPrice,
+          payment_method: "saldo_akun",
+          status: "lunas",
+          items: [
+            {
+              id: app.id,
+              name: customItemName,
+              price: totalPrice,
+              platform: defaultPlatform,
+            },
+          ],
+        });
+      } catch (err) {
+        console.warn("Error inserting order to Supabase:", err);
+      }
+    }
+
+    toast.push({
+      title: "Pembayaran Berhasil",
+      description: `Berhasil membeli ${customItemName} menggunakan Saldo Akun.`,
+      tone: "success",
+    });
+
+    setPurchasedSuccess(true);
+    setIsPayingWithBalance(false);
+
+    // Redirect to order details / check order
     setTimeout(() => {
-      router.push(`/pembayaran?${params.toString()}`);
-    }, 450);
+      router.push(`/cek-pesanan?code=${orderCode}`);
+    }, 1200);
   };
 
   return (
@@ -164,12 +240,17 @@ export function ProductVariantSelector({ app }: { app: App }) {
             {variants.length > 1 ? (t.product.selectVariant || "Pilih Variasi Produk") : (t.product.servicePackage || "Paket Layanan")}
           </h2>
         </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-2.5 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-          <ShieldCheck size={14} strokeWidth={2} /> {t.product.warranty || "Garansi 100%"}
-        </span>
+        <div className="flex flex-wrap items-center gap-1.5 justify-end">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-2.5 py-1 text-xs font-medium text-fg">
+            <ShieldCheck size={14} strokeWidth={2} className="text-emerald-500" /> {t.product.warranty || "Garansi 100%"}
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-2.5 py-1 text-xs font-medium text-sky-600 dark:text-sky-400">
+            <Lock size={13} strokeWidth={2} /> {t.product.privateAccount || (lang === "en" ? "100% Private Account" : lang === "zh" ? "100% 独立私有账号" : "100% Akun Pribadi")}
+          </span>
+        </div>
       </div>
 
-      {/* List Variasi Bar Style - Tanpa overflow terpotong */}
+      {/* List Variasi Bar Style */}
       {variants.length > 1 ? (
         <div className="mt-4 space-y-2.5">
           {variants.map((v) => {
@@ -180,7 +261,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
                 key={v.id}
                 type="button"
                 onClick={() => handleSelectVariant(v)}
-                className={`group flex w-full items-center justify-between gap-3 rounded-xl border p-3.5 text-left transition-all duration-200 ${
+                className={`group flex w-full items-center justify-between gap-3 rounded-xl border p-3.5 text-left transition-all duration-200 cursor-pointer ${
                   active
                     ? isOutOfStock
                       ? "border-red-500/50 bg-red-500/5 ring-1 ring-red-500/30 text-fg"
@@ -205,7 +286,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
                     </div>
                     <p className="text-[11.5px] font-normal text-fg-muted mt-0.5">
                       {isOutOfStock
-                        ? (lang === "en" ? "Out of Stock" : lang === "zh" ? "暂无库存" : "Stok Kosong / Habis")
+                        ? (lang === "en" ? "Out of Stock" : lang === "zh" ? "暂无库存" : "Stok Habis")
                         : `${t.product.stock || "Stok:"} ${v.stock ?? app.stock}`}
                     </p>
                   </div>
@@ -227,7 +308,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
         </div>
       )}
 
-      {/* Pilihan Jumlah / Kuantitas Pembelian */}
+      {/* Kuantitas Pembelian */}
       <div className="mt-4.5 border-t border-border/70 pt-4 flex items-center justify-between">
         <div>
           <label className="text-xs font-bold uppercase tracking-wide text-fg">
@@ -278,11 +359,47 @@ export function ProductVariantSelector({ app }: { app: App }) {
         </div>
       </div>
 
-      {/* Ringkasan Harga Terpilih */}
+      {/* Ringkasan Harga & Saldo Status */}
       <div className="mt-4 border-t border-border/70 pt-4">
+        {/* Info Saldo User */}
+        {isAuthenticated ? (
+          <div className="mb-3.5 flex items-center justify-between rounded-xl bg-surface-2/90 px-3.5 py-2.5 border border-border">
+            <div className="flex items-center gap-2">
+              <Wallet size={16} className="text-accent" />
+              <div>
+                <span className="text-[11px] text-fg-muted font-medium block">Saldo Akun Anda</span>
+                <span className="text-xs sm:text-sm font-bold text-fg tabular-nums">
+                  {formatRupiah(balance)} <span className="text-[11px] text-fg-muted">(${balanceUsd.toFixed(2)} USD)</span>
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => router.push(`/isi-saldo?needed=${totalPrice}&app=${app.slug}&variant=${selectedVariant.id}`)}
+              className="rounded-lg bg-accent/15 border border-accent/30 px-2.5 py-1 text-[11px] font-bold text-accent hover:bg-accent hover:text-accent-fg transition-colors cursor-pointer"
+            >
+              + Isi Saldo
+            </button>
+          </div>
+        ) : (
+          <div className="mb-3.5 flex items-center justify-between rounded-xl bg-surface-2 px-3.5 py-2.5 border border-border text-fg">
+            <div className="flex items-center gap-2 text-xs font-semibold">
+              <LogIn size={15} />
+              <span>Wajib Masuk Akun untuk Berbelanja</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => router.push(`/masuk?next=${encodeURIComponent(pathname)}`)}
+              className="rounded-lg bg-accent px-2.5 py-1 text-[11px] font-bold text-accent-fg hover:opacity-90 transition-opacity cursor-pointer"
+            >
+              Masuk
+            </button>
+          </div>
+        )}
+
         <div className="flex items-baseline justify-between mb-4">
           <div>
-            <p className="text-xs font-medium text-fg-muted">{t.product.totalPayment || "Total Pembayaran"}</p>
+            <p className="text-xs font-medium text-fg-muted">{t.product.totalPayment || "Total Harga Produk"}</p>
             <div className="flex items-baseline gap-2 mt-0.5">
               <p className={`text-2xl sm:text-3xl font-bold tracking-tight tabular-nums ${isSoldOut ? "text-fg-muted line-through" : "text-accent"}`}>
                 {formatPrice(totalPrice, lang)}
@@ -327,23 +444,77 @@ export function ProductVariantSelector({ app }: { app: App }) {
                 {lang === "en" ? "Item Unavailable" : lang === "zh" ? "暂不可加购" : "Stok Tidak Tersedia"}
               </Button>
             </>
-          ) : (
+          ) : !isAuthenticated ? (
+            /* USER BELUM LOGIN -> WAJIB LOGIN */
             <>
               <Button
                 size="lg"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm hover:shadow-md font-semibold rounded-full cursor-pointer transition-colors active:scale-[0.98]"
-                onClick={handleBuyNow}
-                disabled={isBuying}
-                loading={isBuying}
+                className="w-full bg-accent hover:opacity-90 text-accent-fg shadow-md font-bold rounded-full cursor-pointer transition-transform active:scale-[0.98]"
+                onClick={() => router.push(`/masuk?next=${encodeURIComponent(pathname)}`)}
               >
-                {isBuying ? (
-                  lang === "en" ? "Preparing Checkout…" : lang === "zh" ? "正在准备结账…" : "Menyiapkan Pembayaran…"
+                <LogIn size={17} strokeWidth={2.4} />
+                <span>{lang === "en" ? "Sign In to Purchase" : lang === "zh" ? "登录后购买" : "Wajib Masuk Akun untuk Membeli"}</span>
+              </Button>
+              <Button
+                size="lg"
+                variant="secondary"
+                className="w-full"
+                onClick={handleAddToCart}
+                disabled={isAdding}
+              >
+                <ShoppingBag size={17} strokeWidth={2} />
+                {isAdding ? (t.product.adding || "Menambahkan…") : (t.product.addToCart || "Tambah ke Keranjang")}
+              </Button>
+            </>
+          ) : hasEnoughBalance ? (
+            /* SALDO CUKUP -> 1-CLICK BAYAR DENGAN SALDO */
+            <>
+              <Button
+                size="lg"
+                className="w-full bg-fg hover:bg-fg/90 text-surface shadow-sm font-bold rounded-full cursor-pointer transition-all active:scale-[0.98]"
+                onClick={handlePayWithBalance}
+                disabled={isPayingWithBalance || purchasedSuccess}
+                loading={isPayingWithBalance}
+              >
+                {purchasedSuccess ? (
+                  <span className="inline-flex items-center gap-2">
+                    <CheckCircle2 size={18} />
+                    <span>Pembayaran Berhasil! Mengalihkan…</span>
+                  </span>
                 ) : (
                   <span className="inline-flex items-center justify-center gap-2">
-                    <span>{t.product.buyNow || (lang === "en" ? "Buy Now" : lang === "zh" ? "立即购买" : "Beli Sekarang")}</span>
-                    {!isBuying && <ArrowRight size={17} strokeWidth={2.5} />}
+                    <Zap size={18} />
+                    <span>Bayar dengan Saldo ({formatRupiah(totalPrice)})</span>
                   </span>
                 )}
+              </Button>
+              <Button
+                size="lg"
+                variant="secondary"
+                className="w-full"
+                onClick={handleAddToCart}
+                disabled={isAdding}
+              >
+                <ShoppingBag size={17} strokeWidth={2} />
+                {isAdding ? (t.product.adding || "Menambahkan…") : (t.product.addToCart || "Tambah ke Keranjang")}
+              </Button>
+            </>
+          ) : (
+            /* SALDO KURANG -> TOMBOL ISI SALDO */
+            <>
+              <Button
+                size="lg"
+                className="w-full bg-amber-600 hover:bg-amber-700 text-white shadow-md font-bold rounded-full cursor-pointer transition-all active:scale-[0.98]"
+                onClick={() => openTopUp(totalPrice)}
+              >
+                <PlusCircle size={18} />
+                <span>
+                  {lang === "en"
+                    ? `Top Up Balance (Deficit ${formatRupiah(balanceDeficit)})`
+                    : lang === "zh"
+                    ? `余额不足，去充值（缺少 ${formatRupiah(balanceDeficit)}）`
+                    : `Isi Saldo (Kurang ${formatRupiah(balanceDeficit)})`}
+                </span>
               </Button>
               <Button
                 size="lg"

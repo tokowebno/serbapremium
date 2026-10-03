@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronRight, ShieldCheck, Zap } from "lucide-react";
+import { ChevronRight, ShieldCheck, Zap, Lock } from "lucide-react";
 import type { App } from "@/types";
 import { api } from "@/lib/api";
 import { AppIcon } from "@/components/ui/app-icon";
@@ -27,8 +27,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const app = api.apps.getBySlug(slug);
   if (!app) return { title: "Aplikasi tidak ditemukan" };
   return {
-    title: `${app.name} · Tokono`,
-    description: `${app.tagline} Aktivasi instan, pembayaran aman otomatis bergaransi di Tokono.`,
+    title: `${app.name} · TexasAi`,
+    description: `${app.tagline} Aktivasi instan, pembayaran aman otomatis bergaransi di TexasAi.`,
   };
 }
 
@@ -80,6 +80,9 @@ export default async function AppDetailPage({ params }: Props) {
                   <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-medium text-emerald-600 dark:text-emerald-400">
                     <ShieldCheck size={14} strokeWidth={2} /> {t.product.warranty || "Garansi Resmi"}
                   </span>
+                  <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-medium text-sky-600 dark:text-sky-400">
+                    <Lock size={13} strokeWidth={2} /> {t.product.privateAccount || (lang === "en" ? "100% Private Account" : lang === "zh" ? "100% 独立私有账号" : "100% Akun Pribadi")}
+                  </span>
                 </div>
                 <h1 className="text-lg sm:text-[32px] font-bold tracking-tight text-fg leading-tight truncate sm:whitespace-normal">
                   {app.name}
@@ -121,16 +124,18 @@ export default async function AppDetailPage({ params }: Props) {
               <ShieldCheck size={18} className="text-accent shrink-0" strokeWidth={2} />
               <span>
                 {lang === "en"
-                  ? "⭐ Full Warranty Guaranteed: 100% replacement and support throughout the active duration."
+                  ? "Full Warranty Guaranteed: 100% replacement and support throughout the active duration."
                   : lang === "zh"
-                  ? "⭐ 全程全额质保承诺：在有效使用期内享 100% 极速补发或全额售后保障。"
-                  : "⭐ Full Garansi Selama Masa Aktif: Jaminan ganti baru atau perbaikan 100% selama periode berlangganan."}
+                  ? "全程全额质保承诺：在有效使用期内享 100% 极速补发或全额售后保障。"
+                  : "Full Garansi Selama Masa Aktif: Jaminan ganti baru atau perbaikan 100% selama periode berlangganan."}
               </span>
             </div>
 
             <div className="mt-4 sm:mt-5 flex flex-wrap items-center gap-2 border-t border-border/70 pt-3.5">
               <PlatformList platforms={app.platforms} />
-              <Badge tone="neutral">{t.product.version || "Versi"} {app.version}</Badge>
+              {app.version && app.version.startsWith("v") && (
+                <Badge tone="neutral">{t.product.version || "Versi"} {app.version}</Badge>
+              )}
               <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-semibold text-accent">
                 <Zap size={12} strokeWidth={2.5} className="fill-current" />
                 {t.product.instantActivation || "Aktivasi Instan"}

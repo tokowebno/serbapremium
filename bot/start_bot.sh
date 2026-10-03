@@ -11,4 +11,4 @@ else
 fi
 
 echo "🚀 Starting ZELVA AI Telegram Bot..."
-exec "$PYTHON_EXEC" main.py
+exec "$PYTHON_EXEC" -u main.py

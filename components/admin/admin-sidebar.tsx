@@ -81,7 +81,7 @@ export function AdminSidebar() {
       <div className="flex h-16 items-center gap-2.5 border-b-2 border-[#333] px-5">
         <TokonoIcon size={26} />
         <span className="text-[15px] font-black tracking-tight text-white uppercase">
-          TOK<span className="text-accent">ONO</span> <span className="text-[10px] text-white/50">ADMIN</span>
+          GPT<span className="text-accent">LUNA</span> <span className="text-[10px] text-white/50">ADMIN</span>
         </span>
       </div>
       <div className="flex-1 px-3 pb-6">

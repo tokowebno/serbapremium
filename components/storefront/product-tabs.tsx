@@ -103,9 +103,9 @@ function StructuredSummary({ summary, fallbackDescription, lang }: { summary?: s
   }
 
   const stepTitle =
-    lang === "en" ? "How to Order / Purchase Guide" : lang === "zh" ? "购买流程与下单指引" : "Cara Order / Pembelian";
+    lang === "en" ? "Purchase Guide" : lang === "zh" ? "购买流程指南" : "Panduan Pemesanan";
   const noteTitle =
-    lang === "en" ? "Important Usage Notes & Warranty" : lang === "zh" ? "重要使用须知与质保说明" : "Hal Penting & Catatan Penggunaan";
+    lang === "en" ? "Important Usage Notes" : lang === "zh" ? "重要使用须知与说明" : "Hal Penting & Catatan Penggunaan";
 
   return (
     <div className="space-y-4">
@@ -251,7 +251,7 @@ export function ProductTabs({ slug }: { slug: string; reviews?: any[] }) {
         {active === "versi" && (
           <div className="max-w-2xl">
             <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border/80 bg-surface/80 p-4 shadow-sm backdrop-blur-sm">
-              <Badge tone="accent">{t.product?.version || "Versi"} {app.version}</Badge>
+              <Badge tone="accent">{app.version?.startsWith("v") ? `${t.product?.version || "Versi"} ${app.version}` : (app.version || "Official")}</Badge>
               <span className="text-xs font-medium text-fg-muted">{lang === "en" ? "Updated on" : lang === "zh" ? "更新于" : "Diperbarui"} {formatDate(app.updatedAt, lang)}</span>
             </div>
             <p className="mt-6 text-xs font-semibold tracking-wider text-fg-muted uppercase">{lang === "en" ? "Recent Changes" : lang === "zh" ? "最近更新日志" : "Perubahan terbaru"}</p>

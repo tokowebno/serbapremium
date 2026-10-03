@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart } from "lucide-react";
+import { Heart, Sparkles } from "lucide-react";
 import { useWishlist } from "@/components/storefront/providers";
 import { api } from "@/lib/api";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -30,7 +30,10 @@ export default function KeinginanPage() {
       <div className="mb-6 flex flex-wrap items-center gap-2">
         <p className="text-xs font-bold uppercase tracking-wider text-fg-muted">{apps.length} aplikasi disimpan.</p>
         {apps.some((a) => a.originalPrice != null) && (
-          <Badge tone="accent">Sebagian sedang promo 🔥</Badge>
+          <Badge tone="accent" className="flex items-center gap-1">
+            <Sparkles size={11} />
+            <span>Sebagian sedang promo</span>
+          </Badge>
         )}
       </div>
       <ProductGrid apps={apps} columns={3} />

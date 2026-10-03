@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Kategori",
-  description: "Jelajahi aplikasi dan akun premium Tokono berdasarkan kategori pilihan.",
+  description: "Jelajahi aplikasi dan akun premium TexasAi berdasarkan kategori pilihan.",
 };
 
 export default async function KategoriIndexPage() {

@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Promo & Diskon",
   description:
-    "Promo dan diskon akun & aplikasi premium di Tokono. Beli satu kali, tanpa biaya langganan.",
+    "Promo dan diskon akun & aplikasi premium di TexasAi. Beli satu kali, tanpa biaya langganan.",
 };
 
 export default async function PromoPage() {

@@ -19,8 +19,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const category = api.categories.getBySlug(slug);
   if (!category) return { title: "Kategori tidak ditemukan" };
   return {
-    title: `${category.name} · Tokono`,
-    description: `${category.description} Temukan produk terbaik di Tokono.`,
+    title: `${category.name} · TexasAi`,
+    description: `${category.description} Temukan produk terbaik di TexasAi.`,
   };
 }
 
