@@ -447,11 +447,6 @@ function IsiSaldoContent() {
                       }`}
                     >
                       <div className="flex items-center justify-center h-4 w-full">
-                        {p.popular && (
-                          <span className="rounded-full bg-accent px-2 py-0.5 text-[8.5px] font-black text-accent-fg shadow-xs uppercase tracking-wider whitespace-nowrap">
-                            Populer
-                          </span>
-                        )}
                       </div>
                       <span className={`text-lg sm:text-xl font-black tracking-tight leading-none ${active ? "text-accent" : "text-fg"}`}>
                         ${p.usd}

@@ -466,11 +466,6 @@ export function TopUpModal() {
                               : "bg-surface hover:bg-surface-2 border-border text-fg hover:border-border-strong"
                           )}
                         >
-                          {p.popular && (
-                            <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-fg text-surface px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest whitespace-nowrap border-2 border-surface">
-                              Populer
-                            </span>
-                          )}
                           <span className={cn("text-lg sm:text-xl font-black tracking-tight leading-none", active ? "text-surface" : "text-fg")}>
                             ${p.usd}
                           </span>
