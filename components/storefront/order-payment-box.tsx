@@ -157,7 +157,9 @@ export function OrderPaymentBox({
                   ? `应付 ${cryptoSymbol}`
                   : `Jumlah ${cryptoSymbol}`}
               </span>
-              <span className="text-[11px] font-semibold text-accent">1 USD ≈ Rp 16.500</span>
+              <span className="text-[11px] font-semibold text-accent">
+                {lang === "en" || lang === "zh" ? "1 USDT ≈ 1 USD" : "1 USD ≈ Rp 16.500"}
+              </span>
             </div>
             <div className="mt-1 flex items-center justify-between">
               <span className="text-base font-bold text-fg tabular-nums">${usdtAmount} USD ({cryptoSymbol})</span>

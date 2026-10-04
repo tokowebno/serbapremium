@@ -437,7 +437,7 @@ export function TopUpModal() {
                     <span>{lang === "en" ? "Instant Automated Processing" : lang === "zh" ? "秒级全自动充值入账" : "Proses Otomatis Instan"}</span>
                   </span>
                   <span className="font-medium bg-surface-2 border border-border px-2 py-0.5 rounded-md text-fg font-mono">
-                    1 USDT = Rp 17.904
+                    {lang === "en" || lang === "zh" ? "1 USDT ≈ 1 USD" : "1 USDT = Rp 17.904"}
                   </span>
                 </div>
 
@@ -470,7 +470,7 @@ export function TopUpModal() {
                             ${p.usd}
                           </span>
                           <span className={cn("text-[9.5px] sm:text-[11px] font-bold mt-1.5 tabular-nums", active ? "text-surface/80" : "text-fg-muted")}>
-                            {formatRupiah(p.idr)}
+                            {lang === "id" ? formatRupiah(p.idr) : `${p.usd} USDT`}
                           </span>
                         </button>
                       );
@@ -479,7 +479,9 @@ export function TopUpModal() {
 
                   {/* Clean Single Custom Input */}
                   <div className="mt-2.5 flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 shadow-inner focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 transition-all">
-                    <span className="text-xs font-bold text-fg-muted select-none">Nominal Lain:</span>
+                    <span className="text-xs font-bold text-fg-muted select-none">
+                      {lang === "en" ? "Custom Amount:" : lang === "zh" ? "自定义金额：" : "Nominal Lain:"}
+                    </span>
                     <span className="text-xs font-black text-fg select-none">$</span>
                     <input
                       type="number"
@@ -490,7 +492,7 @@ export function TopUpModal() {
                       onChange={handleCustomChange}
                       className="w-full bg-transparent text-xs sm:text-sm font-bold text-fg placeholder:text-fg-faint focus:outline-hidden"
                     />
-                    {customInput && (
+                    {customInput && lang === "id" && (
                       <span className="text-xs font-bold text-accent shrink-0 tabular-nums">
                         ≈ {formatRupiah(amountIdr)}
                       </span>
@@ -566,14 +568,24 @@ export function TopUpModal() {
                 {/* Total & Action Footer Bar */}
                 <div className="pt-3 border-t border-border flex items-center justify-between gap-3">
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-fg-muted block">Total Bayar</span>
+                    <span className="text-[10px] uppercase font-bold text-fg-muted block">
+                      {lang === "en" ? "Total Payment" : lang === "zh" ? "总付款金额" : "Total Bayar"}
+                    </span>
                     <div className="flex items-baseline gap-1.5">
-                      <span className="text-lg sm:text-xl font-black text-fg tabular-nums tracking-tight">
-                        {formatRupiah(amountIdr)}
-                      </span>
-                      <span className="text-xs font-bold text-accent">
-                        (${selectedUsd} USD)
-                      </span>
+                      {lang === "id" ? (
+                        <>
+                          <span className="text-lg sm:text-xl font-black text-fg tabular-nums tracking-tight">
+                            {formatRupiah(amountIdr)}
+                          </span>
+                          <span className="text-xs font-bold text-accent">
+                            (${selectedUsd} USD)
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-lg sm:text-xl font-black text-fg tabular-nums tracking-tight">
+                          ${selectedUsd} USD
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -602,20 +614,26 @@ export function TopUpModal() {
                     onClick={() => setStep(1)}
                     className="text-xs font-bold text-fg-muted hover:text-fg hover:underline cursor-pointer"
                   >
-                    ← Ubah Nominal
+                    {lang === "en" ? "← Change Amount" : lang === "zh" ? "← 更改金额" : "← Ubah Nominal"}
                   </button>
                 </div>
 
                 {/* Total display */}
                 <div className="bg-surface-2 border-2 border-border rounded-xl p-4 flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] font-bold text-fg-muted uppercase tracking-wider block">Nominal Deposit</span>
+                    <span className="text-[10px] font-bold text-fg-muted uppercase tracking-wider block">
+                      {lang === "en" ? "Deposit Amount" : lang === "zh" ? "充值金额" : "Nominal Deposit"}
+                    </span>
                     <span className="text-sm font-black text-fg">${selectedUsd} USD</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] font-bold text-fg-muted uppercase tracking-wider block">Total Ditransfer</span>
+                    <span className="text-[10px] font-bold text-fg-muted uppercase tracking-wider block">
+                      {lang === "en" ? "Total Payment" : lang === "zh" ? "总付款金额" : "Total Ditransfer"}
+                    </span>
                     <span className="text-base font-black text-accent tabular-nums">
-                      {paymentMethod === "qris" ? formatRupiah(totalPayIdr) : `${totalUsdt} ${paymentMethod === "solana" ? "SOL" : paymentMethod === "ton" ? "TON" : "USDT"}`}
+                      {paymentMethod === "qris" 
+                        ? (lang === "id" ? formatRupiah(totalPayIdr) : `$${(totalPayIdr / USDT_RATE).toFixed(2)} USD`) 
+                        : `${totalUsdt} ${paymentMethod === "solana" ? "SOL" : paymentMethod === "ton" ? "TON" : "USDT"}`}
                     </span>
                   </div>
                 </div>
@@ -644,7 +662,7 @@ export function TopUpModal() {
                       />
                     </div>
                     <div className="mt-4 bg-surface border-2 border-border rounded-full px-5 py-2 text-sm font-black text-fg tabular-nums shadow-[4px_4px_0_0_var(--color-border)]">
-                      {lang === "en" ? "Amount:" : lang === "zh" ? "付款金额：" : "Nominal:"} {formatRupiah(totalPayIdr)}
+                      {lang === "en" ? "Amount:" : lang === "zh" ? "付款金额：" : "Nominal:"} {lang === "id" ? formatRupiah(totalPayIdr) : `$${(totalPayIdr / USDT_RATE).toFixed(2)}`}
                     </div>
                   </div>
                 ) : (

@@ -203,9 +203,9 @@ function IsiSaldoContent() {
     if (selectedUsd < MIN_DEPOSIT_USD) {
       setErrorMessage(
         lang === "en"
-          ? `Minimum deposit is $${MIN_DEPOSIT_USD} (approx ${formatRupiah(MIN_DEPOSIT_IDR)}).`
+          ? `Minimum deposit is $${MIN_DEPOSIT_USD}.`
           : lang === "zh"
-          ? `最低充值金额为 $${MIN_DEPOSIT_USD}（约合 ${formatRupiah(MIN_DEPOSIT_IDR)}）。`
+          ? `最低充值金额为 $${MIN_DEPOSIT_USD}。`
           : `Minimal isi saldo adalah $${MIN_DEPOSIT_USD} (sekitar ${formatRupiah(MIN_DEPOSIT_IDR)}).`
       );
       return;
@@ -403,14 +403,14 @@ function IsiSaldoContent() {
               </div>
               <div className="text-xs sm:text-[13px]">
                 <p className="font-bold text-fg">
-                  {lang === "en" ? "Minimum Top Up: $5.00 USD (~Rp 82.500)" : lang === "zh" ? "最低充值要求：$5.00 USD（约合 Rp 82.500）" : "Minimal Isi Saldo: $5.00 USD (~Rp 82.500)"}
+                  {lang === "en" ? "Minimum Top Up: $5.00 USD" : lang === "zh" ? "最低充值要求：$5.00 USD" : "Minimal Isi Saldo: $5.00 USD (~Rp 89.520)"}
                 </p>
                 <p className="text-fg-muted text-[11.5px] mt-0.5">
                   {lang === "en"
-                    ? "Standard conversion rate 1 USD = Rp 16.500. Automatic credit upon verified payment."
+                    ? "Automatic credit upon verified payment."
                     : lang === "zh"
-                    ? "基准汇率 1 USD = Rp 16.500。付款核对后秒级自动存入账户。"
-                    : "Kurs acuan 1 USD = Rp 16.500. Saldo langsung masuk otomatis setelah pembayaran terverifikasi."}
+                    ? "付款核对后秒级自动存入账户。"
+                    : "Kurs acuan 1 USD = Rp 17.904. Saldo langsung masuk otomatis setelah pembayaran terverifikasi."}
                 </p>
               </div>
             </motion.div>
@@ -665,8 +665,12 @@ function IsiSaldoContent() {
                 <div className="space-y-4 py-2">
                   <div className="rounded-2xl liquid-tile p-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-fg-muted font-medium">Nominal Transfer Crypto</span>
-                      <span className="text-xs font-semibold text-accent">Kurs 1 USD ≈ Rp 16.500</span>
+                      <span className="text-xs text-fg-muted font-medium">
+                        {lang === "en" ? "Crypto Transfer Amount" : lang === "zh" ? "加密货币转账金额" : "Nominal Transfer Crypto"}
+                      </span>
+                      <span className="text-xs font-semibold text-accent">
+                        {lang === "en" || lang === "zh" ? "1 USDT ≈ 1 USD" : "Kurs 1 USD ≈ Rp 17.904"}
+                      </span>
                     </div>
                     <div className="mt-2 flex items-center justify-between">
                       <span className="text-xl font-black text-fg tabular-nums">${totalUsdt} USDT / Token</span>
