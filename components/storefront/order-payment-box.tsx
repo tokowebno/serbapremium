@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Copy, Check, AlertCircle, Send } from "lucide-react";
-import { formatPrice, USDT_RATE } from "@/lib/utils";
+import { formatPrice, formatRupiah, USDT_RATE } from "@/lib/utils";
 
 interface OrderPaymentBoxProps {
   orderId: string;
