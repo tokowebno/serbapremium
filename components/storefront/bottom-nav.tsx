@@ -52,42 +52,44 @@ export function BottomNav() {
   ];
 
   return (
-    <nav
-      aria-label="Mobile Navigation"
-      className="fixed bottom-3 inset-x-3 z-50 lg:hidden bg-surface/95 backdrop-blur-xl rounded-2xl px-1.5 py-1.5 shadow-[var(--elev-3)] border border-border"
-    >
-      <div className="grid grid-cols-5 items-center gap-0.5">
-        {navItems.map((item) => {
-          const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-          const Icon = item.icon;
+    <div className="fixed inset-0 pointer-events-none z-50 lg:hidden flex flex-col justify-end p-3 pb-[env(safe-area-inset-bottom,0.75rem)]">
+      <nav
+        aria-label="Mobile Navigation"
+        className="pointer-events-auto w-full bg-surface/95 backdrop-blur-xl rounded-2xl px-1.5 py-1.5 shadow-[var(--elev-3)] border border-border"
+      >
+        <div className="grid grid-cols-5 items-center gap-0.5">
+          {navItems.map((item) => {
+            const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+            const Icon = item.icon;
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={(e) => {
-                if (item.href === "/isi-saldo") {
-                  e.preventDefault();
-                  openTopUp();
-                }
-              }}
-              className={cn(
-                "relative flex flex-col items-center justify-center py-1 rounded-xl transition-all duration-200",
-                active
-                  ? "bg-accent/15 text-accent font-semibold"
-                  : "text-fg-muted hover:text-fg active:bg-surface-2"
-              )}
-            >
-              <div className="relative">
-                <Icon size={18} strokeWidth={active ? 2.4 : 1.8} />
-              </div>
-              <span className="mt-0.5 text-[10.5px] font-medium tracking-tight text-center whitespace-nowrap">
-                {item.label}
-              </span>
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={(e) => {
+                  if (item.href === "/isi-saldo") {
+                    e.preventDefault();
+                    openTopUp();
+                  }
+                }}
+                className={cn(
+                  "relative flex flex-col items-center justify-center py-1 rounded-xl transition-all duration-200",
+                  active
+                    ? "bg-accent/15 text-accent font-semibold"
+                    : "text-fg-muted hover:text-fg active:bg-surface-2"
+                )}
+              >
+                <div className="relative">
+                  <Icon size={18} strokeWidth={active ? 2.4 : 1.8} />
+                </div>
+                <span className="mt-0.5 text-[10.5px] font-medium tracking-tight text-center whitespace-nowrap">
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+    </div>
   );
 }

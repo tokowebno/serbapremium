@@ -9,14 +9,14 @@ export function TelegramFloat() {
   return (
     <aside
       aria-label="Kontak Telegram Admin"
-      className="fixed bottom-24 right-4 z-40 lg:bottom-6 lg:right-6"
+      className="fixed inset-0 pointer-events-none z-40 flex flex-col justify-end items-end p-4 pb-24 lg:p-6"
     >
       <a
         href="https://t.me/texxasai"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat Admin Telegram @texxasai"
-        className="group flex items-center gap-1.5 sm:gap-2 rounded-full bg-[#229ED9] hover:bg-[#1E88E5] text-white px-3 py-2 sm:px-3.5 sm:py-2.5 shadow-lg shadow-[#229ED9]/30 hover:shadow-[#229ED9]/50 transition-all duration-200 active:scale-95"
+        className="pointer-events-auto group flex items-center gap-1.5 sm:gap-2 rounded-full bg-[#229ED9] hover:bg-[#1E88E5] text-white px-3 py-2 sm:px-3.5 sm:py-2.5 shadow-lg shadow-[#229ED9]/30 hover:shadow-[#229ED9]/50 transition-all duration-200 active:scale-95"
       >
         <Send size={16} className="fill-current -rotate-12 transition-transform duration-200 group-hover:scale-110" />
         <span className="text-xs font-bold tracking-tight">
