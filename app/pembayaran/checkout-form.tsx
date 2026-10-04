@@ -56,7 +56,7 @@ const PAYMENT_INFO: Record<
   PaymentMethod,
   {
     name: { id: string; en: string; zh: string };
-    badge: string;
+    badge: { id: string; en: string; zh: string };
     icon: string;
     network?: string;
     address?: string;
@@ -68,7 +68,11 @@ const PAYMENT_INFO: Record<
       en: "Automated QRIS (Indonesian Banks & E-Wallets)",
       zh: "QRIS 自动扫码支付（印尼所有银行与电子钱包）",
     },
-    badge: "IDR QRIS Otomatis",
+    badge: {
+      id: "IDR QRIS Otomatis",
+      en: "Automated QRIS",
+      zh: "QRIS 自动扫码",
+    },
     icon: "/logos/qris-icon.svg",
   },
   usdt_bnb: {
@@ -77,7 +81,11 @@ const PAYMENT_INFO: Record<
       en: "BNB / USDT (BNB Smart Chain BEP-20)",
       zh: "BNB / USDT（BNB 智能链 BEP-20）",
     },
-    badge: "BNB BEP-20",
+    badge: {
+      id: "BNB BEP-20",
+      en: "BNB BEP-20",
+      zh: "BNB BEP-20",
+    },
     icon: "/logos/bnb.svg",
     network: "BNB Smart Chain (BEP-20)",
     address: "0x141b43fCDb8D17c09e7b4235b2527309db674A27",
@@ -88,7 +96,11 @@ const PAYMENT_INFO: Record<
       en: "Tron / USDT (Tron Network TRC-20)",
       zh: "Tron / USDT（波场网络 TRC-20）",
     },
-    badge: "TRON TRC-20",
+    badge: {
+      id: "TRON TRC-20",
+      en: "TRON TRC-20",
+      zh: "TRON TRC-20",
+    },
     icon: "/logos/tron.svg",
     network: "Tron (TRC-20)",
     address: "TQTpRn6j1Pfwf38xP8CxqxJi18YX4v8Wcm",
@@ -99,7 +111,11 @@ const PAYMENT_INFO: Record<
       en: "Solana / SOL (Solana SPL Network)",
       zh: "Solana / SOL（Solana 网络）",
     },
-    badge: "SOLANA SOL",
+    badge: {
+      id: "SOLANA SOL",
+      en: "SOLANA SOL",
+      zh: "SOLANA SOL",
+    },
     icon: "/logos/solana.svg",
     network: "Solana (SPL)",
     address: "7JKwQ81LiXgKw4ekSCurNeqXk3jYv3vDMJcDyCLyW64Y",
@@ -110,7 +126,11 @@ const PAYMENT_INFO: Record<
       en: "TON / GRAM (The Open Network)",
       zh: "TON / GRAM（The Open Network）",
     },
-    badge: "TON / GRAM",
+    badge: {
+      id: "TON / GRAM",
+      en: "TON / GRAM",
+      zh: "TON / GRAM",
+    },
     icon: "/logos/ton.svg",
     network: "The Open Network (TON)",
     address: "UQA2ka2a3umUuzmr3ymBM6x7FV3DZOLQ92fRsS_KdElex77P",
@@ -651,11 +671,11 @@ export function CheckoutForm({
                           <div className="flex items-center gap-2">
                             <img
                               src={info.icon}
-                              alt={info.badge}
+                              alt={info.badge[lang as 'en' | 'id' | 'zh'] || info.badge.en}
                               className="h-6 w-6 rounded-md object-contain border border-border/40 bg-white p-0.5 shadow-xs"
                             />
                             <span className="text-xs font-bold uppercase tracking-tight">
-                              {info.badge}
+                              {info.badge[lang as 'en' | 'id' | 'zh'] || info.badge.en}
                             </span>
                           </div>
                           {active && (
@@ -777,12 +797,12 @@ export function CheckoutForm({
                 <div className="flex items-center gap-3">
                   <img
                     src={PAYMENT_INFO[paymentMethod].icon}
-                    alt={PAYMENT_INFO[paymentMethod].badge}
+                    alt={PAYMENT_INFO[paymentMethod].badge[lang as 'en' | 'id' | 'zh'] || PAYMENT_INFO[paymentMethod].badge.en}
                     className="h-8 w-8 rounded-lg object-contain border border-border/40 bg-white p-0.5 shadow-xs"
                   />
                   <div>
                     <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[10px] font-semibold uppercase text-accent">
-                      {PAYMENT_INFO[paymentMethod].badge}
+                      {PAYMENT_INFO[paymentMethod].badge[lang as 'en' | 'id' | 'zh'] || PAYMENT_INFO[paymentMethod].badge.en}
                     </span>
                     <h2 className="mt-0.5 text-base sm:text-lg font-bold tracking-tight text-fg">
                       {paymentMethod === "qris"
@@ -792,10 +812,10 @@ export function CheckoutForm({
                           ? "实时动态 QRIS 扫码"
                           : "QRIS Otomatis Instan"
                         : lang === "en"
-                        ? `${PAYMENT_INFO[paymentMethod].badge} Payment`
+                        ? `${PAYMENT_INFO[paymentMethod].badge.en} Payment`
                         : lang === "zh"
-                        ? `${PAYMENT_INFO[paymentMethod].badge} 付款`
-                        : `Pembayaran ${PAYMENT_INFO[paymentMethod].badge}`}
+                        ? `${PAYMENT_INFO[paymentMethod].badge.zh} 付款`
+                        : `Pembayaran ${PAYMENT_INFO[paymentMethod].badge.id}`}
                     </h2>
                   </div>
                 </div>
@@ -1231,7 +1251,7 @@ export function CheckoutForm({
                         src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
                           PAYMENT_INFO[paymentMethod].address ?? ""
                         )}&margin=10`}
-                        alt={`QR Code Wallet ${PAYMENT_INFO[paymentMethod].badge}`}
+                        alt={`QR Code Wallet ${PAYMENT_INFO[paymentMethod].badge[lang as 'en' | 'id' | 'zh'] || PAYMENT_INFO[paymentMethod].badge.en}`}
                         className="h-52 w-52 object-contain"
                       />
                     </div>
