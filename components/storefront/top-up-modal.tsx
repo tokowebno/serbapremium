@@ -190,7 +190,7 @@ export function TopUpModal() {
   const amountIdr = selectedUsd * USD_RATE;
   const usdtDecimalUnique = (uniqueCode % 100) / 10000;
   const totalUsdt = Number((selectedUsd + usdtDecimalUnique).toFixed(4));
-  const totalPayIdr = paymentMethod === "qris" ? (borderpayData?.customer_pays || amountIdr) : amountIdr;
+  const totalPayIdr = paymentMethod === "qris" ? (borderpayData?.customer_pays || (amountIdr + uniqueCode)) : amountIdr;
 
   const copyToClipboard = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
@@ -632,7 +632,7 @@ export function TopUpModal() {
                     </span>
                     <span className="text-base font-black text-accent tabular-nums">
                       {paymentMethod === "qris" 
-                        ? (lang === "id" ? formatRupiah(totalPayIdr) : `$${(totalPayIdr / USDT_RATE).toFixed(2)} USD`) 
+                        ? formatRupiah(totalPayIdr) 
                         : `${totalUsdt} ${paymentMethod === "solana" ? "SOL" : paymentMethod === "ton" ? "TON" : "USDT"}`}
                     </span>
                   </div>
@@ -642,14 +642,13 @@ export function TopUpModal() {
                 {paymentMethod === "qris" ? (
                   <div className="flex flex-col items-center justify-center p-5 rounded-2xl bg-surface-2 border-2 border-border text-center">
                     <span className="text-xs font-black text-fg mb-1">
-                      {lang === "en"
-                        ? "Scan QRIS Using Your Mobile Banking or E-Wallet App"
-                        : lang === "zh"
-                        ? "使用支持的手机银行或电子钱包扫描 QRIS 二维码"
-                        : "Pindai QRIS Menggunakan Aplikasi Bank atau E-Wallet Anda"}
+                      Scan QRIS Menggunakan Aplikasi Bank atau E-Wallet Anda
                     </span>
                     <p className="text-[10.5px] text-fg-muted mb-3">
                       BCA, Mandiri, BRI, BNI, GoPay, OVO, Dana, ShopeePay
+                    </p>
+                    <p className="text-center text-[10.5px] font-bold text-accent px-2 mb-2">
+                      Pastikan transfer nominal sesuai hingga 3 digit terakhir (kode unik) agar saldo otomatis masuk.
                     </p>
                     <div className="relative rounded-xl border border-border bg-white p-3 shadow-sm flex items-center justify-center">
                       <img
@@ -662,7 +661,7 @@ export function TopUpModal() {
                       />
                     </div>
                     <div className="mt-4 bg-surface border-2 border-border rounded-full px-5 py-2 text-sm font-black text-fg tabular-nums shadow-[4px_4px_0_0_var(--color-border)]">
-                      {lang === "en" ? "Amount:" : lang === "zh" ? "付款金额：" : "Nominal:"} {lang === "id" ? formatRupiah(totalPayIdr) : `$${(totalPayIdr / USDT_RATE).toFixed(2)}`}
+                      Nominal: {formatRupiah(totalPayIdr)}
                     </div>
                   </div>
                 ) : (

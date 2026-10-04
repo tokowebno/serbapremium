@@ -245,7 +245,7 @@ export function CheckoutForm({
     paymentMethod === "qris"
       ? borderpayData
         ? borderpayData.customer_pays
-        : subtotal
+        : subtotal + (uniqueCode % 1000)
       : subtotal;
 
   const copyAddress = (address: string) => {
@@ -865,11 +865,7 @@ export function CheckoutForm({
                     <div className="rounded-2xl border border-border/70 bg-surface-2/70 p-4 sm:p-5">
                       <div className="flex items-center justify-between">
                         <p className="text-xs font-medium uppercase text-fg-muted">
-                          {lang === "en"
-                            ? "Total amount to pay"
-                            : lang === "zh"
-                            ? "应付总额"
-                            : "Total yang harus dibayar"}
+                          Nominal yang Harus Dibayar (Termasuk Kode Unik)
                         </p>
                         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
                           <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -883,7 +879,7 @@ export function CheckoutForm({
 
                       <div className="mt-1 flex items-baseline justify-between gap-2">
                         <p className="text-2xl sm:text-3xl font-bold tracking-tight text-accent tabular-nums">
-                          {formatPrice(totalBayar, lang)}
+                          {formatRupiah(totalBayar)}
                         </p>
                         <button
                           type="button"
@@ -895,17 +891,11 @@ export function CheckoutForm({
                           ) : (
                             <Copy size={12} strokeWidth={2} />
                           )}
-                          {isAmountCopied
-                            ? lang === "en"
-                              ? "Copied!"
-                              : lang === "zh"
-                              ? "已复制!"
-                              : "Disalin!"
-                            : lang === "en"
-                            ? "Copy Amount"
+                            ? "Copied!"
                             : lang === "zh"
-                            ? "复制金额"
-                            : "Salin Nominal"}
+                            ? "已复制!"
+                            : "Disalin!"
+                          : "Salin Nominal"}
                         </button>
                       </div>
 
@@ -935,6 +925,9 @@ export function CheckoutForm({
                   )}
 
                   {/* QRIS Image & Scan Frame */}
+                  <div className="mt-3 text-center text-xs font-bold text-accent">
+                    Pastikan transfer nominal sesuai hingga 3 digit terakhir (kode unik) agar saldo otomatis masuk.
+                  </div>
                   <div className="flex flex-col items-center gap-3.5 py-1">
                     <div className="relative overflow-hidden rounded-2xl border-2 border-accent/30 bg-white p-3.5 shadow-md text-center">
                       <div className="mb-2 flex items-center justify-center gap-2 border-b border-gray-200 pb-1.5">
@@ -1013,31 +1006,11 @@ export function CheckoutForm({
                     )}
 
                     <p className="max-w-xs text-center text-xs font-medium leading-relaxed text-fg-muted">
-                      {lang === "en" ? (
-                        <>
-                          Scan with any Indonesian Bank or E-Wallet (BCA, Mandiri,
-                          BRI, BNI, GoPay, OVO, DANA, ShopeePay). Payment is{" "}
-                          <span className="font-bold text-fg">
-                            verified automatically in seconds
-                          </span>
-                          .
-                        </>
-                      ) : lang === "zh" ? (
-                        <>
-                          使用印尼任意银行或电子钱包（BCA、Mandiri、GoPay、OVO、DANA
-                          等）扫码。系统将{" "}
-                          <span className="font-bold text-fg">秒级自动核验</span>。
-                        </>
-                      ) : (
-                        <>
-                          Pindai QRIS di atas dengan m-Banking / e-Wallet (BCA,
-                          Mandiri, BRI, BNI, GoPay, OVO, DANA, ShopeePay). Sistem{" "}
-                          <span className="font-bold text-fg">
-                            langsung memverifikasi otomatis
-                          </span>
-                          .
-                        </>
-                      )}
+                      Pindai QRIS di atas dengan m-Banking / e-Wallet (BCA, Mandiri, BRI, BNI, GoPay, OVO, DANA, ShopeePay). Sistem{" "}
+                      <span className="font-bold text-fg">
+                        langsung memverifikasi otomatis
+                      </span>
+                      .
                     </p>
 
                     {/* Status Feedback */}
@@ -1071,9 +1044,7 @@ export function CheckoutForm({
                       {qrisDone ? (
                         <div className="flex items-center justify-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
                           <CheckCircle2 size={18} />{" "}
-                          {lang === "en"
-                            ? "Your payment request is submitted."
-                            : "Pembayaran Anda sedang kami proses."}
+                            Pembayaran Anda sedang kami proses.
                         </div>
                       ) : (
                         <Button
@@ -1083,9 +1054,7 @@ export function CheckoutForm({
                           disabled={loading}
                           loading={loading}
                         >
-                          {lang === "en"
-                            ? "I Have Paid / Complete Order"
-                            : "Saya Sudah Bayar / Selesaikan Pesanan"}
+                          Saya Sudah Bayar / Selesaikan Pesanan
                         </Button>
                       )}
                     </div>

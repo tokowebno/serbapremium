@@ -64,6 +64,9 @@ export function OrderPaymentBox({
   const decimalUnique = (numId % 100) / 10000;
   const usdtAmount = (rawUsd + decimalUnique).toFixed(4);
 
+  const qrisUniqueCode = numId % 1000;
+  const qrisTotalIdr = total + qrisUniqueCode;
+
   return (
     <div className="mt-5 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 sm:p-5 text-left">
       {/* Alert Header */}
@@ -84,11 +87,7 @@ export function OrderPaymentBox({
                 : lang === "zh"
                   ? "如果您尚未完成转账，请使用下方的钱包地址按准确金额转账，以便系统快速为您核对并交付。"
                   : "Jika Anda belum sempat transfer atau ingin menyelesaikan pembayaran, silakan kirim ke alamat wallet di bawah ini dengan nominal pas agar pesanan dapat segera diproses."
-              : lang === "en"
-                ? "If you haven't completed the scan or transfer yet, please make your payment by scanning the QRIS below with the exact amount so your order can be fulfilled immediately."
-                : lang === "zh"
-                  ? "如果您尚未完成扫码或转账，请使用下方的 QRIS 二维码按准确金额完成付款，以便系统快速为您核对并交付。"
-                  : "Jika Anda belum sempat transfer atau ingin menyelesaikan pembayaran, silakan scan QRIS di bawah ini dengan nominal pas agar pesanan dapat segera diproses."}
+                "Jika Anda belum sempat transfer atau ingin menyelesaikan pembayaran, silakan scan QRIS di bawah ini dengan nominal pas agar pesanan dapat segera diproses."}
           </p>
         </div>
       </div>
@@ -99,26 +98,26 @@ export function OrderPaymentBox({
           <div className="w-full flex items-center justify-between rounded-xl bg-surface px-3.5 py-2.5 border border-border/80">
             <div>
               <span className="text-[11px] font-medium text-fg-muted block">
-                {lang === "en" ? "Amount to Pay" : lang === "zh" ? "应付金额" : "Nominal yang Harus Dibayar"}
+                Nominal yang Harus Dibayar (Termasuk Kode Unik)
               </span>
               <span className="text-base font-bold text-accent tabular-nums">
-                {formatPrice(total, lang)}
+                {formatRupiah(qrisTotalIdr)}
               </span>
             </div>
             <button
               type="button"
-              onClick={() => copyToClipboard(total.toString(), "qris-nominal")}
+              onClick={() => copyToClipboard(qrisTotalIdr.toString(), "qris-nominal")}
               className="flex items-center gap-1 rounded-full bg-surface-2 px-2.5 py-1 text-xs font-semibold text-fg hover:bg-surface-3 transition-colors active:scale-95 cursor-pointer"
             >
               {copiedField === "qris-nominal" ? (
                 <>
                   <Check size={12} className="text-emerald-500" />
-                  <span className="text-emerald-600 dark:text-emerald-400">{lang === "en" ? "Copied" : lang === "zh" ? "已复制" : "Disalin"}</span>
+                  <span className="text-emerald-600 dark:text-emerald-400">Disalin</span>
                 </>
               ) : (
                 <>
                   <Copy size={12} />
-                  <span>{lang === "en" ? "Copy" : lang === "zh" ? "复制" : "Salin"}</span>
+                  <span>Salin</span>
                 </>
               )}
             </button>
@@ -135,12 +134,11 @@ export function OrderPaymentBox({
             />
           </div>
 
-          <p className="text-center text-[11px] font-normal text-fg-muted leading-relaxed max-w-xs">
-            {lang === "en"
-              ? "Scan with any Indonesian Mobile Banking or E-Wallet (BCA, Mandiri, BRI, BNI, GoPay, OVO, DANA, ShopeePay)."
-              : lang === "zh"
-                ? "支持印尼所有主流网银与电子钱包扫码（BCA、Mandiri、GoPay、OVO、DANA、ShopeePay）。"
-                : "Pindai menggunakan aplikasi m-Banking atau e-Wallet (BCA, Mandiri, BRI, BNI, GoPay, OVO, DANA, ShopeePay, dll)."}
+          <p className="text-center text-[11px] font-bold text-accent leading-relaxed max-w-xs px-2">
+            Pastikan transfer nominal sesuai hingga 3 digit terakhir (kode unik) agar pesanan otomatis diproses.
+          </p>
+          <p className="text-center text-[10px] font-normal text-fg-muted max-w-xs -mt-1.5">
+            Pindai menggunakan aplikasi m-Banking atau e-Wallet (BCA, Mandiri, BRI, BNI, GoPay, OVO, DANA, ShopeePay, dll).
           </p>
         </div>
       )}
