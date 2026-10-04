@@ -891,11 +891,7 @@ export function CheckoutForm({
                           ) : (
                             <Copy size={12} strokeWidth={2} />
                           )}
-                            ? "Copied!"
-                            : lang === "zh"
-                            ? "已复制!"
-                            : "Disalin!"
-                          : "Salin Nominal"}
+                          {isAmountCopied ? "Disalin!" : "Salin Nominal"}
                         </button>
                       </div>
 
