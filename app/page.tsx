@@ -69,52 +69,38 @@ export default async function HomePage() {
       {/* TexasAi Wallet Ecosystem Highlight Banner */}
       <section className="tk-container py-12">
         <Reveal>
-          <div
-            style={{
-              background: "linear-gradient(145deg, #090e17 0%, #030712 50%, #0f172a 100%)",
-              color: "#ffffff",
-            }}
-            className="relative overflow-hidden rounded-3xl border border-cyan-500/40 p-6 sm:p-10 text-white shadow-2xl"
-          >
-            {/* Ambient background glow */}
-            <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-cyan-500/20 blur-[90px]" />
-            <div className="pointer-events-none absolute -left-20 -bottom-20 h-72 w-72 rounded-full bg-indigo-500/20 blur-[90px]" />
-
+          <div className="relative overflow-hidden rounded-3xl border-2 border-border bg-surface p-6 sm:p-10 text-fg shadow-[8px_8px_0_0_var(--color-border)]">
             <div className="relative grid items-center gap-8 lg:grid-cols-[1.2fr_0.8fr]">
               <div className="space-y-4">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/40 bg-cyan-400/15 px-3 py-1 text-xs font-bold uppercase text-cyan-300">
-                  <Wallet size={13} className="text-cyan-300" />
+                <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-border bg-surface-2 px-3 py-1 text-[11px] sm:text-xs font-black uppercase tracking-widest text-fg shadow-[3px_3px_0_0_var(--color-border)]">
+                  <Wallet size={13} className="text-fg" />
                   SISTEM SALDO TERPADU TEXASAI
                 </span>
                 
-                <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-white leading-tight">
+                <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-fg leading-tight">
                   Satu Saldo untuk Belanja Seluruh Lisensi Digital & AI.
                 </h2>
                 
-                <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl">
+                <p className="text-sm sm:text-base text-fg-muted leading-relaxed max-w-xl font-medium">
                   Tidak perlu repot bayar berulang kali untuk setiap aplikasi. Cukup isi saldo akun via QRIS Otomatis & Multi-Crypto (USDT, SOL, TON), lalu checkout kapan pun secara instan hanya dengan 1 klik!
                 </p>
 
-                <div className="flex flex-wrap items-center gap-3 pt-2">
+                <div className="flex flex-wrap items-center gap-3 pt-4">
                   <ButtonLink
                     href="/isi-saldo"
                     size="lg"
-                    style={{
-                      background: "linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%)",
-                      color: "#041018",
-                    }}
-                    className="!bg-cyan-400 !text-slate-950 font-black px-7 rounded-full shadow-lg shadow-cyan-400/30 hover:opacity-95 active:scale-95 transition-all flex items-center gap-2"
+                    className="rounded-full bg-accent text-accent-fg border-2 border-border shadow-[4px_4px_0_0_var(--color-border)] px-7 font-black hover:-translate-y-0.5 transition-transform active:translate-y-0 active:shadow-none flex items-center gap-2"
                   >
-                    <Wallet size={16} className="text-slate-950" />
+                    <Wallet size={16} className="text-accent-fg" />
                     <span>Isi Saldo Sekarang</span>
-                    <ArrowRight size={16} strokeWidth={2.5} className="text-slate-950" />
+                    <ArrowRight size={16} strokeWidth={3} className="text-accent-fg" />
                   </ButtonLink>
                   
                   <ButtonLink
                     href="/aplikasi"
                     variant="ghost"
                     size="lg"
-                    className="rounded-full text-white hover:bg-white/10 font-bold border border-white/20"
+                    className="rounded-full bg-surface-2 text-fg font-black border-2 border-border shadow-[4px_4px_0_0_var(--color-border)] hover:-translate-y-0.5 transition-transform active:translate-y-0 active:shadow-none"
                   >
                     Jelajahi Katalog →
                   </ButtonLink>
@@ -122,35 +108,29 @@ export default async function HomePage() {
               </div>
 
               {/* Clean Specification Box */}
-              <div
-                style={{
-                  background: "rgba(255, 255, 255, 0.04)",
-                  borderColor: "rgba(255, 255, 255, 0.12)",
-                }}
-                className="space-y-4 rounded-2xl border p-6 backdrop-blur-md"
-              >
-                <div className="border-b border-white/10 pb-3.5">
-                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-cyan-400">
+              <div className="space-y-4 rounded-2xl border-2 border-border bg-surface-2 p-6 shadow-[4px_4px_0_0_var(--color-border)]">
+                <div className="border-b border-border pb-3.5">
+                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-fg">
                     TOP UP FLEKSIBEL
                   </span>
-                  <h4 className="text-sm font-bold text-white mt-1">Satu Saldo untuk Semua</h4>
-                  <p className="text-xs text-slate-300 mt-0.5">Isi saldo mudah dan cepat kapan saja sesuai kebutuhan.</p>
+                  <h4 className="text-sm font-bold text-fg mt-1">Satu Saldo untuk Semua</h4>
+                  <p className="text-xs text-fg-muted mt-0.5 font-medium">Isi saldo mudah dan cepat kapan saja sesuai kebutuhan.</p>
                 </div>
 
-                <div className="border-b border-white/10 pb-3.5">
-                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-cyan-400">
+                <div className="border-b border-border pb-3.5">
+                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-fg">
                     SISTEM PEMBAYARAN
                   </span>
-                  <h4 className="text-sm font-bold text-white mt-1">QRIS & Multi-Crypto</h4>
-                  <p className="text-xs text-slate-300 mt-0.5">Dukungan QRIS otomatis, USDT, SOL, dan TON.</p>
+                  <h4 className="text-sm font-bold text-fg mt-1">QRIS & Multi-Crypto</h4>
+                  <p className="text-xs text-fg-muted mt-0.5 font-medium">Dukungan QRIS otomatis, USDT, SOL, dan TON.</p>
                 </div>
 
                 <div>
-                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-cyan-400">
+                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-fg">
                     KEAMANAN & GARANSI
                   </span>
-                  <h4 className="text-sm font-bold text-white mt-1">Garansi Penuh Masa Aktif</h4>
-                  <p className="text-xs text-slate-300 mt-0.5">Jaminan penggantian akun dan bantuan langsung tim resmi.</p>
+                  <h4 className="text-sm font-bold text-fg mt-1">Garansi Penuh Masa Aktif</h4>
+                  <p className="text-xs text-fg-muted mt-0.5 font-medium">Jaminan penggantian akun dan bantuan langsung tim resmi.</p>
                 </div>
               </div>
             </div>
