@@ -423,7 +423,7 @@ export function TopUpModal() {
                     onClick={closeTopUp}
                     className="rounded-full px-8 font-bold cursor-pointer bg-fg text-surface hover:opacity-90"
                   >
-                    <span>Selesai & Tutup</span>
+                    <span>{lang === "en" ? "Done & Close" : lang === "zh" ? "完成并关闭" : "Selesai & Tutup"}</span>
                   </Button>
                 </div>
               </div>
@@ -596,7 +596,7 @@ export function TopUpModal() {
                     loading={loading}
                     className="rounded-full px-7 font-black cursor-pointer text-xs bg-accent hover:opacity-90 text-accent-fg shadow-md flex items-center gap-1.5 active:scale-95 transition-all"
                   >
-                    <span>Lanjut Bayar</span>
+                    <span>{lang === "en" ? "Continue Payment" : lang === "zh" ? "继续付款" : "Lanjut Bayar"}</span>
                     <ArrowRight size={14} strokeWidth={2.5} />
                   </Button>
                 </div>
@@ -735,7 +735,7 @@ export function TopUpModal() {
                     className="w-full rounded-full bg-fg hover:bg-fg/90 text-surface font-bold text-xs shadow-md cursor-pointer py-3"
                   >
                     <CheckCircle2 size={16} />
-                    <span>Saya Sudah Melakukan Pembayaran</span>
+                    <span>{lang === "en" ? "I Have Paid" : lang === "zh" ? "我已完成付款" : "Saya Sudah Melakukan Pembayaran"}</span>
                   </Button>
                 </div>
               </div>
@@ -748,7 +748,7 @@ export function TopUpModal() {
                 onClick={closeTopUp}
                 className="text-[11px] font-semibold text-fg-muted hover:text-accent transition-colors inline-flex items-center gap-1"
               >
-                <span>Buka halaman lengkap isi saldo</span>
+                <span>{lang === "en" ? "Open full top up page" : lang === "zh" ? "打开完整充值页面" : "Buka halaman lengkap isi saldo"}</span>
                 <ExternalLink size={11} />
               </Link>
             </div>

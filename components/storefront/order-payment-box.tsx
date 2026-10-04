@@ -113,12 +113,12 @@ export function OrderPaymentBox({
               {copiedField === "qris-nominal" ? (
                 <>
                   <Check size={12} className="text-emerald-500" />
-                  <span className="text-emerald-600 dark:text-emerald-400">{lang === "en" ? "Copied" : "Disalin"}</span>
+                  <span className="text-emerald-600 dark:text-emerald-400">{lang === "en" ? "Copied" : lang === "zh" ? "已复制" : "Disalin"}</span>
                 </>
               ) : (
                 <>
                   <Copy size={12} />
-                  <span>{lang === "en" ? "Copy" : "Salin"}</span>
+                  <span>{lang === "en" ? "Copy" : lang === "zh" ? "复制" : "Salin"}</span>
                 </>
               )}
             </button>
@@ -173,7 +173,7 @@ export function OrderPaymentBox({
                 ) : (
                   <Copy size={12} />
                 )}
-                <span>{copiedField === "crypto-amount" ? (lang === "en" ? "Copied" : "Disalin") : (lang === "en" ? "Copy" : "Salin")}</span>
+                <span>{copiedField === "crypto-amount" ? (lang === "en" ? "Copied" : lang === "zh" ? "已复制" : "Disalin") : (lang === "en" ? "Copy" : lang === "zh" ? "复制" : "Salin")}</span>
               </button>
             </div>
           </div>
@@ -190,12 +190,12 @@ export function OrderPaymentBox({
               {copiedField === "crypto-wallet" ? (
                 <>
                   <Check size={12} className="text-emerald-500" />
-                  <span className="text-emerald-600 dark:text-emerald-400">{lang === "en" ? "Address Copied!" : "Alamat Disalin!"}</span>
+                  <span className="text-emerald-600 dark:text-emerald-400">{lang === "en" ? "Address Copied!" : lang === "zh" ? "地址已复制!" : "Alamat Disalin!"}</span>
                 </>
               ) : (
                 <>
                   <Copy size={12} />
-                  <span>{lang === "en" ? "Copy Wallet Address" : "Salin Alamat Wallet"}</span>
+                  <span>{lang === "en" ? "Copy Wallet Address" : lang === "zh" ? "复制钱包地址" : "Salin Alamat Wallet"}</span>
                 </>
               )}
             </button>
