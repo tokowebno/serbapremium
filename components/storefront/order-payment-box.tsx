@@ -87,7 +87,7 @@ export function OrderPaymentBox({
                 : lang === "zh"
                   ? "如果您尚未完成转账，请使用下方的钱包地址按准确金额转账，以便系统快速为您核对并交付。"
                   : "Jika Anda belum sempat transfer atau ingin menyelesaikan pembayaran, silakan kirim ke alamat wallet di bawah ini dengan nominal pas agar pesanan dapat segera diproses."
-                "Jika Anda belum sempat transfer atau ingin menyelesaikan pembayaran, silakan scan QRIS di bawah ini dengan nominal pas agar pesanan dapat segera diproses."}
+              : "Jika Anda belum sempat transfer atau ingin menyelesaikan pembayaran, silakan scan QRIS di bawah ini dengan nominal pas agar pesanan dapat segera diproses."}
           </p>
         </div>
       </div>
