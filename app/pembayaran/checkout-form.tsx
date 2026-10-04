@@ -17,7 +17,7 @@ import {
   QrCode,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { formatPrice, USDT_RATE } from "@/lib/utils";
+import { formatPrice, formatRupiah, USDT_RATE } from "@/lib/utils";
 import { useCart, useAuth } from "@/components/storefront/providers";
 import { useTranslation } from "@/components/storefront/i18n-provider";
 import { Button } from "@/components/ui/button";
