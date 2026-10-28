@@ -1,4 +1,4 @@
-import os
+﻿import os
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -52,7 +52,7 @@ MENU_ICONS = {
 
 # Payment & Deposit Configurations
 BINANCE_ID = os.getenv("BINANCE_ID", "1279190934").strip()
-BEP20_ADDRESS = os.getenv("BEP20_ADDRESS", "0xb5A05f87bEf59520794A656a3a2109f665557fd0").strip()
+BEP20_ADDRESS = os.getenv("BEP20_ADDRESS", "0xa1dAa9d62FFD3B7bce6054C6e142DC5A08e2761f").strip()
 TRC20_ADDRESS = os.getenv("TRC20_ADDRESS", "TMdRcZgD7MxyCpjzpT1965bzh5Qob8NYF1").strip()
 SOLANA_ADDRESS = os.getenv("SOLANA_ADDRESS", "Ft3HBG7aaiZQiZo2qPVc4qhQDs4h6XqUrWs6EAMFQmAZ").strip()
 TON_ADDRESS = os.getenv("TON_ADDRESS", "UQDR5BUjd7H5KO8LT1NVUZy6y-6wOYzA4heHi4_py3X42wM1").strip()

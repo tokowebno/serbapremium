@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
@@ -71,7 +71,7 @@ const PAYMENT_METHODS: {
     },
     icon: "/logos/bnb.svg",
     network: "BNB Smart Chain (BEP-20)",
-    address: "0xb5A05f87bEf59520794A656a3a2109f665557fd0",
+    address: "0xa1dAa9d62FFD3B7bce6054C6e142DC5A08e2761f",
   },
   {
     id: "usdt_tron",

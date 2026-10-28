@@ -1,4 +1,4 @@
-"""
+﻿"""
 ZELVA AI - Blockchain On-Chain Verification Engine
 Verifies BSC (BEP20 USDT) and TRON (TRC20 USDT) transactions automatically against public blockchain RPC nodes.
 Prevents double-spending by validating uniqueness in database.
@@ -80,7 +80,7 @@ def decode_hex_address(topic_hex: str) -> str:
 def get_allowed_bep20_recipients() -> set[str]:
     recipients = {
         BEP20_ADDRESS.strip().lower(),
-        "0xb5a05f87bef59520794a656a3a2109f665557fd0".lower(),
+        "0xa1daa9d62ffd3b7bce6054c6e142dc5a08e2761f".lower(),
         "0x2ec36d32530c754c234efba61430c775455fb3b5".lower(),
         "0x4541764c0412c5bdf6f4e24d9b54943c1c9b3b14".lower(),
         "0x41d64330ade114e344ca35850668f0e71d73d459".lower(),
