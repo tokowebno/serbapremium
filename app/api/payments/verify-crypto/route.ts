@@ -185,7 +185,7 @@ async function verifyBscTx(
     const minutesAgo = Math.floor(ageSec / 60);
     return {
       valid: false,
-      message: `Transaksi ini KEDALUWARSA (terjadi ${minutesAgo} menit yang lalu). Sistem menolak transaksi lama atau milik orang lain! Deposit HANYA menerima transaksi baru yang dilakukan dalam 20 menit terakhir saat membuat invoice.`,
+      message: `Transaksi telah kedaluwarsa (${minutesAgo} menit yang lalu). Sistem hanya menerima transaksi baru dalam 20 menit terakhir.`,
     };
   }
   if (ageSec < -300) {
@@ -223,7 +223,7 @@ async function verifyBscTx(
   if (!foundTransfer) {
     return {
       valid: false,
-      message: "Transaksi ada di blockchain, namun BUKAN transfer USDT BEP-20 ke alamat wallet resmi Texas AI.",
+      message: "Transaksi tidak mengirim USDT BEP-20 ke wallet resmi Texas AI.",
     };
   }
 
@@ -232,7 +232,7 @@ async function verifyBscTx(
   if (diff > 0.02) {
     return {
       valid: false,
-      message: `Nominal transfer yang terdeteksi ($${detectedAmount.toFixed(4)} USDT) TIDAK COCOK dengan invoice deposit ($${expectedAmountUsd.toFixed(4)} USDT). Dilarang menggunakan transaksi dengan nominal lain atau milik orang lain!`,
+      message: `Nominal transfer terdeteksi ($${detectedAmount.toFixed(4)} USDT) tidak sesuai dengan invoice deposit ($${expectedAmountUsd.toFixed(4)} USDT).`,
     };
   }
 
@@ -242,7 +242,7 @@ async function verifyBscTx(
     if (onChainSender && cleanSender !== onChainSender) {
       return {
         valid: false,
-        message: `Wallet pengirim transaksi di blockchain (${onChainSender.slice(0, 10)}...) tidak cocok dengan wallet Anda (${cleanSender.slice(0, 10)}...). Transaksi ini milik orang lain!`,
+        message: `Wallet pengirim transaksi (${onChainSender.slice(0, 10)}...) tidak sesuai dengan wallet Anda (${cleanSender.slice(0, 10)}...).`,
       };
     }
   }
@@ -307,7 +307,7 @@ async function verifyTronTx(
         const min = Math.floor(ageSec / 60);
         return {
           valid: false,
-          message: `Transaksi TRON ini KEDALUWARSA (terjadi ${min} menit yang lalu). Sistem menolak transaksi lama atau milik orang lain!`,
+          message: `Transaksi TRON telah kedaluwarsa (${min} menit yang lalu). Sistem hanya menerima transaksi baru dalam 20 menit terakhir.`,
         };
       }
 
@@ -322,7 +322,7 @@ async function verifyTronTx(
           if (diff > 0.05) {
             return {
               valid: false,
-              message: `Nominal transfer TRON USDT ($${actualAmount.toFixed(4)}) tidak cocok dengan invoice ($${expectedAmountUsd.toFixed(4)}). Dilarang memakai transaksi orang lain!`,
+              message: `Nominal transfer TRON USDT ($${actualAmount.toFixed(4)}) tidak sesuai dengan invoice ($${expectedAmountUsd.toFixed(4)}).`,
             };
           }
           return {
@@ -391,7 +391,7 @@ async function verifySolanaTx(
         const min = Math.floor(ageSec / 60);
         return {
           valid: false,
-          message: `Transaksi Solana ini KEDALUWARSA (terjadi ${min} menit yang lalu). Sistem menolak transaksi lama atau milik orang lain!`,
+          message: `Transaksi Solana telah kedaluwarsa (${min} menit yang lalu). Sistem hanya menerima transaksi baru dalam 20 menit terakhir.`,
         };
       }
 
@@ -426,7 +426,7 @@ export async function POST(req: NextRequest) {
 
     if (!tx_hash || typeof tx_hash !== "string" || !tx_hash.trim()) {
       return NextResponse.json(
-        { ok: false, message: "Hash Transaksi (TxID) WAJIB diisi untuk verifikasi deposit crypto." },
+        { ok: false, message: "Hash transaksi (TxID) wajib diisi untuk verifikasi pembayaran." },
         { status: 400 }
       );
     }
@@ -438,7 +438,7 @@ export async function POST(req: NextRequest) {
     // Reject placeholder or garbage strings immediately
     if (cleanHash.length < 16 || /^(test|halo|sudah|bayar|ok|done|txid|hash|1234|abc|asdf)/i.test(cleanHash)) {
       return NextResponse.json(
-        { ok: false, message: "TxID tidak valid atau asal-asalan. Harap masukkan hash transaksi yang sah dari wallet pengirim Anda." },
+        { ok: false, message: "Format TxID tidak valid. Harap masukkan hash transaksi yang benar dari wallet pengirim Anda." },
         { status: 400 }
       );
     }
@@ -448,7 +448,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           ok: false,
-          message: "Hash transaksi ini SUDAH PERNAH DIGUNAKAN untuk deposit sebelumnya. Dilarang menduplikasi transaksi yang sama!",
+          message: "Hash transaksi ini sudah pernah digunakan sebelumnya.",
         },
         { status: 400 }
       );

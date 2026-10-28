@@ -314,28 +314,28 @@ function IsiSaldoContent() {
           setCheckingStatus(false);
           let displayError = json.message;
           if (lang === "en") {
-            if (json.message?.includes("KEDALUWARSA") || json.message?.includes("kedaluwarsa")) {
-              displayError = "Transaction is EXPIRED or too old (must be completed within the last 20 minutes). Using old or someone else's transactions is strictly prohibited.";
-            } else if (json.message?.includes("TIDAK COCOK") || json.message?.includes("tidak cocok")) {
-              displayError = "Transferred crypto amount does not match the invoice amount. Using someone else's transaction is rejected.";
-            } else if (json.message?.includes("SUDAH PERNAH DIGUNAKAN") || json.message?.includes("sudah pernah")) {
+            if (json.message?.includes("kedaluwarsa") || json.message?.includes("KEDALUWARSA")) {
+              displayError = "Transaction has expired (must be within the last 20 minutes).";
+            } else if (json.message?.includes("tidak sesuai") || json.message?.includes("tidak cocok") || json.message?.includes("TIDAK COCOK")) {
+              displayError = "Transferred crypto amount does not match the invoice amount.";
+            } else if (json.message?.includes("sudah pernah") || json.message?.includes("SUDAH PERNAH")) {
               displayError = "This transaction hash has already been used for a previous deposit.";
-            } else if (json.message?.includes("tidak valid") || json.message?.includes("asal-asalan")) {
-              displayError = "Invalid TxID. Please enter a valid transaction hash from your sending wallet.";
+            } else if (json.message?.includes("tidak valid") || json.message?.includes("Format")) {
+              displayError = "Invalid TxID format. Please enter a valid transaction hash.";
             } else if (json.message?.includes("tidak ditemukan")) {
-              displayError = "Transaction not found on the blockchain or still pending. Please verify your transfer succeeded.";
+              displayError = "Transaction not found on the blockchain or still pending.";
             }
           } else if (lang === "zh") {
-            if (json.message?.includes("KEDALUWARSA") || json.message?.includes("kedaluwarsa")) {
-              displayError = "该交易已过期（交易必须在最近 20 分钟内完成）。严禁使用旧交易或他人交易！";
-            } else if (json.message?.includes("TIDAK COCOK") || json.message?.includes("tidak cocok")) {
-              displayError = "链上检测到的转账金额与充值账单不一致，严禁使用他人交易！";
-            } else if (json.message?.includes("SUDAH PERNAH DIGUNAKAN") || json.message?.includes("sudah pernah")) {
-              displayError = "该交易哈希已被使用过，无法重复充值。";
-            } else if (json.message?.includes("tidak valid") || json.message?.includes("asal-asalan")) {
-              displayError = "TxID 无效。请输入付款钱包中的有效交易哈希。";
+            if (json.message?.includes("kedaluwarsa") || json.message?.includes("KEDALUWARSA")) {
+              displayError = "交易已过期（须在最近20分钟内完成）。";
+            } else if (json.message?.includes("tidak sesuai") || json.message?.includes("tidak cocok") || json.message?.includes("TIDAK COCOK")) {
+              displayError = "转账金额与账单金额不符，请核对。";
+            } else if (json.message?.includes("sudah pernah") || json.message?.includes("SUDAH PERNAH")) {
+              displayError = "该交易哈希已被使用过，无法重复提交。";
+            } else if (json.message?.includes("tidak valid") || json.message?.includes("Format")) {
+              displayError = "TxID 格式不正确，请填写有效哈希。";
             } else if (json.message?.includes("tidak ditemukan")) {
-              displayError = "未在区块链上检测到该交易或仍在确认中，请确保已成功转账。";
+              displayError = "未在区块链上检测到该交易或仍在确认中。";
             }
           }
           setErrorMessage(displayError || json.message);
@@ -1001,7 +1001,7 @@ function IsiSaldoContent() {
                       </label>
                       <span className="text-[11px] text-accent font-semibold flex items-center gap-1">
                         <Zap size={12} /> 
-                        {lang === "en" ? "Auto On-Chain Verification" : lang === "zh" ? "区块链链上全自动验证" : "Auto On-Chain Blockchain"}
+                        {lang === "en" ? "Instant On-Chain" : lang === "zh" ? "链上实时验证" : "Verifikasi Instan"}
                       </span>
                     </div>
                     <input
@@ -1024,10 +1024,10 @@ function IsiSaldoContent() {
                     />
                     <p className="mt-1.5 text-[11px] text-fg-muted leading-relaxed">
                       {lang === "en"
-                        ? "⚡ Texas AI strictly verifies the block timestamp (must be within the last 20 mins) and exact amount. Expired, reused, or transactions belonging to others will be strictly rejected."
+                        ? "Instant on-chain verification. Please ensure the transfer matches the invoice amount (valid for 20 mins)."
                         : lang === "zh"
-                        ? "⚡ Texas AI 将严密核查交易出块时间（必须在 20 分钟内）与准确金额。过期交易、重复使用或他人交易将被严厉驳回。"
-                        : "⚡ Sistem Texas AI akan memeriksa keaslian transaksi, waktu transfer (wajib 20 menit terakhir), dan nominal persis. Transaksi lama, terpakai, atau milik orang lain otomatis ditolak."}
+                        ? "区块链实时自动验证。请确保转账金额与账单一致（20分钟内有效）。"
+                        : "Verifikasi otomatis via blockchain. Pastikan transfer sesuai nominal invoice (berlaku 20 menit)."}
                     </p>
                   </div>
                 </div>
