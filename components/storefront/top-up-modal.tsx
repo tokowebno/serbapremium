@@ -210,7 +210,7 @@ export function TopUpModal() {
   }, [isTopUpOpen, closeTopUp]);
 
   const amountIdr = selectedUsd * USD_RATE;
-  const usdtDecimalUnique = (uniqueCode % 100) / 10000;
+  const usdtDecimalUnique = Number(((uniqueCode % 800 + 101) / 10000).toFixed(4));
   const totalUsdt = Number((selectedUsd + usdtDecimalUnique).toFixed(4));
   const totalPayIdr = paymentMethod === "qris" ? (borderpayData?.customer_pays || (amountIdr + uniqueCode)) : amountIdr;
 
@@ -293,7 +293,7 @@ export function TopUpModal() {
   const handleConfirmPayment = async () => {
     setErrorMessage("");
 
-    // 1. KHUSUS CRYPTO: WAJIB TXID DAN VERIFIKASI ON-CHAIN OTOMATIS
+    // 1. KHUSUS CRYPTO: WAJIB TXID, VERIFIKASI STRICT TIMESTAMP & NOMINAL ON-CHAIN
     if (paymentMethod !== "qris") {
       const cleanTx = txId.trim();
       if (!cleanTx) {
@@ -303,6 +303,21 @@ export function TopUpModal() {
             : lang === "zh"
             ? "加密货币充值必须填写交易哈希 / TxID！"
             : "Hash Transaksi / TxID WAJIB diisi untuk verifikasi otomatis deposit crypto. Silakan salin TxID dari wallet pengirim Anda."
+        );
+        return;
+      }
+
+      // Client-side anti-replay check
+      const rawClaimed = localStorage.getItem("texasai:claimed_tx_ids") || "[]";
+      let claimedList: string[] = [];
+      try { claimedList = JSON.parse(rawClaimed); } catch {}
+      if (claimedList.includes(cleanTx.toLowerCase())) {
+        setErrorMessage(
+          lang === "en"
+            ? "This transaction hash has already been used for a deposit! Re-using past transactions is strictly prohibited."
+            : lang === "zh"
+            ? "该交易哈希已被使用过，严禁重复提交旧交易！"
+            : "Hash transaksi ini SUDAH PERNAH DIGUNAKAN untuk deposit sebelumnya! Dilarang memakai transaksi lama atau milik orang lain."
         );
         return;
       }
@@ -317,7 +332,7 @@ export function TopUpModal() {
           body: JSON.stringify({
             network: paymentMethod,
             tx_hash: cleanTx,
-            expected_amount_usd: selectedUsd,
+            expected_amount_usd: totalUsdt, // Nominal unik 4 desimal
             order_id: orderCode,
           }),
         });
@@ -329,27 +344,33 @@ export function TopUpModal() {
           setCheckingStatus(false);
           let displayError = json.message;
           if (lang === "en") {
-            if (json.message?.includes("tidak valid") || json.message?.includes("asal-asalan")) {
+            if (json.message?.includes("KEDALUWARSA") || json.message?.includes("kedaluwarsa")) {
+              displayError = "Transaction is EXPIRED or too old (must be completed within the last 20 minutes). Using old or someone else's transactions is strictly prohibited.";
+            } else if (json.message?.includes("TIDAK COCOK") || json.message?.includes("tidak cocok")) {
+              displayError = "Transferred crypto amount does not match the invoice amount. Using someone else's transaction is rejected.";
+            } else if (json.message?.includes("SUDAH PERNAH DIGUNAKAN") || json.message?.includes("sudah pernah")) {
+              displayError = "This transaction hash has already been used for a previous deposit.";
+            } else if (json.message?.includes("tidak valid") || json.message?.includes("asal-asalan")) {
               displayError = "Invalid TxID. Please enter a valid transaction hash from your sending wallet.";
             } else if (json.message?.includes("tidak ditemukan")) {
               displayError = "Transaction not found on the blockchain or still pending. Please verify your transfer succeeded.";
-            } else if (json.message?.includes("sudah pernah")) {
-              displayError = "This transaction hash has already been used for a previous deposit.";
-            } else if (json.message?.includes("kurang") || json.message?.includes("lebih kecil")) {
-              displayError = "The transferred crypto amount is less than the requested deposit amount.";
             }
           } else if (lang === "zh") {
-            if (json.message?.includes("tidak valid") || json.message?.includes("asal-asalan")) {
-              displayError = "TxID 无效。请输入付款钱包中的有效交易哈希。";
-            } else if (json.message?.includes("tidak ditemukan")) {
-              displayError = "未在区块链上检测到该交易或仍在确认中，请确保已成功转账。";
-            } else if (json.message?.includes("sudah pernah")) {
+            if (json.message?.includes("KEDALUWARSA") || json.message?.includes("kedaluwarsa")) {
+              displayError = "该交易已过期（交易必须在最近 20 分钟内完成）。严禁使用旧交易或他人交易！";
+            } else if (json.message?.includes("TIDAK COCOK") || json.message?.includes("tidak cocok")) {
+              displayError = "链上检测到的转账金额与充值账单不一致，严禁使用他人交易！";
+            } else if (json.message?.includes("SUDAH PERNAH DIGUNAKAN") || json.message?.includes("sudah pernah")) {
               displayError = "该交易哈希已被使用过，无法重复充值。";
             }
           }
           setErrorMessage(displayError || json.message);
           return; // STOP! JANGAN TAMBAH SALDO!
         }
+
+        // Record locally as claimed
+        claimedList.push(cleanTx.toLowerCase());
+        localStorage.setItem("texasai:claimed_tx_ids", JSON.stringify(claimedList));
 
         // VERIFIKASI BERHASIL! DANA BENAR-BENAR MASUK ON-CHAIN
         const actualUsd = json.amount_usd || selectedUsd;
@@ -573,7 +594,7 @@ export function TopUpModal() {
                 </h4>
                 <p className="text-xs text-fg-muted max-w-[280px] mx-auto text-center">
                   {paymentMethod !== "qris" 
-                    ? (lang === "en" ? "Connecting to blockchain nodes to verify transaction status in real-time..." : lang === "zh" ? "正在连接区块链节点实时核查交易状态..." : "Sistem sedang memeriksa status hash transaksi ke node blockchain secara langsung...")
+                    ? (lang === "en" ? "Verifying block timestamp and transferred amount directly with blockchain nodes..." : lang === "zh" ? "正在向区块链节点核验出块时间与准确金额..." : "Sistem sedang memeriksa status hash transaksi, waktu transfer, dan nominal ke node blockchain...")
                     : (lang === "en" ? "Please wait a moment while we verify your payment with the network." : lang === "zh" ? "请稍候，我们正在核对您的付款。" : "Mohon tunggu sebentar, kami sedang memverifikasi pembayaran Anda.")}
                 </p>
               </div>
@@ -970,7 +991,7 @@ export function TopUpModal() {
                         </label>
                         <span className="text-[10px] text-accent font-semibold flex items-center gap-1">
                           <Zap size={11} /> 
-                          {lang === "en" ? "Auto On-Chain Verification" : lang === "zh" ? "链上全自动验证" : "Auto Verifikasi Blockchain"}
+                          {lang === "en" ? "Strict On-Chain Verification" : lang === "zh" ? "链上严密核验" : "Auto Verifikasi Blockchain"}
                         </span>
                       </div>
                       <input
@@ -994,10 +1015,10 @@ export function TopUpModal() {
                       />
                       <p className="mt-1.5 text-[10px] text-fg-muted leading-tight">
                         {lang === "en"
-                          ? "⚡ Texas AI automatically verifies this transaction directly on the blockchain in real-time. If the TxID is invalid or not yet sent, the deposit will be rejected."
+                          ? "⚡ Texas AI strictly verifies the block timestamp (must be within the last 20 mins) and exact amount. Expired, reused, or transactions belonging to others will be strictly rejected."
                           : lang === "zh"
-                          ? "⚡ Texas AI 系统将实时直连区块链验证此交易真实性。如果 TxID 伪造或未转账，充值将被自动驳回。"
-                          : "⚡ Sistem Texas AI akan memeriksa keaslian transaksi ini langsung ke blockchain secara real-time. Jika TxID palsu atau belum ditransfer, deposit akan otomatis ditolak."}
+                          ? "⚡ Texas AI 将严密核查交易出块时间（必须在 20 分钟内）与准确金额。过期交易、重复使用或他人交易将被严厉驳回。"
+                          : "⚡ Sistem Texas AI akan memeriksa keaslian transaksi, waktu transfer (wajib 20 menit terakhir), dan nominal persis. Transaksi lama, terpakai, atau milik orang lain otomatis ditolak."}
                       </p>
                     </div>
                   </div>

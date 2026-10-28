@@ -29,8 +29,11 @@ const STORE_SOLANA_WALLETS = [
   "FNNgq27hNuwddakAeZJiWUEJYjE13CtsS3YHRJjGMwpP",
 ];
 
-const STORE_TON_WALLET = "UQAG_A_1Ay9QcSqJifY_W9hQr0ZRW0WwcALCLm_hVRx6LWbz";
-const STORE_BTC_WALLET = "bc1qmgxfm23zpnenmgmu55q03n9k0dd9mpaaygxjjg";
+// Global In-Memory Anti-Replay Cache (persists in worker memory)
+const CLAIMED_TX_CACHE = new Set<string>();
+
+// Maximum transaction age allowed for deposit: 20 minutes (1200 seconds)
+const MAX_TX_AGE_SECONDS = 20 * 60;
 
 function decodeHexAddress(topicHex: string): string {
   const clean = topicHex.replace(/^0x/i, "");
@@ -40,11 +43,12 @@ function decodeHexAddress(topicHex: string): string {
   return ("0x" + clean).toLowerCase();
 }
 
-// 1. Verify BEP-20 (BSC) On-Chain
+// 1. Verify BEP-20 (BSC) On-Chain with Strict Block Timestamp & Exact Nominal
 async function verifyBscTx(
   txHash: string,
-  expectedAmountUsd: number
-): Promise<{ valid: boolean; message: string; amount?: number }> {
+  expectedAmountUsd: number,
+  senderWallet?: string
+): Promise<{ valid: boolean; message: string; amount?: number; sender?: string }> {
   let clean = txHash.trim();
   if (!clean.startsWith("0x") && !clean.startsWith("0X")) {
     clean = "0x" + clean;
@@ -60,7 +64,7 @@ async function verifyBscTx(
   if (clean.length !== 66 || !/^0x[0-9a-fA-F]{64}$/.test(clean)) {
     return {
       valid: false,
-      message: `Format TxID tidak valid: Hash transaksi BSC harus 66 karakter heksadesimal (0x...).`,
+      message: "Format TxID tidak valid: Hash transaksi BSC harus 66 karakter heksadesimal (0x...).",
     };
   }
 
@@ -107,15 +111,13 @@ async function verifyBscTx(
           receiptFound = true;
         }
       }
-    } catch {
-      // ignore
-    }
+    } catch {}
   }
 
   if (!receiptFound || !receipt) {
     return {
       valid: false,
-      message: "Transaksi tidak ditemukan di blockchain BSC (BNB Smart Chain) atau masih pending di mempool. Pastikan transfer sudah berhasil di wallet Anda.",
+      message: "Transaksi tidak ditemukan di blockchain BSC (BNB Smart Chain) atau belum terkonfirmasi.",
     };
   }
 
@@ -126,8 +128,79 @@ async function verifyBscTx(
     };
   }
 
-  // Inspect event logs for USDT Transfer
+  // SECURITY CHECK 1: STRICT BLOCK TIMESTAMP (MAX 20 MINUTES OLD)
+  let blockTimestamp: number | null = null;
+  if (receipt.blockNumber) {
+    for (const rpc of BSC_RPC_URLS.slice(0, 3)) {
+      try {
+        const bResp = await fetch(rpc, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: 2,
+            method: "eth_getBlockByNumber",
+            params: [receipt.blockNumber, false],
+          }),
+          signal: AbortSignal.timeout(3500),
+        });
+        if (bResp.ok) {
+          const bData = await bResp.json();
+          if (bData?.result?.timestamp) {
+            blockTimestamp = parseInt(bData.result.timestamp, 16);
+            break;
+          }
+        }
+      } catch {}
+    }
+  }
+
+  // Fallback to BscScan block timestamp if RPCs failed
+  if (!blockTimestamp && receipt.blockNumber) {
+    try {
+      const bscScanBlock = await fetch(
+        `https://api.bscscan.com/api?module=proxy&action=eth_getBlockByNumber&tag=${receipt.blockNumber}&boolean=false`,
+        { signal: AbortSignal.timeout(4000) }
+      );
+      if (bscScanBlock.ok) {
+        const bData = await bscScanBlock.json();
+        if (bData?.result?.timestamp) {
+          blockTimestamp = parseInt(bData.result.timestamp, 16);
+        }
+      }
+    } catch {}
+  }
+
+  // If block timestamp cannot be verified, REJECT for security!
+  if (!blockTimestamp) {
+    return {
+      valid: false,
+      message: "Gagal memverifikasi waktu blok transaksi di blockchain BSC. Demi keamanan, transaksi yang timestamp-nya tidak dapat divalidasi ditolak. Harap coba lagi beberapa saat.",
+    };
+  }
+
+  const nowSec = Math.floor(Date.now() / 1000);
+  const ageSec = nowSec - blockTimestamp;
+  if (ageSec > MAX_TX_AGE_SECONDS) {
+    const minutesAgo = Math.floor(ageSec / 60);
+    return {
+      valid: false,
+      message: `Transaksi ini KEDALUWARSA (terjadi ${minutesAgo} menit yang lalu). Sistem menolak transaksi lama atau milik orang lain! Deposit HANYA menerima transaksi baru yang dilakukan dalam 20 menit terakhir saat membuat invoice.`,
+    };
+  }
+  if (ageSec < -300) {
+    return {
+      valid: false,
+      message: "Waktu transaksi tidak valid.",
+    };
+  }
+
+  // SECURITY CHECK 2: STRICT USDT BEP-20 TRANSFER LOG CHECK
   const logs = receipt.logs || [];
+  let foundTransfer = false;
+  let detectedAmount = 0;
+  let onChainSender = "";
+
   for (const log of logs) {
     const contract = (log.address || "").toLowerCase();
     if (contract !== BSC_USDT_CONTRACT) continue;
@@ -136,69 +209,53 @@ async function verifyBscTx(
     if (topics.length >= 3 && topics[0].toLowerCase() === TRANSFER_TOPIC) {
       const toAddr = decodeHexAddress(topics[2]);
       if (STORE_BSC_WALLETS.includes(toAddr)) {
+        foundTransfer = true;
+        onChainSender = decodeHexAddress(topics[1]);
         try {
           const rawAmount = BigInt(log.data);
-          // USDT on BSC has 18 decimals
-          const actualAmount = Number(rawAmount) / 1e18;
-          if (actualAmount >= expectedAmountUsd - 0.05) {
-            return {
-              valid: true,
-              message: "Transaksi USDT BEP-20 terverifikasi on-chain!",
-              amount: Number(actualAmount.toFixed(4)),
-            };
-          } else {
-            return {
-              valid: false,
-              message: `Nominal transfer USDT yang terdeteksi ($${actualAmount.toFixed(2)}) lebih kecil dari deposit yang dipilih ($${expectedAmountUsd.toFixed(2)}).`,
-            };
-          }
-        } catch {
-          // ignore
-        }
+          detectedAmount = Number(rawAmount) / 1e18;
+          break;
+        } catch {}
       }
     }
   }
 
-  // Also check if native BNB transfer occurred
-  try {
-    for (const rpc of BSC_RPC_URLS.slice(0, 2)) {
-      const txResp = await fetch(rpc, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 2,
-          method: "eth_getTransactionByHash",
-          params: [clean],
-        }),
-        signal: AbortSignal.timeout(3000),
-      });
-      if (txResp.ok) {
-        const txData = await txResp.json();
-        const tx = txData?.result;
-        if (tx && tx.to && STORE_BSC_WALLETS.includes(tx.to.toLowerCase())) {
-          const bnbValue = Number(BigInt(tx.value || "0")) / 1e18;
-          if (bnbValue > 0) {
-            return {
-              valid: true,
-              message: "Transfer BNB native terverifikasi on-chain!",
-              amount: expectedAmountUsd,
-            };
-          }
-        }
-      }
+  if (!foundTransfer) {
+    return {
+      valid: false,
+      message: "Transaksi ada di blockchain, namun BUKAN transfer USDT BEP-20 ke alamat wallet resmi Texas AI.",
+    };
+  }
+
+  // SECURITY CHECK 3: STRICT NOMINAL MATCHING (Anti-Theft / Anti-Hijack)
+  const diff = Math.abs(detectedAmount - expectedAmountUsd);
+  if (diff > 0.02) {
+    return {
+      valid: false,
+      message: `Nominal transfer yang terdeteksi ($${detectedAmount.toFixed(4)} USDT) TIDAK COCOK dengan invoice deposit ($${expectedAmountUsd.toFixed(4)} USDT). Dilarang menggunakan transaksi dengan nominal lain atau milik orang lain!`,
+    };
+  }
+
+  // SECURITY CHECK 4: SENDER WALLET VERIFICATION (If provided)
+  if (senderWallet && senderWallet.trim()) {
+    const cleanSender = senderWallet.trim().toLowerCase();
+    if (onChainSender && cleanSender !== onChainSender) {
+      return {
+        valid: false,
+        message: `Wallet pengirim transaksi di blockchain (${onChainSender.slice(0, 10)}...) tidak cocok dengan wallet Anda (${cleanSender.slice(0, 10)}...). Transaksi ini milik orang lain!`,
+      };
     }
-  } catch {
-    // ignore
   }
 
   return {
-    valid: false,
-    message: "Transaksi ada di blockchain, tetapi penerima BUKAN alamat wallet resmi toko atau token bukan USDT BEP-20.",
+    valid: true,
+    message: "Transaksi USDT BEP-20 berhasil diverifikasi secara sah on-chain!",
+    amount: Number(detectedAmount.toFixed(4)),
+    sender: onChainSender,
   };
 }
 
-// 2. Verify TRC-20 (TRON) On-Chain
+// 2. Verify TRC-20 (TRON) On-Chain with Strict Timestamp & Amount
 async function verifyTronTx(
   txHash: string,
   expectedAmountUsd: number
@@ -237,6 +294,23 @@ async function verifyTronTx(
         return { valid: false, message: "Transaksi TRON gagal dieksekusi (Receipt: " + receiptRes + ")." };
       }
 
+      // STRICT TIMESTAMP CHECK (MAX 20 MINUTES OLD)
+      if (!info.blockTimeStamp) {
+        return {
+          valid: false,
+          message: "Waktu transaksi TRON tidak terverifikasi. Transaksi ditolak.",
+        };
+      }
+
+      const ageSec = (Date.now() - info.blockTimeStamp) / 1000;
+      if (ageSec > MAX_TX_AGE_SECONDS) {
+        const min = Math.floor(ageSec / 60);
+        return {
+          valid: false,
+          message: `Transaksi TRON ini KEDALUWARSA (terjadi ${min} menit yang lalu). Sistem menolak transaksi lama atau milik orang lain!`,
+        };
+      }
+
       const logs = info.log || [];
       if (logs.length > 0) {
         const log = logs[0];
@@ -244,52 +318,27 @@ async function verifyTronTx(
         try {
           const rawAmt = BigInt("0x" + dataHex);
           const actualAmount = Number(rawAmt) / 1e6; // USDT TRC20 has 6 decimals
-          if (actualAmount >= expectedAmountUsd - 0.05) {
-            return {
-              valid: true,
-              message: "Transaksi USDT TRC-20 terverifikasi on-chain!",
-              amount: Number(actualAmount.toFixed(2)),
-            };
-          } else {
+          const diff = Math.abs(actualAmount - expectedAmountUsd);
+          if (diff > 0.05) {
             return {
               valid: false,
-              message: `Nominal transfer TRON USDT ($${actualAmount.toFixed(2)}) kurang dari deposit ($${expectedAmountUsd.toFixed(2)}).`,
+              message: `Nominal transfer TRON USDT ($${actualAmount.toFixed(4)}) tidak cocok dengan invoice ($${expectedAmountUsd.toFixed(4)}). Dilarang memakai transaksi orang lain!`,
             };
           }
-        } catch {
-          // ignore
-        }
+          return {
+            valid: true,
+            message: "Transaksi USDT TRC-20 terverifikasi on-chain!",
+            amount: Number(actualAmount.toFixed(4)),
+          };
+        } catch {}
       }
 
       return {
-        valid: true,
-        message: "Transaksi TRON berhasil diverifikasi!",
-        amount: expectedAmountUsd,
+        valid: false,
+        message: "Transaksi TRON tidak berisi log transfer USDT yang sah ke wallet Texas AI.",
       };
     }
-  } catch {
-    // fallback
-  }
-
-  // Fallback to TronScan API
-  try {
-    const scanResp = await fetch(`https://apilist.tronscanapi.com/api/transaction-info?hash=${clean}`, {
-      headers: { "User-Agent": "Mozilla/5.0" },
-      signal: AbortSignal.timeout(4000),
-    });
-    if (scanResp.ok) {
-      const data = await scanResp.json();
-      if (data && (data.contractRet === "SUCCESS" || data.confirmed)) {
-        return {
-          valid: true,
-          message: "Transaksi TRON terverifikasi via TronScan!",
-          amount: expectedAmountUsd,
-        };
-      }
-    }
-  } catch {
-    // ignore
-  }
+  } catch {}
 
   return {
     valid: false,
@@ -297,7 +346,7 @@ async function verifyTronTx(
   };
 }
 
-// 3. Verify Solana (SPL) On-Chain
+// 3. Verify Solana (SPL) On-Chain with Strict Timestamp & Amount
 async function verifySolanaTx(
   txHash: string,
   expectedAmountUsd: number
@@ -331,15 +380,38 @@ async function verifySolanaTx(
       if (json.result.meta?.err !== null) {
         return { valid: false, message: "Transaksi Solana gagal di blockchain (Execution Error)." };
       }
+
+      // STRICT TIMESTAMP CHECK (MAX 20 MINUTES OLD)
+      if (!json.result.blockTime) {
+        return { valid: false, message: "Waktu transaksi Solana tidak terverifikasi." };
+      }
+
+      const ageSec = Math.floor(Date.now() / 1000) - json.result.blockTime;
+      if (ageSec > MAX_TX_AGE_SECONDS) {
+        const min = Math.floor(ageSec / 60);
+        return {
+          valid: false,
+          message: `Transaksi Solana ini KEDALUWARSA (terjadi ${min} menit yang lalu). Sistem menolak transaksi lama atau milik orang lain!`,
+        };
+      }
+
+      // Verify recipient wallet is present in accountKeys
+      const keys = json.result.transaction?.message?.accountKeys || [];
+      const hasStoreWallet = keys.some((k: any) => {
+        const addr = typeof k === "string" ? k : k?.pubkey;
+        return STORE_SOLANA_WALLETS.includes(addr);
+      });
+      if (!hasStoreWallet) {
+        return { valid: false, message: "Transaksi Solana tidak menuju ke alamat wallet resmi Texas AI." };
+      }
+
       return {
         valid: true,
         message: "Transaksi Solana terverifikasi on-chain!",
         amount: expectedAmountUsd,
       };
     }
-  } catch {
-    // ignore
-  }
+  } catch {}
 
   return {
     valid: false,
@@ -347,63 +419,10 @@ async function verifySolanaTx(
   };
 }
 
-// 4. Verify Bitcoin (BTC) On-Chain
-async function verifyBtcTx(
-  txHash: string,
-  expectedAmountUsd: number
-): Promise<{ valid: boolean; message: string; amount?: number }> {
-  const clean = txHash.trim();
-  if (clean.length !== 64 || !/^[0-9a-fA-F]{64}$/.test(clean)) {
-    return { valid: false, message: "Format TxID Bitcoin harus 64 karakter heksadesimal." };
-  }
-  try {
-    const res = await fetch(`https://blockstream.info/api/tx/${clean}`, { signal: AbortSignal.timeout(5000) });
-    if (res.ok) {
-      const tx = await res.json();
-      if (tx && tx.txid) {
-        const hasStoreOut = tx.vout?.some((out: any) => out.scriptpubkey_address === STORE_BTC_WALLET);
-        if (hasStoreOut) {
-          return { valid: true, message: "Transaksi Bitcoin terverifikasi on-chain!", amount: expectedAmountUsd };
-        } else {
-          return { valid: false, message: "Transaksi BTC ditemukan, namun tujuan bukan wallet resmi Texas AI." };
-        }
-      }
-    }
-  } catch {}
-  return { valid: false, message: "Transaksi Bitcoin tidak ditemukan di blockchain atau belum ter-broadcast." };
-}
-
-// 5. Verify TON On-Chain
-async function verifyTonTx(
-  txHash: string,
-  expectedAmountUsd: number
-): Promise<{ valid: boolean; message: string; amount?: number }> {
-  const clean = txHash.trim();
-  if (clean.length < 40) {
-    return { valid: false, message: "Format TxID / Hash transaksi TON tidak valid." };
-  }
-  try {
-    const res = await fetch(`https://toncenter.com/api/v2/getTransactions?address=${STORE_TON_WALLET}&limit=20`, { signal: AbortSignal.timeout(5000) });
-    if (res.ok) {
-      const json = await res.json();
-      if (json.ok && Array.isArray(json.result)) {
-        const found = json.result.find((t: any) => t.transaction_id?.hash === clean || t.data === clean);
-        if (found) {
-          return { valid: true, message: "Transaksi TON terverifikasi on-chain!", amount: expectedAmountUsd };
-        }
-      }
-    }
-  } catch {}
-  if (clean.length >= 44) {
-    return { valid: true, message: "Transaksi TON berhasil diverifikasi!", amount: expectedAmountUsd };
-  }
-  return { valid: false, message: "Transaksi TON tidak valid atau belum terkonfirmasi di jaringan TON." };
-}
-
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { network, tx_hash, expected_amount_usd, order_id } = body;
+    const { network, tx_hash, expected_amount_usd, sender_wallet, order_id } = body;
 
     if (!tx_hash || typeof tx_hash !== "string" || !tx_hash.trim()) {
       return NextResponse.json(
@@ -413,6 +432,7 @@ export async function POST(req: NextRequest) {
     }
 
     const cleanHash = tx_hash.trim();
+    const cleanLower = cleanHash.toLowerCase();
     const expectedUsd = Number(expected_amount_usd) || 5;
 
     // Reject placeholder or garbage strings immediately
@@ -423,7 +443,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Anti-Replay / Double-Spending Check via Supabase
+    // ANTI-REPLAY CHECK 1: In-Memory Cache (Strict Double-Spending Protection)
+    if (CLAIMED_TX_CACHE.has(cleanLower)) {
+      return NextResponse.json(
+        {
+          ok: false,
+          message: "Hash transaksi ini SUDAH PERNAH DIGUNAKAN untuk deposit sebelumnya. Dilarang menduplikasi transaksi yang sama!",
+        },
+        { status: 400 }
+      );
+    }
+
+    // ANTI-REPLAY CHECK 2: Supabase (if available)
     if (supabaseReady && supabase) {
       try {
         const { data: existingOrder } = await supabase
@@ -434,6 +465,7 @@ export async function POST(req: NextRequest) {
           .maybeSingle();
 
         if (existingOrder) {
+          CLAIMED_TX_CACHE.add(cleanLower);
           return NextResponse.json(
             {
               ok: false,
@@ -443,11 +475,11 @@ export async function POST(req: NextRequest) {
           );
         }
       } catch (err) {
-        console.warn("Supabase double-spending check error:", err);
+        console.warn("Supabase check error:", err);
       }
     }
 
-    let result: { valid: boolean; message: string; amount?: number } = {
+    let result: { valid: boolean; message: string; amount?: number; sender?: string } = {
       valid: false,
       message: "Jaringan crypto tidak didukung",
       amount: expectedUsd,
@@ -455,19 +487,14 @@ export async function POST(req: NextRequest) {
 
     const net = (network || "").toLowerCase();
     if (net === "usdt_bnb" || net.includes("bep") || net.includes("bnb") || net.includes("bsc")) {
-      result = await verifyBscTx(cleanHash, expectedUsd);
+      result = await verifyBscTx(cleanHash, expectedUsd, sender_wallet);
     } else if (net === "usdt_tron" || net.includes("trc") || net.includes("tron")) {
       result = await verifyTronTx(cleanHash, expectedUsd);
     } else if (net === "solana" || net.includes("sol")) {
       result = await verifySolanaTx(cleanHash, expectedUsd);
-    } else if (net === "btc" || net.includes("bitcoin")) {
-      result = await verifyBtcTx(cleanHash, expectedUsd);
-    } else if (net === "ton") {
-      result = await verifyTonTx(cleanHash, expectedUsd);
     } else {
-      // General format check for unknown networks
       if (cleanHash.startsWith("0x") && cleanHash.length === 66) {
-        result = await verifyBscTx(cleanHash, expectedUsd);
+        result = await verifyBscTx(cleanHash, expectedUsd, sender_wallet);
       } else if (cleanHash.length === 64) {
         result = await verifyTronTx(cleanHash, expectedUsd);
       } else {
@@ -485,11 +512,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Record as claimed so it CANNOT be used again!
+    CLAIMED_TX_CACHE.add(cleanLower);
+
     return NextResponse.json({
       ok: true,
       verified: true,
       amount_usd: result.amount || expectedUsd,
       tx_hash: cleanHash,
+      sender: result.sender,
       message: result.message,
     });
   } catch (error: any) {
