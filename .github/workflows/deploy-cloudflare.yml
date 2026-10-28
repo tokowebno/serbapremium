@@ -25,8 +25,8 @@ jobs:
       - name: Bangun OpenNext untuk Cloudflare
         run: npx opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL || 'https://mxkgyxiwbavoxiqeivom.supabase.co' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14a2d5eGl3YmF2b3hpcWVpdm9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzMzk3NDAsImV4cCI6MjEwMzkxNTc0MH0.Z3aEBO_gFP--fO5eXXsuad2Vk7cETxwfseHdq92zydg' }}
 
       - name: Deploy ke Cloudflare Workers
         run: npx opennextjs-cloudflare deploy
