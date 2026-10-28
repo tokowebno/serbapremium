@@ -1,4 +1,4 @@
-name: Deploy ke Cloudflare
+﻿name: Deploy ke Cloudflare
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
           node-version: 22
           cache: npm
 
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
 
       - name: Bangun OpenNext untuk Cloudflare
         run: npx opennextjs-cloudflare build
