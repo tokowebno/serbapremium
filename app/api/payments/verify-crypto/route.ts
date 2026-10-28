@@ -14,7 +14,7 @@ const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a
 
 // Official Store Wallets
 const STORE_BSC_WALLETS = [
-  "0xb8E8C7a85942475752755ff1E6c33529Eced4E91".toLowerCase(),
+  "0xb5A05f87bEf59520794A656a3a2109f665557fd0".toLowerCase(),
   "0x86DC189A191fdEDaFE63c14c3d53b48362CfEb27".toLowerCase(),
   "0x2ec36d32530c754c234efba61430c775455fb3b5".toLowerCase(),
 ];
