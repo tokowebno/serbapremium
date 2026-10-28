@@ -297,12 +297,27 @@ function IsiSaldoContent() {
         if (!res.ok || !json.ok || !json.verified) {
           setIsProcessing(false);
           setCheckingStatus(false);
-          setErrorMessage(
-            json.message ||
-              (lang === "en"
-                ? "Invalid TxID or transaction not verified on blockchain. Deposit rejected."
-                : "TxID tidak valid atau transaksi tidak ditemukan di blockchain. Deposit crypto ditolak.")
-          );
+          let displayError = json.message;
+          if (lang === "en") {
+            if (json.message?.includes("tidak valid") || json.message?.includes("asal-asalan")) {
+              displayError = "Invalid TxID. Please enter a valid transaction hash from your sending wallet.";
+            } else if (json.message?.includes("tidak ditemukan")) {
+              displayError = "Transaction not found on the blockchain or still pending. Please verify your transfer succeeded.";
+            } else if (json.message?.includes("sudah pernah")) {
+              displayError = "This transaction hash has already been used for a previous deposit.";
+            } else if (json.message?.includes("kurang") || json.message?.includes("lebih kecil")) {
+              displayError = "The transferred crypto amount is less than the requested deposit amount.";
+            }
+          } else if (lang === "zh") {
+            if (json.message?.includes("tidak valid") || json.message?.includes("asal-asalan")) {
+              displayError = "TxID 无效。请输入付款钱包中的有效交易哈希。";
+            } else if (json.message?.includes("tidak ditemukan")) {
+              displayError = "未在区块链上检测到该交易或仍在确认中，请确保已成功转账。";
+            } else if (json.message?.includes("sudah pernah")) {
+              displayError = "该交易哈希已被使用过，无法重复充值。";
+            }
+          }
+          setErrorMessage(displayError || json.message);
           return; // STOP! JANGAN TAMBAH SALDO!
         }
 
@@ -364,6 +379,8 @@ function IsiSaldoContent() {
         setErrorMessage(
           lang === "en"
             ? "Connection error while verifying blockchain. Please try again."
+            : lang === "zh"
+            ? "连接区块链验证网络时出错，请重试。"
             : "Gagal memverifikasi transaksi ke blockchain. Pastikan koneksi internet stabil dan coba lagi."
         );
         return;
@@ -426,7 +443,11 @@ function IsiSaldoContent() {
             className="liquid-glass-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold text-fg-muted hover:text-fg transition-all active:scale-95"
           >
             <ArrowLeft size={14} />
-            <span>{returnApp ? "Kembali ke Pembelian" : "Kembali ke Toko"}</span>
+            <span>
+              {returnApp
+                ? (lang === "en" ? "Back to Checkout" : lang === "zh" ? "返回购买" : "Kembali ke Pembelian")
+                : (lang === "en" ? "Back to Store" : lang === "zh" ? "返回商店" : "Kembali ke Toko")}
+            </span>
           </Link>
         </div>
 
@@ -466,7 +487,7 @@ function IsiSaldoContent() {
               </span>
               <div className="flex items-baseline md:justify-end gap-2 mt-0.5">
                 <span className="text-xl sm:text-2xl font-black text-fg tabular-nums">
-                  {formatRupiah(balance)}
+                  {formatPrice(balance, lang)}
                 </span>
               </div>
               <span className="text-[11.5px] font-bold text-fg-muted mt-0.5 block">
@@ -487,11 +508,13 @@ function IsiSaldoContent() {
           >
             <Loader2 className="animate-spin text-accent" size={60} strokeWidth={2} />
             <h4 className="text-2xl sm:text-3xl font-black tracking-tight text-fg">
-              {paymentMethod !== "qris" ? "Memverifikasi Transaksi On-Chain..." : (lang === "en" ? "Processing Payment..." : lang === "zh" ? "正在处理付款..." : "Sedang Memproses...")}
+              {paymentMethod !== "qris" 
+                ? (lang === "en" ? "Verifying Transaction On-Chain..." : lang === "zh" ? "正在链上验证交易..." : "Memverifikasi Transaksi On-Chain...") 
+                : (lang === "en" ? "Processing Payment..." : lang === "zh" ? "正在处理付款..." : "Sedang Memproses...")}
             </h4>
             <p className="text-sm text-fg-muted max-w-[350px] mx-auto leading-relaxed">
               {paymentMethod !== "qris"
-                ? "Sistem sedang memeriksa status hash transaksi ke node blockchain secara langsung..."
+                ? (lang === "en" ? "Connecting to blockchain nodes to verify transaction status in real-time..." : lang === "zh" ? "正在连接区块链节点实时核查交易状态..." : "Sistem sedang memeriksa status hash transaksi ke node blockchain secara langsung...")
                 : (lang === "en" ? "Please wait a moment while we verify your payment with the network." : lang === "zh" ? "请稍候，我们正在核对您的付款。" : "Mohon tunggu sebentar, kami sedang memverifikasi pembayaran Anda.")}
             </p>
           </motion.div>
@@ -514,26 +537,30 @@ function IsiSaldoContent() {
               </span>
 
               <h2 className="mt-2 text-3xl sm:text-4xl font-black text-fg tracking-tight">
-                +{formatRupiah((verifiedAmountUsd || selectedUsd) * USD_RATE)}
+                +{lang === "id" ? formatRupiah((verifiedAmountUsd || selectedUsd) * USD_RATE) : `$${(verifiedAmountUsd || selectedUsd).toFixed(2)} USD`}
               </h2>
               <p className="mt-1 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                +${verifiedAmountUsd || selectedUsd} USD Saldo Otomatis Masuk ke Akun Anda!
+                {lang === "en"
+                  ? `+$${verifiedAmountUsd || selectedUsd} USD Added Automatically to Your Balance!`
+                  : lang === "zh"
+                  ? `+$${verifiedAmountUsd || selectedUsd} USD 余额已全自动存入账户！`
+                  : `+$${verifiedAmountUsd || selectedUsd} USD Saldo Otomatis Masuk ke Akun Anda!`}
               </p>
 
               <div className="mt-6 mx-auto max-w-sm text-left">
                 <div className="rounded-2xl border border-border bg-surface-2 p-4 space-y-3">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-fg-muted">Status:</span>
+                    <span className="text-fg-muted">{lang === "en" ? "Status:" : lang === "zh" ? "状态：" : "Status:"}</span>
                     <span className="font-bold text-emerald-600 flex items-center gap-1">
-                      <Check size={14} strokeWidth={3} /> Berhasil Otomatis
+                      <Check size={14} strokeWidth={3} /> {lang === "en" ? "Auto Verified" : lang === "zh" ? "自动核验成功" : "Berhasil Otomatis"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-fg-muted">Invoice:</span>
+                    <span className="text-fg-muted">{lang === "en" ? "Invoice:" : lang === "zh" ? "账单号：" : "Invoice:"}</span>
                     <span className="font-mono font-bold text-fg">{orderCode}</span>
                   </div>
                   <div className="text-xs pt-2 border-t border-border">
-                    <span className="text-fg-muted block mb-1">Hash Transaksi (TxID):</span>
+                    <span className="text-fg-muted block mb-1">{lang === "en" ? "Transaction Hash (TxID):" : lang === "zh" ? "交易哈希 (TxID)：" : "Hash Transaksi (TxID):"}</span>
                     <span className="font-mono text-[11px] font-bold text-fg break-all select-all block bg-surface p-2.5 rounded-xl border border-border">
                       {txId}
                     </span>
@@ -547,7 +574,11 @@ function IsiSaldoContent() {
                   size="lg"
                   className="w-full sm:w-auto rounded-full bg-fg text-surface font-bold text-sm px-8"
                 >
-                  <span>{returnApp ? "Lanjut Pembelian Aplikasi" : "Kembali ke Toko"}</span>
+                  <span>
+                    {returnApp 
+                      ? (lang === "en" ? "Continue App Purchase" : lang === "zh" ? "继续购买软件" : "Lanjut Pembelian Aplikasi")
+                      : (lang === "en" ? "Return to Store" : lang === "zh" ? "返回商店" : "Kembali ke Toko")}
+                  </span>
                   <ArrowRight size={15} />
                 </ButtonLink>
               </div>
@@ -569,7 +600,7 @@ function IsiSaldoContent() {
               </span>
 
               <h2 className="mt-2 text-3xl sm:text-4xl font-black text-fg tracking-tight">
-                {formatRupiah(amountIdr)}
+                {formatPrice(amountIdr, lang)}
               </h2>
               <p className="mt-1 text-sm font-semibold text-fg-muted">
                 +${selectedUsd} USD • Invoice: <span className="text-fg font-mono font-bold">{orderCode}</span>
@@ -602,7 +633,7 @@ function IsiSaldoContent() {
                   size="lg"
                   className="w-full sm:w-auto rounded-full bg-fg text-surface font-bold text-sm px-8"
                 >
-                  <span>{returnApp ? "Lanjut Pembelian" : "Selesai & Ke Dashboard"}</span>
+                  <span>{returnApp ? "Lanjut Pembelian" : (lang === "en" ? "Done & Return" : lang === "zh" ? "完成并返回" : "Selesai & Ke Dashboard")}</span>
                 </ButtonLink>
               </div>
             </motion.div>
@@ -626,9 +657,9 @@ function IsiSaldoContent() {
                 </p>
                 <p className="text-fg-muted text-[11.5px] mt-0.5">
                   {lang === "en"
-                    ? "Automatic credit upon verified payment."
+                    ? "Automatic credit upon verified blockchain payment."
                     : lang === "zh"
-                    ? "付款核对后秒级自动存入账户。"
+                    ? "付款链上核对后秒级自动存入账户。"
                     : "Kurs acuan 1 USD = Rp 17.904. Saldo langsung masuk otomatis setelah pembayaran terverifikasi on-chain."}
                 </p>
               </div>
@@ -646,7 +677,9 @@ function IsiSaldoContent() {
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-fg text-[10px] font-black text-surface">1</span>
                   <span>{lang === "en" ? "Select Amount (USD)" : lang === "zh" ? "选择充值金额 (USD)" : "Pilih Nominal Isi Saldo (USD)"}</span>
                 </label>
-                <span className="text-[11px] font-semibold text-fg-muted font-mono">Kurs 1 USDT = Rp 17.904</span>
+                <span className="text-[11px] font-semibold text-fg-muted font-mono">
+                  {lang === "en" || lang === "zh" ? "1 USDT ≈ 1 USD" : "Kurs 1 USDT = Rp 17.904"}
+                </span>
               </div>
 
               <div className="grid grid-cols-3 gap-3 sm:gap-4">
@@ -701,7 +734,9 @@ function IsiSaldoContent() {
                   </div>
 
                   <div className="liquid-glass-pill flex flex-col justify-center rounded-2xl px-6 py-4 text-right shrink-0 min-w-[160px] sm:min-w-[200px]">
-                    <span className="text-xs uppercase font-bold text-fg-muted block mb-1">Estimasi Rupiah</span>
+                    <span className="text-xs uppercase font-bold text-fg-muted block mb-1">
+                      {lang === "en" ? "IDR Equivalent" : lang === "zh" ? "折合印尼盾" : "Estimasi Rupiah"}
+                    </span>
                     <span className="text-lg sm:text-xl font-black text-accent tabular-nums">
                       {formatRupiah(amountIdr)}
                     </span>
@@ -729,7 +764,9 @@ function IsiSaldoContent() {
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-fg text-[10px] font-black text-surface">2</span>
                   <span>{lang === "en" ? "Select Payment Method" : lang === "zh" ? "选择支付方式" : "Pilih Metode Pembayaran"}</span>
                 </label>
-                <span className="text-[11px] font-semibold text-fg-muted">Verifikasi Otomatis</span>
+                <span className="text-[11px] font-semibold text-fg-muted">
+                  {lang === "en" ? "Instant Automated Verification" : lang === "zh" ? "秒级全自动核验" : "Verifikasi Otomatis"}
+                </span>
               </div>
 
               <div className="space-y-2.5">
@@ -807,7 +844,9 @@ function IsiSaldoContent() {
               {/* Invoice Topbar */}
               <div className="flex items-center justify-between border-b border-black/[0.08] dark:border-white/[0.08] pb-4">
                 <div>
-                  <span className="text-[11px] font-bold text-fg-muted uppercase tracking-wider">Kode Invoice Deposit</span>
+                  <span className="text-[11px] font-bold text-fg-muted uppercase tracking-wider">
+                    {lang === "en" ? "Deposit Invoice" : lang === "zh" ? "充值账单" : "Kode Invoice Deposit"}
+                  </span>
                   <p className="font-mono text-base font-black text-fg mt-0.5">{orderCode}</p>
                 </div>
                 <button
@@ -860,7 +899,11 @@ function IsiSaldoContent() {
                       BCA, Mandiri, BRI, BNI, GoPay, OVO, DANA, ShopeePay
                     </p>
                     <p className="text-xs text-fg-muted mt-1 leading-relaxed">
-                      Pastikan mentransfer nominal pas <span className="font-bold text-accent">{formatRupiah(totalPayIdr)}</span> agar sistem otomatis mengenali dana Anda dalam 10-60 detik.
+                      {lang === "en"
+                        ? `Ensure exact transfer of ${formatRupiah(totalPayIdr)} for automatic verification within 10-60s.`
+                        : lang === "zh"
+                        ? `请确保准确转账 ${formatRupiah(totalPayIdr)}，系统将在 10-60 秒内全自动入账。`
+                        : `Pastikan mentransfer nominal pas ${formatRupiah(totalPayIdr)} agar sistem otomatis mengenali dana Anda dalam 10-60 detik.`}
                     </p>
                   </div>
                 </div>
@@ -884,7 +927,11 @@ function IsiSaldoContent() {
                         className="liquid-glass-pill flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold text-fg hover:text-accent cursor-pointer active:scale-95"
                       >
                         {copiedField === "crypto-amt" ? <Check size={13} className="text-success" /> : <Copy size={13} />}
-                        <span>{copiedField === "crypto-amt" ? "Disalin!" : "Salin"}</span>
+                        <span>
+                          {copiedField === "crypto-amt" 
+                            ? (lang === "en" ? "Copied!" : lang === "zh" ? "已复制！" : "Disalin!") 
+                            : (lang === "en" ? "Copy" : lang === "zh" ? "复制" : "Salin")}
+                        </span>
                       </button>
                     </div>
                   </div>
@@ -895,7 +942,7 @@ function IsiSaldoContent() {
                     return (
                       <div className="rounded-2xl liquid-tile p-4 space-y-2.5">
                         <span className="text-xs font-bold text-accent uppercase tracking-wider block">
-                          Jaringan: {pm?.network}
+                          {lang === "en" ? "Network: " : lang === "zh" ? "网络: " : "Jaringan: "}{pm?.network}
                         </span>
                         <div className="rounded-xl bg-surface-2 p-3 border border-border">
                           <p className="font-mono text-xs sm:text-[13px] text-fg break-all select-all font-bold">
@@ -908,7 +955,11 @@ function IsiSaldoContent() {
                           className="w-full flex items-center justify-center gap-2 rounded-xl liquid-glass-pill py-2.5 text-xs font-bold text-fg hover:text-accent transition-all active:scale-95 cursor-pointer"
                         >
                           {copiedField === "crypto-addr" ? <Check size={14} className="text-success" /> : <Copy size={14} />}
-                          <span>{copiedField === "crypto-addr" ? "Alamat Wallet Berhasil Disalin!" : "Salin Alamat Wallet"}</span>
+                          <span>
+                            {copiedField === "crypto-addr"
+                              ? (lang === "en" ? "Wallet Address Copied!" : lang === "zh" ? "钱包地址已成功复制！" : "Alamat Wallet Berhasil Disalin!")
+                              : (lang === "en" ? "Copy Wallet Address" : lang === "zh" ? "复制钱包地址" : "Salin Alamat Wallet")}
+                          </span>
                         </button>
                       </div>
                     );
@@ -918,11 +969,14 @@ function IsiSaldoContent() {
                   <div className="pt-2">
                     <div className="flex items-center justify-between mb-1.5">
                       <label className="text-xs font-bold text-fg flex items-center gap-1">
-                        <span>Hash Transaksi / TxID Bukti Transfer</span>
-                        <span className="text-rose-500 font-extrabold">*WAJIB</span>
+                        <span>{lang === "en" ? "Transaction Hash / TxID" : lang === "zh" ? "交易哈希 / TxID" : "Hash Transaksi / TxID Bukti Transfer"}</span>
+                        <span className="text-rose-500 font-extrabold">
+                          {lang === "en" ? "*REQUIRED" : lang === "zh" ? "*必填" : "*WAJIB"}
+                        </span>
                       </label>
                       <span className="text-[11px] text-accent font-semibold flex items-center gap-1">
-                        <Zap size={12} /> Auto On-Chain Blockchain
+                        <Zap size={12} /> 
+                        {lang === "en" ? "Auto On-Chain Verification" : lang === "zh" ? "区块链链上全自动验证" : "Auto On-Chain Blockchain"}
                       </span>
                     </div>
                     <input
@@ -934,17 +988,21 @@ function IsiSaldoContent() {
                       }}
                       placeholder={
                         paymentMethod === "usdt_bnb"
-                          ? "Contoh: 0x123abc... (66 karakter hash BSC)"
+                          ? (lang === "en" ? "e.g. 0x123abc... (66-char BSC hash)" : lang === "zh" ? "例如：0x123abc... (66位 BSC 哈希)" : "Contoh: 0x123abc... (66 karakter hash BSC)")
                           : paymentMethod === "usdt_tron"
-                          ? "Contoh: 84a7bc... (64 karakter hash TRON)"
-                          : "Tempel hash transaksi (TxID) dari wallet Anda..."
+                          ? (lang === "en" ? "e.g. 84a7bc... (64-char TRON hash)" : lang === "zh" ? "例如：84a7bc... (64位 TRON 哈希)" : "Contoh: 84a7bc... (64 karakter hash TRON)")
+                          : (lang === "en" ? "Paste transaction hash (TxID) from your wallet..." : lang === "zh" ? "粘贴钱包中的交易哈希 (TxID)..." : "Tempel hash transaksi (TxID) dari wallet Anda...")
                       }
                       className={`w-full rounded-xl border bg-surface px-4 py-3 text-xs font-mono font-medium text-fg focus:border-border-strong focus:outline-hidden transition-all ${
                         errorMessage ? "border-rose-500 ring-1 ring-rose-500/30" : "border-border"
                       }`}
                     />
                     <p className="mt-1.5 text-[11px] text-fg-muted leading-relaxed">
-                      ⚡ Sistem Texas AI akan memeriksa keaslian transaksi ini langsung ke blockchain secara real-time. Jika TxID palsu atau belum ditransfer, deposit otomatis ditolak.
+                      {lang === "en"
+                        ? "⚡ Texas AI automatically verifies this transaction directly on the blockchain in real-time. If the TxID is invalid or not yet sent, the deposit will be rejected."
+                        : lang === "zh"
+                        ? "⚡ Texas AI 系统将实时直连区块链验证此交易真实性。如果 TxID 伪造或未转账，充值将被自动驳回。"
+                        : "⚡ Sistem Texas AI akan memeriksa keaslian transaksi ini langsung ke blockchain secara real-time. Jika TxID palsu atau belum ditransfer, deposit otomatis ditolak."}
                     </p>
                   </div>
                 </div>
@@ -967,11 +1025,19 @@ function IsiSaldoContent() {
                   className="w-full rounded-full bg-fg text-surface font-black text-sm shadow-sm hover:scale-[1.01] active:scale-95 cursor-pointer py-4 transition-all flex items-center justify-center gap-2"
                 >
                   {!checkingStatus && <CheckCircle2 size={18} />}
-                  {!checkingStatus && <span>Saya Sudah Melakukan Pembayaran</span>}
+                  {!checkingStatus && (
+                    <span>
+                      {lang === "en" ? "I Have Paid" : lang === "zh" ? "我已完成付款" : "Saya Sudah Melakukan Pembayaran"}
+                    </span>
+                  )}
                 </Button>
 
                 <p className="text-center text-[11.5px] text-fg-muted mt-1">
-                  Saldo akun akan langsung otomatis bertambah setelah pembayaran terverifikasi di blockchain.
+                  {lang === "en"
+                    ? "Your balance will be credited instantly once the blockchain transaction is confirmed."
+                    : lang === "zh"
+                    ? "区块链交易确认后，充值金额将立即全自动计入您的账户余额。"
+                    : "Saldo akun akan langsung otomatis bertambah setelah pembayaran terverifikasi di blockchain."}
                 </p>
               </div>
             </div>

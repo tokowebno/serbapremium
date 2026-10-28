@@ -327,12 +327,27 @@ export function TopUpModal() {
         if (!res.ok || !json.ok || !json.verified) {
           setIsProcessing(false);
           setCheckingStatus(false);
-          setErrorMessage(
-            json.message ||
-              (lang === "en"
-                ? "Invalid TxID or transaction not verified on blockchain. Deposit rejected."
-                : "TxID tidak valid atau transaksi tidak ditemukan di blockchain. Deposit crypto ditolak.")
-          );
+          let displayError = json.message;
+          if (lang === "en") {
+            if (json.message?.includes("tidak valid") || json.message?.includes("asal-asalan")) {
+              displayError = "Invalid TxID. Please enter a valid transaction hash from your sending wallet.";
+            } else if (json.message?.includes("tidak ditemukan")) {
+              displayError = "Transaction not found on the blockchain or still pending. Please verify your transfer succeeded.";
+            } else if (json.message?.includes("sudah pernah")) {
+              displayError = "This transaction hash has already been used for a previous deposit.";
+            } else if (json.message?.includes("kurang") || json.message?.includes("lebih kecil")) {
+              displayError = "The transferred crypto amount is less than the requested deposit amount.";
+            }
+          } else if (lang === "zh") {
+            if (json.message?.includes("tidak valid") || json.message?.includes("asal-asalan")) {
+              displayError = "TxID 无效。请输入付款钱包中的有效交易哈希。";
+            } else if (json.message?.includes("tidak ditemukan")) {
+              displayError = "未在区块链上检测到该交易或仍在确认中，请确保已成功转账。";
+            } else if (json.message?.includes("sudah pernah")) {
+              displayError = "该交易哈希已被使用过，无法重复充值。";
+            }
+          }
+          setErrorMessage(displayError || json.message);
           return; // STOP! JANGAN TAMBAH SALDO!
         }
 
@@ -394,6 +409,8 @@ export function TopUpModal() {
         setErrorMessage(
           lang === "en"
             ? "Connection error while verifying blockchain. Please try again."
+            : lang === "zh"
+            ? "连接区块链验证网络时出错，请重试。"
             : "Gagal memverifikasi transaksi ke blockchain. Pastikan koneksi internet stabil dan coba lagi."
         );
         return;
@@ -550,11 +567,13 @@ export function TopUpModal() {
               <div className="py-12 text-center animate-in fade-in zoom-in-95 duration-200 flex flex-col items-center justify-center space-y-4">
                 <Loader2 className="animate-spin text-accent" size={48} strokeWidth={2} />
                 <h4 className="text-xl font-black tracking-tight text-fg">
-                  {paymentMethod !== "qris" ? "Memverifikasi Transaksi On-Chain..." : (lang === "en" ? "Processing Payment..." : lang === "zh" ? "正在处理付款..." : "Sedang Memproses...")}
+                  {paymentMethod !== "qris" 
+                    ? (lang === "en" ? "Verifying Transaction On-Chain..." : lang === "zh" ? "正在链上验证交易..." : "Memverifikasi Transaksi On-Chain...") 
+                    : (lang === "en" ? "Processing Payment..." : lang === "zh" ? "正在处理付款..." : "Sedang Memproses...")}
                 </h4>
                 <p className="text-xs text-fg-muted max-w-[280px] mx-auto text-center">
                   {paymentMethod !== "qris" 
-                    ? "Sistem sedang memeriksa status hash transaksi ke node blockchain secara langsung..."
+                    ? (lang === "en" ? "Connecting to blockchain nodes to verify transaction status in real-time..." : lang === "zh" ? "正在连接区块链节点实时核查交易状态..." : "Sistem sedang memeriksa status hash transaksi ke node blockchain secara langsung...")
                     : (lang === "en" ? "Please wait a moment while we verify your payment with the network." : lang === "zh" ? "请稍候，我们正在核对您的付款。" : "Mohon tunggu sebentar, kami sedang memverifikasi pembayaran Anda.")}
                 </p>
               </div>
@@ -572,25 +591,29 @@ export function TopUpModal() {
                   </span>
 
                   <h4 className="mt-2 text-2xl sm:text-3xl font-black text-fg">
-                    +{formatPrice((verifiedAmountUsd || selectedUsd) * USD_RATE, lang)}
+                    +{lang === "id" ? formatRupiah((verifiedAmountUsd || selectedUsd) * USD_RATE) : `$${(verifiedAmountUsd || selectedUsd).toFixed(2)} USD`}
                   </h4>
                   <p className="mt-1 text-xs sm:text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                    +${verifiedAmountUsd || selectedUsd} USD Saldo Otomatis Masuk ke Akun Anda!
+                    {lang === "en" 
+                      ? `+$${verifiedAmountUsd || selectedUsd} USD Added Automatically to Your Balance!`
+                      : lang === "zh"
+                      ? `+$${verifiedAmountUsd || selectedUsd} USD 余额已全自动存入账户！`
+                      : `+$${verifiedAmountUsd || selectedUsd} USD Saldo Otomatis Masuk ke Akun Anda!`}
                   </p>
 
                   <div className="mt-5 mx-auto max-w-sm rounded-xl border border-border bg-surface-2 p-3.5 text-left space-y-2">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-fg-muted">Status:</span>
+                      <span className="text-fg-muted">{lang === "en" ? "Status:" : lang === "zh" ? "状态：" : "Status:"}</span>
                       <span className="font-bold text-emerald-600 flex items-center gap-1">
-                        <Check size={13} strokeWidth={3} /> Berhasil Otomatis
+                        <Check size={13} strokeWidth={3} /> {lang === "en" ? "Auto Verified" : lang === "zh" ? "自动核验成功" : "Berhasil Otomatis"}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-fg-muted">Invoice:</span>
+                      <span className="text-fg-muted">{lang === "en" ? "Invoice:" : lang === "zh" ? "账单号：" : "Invoice:"}</span>
                       <span className="font-mono font-bold text-fg">{orderCode}</span>
                     </div>
                     <div className="text-xs pt-2 border-t border-border">
-                      <span className="text-fg-muted block mb-1">Hash Transaksi (TxID):</span>
+                      <span className="text-fg-muted block mb-1">{lang === "en" ? "Transaction Hash (TxID):" : lang === "zh" ? "交易哈希 (TxID)：" : "Hash Transaksi (TxID):"}</span>
                       <span className="font-mono text-[10.5px] font-bold text-fg break-all select-all block bg-surface p-2 rounded-lg border border-border">
                         {txId}
                       </span>
@@ -834,7 +857,9 @@ export function TopUpModal() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b border-black/[0.08] dark:border-white/[0.1] pb-2">
                   <div>
-                    <span className="text-[10px] font-bold text-fg-muted uppercase tracking-wider">Invoice Deposit</span>
+                    <span className="text-[10px] font-bold text-fg-muted uppercase tracking-wider">
+                      {lang === "en" ? "Deposit Invoice" : lang === "zh" ? "充值账单" : "Invoice Deposit"}
+                    </span>
                     <p className="font-mono text-xs font-bold text-fg">{orderCode}</p>
                   </div>
                   <button
@@ -859,7 +884,7 @@ export function TopUpModal() {
                   </div>
                   <div className="text-right">
                     <span className="text-[10px] font-bold text-fg-muted uppercase tracking-wider block">
-                      {lang === "en" ? "Total Payment" : lang === "zh" ? "总付款金额" : "Total Ditransfer"}
+                      {lang === "en" ? "Total Payable" : lang === "zh" ? "总付款金额" : "Total Ditransfer"}
                     </span>
                     <span className="text-base font-black text-accent tabular-nums">
                       {paymentMethod === "qris" 
@@ -873,13 +898,17 @@ export function TopUpModal() {
                 {paymentMethod === "qris" ? (
                   <div className="flex flex-col items-center justify-center p-5 rounded-2xl bg-surface-2 border-2 border-border text-center">
                     <span className="text-xs font-black text-fg mb-1">
-                      Scan QRIS Menggunakan Aplikasi Bank atau E-Wallet Anda
+                      {lang === "en" ? "Scan QRIS with Any Bank or E-Wallet App" : lang === "zh" ? "使用任何银行或电子钱包扫描 QRIS" : "Scan QRIS Menggunakan Aplikasi Bank atau E-Wallet Anda"}
                     </span>
                     <p className="text-[10.5px] text-fg-muted mb-3">
                       BCA, Mandiri, BRI, BNI, GoPay, OVO, Dana, ShopeePay
                     </p>
                     <p className="text-center text-[10.5px] font-bold text-accent px-2 mb-2">
-                      Pastikan transfer nominal sesuai hingga 3 digit terakhir (kode unik) agar saldo otomatis masuk.
+                      {lang === "en" 
+                        ? "Ensure exact amount transfer for automatic instant verification."
+                        : lang === "zh"
+                        ? "请确保转入准确金额，系统将在数秒内全自动入账。"
+                        : "Pastikan transfer nominal sesuai hingga 3 digit terakhir (kode unik) agar saldo otomatis masuk."}
                     </p>
                     <div className="relative rounded-xl border border-border bg-white p-3 shadow-sm flex items-center justify-center">
                       <img
@@ -892,7 +921,7 @@ export function TopUpModal() {
                       />
                     </div>
                     <div className="mt-4 bg-surface border-2 border-border rounded-full px-5 py-2 text-sm font-black text-fg tabular-nums shadow-[4px_4px_0_0_var(--color-border)]">
-                      Nominal: {formatRupiah(totalPayIdr)}
+                      {lang === "en" ? "Amount:" : lang === "zh" ? "金额：" : "Nominal:"} {formatRupiah(totalPayIdr)}
                     </div>
                   </div>
                 ) : (
@@ -935,10 +964,13 @@ export function TopUpModal() {
                       <div className="flex items-center justify-between mb-1.5">
                         <label className="text-[11px] font-black text-fg flex items-center gap-1">
                           <span>{lang === "en" ? "Transaction Hash / TxID" : lang === "zh" ? "交易哈希 / TxID" : "Hash Transaksi / TxID"}</span>
-                          <span className="text-rose-500 font-bold">*WAJIB</span>
+                          <span className="text-rose-500 font-bold">
+                            {lang === "en" ? "*REQUIRED" : lang === "zh" ? "*必填" : "*WAJIB"}
+                          </span>
                         </label>
                         <span className="text-[10px] text-accent font-semibold flex items-center gap-1">
-                          <Zap size={11} /> Auto Verifikasi Blockchain
+                          <Zap size={11} /> 
+                          {lang === "en" ? "Auto On-Chain Verification" : lang === "zh" ? "链上全自动验证" : "Auto Verifikasi Blockchain"}
                         </span>
                       </div>
                       <input
@@ -950,10 +982,10 @@ export function TopUpModal() {
                         }}
                         placeholder={
                           paymentMethod === "usdt_bnb"
-                            ? "Contoh: 0x123abc... (66 karakter hash BSC)"
+                            ? (lang === "en" ? "e.g. 0x123abc... (66-char BSC hash)" : lang === "zh" ? "例如：0x123abc... (66位 BSC 哈希)" : "Contoh: 0x123abc... (66 karakter hash BSC)")
                             : paymentMethod === "usdt_tron"
-                            ? "Contoh: 84a7bc... (64 karakter hash TRON)"
-                            : "Tempel hash transaksi (TxID) dari wallet Anda..."
+                            ? (lang === "en" ? "e.g. 84a7bc... (64-char TRON hash)" : lang === "zh" ? "例如：84a7bc... (64位 TRON 哈希)" : "Contoh: 84a7bc... (64 karakter hash TRON)")
+                            : (lang === "en" ? "Paste transaction hash (TxID) from your wallet..." : lang === "zh" ? "粘贴钱包中的交易哈希 (TxID)..." : "Tempel hash transaksi (TxID) dari wallet Anda...")
                         }
                         className={cn(
                           "w-full rounded-xl border bg-surface px-3 py-2.5 text-xs font-mono font-medium text-fg focus:ring-2 focus:ring-border-strong focus:outline-hidden transition-all",
@@ -961,7 +993,11 @@ export function TopUpModal() {
                         )}
                       />
                       <p className="mt-1.5 text-[10px] text-fg-muted leading-tight">
-                        ⚡ Sistem Texas AI akan memeriksa keaslian transaksi ini langsung ke blockchain secara real-time. Jika TxID palsu atau belum ditransfer, deposit akan otomatis ditolak.
+                        {lang === "en"
+                          ? "⚡ Texas AI automatically verifies this transaction directly on the blockchain in real-time. If the TxID is invalid or not yet sent, the deposit will be rejected."
+                          : lang === "zh"
+                          ? "⚡ Texas AI 系统将实时直连区块链验证此交易真实性。如果 TxID 伪造或未转账，充值将被自动驳回。"
+                          : "⚡ Sistem Texas AI akan memeriksa keaslian transaksi ini langsung ke blockchain secara real-time. Jika TxID palsu atau belum ditransfer, deposit akan otomatis ditolak."}
                       </p>
                     </div>
                   </div>
