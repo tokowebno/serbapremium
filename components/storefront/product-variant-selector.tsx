@@ -164,6 +164,9 @@ export function ProductVariantSelector({ app }: { app: App }) {
     }
 
     setIsPayingWithBalance(true);
+    
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    
     const orderCode = `TK-${Date.now().toString().slice(-6)}`;
     const baseName =
       variants.length === 1 || selectedVariant.name.toLowerCase().includes(app.name.toLowerCase())
@@ -367,9 +370,11 @@ export function ProductVariantSelector({ app }: { app: App }) {
             <div className="flex items-center gap-2">
               <Wallet size={16} className="text-accent" />
               <div>
-                <span className="text-[11px] text-fg-muted font-medium block">Saldo Akun Anda</span>
+                <span className="text-[11px] text-fg-muted font-medium block">
+                  {lang === "en" ? "Your Account Balance" : lang === "zh" ? "您的账户余额" : "Saldo Akun Anda"}
+                </span>
                 <span className="text-xs sm:text-sm font-bold text-fg tabular-nums">
-                  {formatRupiah(balance)} <span className="text-[11px] text-fg-muted">(${balanceUsd.toFixed(2)} USD)</span>
+                  {formatPrice(balance, lang)} <span className="text-[11px] text-fg-muted">(${balanceUsd.toFixed(2)} USD)</span>
                 </span>
               </div>
             </div>
@@ -378,7 +383,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
               onClick={() => router.push(`/isi-saldo?needed=${totalPrice}&app=${app.slug}&variant=${selectedVariant.id}`)}
               className="rounded-lg bg-accent/15 border border-accent/30 px-2.5 py-1 text-[11px] font-bold text-accent hover:bg-accent hover:text-accent-fg transition-colors cursor-pointer"
             >
-              + Isi Saldo
+              {lang === "en" ? "+ Top Up" : lang === "zh" ? "+ 充值" : "+ Isi Saldo"}
             </button>
           </div>
         ) : (
@@ -483,8 +488,10 @@ export function ProductVariantSelector({ app }: { app: App }) {
                   </span>
                 ) : (
                   <span className="inline-flex items-center justify-center gap-2">
-                    <Zap size={18} />
-                    <span>Bayar dengan Saldo ({formatRupiah(totalPrice)})</span>
+                    {!isPayingWithBalance && <Zap size={18} />}
+                    {!isPayingWithBalance && <span>
+                      {lang === "en" ? `Pay with Balance (${formatPrice(totalPrice, lang)})` : lang === "zh" ? `余额支付（${formatPrice(totalPrice, lang)}）` : `Bayar dengan Saldo (${formatPrice(totalPrice, lang)})`}
+                    </span>}
                   </span>
                 )}
               </Button>
@@ -494,9 +501,10 @@ export function ProductVariantSelector({ app }: { app: App }) {
                 className="w-full"
                 onClick={handleAddToCart}
                 disabled={isAdding}
+                loading={isAdding}
               >
-                <ShoppingBag size={17} strokeWidth={2} />
-                {isAdding ? (t.product.adding || "Menambahkan…") : (t.product.addToCart || "Tambah ke Keranjang")}
+                {!isAdding && <ShoppingBag size={17} strokeWidth={2} />}
+                {!isAdding && (t.product.addToCart || "Tambah ke Keranjang")}
               </Button>
             </>
           ) : (
@@ -510,10 +518,10 @@ export function ProductVariantSelector({ app }: { app: App }) {
                 <PlusCircle size={18} />
                 <span>
                   {lang === "en"
-                    ? `Top Up Balance (Deficit ${formatRupiah(balanceDeficit)})`
+                    ? `Top Up Balance (Deficit ${formatPrice(balanceDeficit, lang)})`
                     : lang === "zh"
-                    ? `余额不足，去充值（缺少 ${formatRupiah(balanceDeficit)}）`
-                    : `Isi Saldo (Kurang ${formatRupiah(balanceDeficit)})`}
+                    ? `余额不足，去充值（缺少 ${formatPrice(balanceDeficit, lang)}）`
+                    : `Isi Saldo (Kurang ${formatPrice(balanceDeficit, lang)})`}
                 </span>
               </Button>
               <Button
@@ -522,9 +530,10 @@ export function ProductVariantSelector({ app }: { app: App }) {
                 className="w-full"
                 onClick={handleAddToCart}
                 disabled={isAdding}
+                loading={isAdding}
               >
-                <ShoppingBag size={17} strokeWidth={2} />
-                {isAdding ? (t.product.adding || "Menambahkan…") : (t.product.addToCart || "Tambah ke Keranjang")}
+                {!isAdding && <ShoppingBag size={17} strokeWidth={2} />}
+                {!isAdding && (t.product.addToCart || "Tambah ke Keranjang")}
               </Button>
             </>
           )}

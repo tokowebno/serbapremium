@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Aplikasi",
   description:
-    "Jelajahi semua aplikasi premium di TexasAi. Filter berdasarkan kategori, platform, harga, dan promo.",
+    "Jelajahi semua aplikasi premium di Texas AI. Filter berdasarkan kategori, platform, harga, dan promo.",
 };
 
 const PLATFORMS = ["Android", "iOS", "Windows", "macOS", "Linux"] as const;

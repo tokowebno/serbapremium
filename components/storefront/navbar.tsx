@@ -26,7 +26,7 @@ import { useTranslation } from "./i18n-provider";
 import { SearchDialog } from "./search-dialog";
 import { TexasAiLogo } from "@/components/ui/logo";
 import { IndonesiaFlag, EnglishFlag, ChinaFlag } from "@/components/ui/language-selector";
-import { cn, formatRupiah } from "@/lib/utils";
+import { cn, formatRupiah, formatPrice } from "@/lib/utils";
 
 const langFlags: Record<string, string> = {
   id: "ID",
@@ -107,7 +107,7 @@ export function Navbar() {
             <Link
               href="/"
               className="group flex shrink-0 items-center pl-1 pr-2"
-              aria-label="TexasAi — Beranda"
+              aria-label="Texas AI — Beranda"
             >
               <TexasAiLogo iconSize={26} textSize="text-[16px]" />
             </Link>
@@ -186,12 +186,12 @@ export function Navbar() {
                 <button
                   type="button"
                   onClick={() => openTopUp()}
-                  aria-label="Isi Saldo Dompet"
-                  title="Klik untuk Buka Menu Isi Saldo"
+                  aria-label={lang === "en" ? "Top Up Wallet" : lang === "zh" ? "充值钱包" : "Isi Saldo Dompet"}
+                  title={lang === "en" ? "Click to open Top Up Menu" : lang === "zh" ? "点击打开充值菜单" : "Klik untuk Buka Menu Isi Saldo"}
                   className="hidden sm:flex items-center gap-1.5 rounded-full bg-accent-soft/80 border border-accent/30 px-2.5 sm:px-3 py-1 text-xs font-bold text-fg hover:bg-accent-soft hover:border-accent/60 transition-all duration-200 shadow-xs cursor-pointer active:scale-95 select-none"
                 >
                   <Wallet size={13} className="text-accent shrink-0" />
-                  <span className="tabular-nums font-bold text-accent">{formatRupiah(balance)}</span>
+                  <span className="tabular-nums font-bold text-accent">{formatPrice(balance, lang)}</span>
                   <span className="text-[10px] rounded-full bg-accent px-1.5 py-0.2 text-accent-fg font-black">
                     + Top Up
                   </span>
@@ -240,8 +240,8 @@ export function Navbar() {
                           <p className="text-[11px] text-fg-muted truncate">{user?.email}</p>
                           <div className="mt-2 flex items-center justify-between rounded-xl bg-accent-soft p-2 border border-accent/20">
                             <div>
-                              <span className="text-[10px] uppercase font-semibold text-fg-muted block">Saldo Akun</span>
-                              <span className="text-xs font-black text-accent tabular-nums">{formatRupiah(balance)}</span>
+                              <span className="text-[10px] uppercase font-semibold text-fg-muted block">{lang === "en" ? "Wallet Balance" : lang === "zh" ? "钱包余额" : "Saldo Akun"}</span>
+                              <span className="text-xs font-black text-accent tabular-nums">{formatPrice(balance, lang)}</span>
                             </div>
                             <button
                               type="button"
@@ -251,7 +251,7 @@ export function Navbar() {
                               }}
                               className="rounded-lg bg-accent px-2 py-1 text-[10.5px] font-bold text-accent-fg shadow-xs hover:opacity-90 cursor-pointer"
                             >
-                              + Isi Saldo
+                              {lang === "en" ? "+ Top Up" : lang === "zh" ? "+ 充值" : "+ Isi Saldo"}
                             </button>
                           </div>
                         </div>
@@ -264,7 +264,7 @@ export function Navbar() {
                             className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold text-fg hover:bg-surface-2 transition-colors"
                           >
                             <User size={14} className="text-fg-muted" />
-                            <span>Ringkasan Akun</span>
+                            <span>{lang === "en" ? "Account Overview" : lang === "zh" ? "账户概览" : "Ringkasan Akun"}</span>
                           </Link>
                           <button
                             type="button"
@@ -275,7 +275,7 @@ export function Navbar() {
                             className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold text-fg hover:bg-surface-2 transition-colors cursor-pointer text-left"
                           >
                             <PlusCircle size={14} className="text-accent" />
-                            <span>Tambah Dana</span>
+                            <span>{lang === "en" ? "Add Funds" : lang === "zh" ? "添加资金" : "Tambah Dana"}</span>
                           </button>
                           <Link
                             href="/akun/koleksi"
@@ -283,7 +283,7 @@ export function Navbar() {
                             className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold text-fg hover:bg-surface-2 transition-colors"
                           >
                             <BookOpen size={14} className="text-fg-muted" />
-                            <span>Koleksi Saya</span>
+                            <span>{lang === "en" ? "My Collection" : lang === "zh" ? "我的收藏" : "Koleksi Saya"}</span>
                           </Link>
                           <Link
                             href="/akun/pesanan"
@@ -291,7 +291,7 @@ export function Navbar() {
                             className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold text-fg hover:bg-surface-2 transition-colors"
                           >
                             <PackageCheck size={14} className="text-fg-muted" />
-                            <span>Riwayat Pembelian</span>
+                            <span>{lang === "en" ? "Purchase History" : lang === "zh" ? "购买记录" : "Riwayat Pembelian"}</span>
                           </Link>
                         </div>
 
@@ -306,7 +306,7 @@ export function Navbar() {
                             className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
                           >
                             <LogOut size={14} />
-                            <span>Keluar dari Akun</span>
+                            <span>{lang === "en" ? "Sign Out" : lang === "zh" ? "退出登录" : "Keluar dari Akun"}</span>
                           </button>
                         </div>
                       </motion.div>

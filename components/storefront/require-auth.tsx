@@ -36,7 +36,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
           </div>
           <h2 className="mt-4 text-xl font-bold tracking-tight text-fg">Wajib Masuk Akun</h2>
           <p className="mt-2 text-sm text-fg-muted leading-relaxed">
-            Anda harus masuk ke akun TexasAi terlebih dahulu untuk mengakses menu ini, mengisi saldo, atau melakukan transaksi.
+            Anda harus masuk ke akun Texas AI terlebih dahulu untuk mengakses menu ini, mengisi saldo, atau melakukan transaksi.
           </p>
 
           <div className="mt-6 flex flex-col gap-2.5">

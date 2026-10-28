@@ -27,8 +27,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const app = api.apps.getBySlug(slug);
   if (!app) return { title: "Aplikasi tidak ditemukan" };
   return {
-    title: `${app.name} · TexasAi`,
-    description: `${app.tagline} Aktivasi instan, pembayaran aman otomatis bergaransi di TexasAi.`,
+    title: `${app.name} · Texas AI`,
+    description: `${app.tagline} Aktivasi instan, pembayaran aman otomatis bergaransi di Texas AI.`,
   };
 }
 

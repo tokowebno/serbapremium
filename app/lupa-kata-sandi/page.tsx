@@ -30,7 +30,7 @@ export default function ForgotPasswordPage() {
     <div className="flex min-h-[100dvh] items-center justify-center px-5 pt-32 pb-20">
       <div className="w-full max-w-sm rounded-lg border-2 border-border bg-surface p-8 shadow-[6px_6px_0px_var(--shadow-color)]">
         <div className="flex flex-col items-center text-center">
-          <Link href="/" className="group mb-3 flex items-center justify-center" aria-label="TexasAi — Beranda">
+          <Link href="/" className="group mb-3 flex items-center justify-center" aria-label="Texas AI — Beranda">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-border/80 bg-surface shadow-xs transition-transform duration-200 group-hover:scale-105">
               <TexasAiIcon size={34} />
             </div>

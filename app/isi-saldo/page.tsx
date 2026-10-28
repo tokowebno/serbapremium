@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
@@ -19,6 +19,7 @@ import {
   Send,
   CreditCard,
   Coins,
+  Loader2,
 } from "lucide-react";
 import { useAuth } from "@/components/storefront/providers";
 import { useTranslation } from "@/components/storefront/i18n-provider";
@@ -32,7 +33,7 @@ const USD_RATE = USDT_RATE; // 17904 IDR sesuai kurs pasar real-time
 const MIN_DEPOSIT_USD = 5;
 const MIN_DEPOSIT_IDR = MIN_DEPOSIT_USD * USD_RATE; // 89,520
 
-type DepositPaymentMethod = "qris" | "usdt_bnb" | "usdt_tron" | "solana" | "ton";
+type DepositPaymentMethod = "qris" | "usdt_bnb" | "usdt_tron" | "solana" | "ton" | "btc";
 
 const PAYMENT_METHODS: {
   id: DepositPaymentMethod;
@@ -70,7 +71,7 @@ const PAYMENT_METHODS: {
     },
     icon: "/logos/bnb.svg",
     network: "BNB Smart Chain (BEP-20)",
-    address: "0x141b43fCDb8D17c09e7b4235b2527309db674A27",
+    address: "0xb8E8C7a85942475752755ff1E6c33529Eced4E91",
   },
   {
     id: "usdt_tron",
@@ -86,7 +87,7 @@ const PAYMENT_METHODS: {
     },
     icon: "/logos/tron.svg",
     network: "Tron (TRC-20)",
-    address: "TQTpRn6j1Pfwf38xP8CxqxJi18YX4v8Wcm",
+    address: "TEZ6JFy2Ew6ayPYgdj1xY36WWdahYkBxat",
   },
   {
     id: "solana",
@@ -102,7 +103,7 @@ const PAYMENT_METHODS: {
     },
     icon: "/logos/solana.svg",
     network: "Solana (SPL)",
-    address: "7JKwQ81LiXgKw4ekSCurNeqXk3jYv3vDMJcDyCLyW64Y",
+    address: "FNNgq27hNuwddakAeZJiWUEJYjE13CtsS3YHRJjGMwpP",
   },
   {
     id: "ton",
@@ -118,17 +119,30 @@ const PAYMENT_METHODS: {
     },
     icon: "/logos/ton.svg",
     network: "The Open Network (TON)",
-    address: "UQA2ka2a3umUuzmr3ymBM6x7FV3DZOLQ92fRsS_KdElex77P",
+    address: "UQAG_A_1Ay9QcSqJifY_W9hQr0ZRW0WwcALCLm_hVRx6LWbz",
+  },
+  {
+    id: "btc",
+    name: {
+      id: "Bitcoin (BTC)",
+      en: "Bitcoin (BTC)",
+      zh: "比特币 (BTC)",
+    },
+    desc: {
+      id: "Bitcoin Network",
+      en: "Bitcoin Network",
+      zh: "比特币网络",
+    },
+    icon: "/logos/btc.svg",
+    network: "Bitcoin",
+    address: "bc1qmgxfm23zpnenmgmu55q03n9k0dd9mpaaygxjjg",
   },
 ];
 
 const PRESETS = [
   { usd: 5, idr: 5 * USD_RATE, popular: false },
   { usd: 10, idr: 10 * USD_RATE, popular: true },
-  { usd: 25, idr: 25 * USD_RATE, popular: false },
   { usd: 50, idr: 50 * USD_RATE, popular: false },
-  { usd: 100, idr: 100 * USD_RATE, popular: false },
-  { usd: 200, idr: 200 * USD_RATE, popular: false },
 ];
 
 function IsiSaldoContent() {
@@ -160,6 +174,7 @@ function IsiSaldoContent() {
   const [txId, setTxId] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // BorderPay Dynamic QRIS state
   const [borderpayData, setBorderpayData] = useState<{
@@ -243,28 +258,49 @@ function IsiSaldoContent() {
     setLoading(false);
   };
 
-  // Check payment status or confirm
   const handleConfirmPayment = async () => {
-    setCheckingStatus(true);
+    setLoading(true);
+    setIsProcessing(true);
+    
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    
+    const orderData = {
+      id: orderCode,
+      user_name: user?.name || "Member",
+      items: [{ name: `Isi Saldo $${selectedUsd} USD`, price: amountIdr, platform: "Wallet" }],
+      subtotal: amountIdr,
+      discount: 0,
+      total: amountIdr,
+      payment_method: paymentMethod,
+      payment_status: "menunggu",
+      order_status: "menunggu",
+      date: new Date().toISOString().slice(0, 10),
+    };
+
     if (supabaseReady && supabase) {
       try {
-        await supabase.from("orders").insert({
-          order_code: orderCode,
-          customer_name: user?.name || "Member",
-          customer_email: user?.email || "member@texasai.com",
-          customer_phone: "-",
-          total_price: amountIdr,
-          payment_method: paymentMethod,
-          status: "lunas",
-          items: [{ name: `Isi Saldo $${selectedUsd} USD`, price: amountIdr, platform: "Wallet" }],
-        });
+        await supabase.from("orders").insert([orderData]);
       } catch (err) {
         console.warn("DB insert error:", err);
       }
     }
 
-    // Credit balance
-    deposit(amountIdr, `Isi Saldo $${selectedUsd} USD via ${paymentMethod.toUpperCase()}`, orderCode);
+    try {
+      sessionStorage.setItem("tokono:last-order", JSON.stringify(orderData));
+      sessionStorage.setItem("serbapremium:last-order", JSON.stringify(orderData));
+      const raw = localStorage.getItem("tokono:orders") || localStorage.getItem("serbapremium:orders") || "[]";
+      const existing = JSON.parse(raw);
+      const list = Array.isArray(existing) ? existing : [];
+      const updated = [orderData, ...list.filter((o: any) => o.id !== orderCode)];
+      localStorage.setItem("tokono:orders", JSON.stringify(updated));
+      localStorage.setItem("serbapremium:orders", JSON.stringify(updated));
+    } catch {
+      // ignore storage full
+    }
+
+    // Remove direct deposit for manual confirmation flow
+    // deposit(amountIdr, `Isi Saldo $${selectedUsd} USD via ${paymentMethod.toUpperCase()}`, orderCode);
+    setIsProcessing(false);
     setIsSuccess(true);
     setCheckingStatus(false);
   };
@@ -332,36 +368,88 @@ function IsiSaldoContent() {
         </div>
 
         {/* Content */}
-        {isSuccess ? (
-          /* SUCCESS STATE */
+        {isProcessing ? (
+          /* PROCESSING STATE */
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.35 }}
+            className="liquid-glass rounded-2xl p-16 sm:p-20 text-center shadow-sm flex flex-col items-center justify-center space-y-5"
+          >
+            <Loader2 className="animate-spin text-accent" size={60} strokeWidth={2} />
+            <h4 className="text-2xl sm:text-3xl font-black tracking-tight text-fg">
+              {lang === "en" ? "Processing Payment..." : lang === "zh" ? "正在处理付款..." : "Sedang Memproses..."}
+            </h4>
+            <p className="text-sm text-fg-muted max-w-[350px] mx-auto leading-relaxed">
+              {lang === "en" ? "Please wait a moment while we verify your payment with the network." : lang === "zh" ? "请稍候，我们正在核对您的付款。" : "Mohon tunggu sebentar, kami sedang memverifikasi pembayaran Anda."}
+            </p>
+          </motion.div>
+        ) : isSuccess ? (
+          /* PENDING STATE */
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.35 }}
             className="liquid-glass rounded-2xl p-8 sm:p-10 text-center shadow-sm"
           >
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-success/10 border border-success/20 text-success">
-              <CheckCircle2 size={44} strokeWidth={2.4} />
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500">
+              <Clock size={44} strokeWidth={2.4} />
             </div>
 
-            <span className="mt-5 inline-block rounded-full bg-success/10 border border-success/20 px-4 py-1 text-xs font-bold text-success">
-              {lang === "en" ? "Top Up Successful" : lang === "zh" ? "充值已成功入账" : "Isi Saldo Berhasil!"}
+            <span className="mt-5 inline-block rounded-full bg-amber-500/10 border border-amber-500/20 px-4 py-1 text-xs font-bold text-amber-600 dark:text-amber-400">
+              {lang === "en" ? "Waiting for Payment" : lang === "zh" ? "等待付款中" : "Menunggu Pembayaran!"}
             </span>
 
             <h2 className="mt-2 text-3xl sm:text-4xl font-black text-fg tracking-tight">
-              +{formatRupiah(amountIdr)}
+              {formatRupiah(amountIdr)}
             </h2>
             <p className="mt-1 text-sm font-semibold text-fg-muted">
-              +${selectedUsd} USD • Saldo Baru: <span className="text-accent font-bold">{formatRupiah(balance)}</span> (${balanceUsd.toFixed(2)} USD)
+              +${selectedUsd} USD • Invoice: <span className="text-fg font-mono font-bold">{orderCode}</span>
             </p>
 
-            <p className="mx-auto mt-4 max-w-md text-xs sm:text-sm text-fg-muted leading-relaxed">
-              {lang === "en"
-                ? "Your funds have been credited to your account. You can now purchase any digital license with 1-click balance payment."
-                : lang === "zh"
-                ? "充值资金已存入您的账户余额。您现在可以使用余额一键购买所有正版数字授权。"
-                : "Dana telah berhasil ditambahkan ke saldo akun Anda. Sekarang Anda dapat membeli lisensi apa pun menggunakan saldo akun."}
-            </p>
+            <div className="mt-6 mx-auto max-w-sm text-left">
+              {paymentMethod === "qris" ? (
+                <div className="flex flex-col items-center justify-center p-5 rounded-2xl bg-surface-2 border border-border text-center">
+                  <p className="text-sm font-bold text-fg mb-3">
+                    {lang === "en" ? "Scan QRIS to Pay" : lang === "zh" ? "扫描 QRIS 付款" : "Scan QRIS untuk Membayar"}
+                  </p>
+                  <div className="relative rounded-xl border border-border bg-white p-3 shadow-sm">
+                    <img
+                      src="/qris.png"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = "/qris-placeholder.svg";
+                      }}
+                      alt="QRIS"
+                      className="h-40 w-40 object-contain"
+                    />
+                  </div>
+                  <p className="text-xs text-fg-muted mt-3 px-2">
+                    {lang === "en" ? "If you haven't paid yet, please complete your payment. Your balance will be added once confirmed." : lang === "zh" ? "如果您尚未付款，请完成付款。一旦确认将立即充值余额。" : "Jika Anda belum bayar, silakan selesaikan pembayaran ke QRIS di atas agar saldo dapat diproses."}
+                  </p>
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-border bg-surface-2 p-4 space-y-3">
+                  <p className="text-xs font-bold text-fg-muted text-center mb-1">
+                    {lang === "en" ? "Send exactly" : lang === "zh" ? "发送" : "Kirimkan persis"} <span className="text-accent text-sm">{totalUsdt} {paymentMethod === "solana" ? "SOL" : paymentMethod === "ton" ? "TON" : "USDT"}</span> {lang === "en" ? "to:" : lang === "zh" ? "到：" : "ke:"}
+                  </p>
+                  <div className="flex items-center justify-between gap-3 rounded-xl bg-surface p-3 border border-border shadow-xs">
+                    <span className="font-mono text-xs font-bold text-fg break-all select-all">
+                      {PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.address}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => copyToClipboard(PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.address || "", "crypto-addr-success")}
+                      className="flex items-center justify-center h-8 w-8 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors shrink-0"
+                    >
+                      {copiedField === "crypto-addr-success" ? <Check size={16} /> : <Copy size={16} />}
+                    </button>
+                  </div>
+                  <p className="text-xs text-center text-fg-muted mt-2 px-1">
+                    {lang === "en" ? "If you haven't paid yet, please complete your payment. Your balance will be added once confirmed." : lang === "zh" ? "如果您尚未付款，请完成付款。一旦确认将立即充值余额。" : "Jika Anda belum bayar, silakan transfer ke alamat di atas agar saldo dapat diproses."}
+                  </p>
+                </div>
+              )}
+            </div>
 
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               {returnApp ? (
@@ -430,7 +518,7 @@ function IsiSaldoContent() {
                 <span className="text-[11px] font-semibold text-fg-muted font-mono">Kurs 1 USDT = Rp 17.904</span>
               </div>
 
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
+              <div className="grid grid-cols-3 gap-3 sm:gap-4">
                 {PRESETS.map((p) => {
                   const active = selectedUsd === p.usd && !customInput;
                   return (
@@ -466,24 +554,24 @@ function IsiSaldoContent() {
                 </label>
 
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                  <div className="relative flex-1 flex items-center rounded-xl border border-border bg-surface shadow-inner overflow-hidden focus-within:ring-2 focus-within:ring-border-strong focus-within:border-border-strong transition-all">
-                    <div className="flex h-11 items-center px-4 bg-surface-2 border-r border-border text-xs font-black text-fg select-none">
+                  <div className="relative flex-1 flex items-center rounded-2xl border-2 border-border bg-surface shadow-inner overflow-hidden focus-within:ring-4 focus-within:ring-accent/20 focus-within:border-accent transition-all">
+                    <div className="flex h-16 sm:h-20 items-center px-5 sm:px-6 bg-surface-2 border-r-2 border-border text-sm sm:text-lg font-black text-fg select-none">
                       USD $
                     </div>
                     <input
                       type="number"
                       min={5}
                       step={1}
-                      placeholder="Contoh: 15"
+                      placeholder="0"
                       value={customInput}
                       onChange={handleCustomChange}
-                      className="w-full bg-transparent px-4 py-2.5 text-sm font-bold text-fg focus:outline-hidden"
+                      className="w-full h-full bg-transparent px-5 sm:px-6 py-4 text-xl sm:text-3xl font-black text-fg focus:outline-hidden placeholder:text-fg-faint"
                     />
                   </div>
 
-                  <div className="liquid-glass-pill rounded-xl px-5 py-2.5 text-right shrink-0 min-w-[150px]">
-                    <span className="text-[10px] uppercase font-bold text-fg-muted block">Estimasi Rupiah</span>
-                    <span className="text-sm font-black text-accent tabular-nums">
+                  <div className="liquid-glass-pill flex flex-col justify-center rounded-2xl px-6 py-4 text-right shrink-0 min-w-[160px] sm:min-w-[200px]">
+                    <span className="text-xs uppercase font-bold text-fg-muted block mb-1">Estimasi Rupiah</span>
+                    <span className="text-lg sm:text-xl font-black text-accent tabular-nums">
                       {formatRupiah(amountIdr)}
                     </span>
                   </div>
@@ -589,8 +677,8 @@ function IsiSaldoContent() {
                 loading={loading}
                 className="w-full sm:w-auto rounded-full px-9 py-4 shadow-sm hover:scale-[1.02] active:scale-95 cursor-pointer text-sm font-black transition-all flex items-center justify-center gap-2 bg-fg text-surface"
               >
-                <span>{lang === "en" ? "Proceed to Payment" : lang === "zh" ? "前往支付" : "Lanjut ke Pembayaran"}</span>
-                <ArrowRight size={17} strokeWidth={2.5} />
+                {!loading && <span>{lang === "en" ? "Proceed to Payment" : lang === "zh" ? "前往支付" : "Lanjut ke Pembayaran"}</span>}
+                {!loading && <ArrowRight size={17} strokeWidth={2.5} />}
               </Button>
             </motion.div>
           </div>
@@ -621,11 +709,11 @@ function IsiSaldoContent() {
               {/* Total Display */}
               <div className="my-5 rounded-2xl liquid-tile p-5 flex items-center justify-between">
                 <div>
-                  <span className="text-xs text-fg-muted font-medium block">Nominal Deposit</span>
+                  <span className="text-xs text-fg-muted font-medium block">{lang === "en" ? "Deposit Amount" : lang === "zh" ? "充值金额" : "Nominal Deposit"}</span>
                   <span className="text-xl font-black text-fg mt-0.5 block">${selectedUsd} USD</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs text-fg-muted font-medium block">Total Yang Harus Dibayar</span>
+                  <span className="text-xs text-fg-muted font-medium block">{lang === "en" ? "Total Payable" : lang === "zh" ? "应付总额" : "Total Yang Harus Dibayar"}</span>
                   <span className="text-xl sm:text-2xl font-black text-accent tabular-nums mt-0.5 block">
                     {paymentMethod === "qris" ? formatRupiah(totalPayIdr) : `${totalUsdt} ${paymentMethod === "solana" ? "SOL" : paymentMethod === "ton" ? "TON" : "USDT"}`}
                   </span>
@@ -734,8 +822,8 @@ function IsiSaldoContent() {
                   loading={checkingStatus}
                   className="w-full rounded-full bg-fg text-surface font-black text-sm shadow-sm hover:scale-[1.01] active:scale-95 cursor-pointer py-4 transition-all flex items-center justify-center gap-2"
                 >
-                  <CheckCircle2 size={18} />
-                  <span>Saya Sudah Melakukan Pembayaran</span>
+                  {!checkingStatus && <CheckCircle2 size={18} />}
+                  {!checkingStatus && <span>Saya Sudah Melakukan Pembayaran</span>}
                 </Button>
 
                 <p className="text-center text-[11.5px] text-fg-muted mt-1">

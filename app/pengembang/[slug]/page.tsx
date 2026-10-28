@@ -17,8 +17,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const developer = api.developers.getBySlug(slug);
   if (!developer) return { title: "Pengembang tidak ditemukan" };
   return {
-    title: `${developer.name} · TexasAi`,
-    description: `${developer.description} Temukan produk resmi di TexasAi.`,
+    title: `${developer.name} · Texas AI`,
+    description: `${developer.description} Temukan produk resmi di Texas AI.`,
   };
 }
 
@@ -94,7 +94,7 @@ export default async function PengembangPage({ params }: Props) {
           <EmptyState
             icon={Globe}
             title="Belum ada aplikasi"
-            description="Pengembang ini belum menerbitkan aplikasi di TexasAi."
+            description="Pengembang ini belum menerbitkan aplikasi di Texas AI."
             action={{ label: "Jelajahi Katalog", href: "/aplikasi" }}
           />
         ) : (

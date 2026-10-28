@@ -85,7 +85,7 @@ export function Hero() {
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-fg" />
               </span>
               <span className="font-mono text-[11px] font-bold tracking-wider">
-                TEXASAI · PLATFORM LISENSI RESMI
+                {lang === "en" ? "TEXAS AI · OFFICIAL LICENSING PLATFORM" : lang === "zh" ? "TEXAS AI · 官方授权平台" : "TEXAS AI · PLATFORM LISENSI RESMI"}
               </span>
             </motion.div>
 
@@ -95,10 +95,28 @@ export function Hero() {
               transition={{ duration: 0.45, delay: 0.05 }}
               className="text-3xl sm:text-5xl lg:text-[54px] font-black tracking-tight leading-[1.08] text-fg"
             >
-              Akses Flagship AI Pro,{" "}
-              <span className="text-fg">
-                Beli Sekali Tanpa Langganan.
-              </span>
+              {lang === "en" ? (
+                <>
+                  Access Flagship AI Pro,{" "}
+                  <span className="text-fg">
+                    Buy Once No Subscription.
+                  </span>
+                </>
+              ) : lang === "zh" ? (
+                <>
+                  访问旗舰 AI Pro，{" "}
+                  <span className="text-fg">
+                    一次购买免订阅。
+                  </span>
+                </>
+              ) : (
+                <>
+                  Akses Flagship AI Pro,{" "}
+                  <span className="text-fg">
+                    Beli Sekali Tanpa Langganan.
+                  </span>
+                </>
+              )}
             </motion.h1>
 
             {/* Sub-tagline */}
@@ -263,7 +281,7 @@ export function Hero() {
                       <div className="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex flex-wrap items-center justify-between gap-2.5">
                         <div className="min-w-0 flex-1">
                           <span className="text-[9.5px] sm:text-[10px] font-bold tracking-wider text-fg-muted uppercase block">
-                            HARGA LISENSI RESMI
+                            {lang === "en" ? "OFFICIAL LICENSE PRICE" : lang === "zh" ? "官方授权价格" : "HARGA LISENSI RESMI"}
                           </span>
                           <div className="flex flex-wrap items-baseline gap-x-1.5 mt-0.5">
                             <span className="text-lg sm:text-2xl font-black text-fg tabular-nums tracking-tight">
@@ -279,7 +297,7 @@ export function Hero() {
                           href={`/aplikasi/${currentShowcaseApp.slug}`}
                           className="group inline-flex items-center justify-center gap-1 rounded-full bg-fg text-surface px-3 sm:px-4 py-2 text-xs font-bold hover:opacity-90 transition-all active:scale-95 shadow-sm shrink-0 whitespace-nowrap"
                         >
-                          <span>Beli Langsung</span>
+                          <span>{lang === "en" ? "Buy Direct" : lang === "zh" ? "立即购买" : "Beli Langsung"}</span>
                           <ChevronRight
                             size={13}
                             className="transition-transform group-hover:translate-x-0.5 text-surface shrink-0"
@@ -295,7 +313,7 @@ export function Hero() {
                   <button
                     type="button"
                     onClick={handlePrev}
-                    aria-label="Produk Sebelumnya"
+                    aria-label={lang === "en" ? "Previous Product" : lang === "zh" ? "上一产品" : "Produk Sebelumnya"}
                     className="flex h-6 w-6 items-center justify-center rounded-full bg-white/70 dark:bg-slate-800/80 border border-black/10 dark:border-white/10 text-fg-muted hover:text-fg shadow-xs cursor-pointer"
                   >
                     <ChevronLeft size={13} />
@@ -303,7 +321,7 @@ export function Hero() {
                   <button
                     type="button"
                     onClick={handleNext}
-                    aria-label="Produk Berikutnya"
+                    aria-label={lang === "en" ? "Next Product" : lang === "zh" ? "下一产品" : "Produk Berikutnya"}
                     className="flex h-6 w-6 items-center justify-center rounded-full bg-white/70 dark:bg-slate-800/80 border border-black/10 dark:border-white/10 text-fg-muted hover:text-fg shadow-xs cursor-pointer"
                   >
                     <ChevronRight size={13} />
@@ -345,14 +363,14 @@ export function Hero() {
                 <div className="flex items-center justify-between mb-2.5">
                   <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-fg">
                     <Wallet size={13} className="text-fg" />
-                    Isi Saldo Cepat
+                    {lang === "en" ? "Fast Top Up" : lang === "zh" ? "快速充值" : "Isi Saldo Cepat"}
                   </span>
                   <button
                     type="button"
                     onClick={() => openTopUp()}
                     className="text-[11px] font-bold text-fg hover:underline flex items-center gap-0.5 cursor-pointer"
                   >
-                    <span>Menu Lengkap</span>
+                    <span>{lang === "en" ? "Full Menu" : lang === "zh" ? "完整菜单" : "Menu Lengkap"}</span>
                     <ChevronRight size={12} />
                   </button>
                 </div>
@@ -371,7 +389,7 @@ export function Hero() {
                     >
                       <span className={`text-[11px] sm:text-xs font-black ${selectedTopup === p.usd ? "text-surface" : "text-fg"}`}>${p.usd}</span>
                       <span className={`text-[9px] sm:text-[9.5px] tabular-nums mt-0.5 ${selectedTopup === p.usd ? "text-surface/80" : "text-fg-muted"}`}>
-                        {p.usd * 16.5}k
+                        {lang === "en" ? `≈ ${(p.usd * 16.5).toFixed(1).replace('.0', '')}k IDR` : lang === "zh" ? `约 ¥${(p.usd * 7.2).toFixed(1).replace('.0', '')}` : `Rp ${(p.usd * 16.5).toFixed(1).replace('.0', '')}k`}
                       </span>
                     </button>
                   ))}

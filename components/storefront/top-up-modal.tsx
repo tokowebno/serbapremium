@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -16,10 +16,12 @@ import {
   ExternalLink,
   QrCode,
   LogIn,
+  Loader2,
+  Clock,
 } from "lucide-react";
 import { useAuth } from "@/components/storefront/providers";
 import { useTranslation } from "@/components/storefront/i18n-provider";
-import { formatRupiah, cn, USDT_RATE } from "@/lib/utils";
+import { formatRupiah, formatPrice, cn, USDT_RATE } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
 import { supabase, supabaseReady } from "@/lib/supabase";
@@ -28,7 +30,7 @@ const USD_RATE = USDT_RATE; // 17904 IDR sesuai kurs pasar real-time
 const MIN_DEPOSIT_USD = 5;
 const MIN_DEPOSIT_IDR = MIN_DEPOSIT_USD * USD_RATE; // 89,520
 
-type DepositPaymentMethod = "qris" | "usdt_bnb" | "usdt_tron" | "solana" | "ton";
+type DepositPaymentMethod = "qris" | "usdt_bnb" | "usdt_tron" | "solana" | "ton" | "btc";
 
 const PAYMENT_METHODS: {
   id: DepositPaymentMethod;
@@ -66,7 +68,7 @@ const PAYMENT_METHODS: {
     },
     icon: "/logos/bnb.svg",
     network: "BNB Smart Chain (BEP-20)",
-    address: "0x141b43fCDb8D17c09e7b4235b2527309db674A27",
+    address: "0xb8E8C7a85942475752755ff1E6c33529Eced4E91",
   },
   {
     id: "usdt_tron",
@@ -82,7 +84,7 @@ const PAYMENT_METHODS: {
     },
     icon: "/logos/tron.svg",
     network: "Tron (TRC-20)",
-    address: "TQTpRn6j1Pfwf38xP8CxqxJi18YX4v8Wcm",
+    address: "TEZ6JFy2Ew6ayPYgdj1xY36WWdahYkBxat",
   },
   {
     id: "solana",
@@ -98,7 +100,7 @@ const PAYMENT_METHODS: {
     },
     icon: "/logos/solana.svg",
     network: "Solana (SPL)",
-    address: "7JKwQ81LiXgKw4ekSCurNeqXk3jYv3vDMJcDyCLyW64Y",
+    address: "FNNgq27hNuwddakAeZJiWUEJYjE13CtsS3YHRJjGMwpP",
   },
   {
     id: "ton",
@@ -114,17 +116,30 @@ const PAYMENT_METHODS: {
     },
     icon: "/logos/ton.svg",
     network: "The Open Network (TON)",
-    address: "UQA2ka2a3umUuzmr3ymBM6x7FV3DZOLQ92fRsS_KdElex77P",
+    address: "UQAG_A_1Ay9QcSqJifY_W9hQr0ZRW0WwcALCLm_hVRx6LWbz",
+  },
+  {
+    id: "btc",
+    name: {
+      id: "Bitcoin (BTC)",
+      en: "Bitcoin (BTC)",
+      zh: "比特币 (BTC)",
+    },
+    desc: {
+      id: "Bitcoin Network",
+      en: "Bitcoin Network",
+      zh: "比特币网络",
+    },
+    icon: "/logos/btc.svg",
+    network: "Bitcoin",
+    address: "bc1qmgxfm23zpnenmgmu55q03n9k0dd9mpaaygxjjg",
   },
 ];
 
 const PRESETS = [
   { usd: 5, idr: 5 * USD_RATE, popular: false },
   { usd: 10, idr: 10 * USD_RATE, popular: true },
-  { usd: 25, idr: 25 * USD_RATE, popular: false },
   { usd: 50, idr: 50 * USD_RATE, popular: false },
-  { usd: 100, idr: 100 * USD_RATE, popular: false },
-  { usd: 200, idr: 200 * USD_RATE, popular: false },
 ];
 
 export function TopUpModal() {
@@ -145,6 +160,7 @@ export function TopUpModal() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [checkingStatus, setCheckingStatus] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // BorderPay Dynamic QRIS state
   const [borderpayData, setBorderpayData] = useState<{
@@ -166,6 +182,7 @@ export function TopUpModal() {
       }
       setStep(1);
       setIsSuccess(false);
+      setIsProcessing(false);
       setCustomInput("");
       setErrorMessage("");
       setOrderCode(`DEP-${Date.now().toString().slice(-6)}`);
@@ -229,10 +246,10 @@ export function TopUpModal() {
     if (selectedUsd < MIN_DEPOSIT_USD) {
       setErrorMessage(
         lang === "en"
-          ? `Minimum deposit is $${MIN_DEPOSIT_USD} (approx ${formatRupiah(MIN_DEPOSIT_IDR)}).`
+          ? `Minimum deposit is $${MIN_DEPOSIT_USD} (approx ${formatPrice(MIN_DEPOSIT_IDR, lang)}).`
           : lang === "zh"
-          ? `最低充值金额为 $${MIN_DEPOSIT_USD}（约合 ${formatRupiah(MIN_DEPOSIT_IDR)}）。`
-          : `Minimal isi saldo adalah $${MIN_DEPOSIT_USD} (sekitar ${formatRupiah(MIN_DEPOSIT_IDR)}).`
+          ? `最低充值金额为 $${MIN_DEPOSIT_USD}（约合 ${formatPrice(MIN_DEPOSIT_IDR, lang)}）。`
+          : `Minimal isi saldo adalah $${MIN_DEPOSIT_USD} (sekitar ${formatPrice(MIN_DEPOSIT_IDR, lang)}).`
       );
       return;
     }
@@ -270,24 +287,47 @@ export function TopUpModal() {
 
   const handleConfirmPayment = async () => {
     setCheckingStatus(true);
+    setIsProcessing(true);
+    
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    
+    const orderData = {
+      id: orderCode,
+      user_name: user?.name || "Member",
+      items: [{ name: `Isi Saldo $${selectedUsd} USD`, price: amountIdr, platform: "Wallet" }],
+      subtotal: amountIdr,
+      discount: 0,
+      total: amountIdr,
+      payment_method: paymentMethod,
+      payment_status: "menunggu",
+      order_status: "menunggu",
+      date: new Date().toISOString().slice(0, 10),
+    };
+
     if (supabaseReady && supabase) {
       try {
-        await supabase.from("orders").insert({
-          order_code: orderCode,
-          customer_name: user?.name || "Member",
-          customer_email: user?.email || "member@texasai.com",
-          customer_phone: "-",
-          total_price: amountIdr,
-          payment_method: paymentMethod,
-          status: "lunas",
-          items: [{ name: `Isi Saldo $${selectedUsd} USD`, price: amountIdr, platform: "Wallet" }],
-        });
+        await supabase.from("orders").insert([orderData]);
       } catch (err) {
         console.warn("DB insert error:", err);
       }
     }
 
-    deposit(amountIdr, `Isi Saldo $${selectedUsd} USD via ${paymentMethod.toUpperCase()}`, orderCode);
+    try {
+      sessionStorage.setItem("tokono:last-order", JSON.stringify(orderData));
+      sessionStorage.setItem("serbapremium:last-order", JSON.stringify(orderData));
+      const raw = localStorage.getItem("tokono:orders") || localStorage.getItem("serbapremium:orders") || "[]";
+      const existing = JSON.parse(raw);
+      const list = Array.isArray(existing) ? existing : [];
+      const updated = [orderData, ...list.filter((o: any) => o.id !== orderCode)];
+      localStorage.setItem("tokono:orders", JSON.stringify(updated));
+      localStorage.setItem("serbapremium:orders", JSON.stringify(updated));
+    } catch {
+      // ignore storage full
+    }
+
+    // Remove direct deposit for manual confirmation flow
+    // deposit(amountIdr, `Isi Saldo $${selectedUsd} USD via ${paymentMethod.toUpperCase()}`, orderCode);
+    setIsProcessing(false);
     setIsSuccess(true);
     setCheckingStatus(false);
   };
@@ -331,8 +371,10 @@ export function TopUpModal() {
                     {lang === "en" ? "Top Up Wallet Balance" : lang === "zh" ? "充值账户余额" : "Isi Saldo Akun"}
                   </h3>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs text-fg-muted">Saldo Saat Ini:</span>
-                    <span className="text-xs font-bold text-accent tabular-nums">{formatRupiah(balance)}</span>
+                    <span className="text-xs text-fg-muted">
+                      {lang === "en" ? "Current Balance:" : lang === "zh" ? "当前余额：" : "Saldo Saat Ini:"}
+                    </span>
+                    <span className="text-xs font-bold text-accent tabular-nums">{formatPrice(balance, lang)}</span>
                     <span className="text-[11px] font-medium text-fg-muted">(${balanceUsd.toFixed(2)} USD)</span>
                   </div>
                 </div>
@@ -391,31 +433,78 @@ export function TopUpModal() {
                   </Link>
                 </div>
               </div>
+            ) : isProcessing ? (
+              /* PROCESSING STATE */
+              <div className="py-12 text-center animate-in fade-in zoom-in-95 duration-200 flex flex-col items-center justify-center space-y-4">
+                <Loader2 className="animate-spin text-accent" size={48} strokeWidth={2} />
+                <h4 className="text-xl font-black tracking-tight text-fg">
+                  {lang === "en" ? "Processing Payment..." : lang === "zh" ? "正在处理付款..." : "Sedang Memproses..."}
+                </h4>
+                <p className="text-xs text-fg-muted max-w-[250px] mx-auto text-center">
+                  {lang === "en" ? "Please wait a moment while we verify your payment with the network." : lang === "zh" ? "请稍候，我们正在核对您的付款。" : "Mohon tunggu sebentar, kami sedang memverifikasi pembayaran Anda."}
+                </p>
+              </div>
             ) : isSuccess ? (
-              /* SUCCESS STATE */
+              /* PENDING / MENUNGGU STATE */
               <div className="py-6 text-center animate-in fade-in zoom-in-95 duration-200">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-success/10 border border-success/20 text-success">
-                  <CheckCircle2 size={36} strokeWidth={2} />
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500">
+                  <Clock size={36} strokeWidth={2} />
                 </div>
 
-                <span className="mt-4 inline-block rounded-full bg-success/10 border border-success/20 px-3.5 py-1 text-xs font-bold text-success">
-                  {lang === "en" ? "Top Up Successful!" : lang === "zh" ? "充值成功！" : "Isi Saldo Berhasil!"}
+                <span className="mt-4 inline-block rounded-full bg-amber-500/10 border border-amber-500/20 px-3.5 py-1 text-xs font-bold text-amber-600 dark:text-amber-400">
+                  {lang === "en" ? "Waiting for Payment!" : lang === "zh" ? "等待付款！" : "Menunggu Pembayaran!"}
                 </span>
 
                 <h4 className="mt-2 text-2xl font-black text-fg">
-                  +{formatRupiah(amountIdr)}
+                  {formatPrice(amountIdr, lang)}
                 </h4>
                 <p className="mt-1 text-xs sm:text-sm font-semibold text-fg-muted">
-                  +${selectedUsd} USD • Saldo Baru: <span className="text-accent font-bold">{formatRupiah(balance)}</span>
+                  +${selectedUsd} USD • Invoice: <span className="text-fg font-mono">{orderCode}</span>
                 </p>
 
-                <p className="mt-3 text-xs text-fg-muted leading-relaxed max-w-sm mx-auto">
-                  {lang === "en"
-                    ? "Funds have been added to your wallet. You can now checkout any product with 1-click."
-                    : lang === "zh"
-                    ? "资金已存入您的账户，您现在可以使用余额秒级一键购买。"
-                    : "Saldo telah berhasil ditambahkan ke akun Anda dan siap digunakan untuk belanja instan 1-klik."}
-                </p>
+                <div className="mt-5 mx-auto max-w-sm text-left">
+                  {paymentMethod === "qris" ? (
+                    <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-surface-2 border border-border text-center">
+                      <p className="text-xs font-bold text-fg mb-2">
+                        {lang === "en" ? "Scan QRIS to Pay" : lang === "zh" ? "扫描 QRIS 付款" : "Scan QRIS untuk Membayar"}
+                      </p>
+                      <div className="relative rounded-lg border border-border bg-white p-2 shadow-sm">
+                        <img
+                          src="/qris.png"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src = "/qris-placeholder.svg";
+                          }}
+                          alt="QRIS"
+                          className="h-32 w-32 object-contain"
+                        />
+                      </div>
+                      <p className="text-[10px] text-fg-muted mt-2 px-2">
+                        {lang === "en" ? "If you haven't paid yet, please complete your payment. Your balance will be added once confirmed." : lang === "zh" ? "如果您尚未付款，请完成付款。一旦确认将立即充值余额。" : "Jika Anda belum bayar, silakan selesaikan pembayaran ke QRIS di atas agar saldo dapat diproses."}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="rounded-xl border border-border bg-surface-2 p-3 space-y-2">
+                      <p className="text-[11px] font-bold text-fg-muted text-center mb-1">
+                        {lang === "en" ? "Send exactly" : lang === "zh" ? "发送" : "Kirimkan persis"} <span className="text-accent">{totalUsdt} {paymentMethod === "solana" ? "SOL" : paymentMethod === "ton" ? "TON" : "USDT"}</span> {lang === "en" ? "to:" : lang === "zh" ? "到：" : "ke:"}
+                      </p>
+                      <div className="flex items-center justify-between gap-2 rounded-lg bg-surface p-2 border border-border">
+                        <span className="font-mono text-[10px] font-bold text-fg break-all select-all">
+                          {PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.address}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.address || "", "crypto-addr-success")}
+                          className="flex items-center justify-center h-6 w-6 rounded bg-accent/10 text-accent hover:bg-accent/20 transition-colors"
+                        >
+                          {copiedField === "crypto-addr-success" ? <Check size={12} /> : <Copy size={12} />}
+                        </button>
+                      </div>
+                      <p className="text-[10px] text-center text-fg-muted mt-1 px-1">
+                        {lang === "en" ? "If you haven't paid yet, please complete your payment. Your balance will be added once confirmed." : lang === "zh" ? "如果您尚未付款，请完成付款。一旦确认将立即充值余额。" : "Jika Anda belum bayar, silakan transfer ke alamat di atas agar saldo dapat diproses."}
+                      </p>
+                    </div>
+                  )}
+                </div>
 
                 <div className="mt-6 flex justify-center gap-3">
                   <Button
@@ -478,23 +567,23 @@ export function TopUpModal() {
                   </div>
 
                   {/* Clean Single Custom Input */}
-                  <div className="mt-2.5 flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 shadow-inner focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 transition-all">
-                    <span className="text-xs font-bold text-fg-muted select-none">
-                      {lang === "en" ? "Custom Amount:" : lang === "zh" ? "自定义金额：" : "Nominal Lain:"}
+                  <div className="mt-4 flex items-center gap-2 rounded-2xl border-2 border-border bg-surface px-4 py-3 sm:px-5 sm:py-4 shadow-inner focus-within:border-accent focus-within:ring-4 focus-within:ring-accent/20 transition-all">
+                    <span className="text-sm sm:text-base font-bold text-fg-muted select-none shrink-0">
+                      {lang === "en" ? "Enter Custom Amount:" : lang === "zh" ? "输入自定义金额：" : "Masukkan Nominal Kustom:"}
                     </span>
-                    <span className="text-xs font-black text-fg select-none">$</span>
+                    <span className="text-xl sm:text-2xl font-black text-fg select-none ml-2">$</span>
                     <input
                       type="number"
                       min={5}
                       step={1}
-                      placeholder={lang === "en" ? "Enter amount in USD..." : lang === "zh" ? "输入自定义金额 (USD)..." : "Ketik jumlah USD (min. 5)..."}
+                      placeholder="0"
                       value={customInput}
                       onChange={handleCustomChange}
-                      className="w-full bg-transparent text-xs sm:text-sm font-bold text-fg placeholder:text-fg-faint focus:outline-hidden"
+                      className="w-full bg-transparent text-xl sm:text-2xl font-black text-fg placeholder:text-fg-faint focus:outline-hidden min-w-0"
                     />
                     {customInput && lang === "id" && (
                       <span className="text-xs font-bold text-accent shrink-0 tabular-nums">
-                        ≈ {formatRupiah(amountIdr)}
+                        ≈ {formatPrice(amountIdr, lang)}
                       </span>
                     )}
                   </div>
@@ -656,7 +745,7 @@ export function TopUpModal() {
                         onError={(e) => {
                           (e.currentTarget as HTMLImageElement).src = "/qris-placeholder.svg";
                         }}
-                        alt="QRIS TexasAi"
+                        alt="QRIS Texas AI"
                         className="h-44 w-44 object-contain"
                       />
                     </div>

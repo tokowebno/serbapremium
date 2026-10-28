@@ -3,7 +3,7 @@ import customOrder from "./custom-order.json";
 import { descriptionsData } from "./product-descriptions";
 
 /**
- * Katalog Resmi Produk TexasAi (Audit Pasar Indonesia 2026).
+ * Katalog Resmi Produk Texas AI (Audit Pasar Indonesia 2026).
  * Seluruh data produk disusun berdasarkan kondisi pasar asli 2026,
  * membedakan paket resmi vs jenis akses reseller (Family Invite, Sharing 1P1U PIN, Private, Redeem Code),
  * dengan varian dinamis yang tidak diseragamkan dan mempertahankan 100% stok asli toko.
@@ -231,7 +231,7 @@ export interface RawAppSpec {
 }
 
 /**
- * Data Audit Lengkap 49 Produk Digital TexasAi 2026.
+ * Data Audit Lengkap 49 Produk Digital Texas AI 2026.
  * Seluruh harga pasar diverifikasi, varian realistis, deskripsi akurat, dan stok 100% dipertahankan.
  */
 const productSpecs: RawAppSpec[] = [

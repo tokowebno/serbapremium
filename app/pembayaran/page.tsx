@@ -4,7 +4,7 @@ import { RequireAuth } from "@/components/storefront/require-auth";
 
 export const metadata: Metadata = {
   title: "Pembayaran & Top Up",
-  description: "Selesaikan pembelian aplikasi & akun premium Anda di TexasAi.",
+  description: "Selesaikan pembelian aplikasi & akun premium Anda di Texas AI.",
 };
 
 interface Props {

@@ -19,17 +19,22 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password) {
       setError("Isi email dan kata sandi Anda.");
       return;
     }
     setError(null);
+    setIsLoading(true);
+
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
     const name = email.split("@")[0].replace(/[._-]/g, " ");
     login({ name: name.charAt(0).toUpperCase() + name.slice(1), email: email.trim() });
-    toast.push({ title: "Berhasil masuk", description: "Selamat datang kembali di TexasAi." });
+    toast.push({ title: "Berhasil masuk", description: "Selamat datang kembali di Texas AI." });
     const next = searchParams.get("next");
     router.push(next ?? "/akun");
   };
@@ -38,7 +43,7 @@ export default function SignInPage() {
     <div className="flex min-h-[100dvh] items-center justify-center px-5 pt-32 pb-20">
       <div className="w-full max-w-sm rounded-lg border-2 border-border bg-surface p-8 shadow-[6px_6px_0px_var(--shadow-color)]">
         <div className="flex flex-col items-center text-center">
-          <Link href="/" className="group mb-3 flex items-center justify-center" aria-label="TexasAi — Beranda">
+          <Link href="/" className="group mb-3 flex items-center justify-center" aria-label="Texas AI — Beranda">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-border/80 bg-surface shadow-xs transition-transform duration-200 group-hover:scale-105">
               <TexasAiIcon size={34} />
             </div>
@@ -47,7 +52,7 @@ export default function SignInPage() {
             <span>Texas</span><span className="text-accent ml-0.5 font-extrabold">AI</span>
           </p>
           <h1 className="mt-2 text-xl font-black tracking-tight text-fg">Masuk Akun</h1>
-          <p className="mt-1 text-xs font-medium text-fg-muted">Lanjutkan ke akun TexasAi Anda.</p>
+          <p className="mt-1 text-xs font-medium text-fg-muted">Lanjutkan ke akun Texas AI Anda.</p>
         </div>
 
         <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4" noValidate>
@@ -86,8 +91,15 @@ export default function SignInPage() {
 
           {error && <p className="text-xs font-bold text-discount">{error}</p>}
 
-          <Button type="submit" className="mt-1 w-full">
-            Masuk Sekarang
+          <Button type="submit" className="mt-1 w-full" disabled={isLoading}>
+            {isLoading ? (
+              <svg className="animate-spin h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : (
+              "Masuk Sekarang"
+            )}
           </Button>
 
           <div className="flex justify-end">

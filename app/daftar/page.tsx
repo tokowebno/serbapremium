@@ -21,8 +21,9 @@ export default function SignUpPage() {
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string; confirm?: string }>({});
+  const [isLoading, setIsLoading] = useState(false);
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const next: typeof errors = {};
     if (!name.trim()) next.name = "Nama lengkap wajib diisi.";
@@ -32,8 +33,11 @@ export default function SignUpPage() {
     setErrors(next);
     if (Object.keys(next).length > 0) return;
 
+    setIsLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
     login({ name: name.trim(), email: email.trim() });
-    toast.push({ title: "Akun berhasil dibuat", description: "Selamat datang di TexasAi!" });
+    toast.push({ title: "Akun berhasil dibuat", description: "Selamat datang di Texas AI!" });
     const nextUrl = searchParams.get("next");
     router.push(nextUrl ?? "/akun");
   };
@@ -42,7 +46,7 @@ export default function SignUpPage() {
     <div className="flex min-h-[100dvh] items-center justify-center px-5 pt-32 pb-20">
       <div className="w-full max-w-sm rounded-lg border-2 border-border bg-surface p-8 shadow-[6px_6px_0px_var(--shadow-color)]">
         <div className="flex flex-col items-center text-center">
-          <Link href="/" className="group mb-3 flex items-center justify-center" aria-label="TexasAi — Beranda">
+          <Link href="/" className="group mb-3 flex items-center justify-center" aria-label="Texas AI — Beranda">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-border/80 bg-surface shadow-xs transition-transform duration-200 group-hover:scale-105">
               <TexasAiIcon size={34} />
             </div>
@@ -113,8 +117,15 @@ export default function SignUpPage() {
             {errors.confirm && <p className="text-xs font-bold text-discount">{errors.confirm}</p>}
           </Field>
 
-          <Button type="submit" className="mt-1 w-full">
-            Daftar Sekarang
+          <Button type="submit" className="mt-1 w-full" disabled={isLoading}>
+            {isLoading ? (
+              <svg className="animate-spin h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : (
+              "Daftar Sekarang"
+            )}
           </Button>
 
           <p className="text-center text-xs font-semibold text-fg-muted">

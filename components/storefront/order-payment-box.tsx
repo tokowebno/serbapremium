@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Copy, Check, AlertCircle, Send } from "lucide-react";
@@ -34,29 +34,35 @@ export function OrderPaymentBox({
   const isBep20 =
     paymentMethod?.toLowerCase().includes("bep20") ||
     paymentMethod?.toLowerCase().includes("bnb");
+  const isBtc = paymentMethod?.toLowerCase().includes("btc");
   const isCrypto =
     isSolana ||
     isTon ||
+    isBtc ||
     paymentMethod?.toLowerCase().startsWith("usdt") ||
     paymentMethod?.toLowerCase().includes("bnb") ||
     paymentMethod?.toLowerCase().includes("tron");
 
   let cryptoNetwork = "Tron (TRC-20)";
-  let cryptoAddress = "TQTpRn6j1Pfwf38xP8CxqxJi18YX4v8Wcm";
+  let cryptoAddress = "TEZ6JFy2Ew6ayPYgdj1xY36WWdahYkBxat";
   let cryptoSymbol = "USDT";
 
   if (isSolana) {
     cryptoNetwork = "Solana (SPL)";
-    cryptoAddress = "7JKwQ81LiXgKw4ekSCurNeqXk3jYv3vDMJcDyCLyW64Y";
+    cryptoAddress = "FNNgq27hNuwddakAeZJiWUEJYjE13CtsS3YHRJjGMwpP";
     cryptoSymbol = "SOL / USDT";
   } else if (isTon) {
     cryptoNetwork = "The Open Network (TON)";
-    cryptoAddress = "UQA2ka2a3umUuzmr3ymBM6x7FV3DZOLQ92fRsS_KdElex77P";
+    cryptoAddress = "UQAG_A_1Ay9QcSqJifY_W9hQr0ZRW0WwcALCLm_hVRx6LWbz";
     cryptoSymbol = "TON / GRAM";
   } else if (isBep20) {
     cryptoNetwork = "BNB Smart Chain (BEP-20)";
-    cryptoAddress = "0x141b43fCDb8D17c09e7b4235b2527309db674A27";
+    cryptoAddress = "0xb8E8C7a85942475752755ff1E6c33529Eced4E91";
     cryptoSymbol = "BNB / USDT";
+  } else if (isBtc) {
+    cryptoNetwork = "Bitcoin";
+    cryptoAddress = "bc1qmgxfm23zpnenmgmu55q03n9k0dd9mpaaygxjjg";
+    cryptoSymbol = "BTC";
   }
 
   const rawUsd = total / USDT_RATE;
@@ -129,7 +135,7 @@ export function OrderPaymentBox({
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).src = "/qris-placeholder.svg";
               }}
-              alt="QRIS TexasAi"
+              alt="QRIS Texas AI"
               className="h-44 w-44 object-contain"
             />
           </div>

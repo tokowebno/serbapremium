@@ -6,7 +6,7 @@ import { AdminGuard } from "@/components/admin/admin-guard";
 export const metadata: Metadata = {
   title: {
     default: "Dasbor Admin",
-    template: "%s · TexasAi Admin",
+    template: "%s · Texas AI Admin",
   },
   robots: { index: false, follow: false },
 };

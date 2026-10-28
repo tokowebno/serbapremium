@@ -18,7 +18,7 @@ export function Footer() {
     <footer className="mt-24 border-t border-border bg-surface/80 backdrop-blur-md">
       <Reveal className="tk-container grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <Link href="/" className="group flex items-center" aria-label="TexasAi — Beranda">
+          <Link href="/" className="group flex items-center" aria-label="Texas AI — Beranda">
             <TexasAiLogo iconSize={28} textSize="text-[17px]" />
           </Link>
           <p className="mt-3 max-w-xs text-sm font-normal leading-relaxed text-fg-muted">

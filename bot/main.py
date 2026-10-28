@@ -1,4 +1,4 @@
-"""
+﻿"""
 ZELVA AI - Main Telegram Bot Application
 100% matched UI and workflow of Dragon Store Bot (@dragonstorez_bot)
 Includes multi-network wallet top-up (BEP20, TRC20, Binance Pay, QRIS) with TxID submission & Admin 1-click approval.
@@ -43,6 +43,7 @@ from config import (
     TRC20_ADDRESS,
     SOLANA_ADDRESS,
     TON_ADDRESS,
+    BTC_ADDRESS,
     QRIS_GATEWAY_API_KEY,
     MENU_ICONS,
     UI_ICONS,
@@ -426,7 +427,7 @@ def get_wallet_keyboard(lang: str = "en") -> InlineKeyboardMarkup:
         [InlineKeyboardButton("TRC20 (USDT)", callback_data="topup_init:TRC20", icon_custom_emoji_id=UI_ICONS["trc20"])],
         [InlineKeyboardButton("Solana (SOL/USDT)", callback_data="topup_init:SOLANA", icon_custom_emoji_id=UI_ICONS.get("solana", UI_ICONS["bep20"]))],
         [InlineKeyboardButton("TON / GRAM", callback_data="topup_init:TON", icon_custom_emoji_id=UI_ICONS.get("ton", UI_ICONS["bep20"]))],
-        [InlineKeyboardButton("Binance Pay (ID)", callback_data="topup_init:BINANCE", icon_custom_emoji_id=UI_ICONS["binance"])],
+        [InlineKeyboardButton("Bitcoin (BTC)", callback_data="topup_init:BTC", icon_custom_emoji_id=UI_ICONS.get("btc", UI_ICONS["bep20"]))],
         [InlineKeyboardButton("QRIS (IDR)", callback_data="topup_init:QRIS", icon_custom_emoji_id=UI_ICONS["qris"])],
         [InlineKeyboardButton(t("btn_back_menu", lang), callback_data="nav:start", icon_custom_emoji_id=UI_ICONS["back"])]
     ]

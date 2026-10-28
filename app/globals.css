@@ -223,43 +223,11 @@
   border: 1px solid var(--border);
 }
 
-
-
-.dark 
-
-
-
-.dark 
-
-
-
-.dark 
-
-
-
-.dark 
-
-
-
-.dark 
-
-
-
-.dark 
-
 @utility glass-card {
   background: var(--surface);
   border: 2px solid var(--border);
   box-shadow: 4px 4px 0 0 var(--border);
   transition: box-shadow 0.25s var(--ease-out), transform 0.25s var(--ease-out), border-color 0.25s var(--ease-out);
-}
-
-@utility glass-card {
-  background: var(--surface);
-  border: 2px solid var(--border);
-  box-shadow: 4px 4px 0 0 var(--border);
-  transition: box-shadow 0.25s var(--ease-out), transform 0.25s var(--ease-out), border-color 0.25s var(--ease-out);
-}
 }
 
 @utility no-scrollbar {

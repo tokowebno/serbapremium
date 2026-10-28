@@ -4,10 +4,10 @@ export const developers: Developer[] = [
   {
     id: "tokono-store",
     slug: "tokono-store",
-    name: "TexasAi Store",
+    name: "Texas AI Store",
     logo: { from: "#1b1a17", to: "#0d0d0b", glyph: "box" },
     description:
-      "Toko resmi TexasAi — lisensi digital premium dengan pengiriman instan dan garansi penggantian.",
+      "Toko resmi Texas AI — lisensi digital premium dengan pengiriman instan dan garansi penggantian.",
     website: "https://tokono.example",
     location: "Jakarta, Indonesia",
     joinDate: "2024-01-01",

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -15,6 +15,7 @@ import {
   Clock,
   Sparkles,
   QrCode,
+  Loader2,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { formatPrice, formatRupiah, USDT_RATE } from "@/lib/utils";
@@ -25,7 +26,7 @@ import { Input, Field } from "@/components/ui/form";
 
 import { supabase, supabaseReady } from "@/lib/supabase";
 
-type PaymentMethod = "qris" | "usdt_bnb" | "usdt_tron" | "solana" | "ton";
+type PaymentMethod = "qris" | "usdt_bnb" | "usdt_tron" | "solana" | "ton" | "btc";
 
 interface CheckoutItem {
   id: string;
@@ -88,7 +89,7 @@ const PAYMENT_INFO: Record<
     },
     icon: "/logos/bnb.svg",
     network: "BNB Smart Chain (BEP-20)",
-    address: "0x141b43fCDb8D17c09e7b4235b2527309db674A27",
+    address: "0xb8E8C7a85942475752755ff1E6c33529Eced4E91",
   },
   usdt_tron: {
     name: {
@@ -103,7 +104,7 @@ const PAYMENT_INFO: Record<
     },
     icon: "/logos/tron.svg",
     network: "Tron (TRC-20)",
-    address: "TQTpRn6j1Pfwf38xP8CxqxJi18YX4v8Wcm",
+    address: "TEZ6JFy2Ew6ayPYgdj1xY36WWdahYkBxat",
   },
   solana: {
     name: {
@@ -118,7 +119,7 @@ const PAYMENT_INFO: Record<
     },
     icon: "/logos/solana.svg",
     network: "Solana (SPL)",
-    address: "7JKwQ81LiXgKw4ekSCurNeqXk3jYv3vDMJcDyCLyW64Y",
+    address: "FNNgq27hNuwddakAeZJiWUEJYjE13CtsS3YHRJjGMwpP",
   },
   ton: {
     name: {
@@ -133,7 +134,22 @@ const PAYMENT_INFO: Record<
     },
     icon: "/logos/ton.svg",
     network: "The Open Network (TON)",
-    address: "UQA2ka2a3umUuzmr3ymBM6x7FV3DZOLQ92fRsS_KdElex77P",
+    address: "UQAG_A_1Ay9QcSqJifY_W9hQr0ZRW0WwcALCLm_hVRx6LWbz",
+  },
+  btc: {
+    name: {
+      id: "Bitcoin (BTC)",
+      en: "Bitcoin (BTC)",
+      zh: "比特币 (BTC)",
+    },
+    badge: {
+      id: "BITCOIN BTC",
+      en: "BITCOIN BTC",
+      zh: "BITCOIN BTC",
+    },
+    icon: "/logos/btc.svg",
+    network: "Bitcoin",
+    address: "bc1qmgxfm23zpnenmgmu55q03n9k0dd9mpaaygxjjg",
   },
 };
 
@@ -161,7 +177,7 @@ export function CheckoutForm({
   const customPlatform =
     propCustomPlatform || searchParams.get("platform") || undefined;
 
-  // Step 1: Info Pembeli & Metode Pembayaran | Step 2: Bayar (QRIS / USDT / Binance)
+  // Step 1: Info Pembeli & Metode Pembayaran | Step 2: Bayar (QRIS / USDT)
   const [step, setStep] = useState<1 | 2>(1);
 
   // Form State
@@ -182,6 +198,7 @@ export function CheckoutForm({
   const [qrisDone, setQrisDone] = useState(false);
   const [usdtDone, setUsdtDone] = useState(false);
   const [txId, setTxId] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   // BorderPay QRIS Gateway State
@@ -432,6 +449,9 @@ export function CheckoutForm({
 
     setLoading(true);
     setErrorMessage("");
+    setIsProcessing(true);
+    
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     const effectiveStatus =
       forcedStatus ||
@@ -505,6 +525,7 @@ export function CheckoutForm({
         effectiveStatus === "lunas" ? "&status=lunas" : ""
       }`
     );
+    // Don't set isProcessing(false) here so the screen keeps showing loading until navigation completes
   };
 
   const steps = [
@@ -775,23 +796,19 @@ export function CheckoutForm({
                   loading={stepLoading}
                   className="w-full sm:w-auto h-13 sm:h-12 px-8 text-base font-bold shadow-[var(--elev-2)]"
                 >
-                  {stepLoading
-                    ? lang === "en"
-                      ? "Generating Payment Gateway…"
-                      : lang === "zh"
-                      ? "正在生成专属支付账单…"
-                      : "Membuat QRIS Otomatis…"
-                    : lang === "en"
+                  {!stepLoading && (
+                    lang === "en"
                     ? "Proceed to Payment"
                     : lang === "zh"
                     ? "前往付款"
-                    : "Lanjut ke Pembayaran"}
+                    : "Lanjut ke Pembayaran"
+                  )}
                   {!stepLoading && <ArrowRight size={18} strokeWidth={2.5} />}
                 </Button>
               </div>
             </div>
           ) : (
-            /* STEP 2: DETAIL PEMBAYARAN, QRIS / BINANCE / USDT */
+            /* STEP 2: DETAIL PEMBAYARAN, QRIS / USDT */
             <div className="flex flex-col gap-5">
               <div className="flex items-center justify-between border-b border-border/70 pb-3.5">
                 <div className="flex items-center gap-3">
@@ -833,7 +850,17 @@ export function CheckoutForm({
               </div>
 
               {/* QRIS SECTION */}
-              {paymentMethod === "qris" ? (
+              {isProcessing ? (
+                <div className="py-24 text-center animate-in fade-in zoom-in-95 duration-200 flex flex-col items-center justify-center space-y-4">
+                  <Loader2 className="animate-spin text-accent" size={56} strokeWidth={2} />
+                  <h4 className="text-2xl font-black tracking-tight text-fg">
+                    {lang === "en" ? "Processing Payment..." : lang === "zh" ? "正在处理付款..." : "Sedang Memproses..."}
+                  </h4>
+                  <p className="text-sm text-fg-muted max-w-[300px] mx-auto text-center">
+                    {lang === "en" ? "Please wait a moment while we verify your payment with the network." : lang === "zh" ? "请稍候，我们正在核对您的付款。" : "Mohon tunggu sebentar, kami sedang memverifikasi pembayaran Anda."}
+                  </p>
+                </div>
+              ) : paymentMethod === "qris" ? (
                 <>
                   {/* Status Banner */}
                   {paymentVerified ? (
@@ -1050,7 +1077,7 @@ export function CheckoutForm({
                           disabled={loading}
                           loading={loading}
                         >
-                          Saya Sudah Bayar / Selesaikan Pesanan
+                          {!loading && "Saya Sudah Bayar / Selesaikan Pesanan"}
                         </Button>
                       )}
                     </div>
@@ -1222,10 +1249,10 @@ export function CheckoutForm({
                     </div>
                     <p className="max-w-xs text-center text-xs font-medium leading-relaxed text-fg-muted">
                       {lang === "en"
-                        ? "Scan the QR code above using your crypto wallet (Binance, Trust Wallet, MetaMask, TronLink, OKX) or send directly to the copied address."
+                        ? "Scan the QR code above using your crypto wallet (Trust Wallet, MetaMask, TronLink, OKX) or send directly to the copied address."
                         : lang === "zh"
                         ? "使用您的加密货币钱包（Binance、Trust Wallet、MetaMask、TronLink、OKX）扫描上方二维码，或转账至已复制的地址。"
-                        : "Pindai QR di atas menggunakan aplikasi wallet crypto Anda (Binance, Trust Wallet, MetaMask, TronLink, OKX) atau transfer ke alamat yang telah disalin."}
+                        : "Pindai QR di atas menggunakan aplikasi wallet crypto Anda (Trust Wallet, MetaMask, TronLink, OKX) atau transfer ke alamat yang telah disalin."}
                     </p>
                   </div>
 
@@ -1301,17 +1328,13 @@ export function CheckoutForm({
                   disabled={loading}
                   className="w-full sm:flex-1 h-14 text-base sm:text-lg font-bold shadow-[var(--elev-2)]"
                 >
-                  {loading
-                    ? lang === "en"
-                      ? "Confirming Order…"
-                      : lang === "zh"
-                      ? "确认订单中…"
-                      : "Mengonfirmasi Pesanan…"
-                    : lang === "en"
+                  {!loading && (
+                    lang === "en"
                     ? "Complete Order"
                     : lang === "zh"
                     ? "完成订单"
-                    : "Selesaikan Pembayaran"}
+                    : "Selesaikan Pembayaran"
+                  )}
                 </Button>
               </div>
             </div>
