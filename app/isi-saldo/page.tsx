@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/components/storefront/providers";
 import { useTranslation } from "@/components/storefront/i18n-provider";
-import { formatRupiah, USDT_RATE } from "@/lib/utils";
+import { formatRupiah, formatPrice, USDT_RATE } from "@/lib/utils";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { RequireAuth } from "@/components/storefront/require-auth";
 import { supabase, supabaseReady } from "@/lib/supabase";
@@ -173,6 +173,8 @@ function IsiSaldoContent() {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [txId, setTxId] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isCryptoVerified, setIsCryptoVerified] = useState(false);
+  const [verifiedAmountUsd, setVerifiedAmountUsd] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -259,11 +261,121 @@ function IsiSaldoContent() {
   };
 
   const handleConfirmPayment = async () => {
-    setLoading(true);
+    setErrorMessage("");
+
+    // 1. KHUSUS CRYPTO: WAJIB TXID DAN VERIFIKASI ON-CHAIN OTOMATIS
+    if (paymentMethod !== "qris") {
+      const cleanTx = txId.trim();
+      if (!cleanTx) {
+        setErrorMessage(
+          lang === "en"
+            ? "Transaction Hash / TxID is REQUIRED for crypto deposits."
+            : lang === "zh"
+            ? "加密货币充值必须填写交易哈希 / TxID！"
+            : "Hash Transaksi / TxID WAJIB diisi untuk verifikasi otomatis deposit crypto. Silakan salin TxID dari wallet pengirim Anda."
+        );
+        return;
+      }
+
+      setCheckingStatus(true);
+      setIsProcessing(true);
+
+      try {
+        const res = await fetch("/api/payments/verify-crypto", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            network: paymentMethod,
+            tx_hash: cleanTx,
+            expected_amount_usd: selectedUsd,
+            order_id: orderCode,
+          }),
+        });
+
+        const json = await res.json();
+
+        if (!res.ok || !json.ok || !json.verified) {
+          setIsProcessing(false);
+          setCheckingStatus(false);
+          setErrorMessage(
+            json.message ||
+              (lang === "en"
+                ? "Invalid TxID or transaction not verified on blockchain. Deposit rejected."
+                : "TxID tidak valid atau transaksi tidak ditemukan di blockchain. Deposit crypto ditolak.")
+          );
+          return; // STOP! JANGAN TAMBAH SALDO!
+        }
+
+        // VERIFIKASI BERHASIL! DANA BENAR-BENAR MASUK ON-CHAIN
+        const actualUsd = json.amount_usd || selectedUsd;
+        const creditedIdr = actualUsd * USD_RATE;
+
+        // Auto credit saldo ke user
+        deposit(
+          creditedIdr,
+          `Deposit $${actualUsd} USD via ${paymentMethod.toUpperCase()} (Tx: ${cleanTx.slice(0, 10)}...)`,
+          orderCode
+        );
+
+        const orderData = {
+          id: orderCode,
+          user_name: user?.name || "Member",
+          items: [{ name: `Isi Saldo $${actualUsd} USD`, price: creditedIdr, platform: "Wallet" }],
+          subtotal: creditedIdr,
+          discount: 0,
+          total: creditedIdr,
+          payment_method: paymentMethod,
+          payment_status: "berhasil",
+          order_status: "selesai",
+          tx_id: cleanTx,
+          date: new Date().toISOString().slice(0, 10),
+        };
+
+        if (supabaseReady && supabase) {
+          try {
+            await supabase.from("orders").insert([orderData]);
+          } catch (err) {
+            console.warn("DB insert error:", err);
+          }
+        }
+
+        try {
+          sessionStorage.setItem("tokono:last-order", JSON.stringify(orderData));
+          sessionStorage.setItem("serbapremium:last-order", JSON.stringify(orderData));
+          const raw = localStorage.getItem("tokono:orders") || localStorage.getItem("serbapremium:orders") || "[]";
+          const existing = JSON.parse(raw);
+          const list = Array.isArray(existing) ? existing : [];
+          const updated = [orderData, ...list.filter((o: any) => o.id !== orderCode)];
+          localStorage.setItem("tokono:orders", JSON.stringify(updated));
+          localStorage.setItem("serbapremium:orders", JSON.stringify(updated));
+        } catch {
+          // ignore
+        }
+
+        setVerifiedAmountUsd(actualUsd);
+        setIsCryptoVerified(true);
+        setIsSuccess(true);
+        setIsProcessing(false);
+        setCheckingStatus(false);
+        return;
+      } catch (err: any) {
+        setIsProcessing(false);
+        setCheckingStatus(false);
+        setErrorMessage(
+          lang === "en"
+            ? "Connection error while verifying blockchain. Please try again."
+            : "Gagal memverifikasi transaksi ke blockchain. Pastikan koneksi internet stabil dan coba lagi."
+        );
+        return;
+      }
+    }
+
+    // 2. KHUSUS QRIS: BIARKAN SEPERTI APA ADANYA
+    setCheckingStatus(true);
     setIsProcessing(true);
-    
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    
+
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
     const orderData = {
       id: orderCode,
       user_name: user?.name || "Member",
@@ -295,34 +407,31 @@ function IsiSaldoContent() {
       localStorage.setItem("tokono:orders", JSON.stringify(updated));
       localStorage.setItem("serbapremium:orders", JSON.stringify(updated));
     } catch {
-      // ignore storage full
+      // ignore
     }
 
-    // Remove direct deposit for manual confirmation flow
-    // deposit(amountIdr, `Isi Saldo $${selectedUsd} USD via ${paymentMethod.toUpperCase()}`, orderCode);
+    setIsCryptoVerified(false);
     setIsProcessing(false);
     setIsSuccess(true);
     setCheckingStatus(false);
   };
 
   return (
-    <div className="relative min-h-[85vh] overflow-hidden">
+    <div className="relative min-h-screen pt-28 pb-20">
+      <div className="tk-container max-w-3xl">
+        {/* Back Link */}
+        <div className="mb-6">
+          <Link
+            href={returnApp ? `/app/${returnApp}` : "/"}
+            className="liquid-glass-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold text-fg-muted hover:text-fg transition-all active:scale-95"
+          >
+            <ArrowLeft size={14} />
+            <span>{returnApp ? "Kembali ke Pembelian" : "Kembali ke Toko"}</span>
+          </Link>
+        </div>
 
-
-      <div className="tk-container relative z-10 max-w-3xl pt-28 pb-24">
-        {/* Header Navigation & Title */}
-        <div className="mb-7">
-          <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}>
-            <Link
-              href="/akun"
-              className="liquid-glass-pill inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold text-fg-muted hover:text-fg transition-all active:scale-95 mb-4 cursor-pointer"
-            >
-              <ArrowLeft size={14} />
-              <span>{lang === "en" ? "Back to Account" : lang === "zh" ? "返回账户" : "Kembali ke Akun"}</span>
-            </Link>
-          </motion.div>
-
-          {/* Liquid Glass Showcase Header */}
+        {/* Liquid Glass Showcase Header */}
+        <div className="mb-8">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -378,37 +487,95 @@ function IsiSaldoContent() {
           >
             <Loader2 className="animate-spin text-accent" size={60} strokeWidth={2} />
             <h4 className="text-2xl sm:text-3xl font-black tracking-tight text-fg">
-              {lang === "en" ? "Processing Payment..." : lang === "zh" ? "正在处理付款..." : "Sedang Memproses..."}
+              {paymentMethod !== "qris" ? "Memverifikasi Transaksi On-Chain..." : (lang === "en" ? "Processing Payment..." : lang === "zh" ? "正在处理付款..." : "Sedang Memproses...")}
             </h4>
             <p className="text-sm text-fg-muted max-w-[350px] mx-auto leading-relaxed">
-              {lang === "en" ? "Please wait a moment while we verify your payment with the network." : lang === "zh" ? "请稍候，我们正在核对您的付款。" : "Mohon tunggu sebentar, kami sedang memverifikasi pembayaran Anda."}
+              {paymentMethod !== "qris"
+                ? "Sistem sedang memeriksa status hash transaksi ke node blockchain secara langsung..."
+                : (lang === "en" ? "Please wait a moment while we verify your payment with the network." : lang === "zh" ? "请稍候，我们正在核对您的付款。" : "Mohon tunggu sebentar, kami sedang memverifikasi pembayaran Anda.")}
             </p>
           </motion.div>
         ) : isSuccess ? (
-          /* PENDING STATE */
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 15 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
-            className="liquid-glass rounded-2xl p-8 sm:p-10 text-center shadow-sm"
-          >
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500">
-              <Clock size={44} strokeWidth={2.4} />
-            </div>
+          /* SUCCESS STATE */
+          isCryptoVerified ? (
+            /* CRYPTO ON-CHAIN VERIFIED SUCCESS */
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
+              className="liquid-glass rounded-2xl p-8 sm:p-10 text-center shadow-sm"
+            >
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
+                <CheckCircle2 size={48} strokeWidth={2.5} />
+              </div>
 
-            <span className="mt-5 inline-block rounded-full bg-amber-500/10 border border-amber-500/20 px-4 py-1 text-xs font-bold text-amber-600 dark:text-amber-400">
-              {lang === "en" ? "Waiting for Payment" : lang === "zh" ? "等待付款中" : "Menunggu Pembayaran!"}
-            </span>
+              <span className="mt-5 inline-block rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                {lang === "en" ? "Deposit Verified On-Chain!" : lang === "zh" ? "链上核验成功，已自动入账！" : "Deposit Berhasil Terverifikasi On-Chain!"}
+              </span>
 
-            <h2 className="mt-2 text-3xl sm:text-4xl font-black text-fg tracking-tight">
-              {formatRupiah(amountIdr)}
-            </h2>
-            <p className="mt-1 text-sm font-semibold text-fg-muted">
-              +${selectedUsd} USD • Invoice: <span className="text-fg font-mono font-bold">{orderCode}</span>
-            </p>
+              <h2 className="mt-2 text-3xl sm:text-4xl font-black text-fg tracking-tight">
+                +{formatRupiah((verifiedAmountUsd || selectedUsd) * USD_RATE)}
+              </h2>
+              <p className="mt-1 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                +${verifiedAmountUsd || selectedUsd} USD Saldo Otomatis Masuk ke Akun Anda!
+              </p>
 
-            <div className="mt-6 mx-auto max-w-sm text-left">
-              {paymentMethod === "qris" ? (
+              <div className="mt-6 mx-auto max-w-sm text-left">
+                <div className="rounded-2xl border border-border bg-surface-2 p-4 space-y-3">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-fg-muted">Status:</span>
+                    <span className="font-bold text-emerald-600 flex items-center gap-1">
+                      <Check size={14} strokeWidth={3} /> Berhasil Otomatis
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-fg-muted">Invoice:</span>
+                    <span className="font-mono font-bold text-fg">{orderCode}</span>
+                  </div>
+                  <div className="text-xs pt-2 border-t border-border">
+                    <span className="text-fg-muted block mb-1">Hash Transaksi (TxID):</span>
+                    <span className="font-mono text-[11px] font-bold text-fg break-all select-all block bg-surface p-2.5 rounded-xl border border-border">
+                      {txId}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <ButtonLink
+                  href={returnApp ? `/app/${returnApp}` : "/"}
+                  size="lg"
+                  className="w-full sm:w-auto rounded-full bg-fg text-surface font-bold text-sm px-8"
+                >
+                  <span>{returnApp ? "Lanjut Pembelian Aplikasi" : "Kembali ke Toko"}</span>
+                  <ArrowRight size={15} />
+                </ButtonLink>
+              </div>
+            </motion.div>
+          ) : (
+            /* QRIS PENDING STATE (UNTOUCHED) */
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
+              className="liquid-glass rounded-2xl p-8 sm:p-10 text-center shadow-sm"
+            >
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500">
+                <Clock size={44} strokeWidth={2.4} />
+              </div>
+
+              <span className="mt-5 inline-block rounded-full bg-amber-500/10 border border-amber-500/20 px-4 py-1 text-xs font-bold text-amber-600 dark:text-amber-400">
+                {lang === "en" ? "Waiting for Payment" : lang === "zh" ? "等待付款中" : "Menunggu Pembayaran!"}
+              </span>
+
+              <h2 className="mt-2 text-3xl sm:text-4xl font-black text-fg tracking-tight">
+                {formatRupiah(amountIdr)}
+              </h2>
+              <p className="mt-1 text-sm font-semibold text-fg-muted">
+                +${selectedUsd} USD • Invoice: <span className="text-fg font-mono font-bold">{orderCode}</span>
+              </p>
+
+              <div className="mt-6 mx-auto max-w-sm text-left">
                 <div className="flex flex-col items-center justify-center p-5 rounded-2xl bg-surface-2 border border-border text-center">
                   <p className="text-sm font-bold text-fg mb-3">
                     {lang === "en" ? "Scan QRIS to Pay" : lang === "zh" ? "扫描 QRIS 付款" : "Scan QRIS untuk Membayar"}
@@ -427,59 +594,23 @@ function IsiSaldoContent() {
                     {lang === "en" ? "If you haven't paid yet, please complete your payment. Your balance will be added once confirmed." : lang === "zh" ? "如果您尚未付款，请完成付款。一旦确认将立即充值余额。" : "Jika Anda belum bayar, silakan selesaikan pembayaran ke QRIS di atas agar saldo dapat diproses."}
                   </p>
                 </div>
-              ) : (
-                <div className="rounded-2xl border border-border bg-surface-2 p-4 space-y-3">
-                  <p className="text-xs font-bold text-fg-muted text-center mb-1">
-                    {lang === "en" ? "Send exactly" : lang === "zh" ? "发送" : "Kirimkan persis"} <span className="text-accent text-sm">{totalUsdt} {paymentMethod === "solana" ? "SOL" : paymentMethod === "ton" ? "TON" : "USDT"}</span> {lang === "en" ? "to:" : lang === "zh" ? "到：" : "ke:"}
-                  </p>
-                  <div className="flex items-center justify-between gap-3 rounded-xl bg-surface p-3 border border-border shadow-xs">
-                    <span className="font-mono text-xs font-bold text-fg break-all select-all">
-                      {PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.address}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => copyToClipboard(PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.address || "", "crypto-addr-success")}
-                      className="flex items-center justify-center h-8 w-8 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors shrink-0"
-                    >
-                      {copiedField === "crypto-addr-success" ? <Check size={16} /> : <Copy size={16} />}
-                    </button>
-                  </div>
-                  <p className="text-xs text-center text-fg-muted mt-2 px-1">
-                    {lang === "en" ? "If you haven't paid yet, please complete your payment. Your balance will be added once confirmed." : lang === "zh" ? "如果您尚未付款，请完成付款。一旦确认将立即充值余额。" : "Jika Anda belum bayar, silakan transfer ke alamat di atas agar saldo dapat diproses."}
-                  </p>
-                </div>
-              )}
-            </div>
+              </div>
 
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              {returnApp ? (
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <ButtonLink
-                  href={`/aplikasi/${returnApp}`}
+                  href={returnApp ? `/app/${returnApp}` : "/"}
                   size="lg"
-                  className="rounded-full font-bold px-7 bg-fg hover:bg-fg/90 text-surface"
+                  className="w-full sm:w-auto rounded-full bg-fg text-surface font-bold text-sm px-8"
                 >
-                  <Zap size={16} />
-                  <span>{lang === "en" ? "Continue Buying Product" : lang === "zh" ? "继续购买商品" : "Lanjutkan Beli Produk"}</span>
+                  <span>{returnApp ? "Lanjut Pembelian" : "Selesai & Ke Dashboard"}</span>
                 </ButtonLink>
-              ) : (
-                <ButtonLink
-                  href="/aplikasi"
-                  size="lg"
-                  className="rounded-full font-bold px-7 bg-fg hover:bg-fg/90 text-surface"
-                >
-                  <Zap size={16} />
-                  <span>{lang === "en" ? "Explore Digital Products" : lang === "zh" ? "浏览数字商品" : "Jelajahi Produk"}</span>
-                </ButtonLink>
-              )}
-              <ButtonLink href="/akun" variant="secondary" size="lg" className="liquid-glass-pill rounded-full font-bold px-6">
-                <span>{lang === "en" ? "View Account" : lang === "zh" ? "查看账户中心" : "Lihat Akun Saya"}</span>
-              </ButtonLink>
-            </div>
-          </motion.div>
+              </div>
+            </motion.div>
+          )
         ) : step === 1 ? (
           /* STEP 1: PILIH NOMINAL & METODE PEMBAYARAN */
           <div className="space-y-6">
-            {/* Apple Liquid Glass Notice Banner - ONLY SHOWN HERE */}
+            {/* Apple Liquid Glass Notice Banner */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -498,12 +629,12 @@ function IsiSaldoContent() {
                     ? "Automatic credit upon verified payment."
                     : lang === "zh"
                     ? "付款核对后秒级自动存入账户。"
-                    : "Kurs acuan 1 USD = Rp 17.904. Saldo langsung masuk otomatis setelah pembayaran terverifikasi."}
+                    : "Kurs acuan 1 USD = Rp 17.904. Saldo langsung masuk otomatis setelah pembayaran terverifikasi on-chain."}
                 </p>
               </div>
             </motion.div>
 
-            {/* Presets Grid (Apple 3D Glass Tiles) */}
+            {/* Presets Grid */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -547,7 +678,7 @@ function IsiSaldoContent() {
                 })}
               </div>
 
-              {/* Custom Input with Dedicated Prefix Box (No Overlap) */}
+              {/* Custom Input */}
               <div className="mt-5 pt-4 border-t border-black/[0.08] dark:border-white/[0.08]">
                 <label className="text-xs font-semibold text-fg-muted block mb-2">
                   {lang === "en" ? "Or enter custom amount in USD (min $5):" : lang === "zh" ? "或输入自定义金额（最低 $5）：" : "Atau masukkan nominal custom (minimal $5):"}
@@ -586,7 +717,7 @@ function IsiSaldoContent() {
               </div>
             </motion.div>
 
-            {/* Payment Methods (Apple iOS 27 Selection) */}
+            {/* Payment Methods */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -618,31 +749,26 @@ function IsiSaldoContent() {
                       }`}
                     >
                       <div className="flex items-center gap-3.5 min-w-0">
-                        <div className="apple-squircle flex h-11 w-11 items-center justify-center p-2 shrink-0">
-                          <img src={pm.icon} alt={pm.name[lang as keyof typeof pm.name] || pm.name.id} className="h-full w-full object-contain" />
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface-2 border border-border/80 p-2 shadow-xs group-hover:scale-105 transition-transform">
+                          <img src={pm.icon} alt={pm.id} className="h-7 w-7 object-contain" />
                         </div>
-                        <div className="truncate">
-                          <p className={`text-sm font-bold truncate ${active ? "text-fg font-black" : "text-fg"}`}>
+                        <div className="min-w-0">
+                          <p className={`text-sm font-bold tracking-tight truncate ${active ? "text-accent" : "text-fg"}`}>
                             {pm.name[lang as keyof typeof pm.name] || pm.name.id}
                           </p>
-                          <p className={`text-xs mt-0.5 truncate ${active ? "text-accent" : "text-fg-muted"}`}>
-                            {pm.desc ? (pm.desc[lang as keyof typeof pm.desc] || pm.desc.id) : (pm.network ? `Jaringan: ${pm.network}` : "Instan")}
+                          <p className="text-xs text-fg-muted truncate mt-0.5">
+                            {pm.desc[lang as keyof typeof pm.desc] || pm.desc.id}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2.5 shrink-0">
-                        {pm.network && (
-                          <span className="hidden sm:inline-block rounded-full bg-white/70 dark:bg-white/10 border border-black/5 dark:border-white/10 px-2.5 py-0.5 text-[11px] font-semibold text-fg-muted">
-                            {pm.network}
-                          </span>
-                        )}
-                        <div className={`flex h-5 w-5 items-center justify-center rounded-full border transition-all ${
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className={`h-6 w-6 rounded-full flex items-center justify-center border transition-all ${
                           active
-                            ? "bg-accent border-accent text-accent-fg"
-                            : "border-border-strong"
+                            ? "bg-accent border-accent text-accent-fg shadow-xs scale-105"
+                            : "border-border-strong bg-surface"
                         }`}>
-                          {active && <Check size={12} strokeWidth={3} />}
+                          {active && <Check size={13} strokeWidth={3} />}
                         </div>
                       </div>
                     </motion.button>
@@ -651,31 +777,18 @@ function IsiSaldoContent() {
               </div>
             </motion.div>
 
-            {/* Bottom Checkout Action Slab */}
+            {/* Action Button */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, delay: 0.2 }}
-              className="liquid-glass-slab rounded-[28px] p-6 sm:p-7 flex flex-col sm:flex-row items-center justify-between gap-5"
             >
-              <div>
-                <span className="text-xs text-fg-muted font-bold uppercase tracking-wider block">Total Pengisian Dana</span>
-                <div className="flex items-baseline gap-2 mt-1">
-                  <span className="text-2xl sm:text-3xl font-black text-accent tabular-nums">
-                    ${selectedUsd} USD
-                  </span>
-                  <span className="text-sm font-bold text-fg-muted">
-                    ({formatRupiah(amountIdr)})
-                  </span>
-                </div>
-              </div>
-
               <Button
                 size="lg"
                 onClick={handleProceedToPayment}
                 disabled={loading || selectedUsd < MIN_DEPOSIT_USD}
                 loading={loading}
-                className="w-full sm:w-auto rounded-full px-9 py-4 shadow-sm hover:scale-[1.02] active:scale-95 cursor-pointer text-sm font-black transition-all flex items-center justify-center gap-2 bg-fg text-surface"
+                className="w-full rounded-full bg-accent hover:opacity-90 text-accent-fg font-black text-sm shadow-md hover:scale-[1.01] active:scale-95 cursor-pointer py-4 transition-all flex items-center justify-center gap-2"
               >
                 {!loading && <span>{lang === "en" ? "Proceed to Payment" : lang === "zh" ? "前往支付" : "Lanjut ke Pembayaran"}</span>}
                 {!loading && <ArrowRight size={17} strokeWidth={2.5} />}
@@ -699,7 +812,10 @@ function IsiSaldoContent() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setStep(1)}
+                  onClick={() => {
+                    setStep(1);
+                    setErrorMessage("");
+                  }}
                   className="liquid-glass-pill rounded-full px-3.5 py-1.5 text-xs font-bold text-fg hover:underline cursor-pointer active:scale-95"
                 >
                   ← {lang === "en" ? "Change Amount" : lang === "zh" ? "修改金额" : "Ubah Nominal"}
@@ -798,19 +914,47 @@ function IsiSaldoContent() {
                     );
                   })()}
 
-                  {/* TxID Submission */}
+                  {/* TxID WAJIB untuk Verifikasi Otomatis */}
                   <div className="pt-2">
-                    <label className="text-xs font-semibold text-fg-muted block mb-1.5">
-                      Hash Transaksi / TxID (Opsional untuk percepat konfirmasi):
-                    </label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs font-bold text-fg flex items-center gap-1">
+                        <span>Hash Transaksi / TxID Bukti Transfer</span>
+                        <span className="text-rose-500 font-extrabold">*WAJIB</span>
+                      </label>
+                      <span className="text-[11px] text-accent font-semibold flex items-center gap-1">
+                        <Zap size={12} /> Auto On-Chain Blockchain
+                      </span>
+                    </div>
                     <input
                       type="text"
                       value={txId}
-                      onChange={(e) => setTxId(e.target.value)}
-                      placeholder="Masukkan TxID atau hash transaksi blockchain..."
-                      className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-xs text-fg focus:border-border-strong focus:outline-hidden"
+                      onChange={(e) => {
+                        setTxId(e.target.value);
+                        if (errorMessage) setErrorMessage("");
+                      }}
+                      placeholder={
+                        paymentMethod === "usdt_bnb"
+                          ? "Contoh: 0x123abc... (66 karakter hash BSC)"
+                          : paymentMethod === "usdt_tron"
+                          ? "Contoh: 84a7bc... (64 karakter hash TRON)"
+                          : "Tempel hash transaksi (TxID) dari wallet Anda..."
+                      }
+                      className={`w-full rounded-xl border bg-surface px-4 py-3 text-xs font-mono font-medium text-fg focus:border-border-strong focus:outline-hidden transition-all ${
+                        errorMessage ? "border-rose-500 ring-1 ring-rose-500/30" : "border-border"
+                      }`}
                     />
+                    <p className="mt-1.5 text-[11px] text-fg-muted leading-relaxed">
+                      ⚡ Sistem Texas AI akan memeriksa keaslian transaksi ini langsung ke blockchain secara real-time. Jika TxID palsu atau belum ditransfer, deposit otomatis ditolak.
+                    </p>
                   </div>
+                </div>
+              )}
+
+              {/* Error Banner */}
+              {errorMessage && (
+                <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3.5 text-xs font-bold text-rose-600 dark:text-rose-400 flex items-start gap-2 animate-in fade-in">
+                  <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                  <span className="leading-snug">{errorMessage}</span>
                 </div>
               )}
 
@@ -827,7 +971,7 @@ function IsiSaldoContent() {
                 </Button>
 
                 <p className="text-center text-[11.5px] text-fg-muted mt-1">
-                  Saldo akun akan langsung otomatis bertambah setelah pembayaran terverifikasi.
+                  Saldo akun akan langsung otomatis bertambah setelah pembayaran terverifikasi di blockchain.
                 </p>
               </div>
             </div>

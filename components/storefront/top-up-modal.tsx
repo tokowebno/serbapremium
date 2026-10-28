@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -158,6 +158,8 @@ export function TopUpModal() {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [txId, setTxId] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isCryptoVerified, setIsCryptoVerified] = useState(false);
+  const [verifiedAmountUsd, setVerifiedAmountUsd] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState("");
   const [checkingStatus, setCheckingStatus] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -182,8 +184,11 @@ export function TopUpModal() {
       }
       setStep(1);
       setIsSuccess(false);
+      setIsCryptoVerified(false);
+      setVerifiedAmountUsd(0);
       setIsProcessing(false);
       setCustomInput("");
+      setTxId("");
       setErrorMessage("");
       setOrderCode(`DEP-${Date.now().toString().slice(-6)}`);
     }
@@ -286,11 +291,121 @@ export function TopUpModal() {
   };
 
   const handleConfirmPayment = async () => {
+    setErrorMessage("");
+
+    // 1. KHUSUS CRYPTO: WAJIB TXID DAN VERIFIKASI ON-CHAIN OTOMATIS
+    if (paymentMethod !== "qris") {
+      const cleanTx = txId.trim();
+      if (!cleanTx) {
+        setErrorMessage(
+          lang === "en"
+            ? "Transaction Hash / TxID is REQUIRED for crypto deposits."
+            : lang === "zh"
+            ? "加密货币充值必须填写交易哈希 / TxID！"
+            : "Hash Transaksi / TxID WAJIB diisi untuk verifikasi otomatis deposit crypto. Silakan salin TxID dari wallet pengirim Anda."
+        );
+        return;
+      }
+
+      setCheckingStatus(true);
+      setIsProcessing(true);
+
+      try {
+        const res = await fetch("/api/payments/verify-crypto", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            network: paymentMethod,
+            tx_hash: cleanTx,
+            expected_amount_usd: selectedUsd,
+            order_id: orderCode,
+          }),
+        });
+
+        const json = await res.json();
+
+        if (!res.ok || !json.ok || !json.verified) {
+          setIsProcessing(false);
+          setCheckingStatus(false);
+          setErrorMessage(
+            json.message ||
+              (lang === "en"
+                ? "Invalid TxID or transaction not verified on blockchain. Deposit rejected."
+                : "TxID tidak valid atau transaksi tidak ditemukan di blockchain. Deposit crypto ditolak.")
+          );
+          return; // STOP! JANGAN TAMBAH SALDO!
+        }
+
+        // VERIFIKASI BERHASIL! DANA BENAR-BENAR MASUK ON-CHAIN
+        const actualUsd = json.amount_usd || selectedUsd;
+        const creditedIdr = actualUsd * USD_RATE;
+
+        // Auto credit saldo ke user
+        deposit(
+          creditedIdr,
+          `Deposit $${actualUsd} USD via ${paymentMethod.toUpperCase()} (Tx: ${cleanTx.slice(0, 10)}...)`,
+          orderCode
+        );
+
+        const orderData = {
+          id: orderCode,
+          user_name: user?.name || "Member",
+          items: [{ name: `Isi Saldo $${actualUsd} USD`, price: creditedIdr, platform: "Wallet" }],
+          subtotal: creditedIdr,
+          discount: 0,
+          total: creditedIdr,
+          payment_method: paymentMethod,
+          payment_status: "berhasil",
+          order_status: "selesai",
+          tx_id: cleanTx,
+          date: new Date().toISOString().slice(0, 10),
+        };
+
+        if (supabaseReady && supabase) {
+          try {
+            await supabase.from("orders").insert([orderData]);
+          } catch (err) {
+            console.warn("DB insert error:", err);
+          }
+        }
+
+        try {
+          sessionStorage.setItem("tokono:last-order", JSON.stringify(orderData));
+          sessionStorage.setItem("serbapremium:last-order", JSON.stringify(orderData));
+          const raw = localStorage.getItem("tokono:orders") || localStorage.getItem("serbapremium:orders") || "[]";
+          const existing = JSON.parse(raw);
+          const list = Array.isArray(existing) ? existing : [];
+          const updated = [orderData, ...list.filter((o: any) => o.id !== orderCode)];
+          localStorage.setItem("tokono:orders", JSON.stringify(updated));
+          localStorage.setItem("serbapremium:orders", JSON.stringify(updated));
+        } catch {
+          // ignore
+        }
+
+        setVerifiedAmountUsd(actualUsd);
+        setIsCryptoVerified(true);
+        setIsSuccess(true);
+        setIsProcessing(false);
+        setCheckingStatus(false);
+        return;
+      } catch (err: any) {
+        setIsProcessing(false);
+        setCheckingStatus(false);
+        setErrorMessage(
+          lang === "en"
+            ? "Connection error while verifying blockchain. Please try again."
+            : "Gagal memverifikasi transaksi ke blockchain. Pastikan koneksi internet stabil dan coba lagi."
+        );
+        return;
+      }
+    }
+
+    // 2. KHUSUS QRIS: BIARKAN SEPERTI APA ADANYA
     setCheckingStatus(true);
     setIsProcessing(true);
-    
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    
+
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
     const orderData = {
       id: orderCode,
       user_name: user?.name || "Member",
@@ -325,8 +440,7 @@ export function TopUpModal() {
       // ignore storage full
     }
 
-    // Remove direct deposit for manual confirmation flow
-    // deposit(amountIdr, `Isi Saldo $${selectedUsd} USD via ${paymentMethod.toUpperCase()}`, orderCode);
+    setIsCryptoVerified(false);
     setIsProcessing(false);
     setIsSuccess(true);
     setCheckingStatus(false);
@@ -358,8 +472,6 @@ export function TopUpModal() {
             aria-label="Isi Saldo Akun"
             className="bg-surface border-4 border-border relative w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-5 sm:p-6 shadow-[8px_8px_0_0_var(--color-border)] z-10 text-left"
           >
-
-
             {/* Header */}
             <div className="relative z-10 flex items-center justify-between border-b border-black/[0.08] dark:border-white/[0.1] pb-3.5 mb-4">
               <div className="flex items-center gap-3">
@@ -438,32 +550,82 @@ export function TopUpModal() {
               <div className="py-12 text-center animate-in fade-in zoom-in-95 duration-200 flex flex-col items-center justify-center space-y-4">
                 <Loader2 className="animate-spin text-accent" size={48} strokeWidth={2} />
                 <h4 className="text-xl font-black tracking-tight text-fg">
-                  {lang === "en" ? "Processing Payment..." : lang === "zh" ? "正在处理付款..." : "Sedang Memproses..."}
+                  {paymentMethod !== "qris" ? "Memverifikasi Transaksi On-Chain..." : (lang === "en" ? "Processing Payment..." : lang === "zh" ? "正在处理付款..." : "Sedang Memproses...")}
                 </h4>
-                <p className="text-xs text-fg-muted max-w-[250px] mx-auto text-center">
-                  {lang === "en" ? "Please wait a moment while we verify your payment with the network." : lang === "zh" ? "请稍候，我们正在核对您的付款。" : "Mohon tunggu sebentar, kami sedang memverifikasi pembayaran Anda."}
+                <p className="text-xs text-fg-muted max-w-[280px] mx-auto text-center">
+                  {paymentMethod !== "qris" 
+                    ? "Sistem sedang memeriksa status hash transaksi ke node blockchain secara langsung..."
+                    : (lang === "en" ? "Please wait a moment while we verify your payment with the network." : lang === "zh" ? "请稍候，我们正在核对您的付款。" : "Mohon tunggu sebentar, kami sedang memverifikasi pembayaran Anda.")}
                 </p>
               </div>
             ) : isSuccess ? (
-              /* PENDING / MENUNGGU STATE */
-              <div className="py-6 text-center animate-in fade-in zoom-in-95 duration-200">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500">
-                  <Clock size={36} strokeWidth={2} />
+              /* SUCCESS / PENDING STATE */
+              isCryptoVerified ? (
+                /* CRYPTO ON-CHAIN VERIFIED STATE */
+                <div className="py-6 text-center animate-in fade-in zoom-in-95 duration-200">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
+                    <CheckCircle2 size={40} strokeWidth={2.5} />
+                  </div>
+
+                  <span className="mt-4 inline-block rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                    {lang === "en" ? "Deposit Verified On-Chain!" : lang === "zh" ? "链上核验成功，已自动入账！" : "Deposit Berhasil Terverifikasi On-Chain!"}
+                  </span>
+
+                  <h4 className="mt-2 text-2xl sm:text-3xl font-black text-fg">
+                    +{formatPrice((verifiedAmountUsd || selectedUsd) * USD_RATE, lang)}
+                  </h4>
+                  <p className="mt-1 text-xs sm:text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                    +${verifiedAmountUsd || selectedUsd} USD Saldo Otomatis Masuk ke Akun Anda!
+                  </p>
+
+                  <div className="mt-5 mx-auto max-w-sm rounded-xl border border-border bg-surface-2 p-3.5 text-left space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-fg-muted">Status:</span>
+                      <span className="font-bold text-emerald-600 flex items-center gap-1">
+                        <Check size={13} strokeWidth={3} /> Berhasil Otomatis
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-fg-muted">Invoice:</span>
+                      <span className="font-mono font-bold text-fg">{orderCode}</span>
+                    </div>
+                    <div className="text-xs pt-2 border-t border-border">
+                      <span className="text-fg-muted block mb-1">Hash Transaksi (TxID):</span>
+                      <span className="font-mono text-[10.5px] font-bold text-fg break-all select-all block bg-surface p-2 rounded-lg border border-border">
+                        {txId}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex justify-center gap-3">
+                    <Button
+                      size="lg"
+                      onClick={closeTopUp}
+                      className="rounded-full px-8 font-bold cursor-pointer bg-fg text-surface hover:opacity-90"
+                    >
+                      <span>{lang === "en" ? "Done & Use Balance" : lang === "zh" ? "完成并开始使用" : "Selesai & Gunakan Saldo"}</span>
+                    </Button>
+                  </div>
                 </div>
+              ) : (
+                /* QRIS PENDING / WAITING STATE (UNTOUCHED) */
+                <div className="py-6 text-center animate-in fade-in zoom-in-95 duration-200">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500">
+                    <Clock size={36} strokeWidth={2} />
+                  </div>
 
-                <span className="mt-4 inline-block rounded-full bg-amber-500/10 border border-amber-500/20 px-3.5 py-1 text-xs font-bold text-amber-600 dark:text-amber-400">
-                  {lang === "en" ? "Waiting for Payment!" : lang === "zh" ? "等待付款！" : "Menunggu Pembayaran!"}
-                </span>
+                  <span className="mt-4 inline-block rounded-full bg-amber-500/10 border border-amber-500/20 px-3.5 py-1 text-xs font-bold text-amber-600 dark:text-amber-400">
+                    {lang === "en" ? "Waiting for Payment!" : lang === "zh" ? "等待付款！" : "Menunggu Pembayaran!"}
+                  </span>
 
-                <h4 className="mt-2 text-2xl font-black text-fg">
-                  {formatPrice(amountIdr, lang)}
-                </h4>
-                <p className="mt-1 text-xs sm:text-sm font-semibold text-fg-muted">
-                  +${selectedUsd} USD • Invoice: <span className="text-fg font-mono">{orderCode}</span>
-                </p>
+                  <h4 className="mt-2 text-2xl font-black text-fg">
+                    {formatPrice(amountIdr, lang)}
+                  </h4>
+                  <p className="mt-1 text-xs sm:text-sm font-semibold text-fg-muted">
+                    +${selectedUsd} USD • Invoice: <span className="text-fg font-mono">{orderCode}</span>
+                  </p>
 
-                <div className="mt-5 mx-auto max-w-sm text-left">
-                  {paymentMethod === "qris" ? (
+                  <div className="mt-5 mx-auto max-w-sm text-left">
                     <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-surface-2 border border-border text-center">
                       <p className="text-xs font-bold text-fg mb-2">
                         {lang === "en" ? "Scan QRIS to Pay" : lang === "zh" ? "扫描 QRIS 付款" : "Scan QRIS untuk Membayar"}
@@ -482,40 +644,19 @@ export function TopUpModal() {
                         {lang === "en" ? "If you haven't paid yet, please complete your payment. Your balance will be added once confirmed." : lang === "zh" ? "如果您尚未付款，请完成付款。一旦确认将立即充值余额。" : "Jika Anda belum bayar, silakan selesaikan pembayaran ke QRIS di atas agar saldo dapat diproses."}
                       </p>
                     </div>
-                  ) : (
-                    <div className="rounded-xl border border-border bg-surface-2 p-3 space-y-2">
-                      <p className="text-[11px] font-bold text-fg-muted text-center mb-1">
-                        {lang === "en" ? "Send exactly" : lang === "zh" ? "发送" : "Kirimkan persis"} <span className="text-accent">{totalUsdt} {paymentMethod === "solana" ? "SOL" : paymentMethod === "ton" ? "TON" : "USDT"}</span> {lang === "en" ? "to:" : lang === "zh" ? "到：" : "ke:"}
-                      </p>
-                      <div className="flex items-center justify-between gap-2 rounded-lg bg-surface p-2 border border-border">
-                        <span className="font-mono text-[10px] font-bold text-fg break-all select-all">
-                          {PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.address}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => copyToClipboard(PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.address || "", "crypto-addr-success")}
-                          className="flex items-center justify-center h-6 w-6 rounded bg-accent/10 text-accent hover:bg-accent/20 transition-colors"
-                        >
-                          {copiedField === "crypto-addr-success" ? <Check size={12} /> : <Copy size={12} />}
-                        </button>
-                      </div>
-                      <p className="text-[10px] text-center text-fg-muted mt-1 px-1">
-                        {lang === "en" ? "If you haven't paid yet, please complete your payment. Your balance will be added once confirmed." : lang === "zh" ? "如果您尚未付款，请完成付款。一旦确认将立即充值余额。" : "Jika Anda belum bayar, silakan transfer ke alamat di atas agar saldo dapat diproses."}
-                      </p>
-                    </div>
-                  )}
-                </div>
+                  </div>
 
-                <div className="mt-6 flex justify-center gap-3">
-                  <Button
-                    size="lg"
-                    onClick={closeTopUp}
-                    className="rounded-full px-8 font-bold cursor-pointer bg-fg text-surface hover:opacity-90"
-                  >
-                    <span>{lang === "en" ? "Done & Close" : lang === "zh" ? "完成并关闭" : "Selesai & Tutup"}</span>
-                  </Button>
+                  <div className="mt-6 flex justify-center gap-3">
+                    <Button
+                      size="lg"
+                      onClick={closeTopUp}
+                      className="rounded-full px-8 font-bold cursor-pointer bg-fg text-surface hover:opacity-90"
+                    >
+                      <span>{lang === "en" ? "Done & Close" : lang === "zh" ? "完成并关闭" : "Selesai & Tutup"}</span>
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              )
             ) : step === 1 ? (
               /* STEP 1: PILIH NOMINAL & METODE */
               <div className="space-y-4">
@@ -558,49 +699,40 @@ export function TopUpModal() {
                           <span className={cn("text-lg sm:text-xl font-black tracking-tight leading-none", active ? "text-surface" : "text-fg")}>
                             ${p.usd}
                           </span>
-                          <span className={cn("text-[9.5px] sm:text-[11px] font-bold mt-1.5 tabular-nums", active ? "text-surface/80" : "text-fg-muted")}>
-                            {lang === "id" ? formatRupiah(p.idr) : `${p.usd} USDT`}
+                          <span className={cn("text-[11px] font-semibold mt-1 tabular-nums", active ? "text-surface/80" : "text-fg-muted")}>
+                            {formatRupiah(p.idr)}
                           </span>
                         </button>
                       );
                     })}
                   </div>
 
-                  {/* Clean Single Custom Input */}
-                  <div className="mt-4 flex items-center gap-2 rounded-2xl border-2 border-border bg-surface px-4 py-3 sm:px-5 sm:py-4 shadow-inner focus-within:border-accent focus-within:ring-4 focus-within:ring-accent/20 transition-all">
-                    <span className="text-sm sm:text-base font-bold text-fg-muted select-none shrink-0">
-                      {lang === "en" ? "Enter Custom Amount:" : lang === "zh" ? "输入自定义金额：" : "Masukkan Nominal Kustom:"}
-                    </span>
-                    <span className="text-xl sm:text-2xl font-black text-fg select-none ml-2">$</span>
-                    <input
-                      type="number"
-                      min={5}
-                      step={1}
-                      placeholder="0"
-                      value={customInput}
-                      onChange={handleCustomChange}
-                      className="w-full bg-transparent text-xl sm:text-2xl font-black text-fg placeholder:text-fg-faint focus:outline-hidden min-w-0"
-                    />
-                    {customInput && lang === "id" && (
-                      <span className="text-xs font-bold text-accent shrink-0 tabular-nums">
-                        ≈ {formatPrice(amountIdr, lang)}
+                  {/* Custom Input */}
+                  <div className="mt-3">
+                    <div className="relative flex items-center rounded-xl border border-border bg-surface shadow-inner overflow-hidden focus-within:ring-2 focus-within:ring-border-strong">
+                      <span className="flex h-10 items-center px-3 bg-surface-2 border-r border-border text-xs font-bold text-fg select-none">
+                        USD $
                       </span>
-                    )}
+                      <input
+                        type="number"
+                        min={5}
+                        step={1}
+                        placeholder={
+                          lang === "en"
+                            ? "Custom USD (min $5)"
+                            : lang === "zh"
+                            ? "自定义金额（最低 $5）"
+                            : "Ketik nominal custom (min $5)"
+                        }
+                        value={customInput}
+                        onChange={handleCustomChange}
+                        className="w-full bg-transparent px-3 py-2 text-xs sm:text-sm font-bold text-fg focus:outline-hidden placeholder:text-fg-faint placeholder:font-normal"
+                      />
+                    </div>
                   </div>
-
-                  {errorMessage && (
-                    <motion.p
-                      initial={{ opacity: 0, y: -4 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="mt-2 text-xs font-bold text-rose-500 flex items-center gap-1"
-                    >
-                      <AlertCircle size={13} />
-                      {errorMessage}
-                    </motion.p>
-                  )}
                 </div>
 
-                {/* Section 2: Payment Methods (No Truncation, Clean and Readable) */}
+                {/* Section 2: Payment Methods */}
                 <div>
                   <div className="flex items-center justify-between mb-2 px-0.5">
                     <label className="text-xs font-bold text-fg flex items-center gap-1.5">
@@ -654,6 +786,13 @@ export function TopUpModal() {
                   </div>
                 </div>
 
+                {errorMessage && (
+                  <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center gap-2">
+                    <AlertCircle size={15} />
+                    <span>{errorMessage}</span>
+                  </div>
+                )}
+
                 {/* Total & Action Footer Bar */}
                 <div className="pt-3 border-t border-border flex items-center justify-between gap-3">
                   <div>
@@ -700,7 +839,10 @@ export function TopUpModal() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => setStep(1)}
+                    onClick={() => {
+                      setStep(1);
+                      setErrorMessage("");
+                    }}
                     className="text-xs font-bold text-fg-muted hover:text-fg hover:underline cursor-pointer"
                   >
                     {lang === "en" ? "← Change Amount" : lang === "zh" ? "← 更改金额" : "← Ubah Nominal"}
@@ -788,29 +930,48 @@ export function TopUpModal() {
                       </div>
                     </div>
 
-                    {/* TxID */}
+                    {/* TxID WAJIB untuk Verifikasi Otomatis */}
                     <div>
-                      <label className="text-[11px] font-bold text-fg-muted block mb-1">
-                        {lang === "en"
-                          ? "Enter Transaction Hash / TxID (Optional):"
-                          : lang === "zh"
-                          ? "输入交易哈希 / TxID（可选）："
-                          : "Masukkan TxID / Hash Transaksi (Opsional):"}
-                      </label>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-[11px] font-black text-fg flex items-center gap-1">
+                          <span>{lang === "en" ? "Transaction Hash / TxID" : lang === "zh" ? "交易哈希 / TxID" : "Hash Transaksi / TxID"}</span>
+                          <span className="text-rose-500 font-bold">*WAJIB</span>
+                        </label>
+                        <span className="text-[10px] text-accent font-semibold flex items-center gap-1">
+                          <Zap size={11} /> Auto Verifikasi Blockchain
+                        </span>
+                      </div>
                       <input
                         type="text"
                         value={txId}
-                        onChange={(e) => setTxId(e.target.value)}
+                        onChange={(e) => {
+                          setTxId(e.target.value);
+                          if (errorMessage) setErrorMessage("");
+                        }}
                         placeholder={
-                          lang === "en"
-                            ? "e.g. 0xabc... or transaction hash"
-                            : lang === "zh"
-                            ? "例如：0xabc... 或交易哈希"
-                            : "Contoh: 0xabc... atau hash transaksi"
+                          paymentMethod === "usdt_bnb"
+                            ? "Contoh: 0x123abc... (66 karakter hash BSC)"
+                            : paymentMethod === "usdt_tron"
+                            ? "Contoh: 84a7bc... (64 karakter hash TRON)"
+                            : "Tempel hash transaksi (TxID) dari wallet Anda..."
                         }
-                        className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-xs font-medium text-fg focus:ring-2 focus:ring-border-strong focus:outline-hidden"
+                        className={cn(
+                          "w-full rounded-xl border bg-surface px-3 py-2.5 text-xs font-mono font-medium text-fg focus:ring-2 focus:ring-border-strong focus:outline-hidden transition-all",
+                          errorMessage ? "border-rose-500 ring-1 ring-rose-500/30" : "border-border"
+                        )}
                       />
+                      <p className="mt-1.5 text-[10px] text-fg-muted leading-tight">
+                        ⚡ Sistem Texas AI akan memeriksa keaslian transaksi ini langsung ke blockchain secara real-time. Jika TxID palsu atau belum ditransfer, deposit akan otomatis ditolak.
+                      </p>
                     </div>
+                  </div>
+                )}
+
+                {/* Error Banner */}
+                {errorMessage && (
+                  <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-xs font-bold text-rose-600 dark:text-rose-400 flex items-start gap-2 animate-in fade-in">
+                    <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                    <span className="leading-snug">{errorMessage}</span>
                   </div>
                 )}
 
