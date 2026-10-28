@@ -447,7 +447,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    let result = { valid: false, message: "Jaringan crypto tidak didukung", amount: expectedUsd };
+    let result: { valid: boolean; message: string; amount?: number } = {
+      valid: false,
+      message: "Jaringan crypto tidak didukung",
+      amount: expectedUsd,
+    };
 
     const net = (network || "").toLowerCase();
     if (net === "usdt_bnb" || net.includes("bep") || net.includes("bnb") || net.includes("bsc")) {
