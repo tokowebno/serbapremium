@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabase, supabaseReady } from "@/lib/supabase";
 
 // BSC Configuration
@@ -14,6 +14,8 @@ const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a
 
 // Official Store Wallets
 const STORE_BSC_WALLETS = [
+  "0x3cd1c59d52fbe6E15A428dc9F36397749d9c24B1".toLowerCase(),
+  "0x0CEAda2e9EF6D2b35cAD36955a744694A03FD27C".toLowerCase(),
   "0xa1dAa9d62FFD3B7bce6054C6e142DC5A08e2761f".toLowerCase(),
   "0x86DC189A191fdEDaFE63c14c3d53b48362CfEb27".toLowerCase(),
   "0x2ec36d32530c754c234efba61430c775455fb3b5".toLowerCase(),

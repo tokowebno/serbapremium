@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -89,7 +89,7 @@ const PAYMENT_INFO: Record<
     },
     icon: "/logos/bnb.svg",
     network: "BNB Smart Chain (BEP-20)",
-    address: "0xa1dAa9d62FFD3B7bce6054C6e142DC5A08e2761f",
+    address: "0x3cd1c59d52fbe6E15A428dc9F36397749d9c24B1",
   },
   usdt_tron: {
     name: {
@@ -149,7 +149,7 @@ const PAYMENT_INFO: Record<
     },
     icon: "/logos/btc.svg",
     network: "Bitcoin",
-    address: "bc1qmgxfm23zpnenmgmu55q03n9k0dd9mpaaygxjjg",
+    address: "14YEFfBwFJ7F5h8rPY7ZjCm18NWGeYcANk",
   },
 };
 

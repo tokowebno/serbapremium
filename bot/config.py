@@ -1,4 +1,4 @@
-﻿import os
+import os
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -52,11 +52,11 @@ MENU_ICONS = {
 
 # Payment & Deposit Configurations
 BINANCE_ID = os.getenv("BINANCE_ID", "1279190934").strip()
-BEP20_ADDRESS = os.getenv("BEP20_ADDRESS", "0xa1dAa9d62FFD3B7bce6054C6e142DC5A08e2761f").strip()
+BEP20_ADDRESS = os.getenv("BEP20_ADDRESS", "0x3cd1c59d52fbe6E15A428dc9F36397749d9c24B1").strip()
 TRC20_ADDRESS = os.getenv("TRC20_ADDRESS", "TMdRcZgD7MxyCpjzpT1965bzh5Qob8NYF1").strip()
 SOLANA_ADDRESS = os.getenv("SOLANA_ADDRESS", "Ft3HBG7aaiZQiZo2qPVc4qhQDs4h6XqUrWs6EAMFQmAZ").strip()
 TON_ADDRESS = os.getenv("TON_ADDRESS", "UQDR5BUjd7H5KO8LT1NVUZy6y-6wOYzA4heHi4_py3X42wM1").strip()
-BTC_ADDRESS = os.getenv("BTC_ADDRESS", "bc1qpy988mha45fmvsm03tx0uhgw7xha9f0vl7w82w").strip()
+BTC_ADDRESS = os.getenv("BTC_ADDRESS", "14YEFfBwFJ7F5h8rPY7ZjCm18NWGeYcANk").strip()
 QRIS_GATEWAY_API_KEY = os.getenv("QRIS_GATEWAY_API_KEY", "bp_live_kyVHMbynDFTis_ZyVTRPyfgbqedCJsNC").strip()
 BORDERPAY_API_URL = os.getenv("BORDERPAY_API_URL", "https://borderpay.id/api/v1").strip()
 
