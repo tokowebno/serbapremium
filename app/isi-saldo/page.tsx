@@ -235,30 +235,39 @@ function IsiSaldoContent() {
 
     setLoading(true);
     setErrorMessage("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
     const newCode = `DEP-${Date.now().toString().slice(-6)}`;
     setOrderCode(newCode);
 
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 950));
+
     // If QRIS, request Dynamic QRIS
     if (paymentMethod === "qris") {
       try {
-        const res = await fetch("/api/payments/borderpay", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            amount: amountIdr,
-            reference_id: newCode,
-            customer_name: user?.name || "Member",
-            customer_email: user?.email || "member@texasai.com",
+        const [res] = await Promise.all([
+          fetch("/api/payments/borderpay", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              amount: amountIdr,
+              reference_id: newCode,
+              customer_name: user?.name || "Member",
+              customer_email: user?.email || "member@texasai.com",
+            }),
           }),
-        });
+          minDelay,
+        ]);
         const json = await res.json();
         if (json.ok && json.data) {
           setBorderpayData(json.data);
         }
       } catch (err) {
         console.warn("QRIS generation fallback to static QRIS:", err);
+        await minDelay;
       }
+    } else {
+      await minDelay;
     }
 
     setStep(2);
@@ -532,7 +541,56 @@ function IsiSaldoContent() {
         </div>
 
         {/* Content */}
-        {isProcessing ? (
+        {loading ? (
+          /* CONTINUE PAYMENT -> PREPARING INVOICE LOADING STATE */
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+            className="liquid-glass-slab rounded-[28px] p-14 sm:p-20 text-center shadow-sm flex flex-col items-center justify-center space-y-5"
+          >
+            <div className="relative flex h-20 w-20 items-center justify-center">
+              <Loader2 className="absolute inset-0 h-20 w-20 animate-spin text-accent/80" strokeWidth={1.8} />
+              <div className="flex h-13 w-13 items-center justify-center rounded-2xl bg-surface-2 border border-border p-2.5 shadow-xs">
+                <img
+                  src={PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.icon || "/logos/bnb.svg"}
+                  alt={paymentMethod}
+                  className="h-7 w-7 object-contain"
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <h4 className="text-xl sm:text-2xl font-black tracking-tight text-fg">
+                {lang === "en"
+                  ? "Preparing Wallet Top-Up Invoice..."
+                  : lang === "zh"
+                  ? "正在准备钱包充值账单..."
+                  : "Menyiapkan Invoice Isi Saldo..."}
+              </h4>
+              <p className="text-xs sm:text-sm text-fg-muted max-w-[340px] mx-auto leading-relaxed">
+                {paymentMethod === "qris"
+                  ? (lang === "en"
+                      ? "Generating dynamic payment QR code..."
+                      : lang === "zh"
+                      ? "正在生成动态支付二维码..."
+                      : "Membuat kode pembayaran QRIS & nominal unik...")
+                  : (lang === "en"
+                      ? `Allocating unique ${PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.network || "on-chain"} settlement amount & destination wallet...`
+                      : lang === "zh"
+                      ? "正在分配链上唯一核验金额与目标收款钱包..."
+                      : "Menyiapkan nominal desimal unik & alamat wallet tujuan...")}
+              </p>
+            </div>
+            <div className="w-60 h-1.5 rounded-full bg-surface-2 border border-border/60 overflow-hidden">
+              <motion.div
+                initial={{ width: "0%" }}
+                animate={{ width: "100%" }}
+                transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                className="h-full bg-accent rounded-full"
+              />
+            </div>
+          </motion.div>
+        ) : isProcessing ? (
           /* PROCESSING STATE */
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 15 }}

@@ -153,6 +153,7 @@ export function TopUpModal() {
   const [step, setStep] = useState<1 | 2>(1);
   const [orderCode, setOrderCode] = useState(() => `DEP-${Date.now().toString().slice(-6)}`);
   const [loading, setLoading] = useState(false);
+  const [isOpeningGateway, setIsOpeningGateway] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [txId, setTxId] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
@@ -182,6 +183,7 @@ export function TopUpModal() {
       }
       setPaymentMethod((prev) => (lang !== "id" && prev === "qris" ? "usdt_bnb" : prev));
       setStep(1);
+      setLoading(false);
       setIsSuccess(false);
       setIsCryptoVerified(false);
       setVerifiedAmountUsd(0);
@@ -190,6 +192,9 @@ export function TopUpModal() {
       setTxId("");
       setErrorMessage("");
       setOrderCode(`DEP-${Date.now().toString().slice(-6)}`);
+      setIsOpeningGateway(true);
+      const t = setTimeout(() => setIsOpeningGateway(false), 550);
+      return () => clearTimeout(t);
     }
   }, [isTopUpOpen, topUpNeeded, lang]);
 
@@ -265,25 +270,33 @@ export function TopUpModal() {
     const newCode = `DEP-${Date.now().toString().slice(-6)}`;
     setOrderCode(newCode);
 
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 950));
+
     if (paymentMethod === "qris") {
       try {
-        const res = await fetch("/api/payments/borderpay", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            amount: amountIdr,
-            reference_id: newCode,
-            customer_name: user?.name || "Member",
-            customer_email: user?.email || "member@texasai.com",
+        const [res] = await Promise.all([
+          fetch("/api/payments/borderpay", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              amount: amountIdr,
+              reference_id: newCode,
+              customer_name: user?.name || "Member",
+              customer_email: user?.email || "member@texasai.com",
+            }),
           }),
-        });
+          minDelay,
+        ]);
         const json = await res.json();
         if (json.ok && json.data) {
           setBorderpayData(json.data);
         }
       } catch (err) {
         console.warn("QRIS fallback to static:", err);
+        await minDelay;
       }
+    } else {
+      await minDelay;
     }
 
     setStep(2);
@@ -591,6 +604,94 @@ export function TopUpModal() {
                   </Link>
                 </div>
               </div>
+            ) : isOpeningGateway ? (
+              /* INITIALIZING WALLET TOP-UP GATEWAY */
+              <motion.div
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.2 }}
+                className="py-12 px-4 text-center flex flex-col items-center justify-center space-y-4"
+              >
+                <div className="relative flex h-14 w-14 items-center justify-center">
+                  <span className="absolute inset-0 rounded-full border-2 border-accent/25 animate-ping opacity-40" />
+                  <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-2 border border-border shadow-xs">
+                    <Loader2 className="animate-spin text-accent" size={26} strokeWidth={2.3} />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-base font-black tracking-tight text-fg">
+                    {lang === "en"
+                      ? "Loading Wallet Balance..."
+                      : lang === "zh"
+                      ? "正在加载钱包充值面板..."
+                      : "Memuat Menu Isi Saldo..."}
+                  </h4>
+                  <p className="text-xs text-fg-muted max-w-[260px] mx-auto">
+                    {lang === "en"
+                      ? "Syncing on-chain settlement networks & volume credit tiers..."
+                      : lang === "zh"
+                      ? "正在同步链上结算网络与赠送额度..."
+                      : "Menyiapkan jaringan pembayaran & tier bonus saldo..."}
+                  </p>
+                </div>
+                <div className="w-44 h-1.5 rounded-full bg-surface-2 border border-border/60 overflow-hidden">
+                  <motion.div
+                    initial={{ width: "0%" }}
+                    animate={{ width: "100%" }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    className="h-full bg-accent rounded-full"
+                  />
+                </div>
+              </motion.div>
+            ) : loading ? (
+              /* CONTINUE PAYMENT -> PREPARING INVOICE LOADING STATE */
+              <motion.div
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.2 }}
+                className="py-12 px-4 text-center flex flex-col items-center justify-center space-y-4"
+              >
+                <div className="relative flex h-16 w-16 items-center justify-center">
+                  <Loader2 className="absolute inset-0 h-16 w-16 animate-spin text-accent/80" strokeWidth={1.8} />
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-surface-2 border border-border p-2 shadow-xs">
+                    <img
+                      src={PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.icon || "/logos/bnb.svg"}
+                      alt={paymentMethod}
+                      className="h-6 w-6 object-contain"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-lg font-black tracking-tight text-fg">
+                    {lang === "en"
+                      ? "Preparing Deposit Invoice..."
+                      : lang === "zh"
+                      ? "正在生成充值账单..."
+                      : "Menyiapkan Invoice Deposit..."}
+                  </h4>
+                  <p className="text-xs text-fg-muted max-w-[290px] mx-auto leading-relaxed">
+                    {paymentMethod === "qris"
+                      ? (lang === "en"
+                          ? "Generating dynamic payment QR code..."
+                          : lang === "zh"
+                          ? "正在生成动态支付二维码..."
+                          : "Membuat kode pembayaran QRIS & nominal unik...")
+                      : (lang === "en"
+                          ? `Allocating unique ${PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.network || "on-chain"} settlement amount & wallet address...`
+                          : lang === "zh"
+                          ? "正在分配链上唯一核验金额与收款钱包地址..."
+                          : "Menyiapkan nominal desimal unik & alamat wallet tujuan...")}
+                  </p>
+                </div>
+                <div className="w-52 h-1.5 rounded-full bg-surface-2 border border-border/60 overflow-hidden">
+                  <motion.div
+                    initial={{ width: "0%" }}
+                    animate={{ width: "100%" }}
+                    transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                    className="h-full bg-accent rounded-full"
+                  />
+                </div>
+              </motion.div>
             ) : isProcessing ? (
               /* PROCESSING STATE */
               <div className="py-12 text-center animate-in fade-in zoom-in-95 duration-200 flex flex-col items-center justify-center space-y-4">
@@ -926,7 +1027,12 @@ export function TopUpModal() {
               </div>
             ) : (
               /* STEP 2: TAMPILAN BAYAR (QRIS / CRYPTO) */
-              <div className="space-y-4">
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="space-y-4"
+              >
                 <div className="flex items-center justify-between border-b border-black/[0.08] dark:border-white/[0.1] pb-2">
                   <div>
                     <span className="text-[10px] font-bold text-fg-muted uppercase tracking-wider">
@@ -1098,11 +1204,15 @@ export function TopUpModal() {
                     loading={checkingStatus}
                     className="w-full rounded-full bg-fg hover:bg-fg/90 text-surface font-bold text-xs shadow-md cursor-pointer py-3"
                   >
-                    <CheckCircle2 size={16} />
-                    <span>{lang === "en" ? "I Have Paid" : lang === "zh" ? "我已完成付款" : "Saya Sudah Melakukan Pembayaran"}</span>
+                    {!checkingStatus && <CheckCircle2 size={16} />}
+                    <span>
+                      {checkingStatus
+                        ? (lang === "en" ? "Verifying On-Chain..." : lang === "zh" ? "正在核验..." : "Memverifikasi...")
+                        : (lang === "en" ? "I Have Paid" : lang === "zh" ? "我已完成付款" : "Saya Sudah Melakukan Pembayaran")}
+                    </span>
                   </Button>
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {/* Footer link to full page */}

@@ -15,6 +15,7 @@ import {
   AlertCircle,
   PlusCircle,
   Lock,
+  Loader2,
 } from "lucide-react";
 import type { App, ProductVariant } from "@/types";
 import { formatPrice, formatRupiah } from "@/lib/utils";
@@ -109,7 +110,16 @@ export function ProductVariantSelector({ app }: { app: App }) {
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [isPayingWithBalance, setIsPayingWithBalance] = useState(false);
+  const [isOpeningTopUp, setIsOpeningTopUp] = useState(false);
   const [purchasedSuccess, setPurchasedSuccess] = useState(false);
+
+  const handleTriggerTopUp = (neededAmount?: number) => {
+    setIsOpeningTopUp(true);
+    setTimeout(() => {
+      setIsOpeningTopUp(false);
+      openTopUp(neededAmount);
+    }, 450);
+  };
 
   const isSoldOut = selectedVariant.stock === 0;
   const maxStock = selectedVariant.stock !== undefined ? Math.max(1, selectedVariant.stock) : 99;
@@ -425,10 +435,12 @@ export function ProductVariantSelector({ app }: { app: App }) {
             </div>
             <button
               type="button"
-              onClick={() => router.push(`/isi-saldo?needed=${totalPrice}&app=${app.slug}&variant=${selectedVariant.id}`)}
-              className="rounded-lg bg-accent/15 border border-accent/30 px-2.5 py-1 text-[11px] font-bold text-accent hover:bg-accent hover:text-accent-fg transition-colors cursor-pointer"
+              disabled={isOpeningTopUp}
+              onClick={() => handleTriggerTopUp(totalPrice)}
+              className="inline-flex items-center gap-1 rounded-lg bg-accent/15 border border-accent/30 px-2.5 py-1 text-[11px] font-bold text-accent hover:bg-accent hover:text-accent-fg transition-colors cursor-pointer disabled:opacity-60"
             >
-              {lang === "en" ? "+ Top Up" : lang === "zh" ? "+ 充值" : "+ Isi Saldo"}
+              {isOpeningTopUp && <Loader2 size={11} className="animate-spin" />}
+              <span>{lang === "en" ? "+ Top Up" : lang === "zh" ? "+ 充值" : "+ Isi Saldo"}</span>
             </button>
           </div>
         ) : (
@@ -570,11 +582,19 @@ export function ProductVariantSelector({ app }: { app: App }) {
               <Button
                 size="lg"
                 className="w-full bg-amber-600 hover:bg-amber-700 text-white shadow-md font-bold rounded-full cursor-pointer transition-all active:scale-[0.98]"
-                onClick={() => openTopUp(totalPrice)}
+                onClick={() => handleTriggerTopUp(totalPrice)}
+                loading={isOpeningTopUp}
+                disabled={isOpeningTopUp}
               >
-                <PlusCircle size={18} />
+                {!isOpeningTopUp && <PlusCircle size={18} />}
                 <span>
-                  {lang === "en"
+                  {isOpeningTopUp
+                    ? (lang === "en"
+                        ? "Loading Wallet Top-Up..."
+                        : lang === "zh"
+                        ? "正在打开充值面板..."
+                        : "Memuat Menu Isi Saldo...")
+                    : lang === "en"
                     ? `Top Up Balance (Deficit ${formatPrice(balanceDeficit, lang)})`
                     : lang === "zh"
                     ? `余额不足，去充值（缺少 ${formatPrice(balanceDeficit, lang)}）`

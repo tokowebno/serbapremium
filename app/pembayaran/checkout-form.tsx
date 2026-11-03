@@ -23,6 +23,7 @@ import { useCart, useAuth } from "@/components/storefront/providers";
 import { useTranslation } from "@/components/storefront/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { Input, Field } from "@/components/ui/form";
+import { motion } from "framer-motion";
 
 import { supabase, supabaseReady } from "@/lib/supabase";
 
@@ -432,22 +433,29 @@ export function CheckoutForm({
     if (!validateForm()) return;
     setErrorMessage("");
     setStepLoading(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
     const newOrderId = `TK-${Date.now().toString().slice(-6)}`;
     setOrderId(newOrderId);
 
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 950));
+
     if (paymentMethod === "qris") {
       // Create live BorderPay QRIS
-      const bpData = await createBorderPayPayment(newOrderId);
+      const [bpData] = await Promise.all([
+        createBorderPayPayment(newOrderId),
+        minDelay,
+      ]);
       if (!bpData) {
         // Fallback jika API sedang gangguan
         console.warn("Proceeding with standard QRIS display");
       }
+    } else {
+      await minDelay;
     }
 
     setStepLoading(false);
     setStep(2);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const finishCheckout = async (forcedStatus?: string) => {
@@ -548,10 +556,10 @@ export function CheckoutForm({
       num: 2,
       label:
         lang === "en"
-          ? "Payment & QRIS"
+          ? "Payment Settlement"
           : lang === "zh"
-          ? "支付与扫码"
-          : "Pembayaran & QRIS",
+          ? "支付结算"
+          : "Pembayaran",
     },
   ];
 
@@ -560,16 +568,24 @@ export function CheckoutForm({
       <div className="tk-container py-24 text-center">
         <div className="mx-auto max-w-md glass-card rounded-2xl p-8 border border-border/80">
           <p className="text-lg font-bold text-fg">
-            Keranjang belanja Anda masih kosong
+            {lang === "en"
+              ? "Your cart is currently empty"
+              : lang === "zh"
+              ? "您的购物车当前为空"
+              : "Keranjang belanja Anda masih kosong"}
           </p>
           <p className="mt-2 text-sm text-fg-muted">
-            Pilih produk atau lisensi yang ingin Anda beli terlebih dahulu.
+            {lang === "en"
+              ? "Select a product or license you would like to purchase first."
+              : lang === "zh"
+              ? "请先选择您想要购买的软件或授权。"
+              : "Pilih produk atau lisensi yang ingin Anda beli terlebih dahulu."}
           </p>
           <Button
             className="mt-6 rounded-full"
             onClick={() => router.push("/aplikasi")}
           >
-            Jelajahi Aplikasi
+            {lang === "en" ? "Explore Catalog" : lang === "zh" ? "浏览目录" : "Jelajahi Aplikasi"}
           </Button>
         </div>
       </div>
@@ -620,7 +636,55 @@ export function CheckoutForm({
 
       <div className="mt-6 sm:mt-8 max-w-2xl mx-auto">
         <section className="glass-card rounded-2xl border border-border/80 bg-surface/90 p-5 sm:p-8 shadow-sm backdrop-blur-md">
-          {step === 1 ? (
+          {stepLoading ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.2 }}
+              className="py-16 px-4 text-center flex flex-col items-center justify-center space-y-5"
+            >
+              <div className="relative flex h-18 w-18 items-center justify-center">
+                <Loader2 className="absolute inset-0 h-18 w-18 animate-spin text-accent/80" strokeWidth={1.8} />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-surface-2 border border-border p-2 shadow-xs">
+                  <img
+                    src={PAYMENT_INFO[paymentMethod].icon}
+                    alt={paymentMethod}
+                    className="h-6 w-6 object-contain"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <h4 className="text-lg sm:text-xl font-black tracking-tight text-fg">
+                  {lang === "en"
+                    ? "Preparing Payment Invoice..."
+                    : lang === "zh"
+                    ? "正在生成支付账单..."
+                    : "Menyiapkan Invoice Pembayaran..."}
+                </h4>
+                <p className="text-xs sm:text-sm text-fg-muted max-w-[320px] mx-auto leading-relaxed">
+                  {paymentMethod === "qris"
+                    ? (lang === "en"
+                        ? "Generating dynamic payment QR code..."
+                        : lang === "zh"
+                        ? "正在生成动态扫码支付..."
+                        : "Membuat kode pembayaran QRIS & nominal unik...")
+                    : (lang === "en"
+                        ? `Allocating unique ${PAYMENT_INFO[paymentMethod].network || "on-chain"} settlement amount & recipient wallet...`
+                        : lang === "zh"
+                        ? "正在分配链上唯一核验金额与收款钱包地址..."
+                        : "Menyiapkan nominal desimal unik & alamat wallet tujuan...")}
+                </p>
+              </div>
+              <div className="w-56 h-1.5 rounded-full bg-surface-2 border border-border/60 overflow-hidden">
+                <motion.div
+                  initial={{ width: "0%" }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                  className="h-full bg-accent rounded-full"
+                />
+              </div>
+            </motion.div>
+          ) : step === 1 ? (
             /* STEP 1: PILIH METODE PEMBAYARAN + DATA PEMBELI */
             <div className="flex flex-col gap-5">
               <div>

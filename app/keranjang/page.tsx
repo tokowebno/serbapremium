@@ -10,7 +10,7 @@ import { CheckoutSummary } from "@/components/storefront/checkout-summary";
 import { useCart, useAuth, useLibrary } from "@/components/storefront/providers";
 import { useTranslation } from "@/components/storefront/i18n-provider";
 import { useHydrated } from "@/lib/use-hydrated";
-import { formatRupiah } from "@/lib/utils";
+import { formatPrice, formatRupiah } from "@/lib/utils";
 import { useToast } from "@/components/ui/toast";
 import { supabase, supabaseReady } from "@/lib/supabase";
 
@@ -24,7 +24,16 @@ export default function CartPage() {
   const hydrated = useHydrated();
 
   const [isPaying, setIsPaying] = useState(false);
+  const [isOpeningTopUp, setIsOpeningTopUp] = useState(false);
   const [paySuccess, setPaySuccess] = useState(false);
+
+  const handleOpenTopUp = (needed: number) => {
+    setIsOpeningTopUp(true);
+    setTimeout(() => {
+      setIsOpeningTopUp(false);
+      openTopUp(needed);
+    }, 450);
+  };
 
   if (!hydrated) return null;
 
@@ -56,13 +65,26 @@ export default function CartPage() {
     }
 
     setIsPaying(true);
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+
     const orderCode = `TK-${Date.now().toString().slice(-6)}`;
-    const success = deduct(subtotal, `Beli ${items.length} Item Keranjang`, orderCode);
+    const deductNote =
+      lang === "en"
+        ? `Purchase ${items.length} Cart Item(s)`
+        : lang === "zh"
+        ? `购买购物车 ${items.length} 件商品`
+        : `Beli ${items.length} Item Keranjang`;
+    const success = deduct(subtotal, deductNote, orderCode);
 
     if (!success) {
       toast.push({
-        title: "Saldo Kurang",
-        description: "Silakan isi saldo Anda terlebih dahulu.",
+        title: lang === "en" ? "Insufficient Balance" : lang === "zh" ? "余额不足" : "Saldo Kurang",
+        description:
+          lang === "en"
+            ? "Please top up your wallet balance first."
+            : lang === "zh"
+            ? "请先充值您的账户余额。"
+            : "Silakan isi saldo Anda terlebih dahulu.",
         tone: "error",
       });
       setIsPaying(false);
@@ -102,8 +124,13 @@ export default function CartPage() {
 
     clearCart();
     toast.push({
-      title: "Pembayaran Keranjang Berhasil",
-      description: "Seluruh lisensi telah berhasil diaktifkan ke akun Anda.",
+      title: lang === "en" ? "Payment Confirmed" : lang === "zh" ? "支付成功" : "Pembayaran Keranjang Berhasil",
+      description:
+        lang === "en"
+          ? "All licenses have been activated to your account."
+          : lang === "zh"
+          ? "所有授权已成功激活至您的账户。"
+          : "Seluruh lisensi telah berhasil diaktifkan ke akun Anda.",
       tone: "success",
     });
 
@@ -142,9 +169,11 @@ export default function CartPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Wallet size={16} className="text-accent" />
-                  <span className="text-xs font-semibold text-fg-muted">Saldo Akun</span>
+                  <span className="text-xs font-semibold text-fg-muted">
+                    {lang === "en" ? "Wallet Balance" : lang === "zh" ? "钱包余额" : "Saldo Akun"}
+                  </span>
                 </div>
-                <span className="text-sm font-bold text-fg tabular-nums">{formatRupiah(balance)}</span>
+                <span className="text-sm font-bold text-fg tabular-nums">{formatPrice(balance, lang)}</span>
               </div>
 
               {hasEnoughBalance ? (
@@ -153,45 +182,71 @@ export default function CartPage() {
                   onClick={handlePayCartWithBalance}
                   disabled={isPaying || paySuccess}
                   loading={isPaying}
-                  className="mt-3.5 w-full rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-md cursor-pointer"
+                  className="mt-3.5 w-full rounded-full bg-fg hover:bg-fg/90 text-surface font-bold shadow-md cursor-pointer"
                 >
                   {paySuccess ? (
                     <span className="inline-flex items-center gap-1.5">
                       <CheckCircle2 size={16} />
-                      <span>Berhasil! Mengalihkan…</span>
+                      <span>
+                        {lang === "en" ? "Confirmed! Redirecting…" : lang === "zh" ? "支付成功！正在跳转…" : "Berhasil! Mengalihkan…"}
+                      </span>
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1.5">
-                      <Zap size={16} />
-                      <span>Bayar dengan Saldo ({formatRupiah(subtotal)})</span>
+                      {!isPaying && <Zap size={16} />}
+                      <span>
+                        {isPaying
+                          ? (lang === "en" ? "Processing Order…" : lang === "zh" ? "正在处理订单…" : "Memproses Pesanan…")
+                          : (lang === "en"
+                              ? `Pay with Balance (${formatPrice(subtotal, lang)})`
+                              : lang === "zh"
+                              ? `余额支付（${formatPrice(subtotal, lang)}）`
+                              : `Bayar dengan Saldo (${formatRupiah(subtotal)})`)}
+                      </span>
                     </span>
                   )}
                 </Button>
               ) : (
-                <div className="mt-3 space-y-2">
+                <div className="mt-3 space-y-2.5">
                   <p className="text-[11.5px] text-amber-600 dark:text-amber-400 font-medium">
-                    Saldo Anda kurang {formatRupiah(balanceDeficit)}. Silakan isi saldo terlebih dahulu.
+                    {lang === "en"
+                      ? `Insufficient balance (deficit ${formatPrice(balanceDeficit, lang)}). Continue to top up your wallet.`
+                      : lang === "zh"
+                      ? `账户余额不足（缺少 ${formatPrice(balanceDeficit, lang)}），请继续充值钱包。`
+                      : `Saldo Anda kurang ${formatRupiah(balanceDeficit)}. Silakan isi saldo terlebih dahulu.`}
                   </p>
                   <Button
-                    onClick={() => openTopUp(subtotal)}
+                    onClick={() => handleOpenTopUp(subtotal)}
+                    loading={isOpeningTopUp}
+                    disabled={isOpeningTopUp}
                     size="lg"
                     className="w-full rounded-full bg-amber-600 hover:bg-amber-700 text-white font-bold shadow-md cursor-pointer"
                   >
-                    <PlusCircle size={16} />
-                    <span>Isi Saldo Sekarang</span>
+                    {!isOpeningTopUp && <PlusCircle size={16} />}
+                    <span>
+                      {isOpeningTopUp
+                        ? (lang === "en" ? "Loading Wallet Top-Up…" : lang === "zh" ? "正在打开充值…" : "Memuat Isi Saldo…")
+                        : (lang === "en" ? "Continue to Top Up" : lang === "zh" ? "继续前往充值" : "Isi Saldo Sekarang")}
+                    </span>
                   </Button>
                 </div>
               )}
             </div>
           ) : (
-            <div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-4 text-center">
-              <p className="text-xs font-bold text-fg">Wajib Masuk Akun untuk Melakukan Checkout</p>
+            <div className="rounded-2xl border border-border bg-surface-2/80 p-4 text-center">
+              <p className="text-xs font-bold text-fg">
+                {lang === "en" ? "Sign In Required for Checkout" : lang === "zh" ? "结账前请先登录账户" : "Wajib Masuk Akun untuk Melakukan Checkout"}
+              </p>
               <p className="mt-1 text-[11.5px] text-fg-muted">
-                Silakan masuk atau buat akun baru untuk melanjutkan pembayaran via saldo.
+                {lang === "en"
+                  ? "Sign in or create an account to continue payment via your wallet balance."
+                  : lang === "zh"
+                  ? "请登录或创建新账户，以使用钱包余额继续完成支付。"
+                  : "Silakan masuk atau buat akun baru untuk melanjutkan pembayaran via saldo."}
               </p>
               <ButtonLink href="/masuk?next=/keranjang" size="lg" className="mt-3 w-full rounded-full">
                 <LogIn size={16} />
-                <span>Masuk Sekarang</span>
+                <span>{lang === "en" ? "Sign In Now" : lang === "zh" ? "立即登录" : "Masuk Sekarang"}</span>
               </ButtonLink>
             </div>
           )}
