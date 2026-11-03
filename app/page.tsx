@@ -14,9 +14,9 @@ import { getServerTranslation } from "@/lib/i18n";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Texas AI — Marketplace Aplikasi & Lisensi Digital Premium",
+  title: "Texas AI — Instant AI Workspaces & Developer Licenses",
   description:
-    "Akses seluruh AI Flagship dan tools digital pro dunia (ChatGPT Plus, Claude Pro, Gemini, Cursor, Lovable) dengan sistem dompet saldo instan.",
+    "Access flagship AI workspaces and developer tools (ChatGPT Pro, Claude Max, Gemini Ultra, Cursor, Lovable) with automated on-chain crypto settlement.",
 };
 
 export default async function HomePage() {
@@ -82,7 +82,7 @@ export default async function HomePage() {
                 </h2>
                 
                 <p className="text-sm sm:text-base text-fg-muted leading-relaxed max-w-xl font-medium">
-                  {lang === "en" ? "No need to repeatedly pay for every single app. Just top up your account via automated QRIS & Multi-Crypto (USDT, SOL, TON), then checkout instantly with 1 click anytime!" : lang === "zh" ? "无需为每个应用重复支付。只需通过自动 QRIS 和多重加密货币（USDT、SOL、TON）充值您的账户，随时一键秒级结账！" : "Tidak perlu repot bayar berulang kali untuk setiap aplikasi. Cukup isi saldo akun via QRIS Otomatis & Multi-Crypto (USDT, SOL, TON), lalu checkout kapan pun secara instan hanya dengan 1 klik!"}
+                  {lang === "en" ? "Skip per-order transaction fees. Fund your account once via automated on-chain crypto (USDT, SOL, TON, BTC), earn up to +15% extra store credit, and checkout instantly with 1 click." : lang === "zh" ? "告别逐笔转账手续费。支持全自动链上加密货币（USDT、SOL、TON、BTC）充值，享最高 +15% 额外赠送额度，全站软件一键秒结。" : "Tidak perlu repot bayar berulang kali untuk setiap aplikasi. Cukup isi saldo akun via Multi-Crypto & QRIS, dapatkan bonus saldo hingga +15%, lalu checkout instan dalam 1 klik."}
                 </p>
 
                 <div className="flex flex-wrap items-center gap-3 pt-4">
@@ -92,7 +92,7 @@ export default async function HomePage() {
                     className="rounded-full bg-accent text-accent-fg border-2 border-border shadow-[4px_4px_0_0_var(--color-border)] px-7 font-black hover:-translate-y-0.5 transition-transform active:translate-y-0 active:shadow-none flex items-center gap-2"
                   >
                     <Wallet size={16} className="text-accent-fg" />
-                    <span>{lang === "en" ? "Top Up Now" : lang === "zh" ? "立即充值" : "Isi Saldo Sekarang"}</span>
+                    <span>{lang === "en" ? "Top Up Balance (+15% Bonus)" : lang === "zh" ? "立即充值（享 +15% 额度）" : "Isi Saldo (+Bonus 15%)"}</span>
                     <ArrowRight size={16} strokeWidth={3} className="text-accent-fg" />
                   </ButtonLink>
                   
@@ -110,26 +110,26 @@ export default async function HomePage() {
               {/* Clean Specification Box */}
               <div className="space-y-4 rounded-2xl border-2 border-border bg-surface-2 p-6 shadow-[4px_4px_0_0_var(--color-border)]">
                 <div className="border-b border-border pb-3.5">
-                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-fg">
-                    {lang === "en" ? "FLEXIBLE TOP UP" : lang === "zh" ? "灵活充值" : "TOP UP FLEKSIBEL"}
+                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-accent">
+                    {lang === "en" ? "VOLUME CREDIT TIERS" : lang === "zh" ? "阶梯充值赠送额度" : "TIER BONUS SALDO"}
                   </span>
                   <h4 className="text-sm font-bold text-fg mt-1">
-                    {lang === "en" ? "One Balance for All" : lang === "zh" ? "统一账户余额" : "Satu Saldo untuk Semua"}
+                    {lang === "en" ? "+8% to +15% Extra Store Credit" : lang === "zh" ? "+8% 至 +15% 额外赠送额度" : "Bonus Saldo Otomatis +8% s/d +15%"}
                   </h4>
                   <p className="text-xs text-fg-muted mt-0.5 font-medium">
-                    {lang === "en" ? "Top up easily and quickly anytime you need." : lang === "zh" ? "随时随地快速轻松地进行充值。" : "Isi saldo mudah dan cepat kapan saja sesuai kebutuhan."}
+                    {lang === "en" ? "$50 (+8%) · $100 (+12%) · $250+ (+15%) credited instantly." : lang === "zh" ? "$50 (+8%) · $100 (+12%) · $250+ (+15%) 自动计入账户。" : "Deposit $50 (+8%) · $100 (+12%) · $250+ (+15%) masuk otomatis."}
                   </p>
                 </div>
 
                 <div className="border-b border-border pb-3.5">
                   <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-fg">
-                    {lang === "en" ? "PAYMENT SYSTEM" : lang === "zh" ? "支付系统" : "SISTEM PEMBAYARAN"}
+                    {lang === "en" ? "ON-CHAIN SETTLEMENT" : lang === "zh" ? "链上自动结算" : "SISTEM PEMBAYARAN"}
                   </span>
                   <h4 className="text-sm font-bold text-fg mt-1">
-                    {lang === "en" ? "QRIS & Multi-Crypto" : lang === "zh" ? "QRIS 与 多重加密货币" : "QRIS & Multi-Crypto"}
+                    {lang === "en" ? "Multi-Network Crypto Ready" : lang === "zh" ? "多链加密货币自动核验" : "Multi-Crypto & QRIS"}
                   </h4>
                   <p className="text-xs text-fg-muted mt-0.5 font-medium">
-                    {lang === "en" ? "Automated QRIS, USDT, SOL, and TON supported." : lang === "zh" ? "支持全自动 QRIS、USDT、SOL 以及 TON。" : "Dukungan QRIS otomatis, USDT, SOL, dan TON."}
+                    {lang === "en" ? "Automated verification for USDT (BEP-20 / TRC-20), SOL, TON, and BTC." : lang === "zh" ? "全自动支持 USDT (BEP-20 / TRC-20)、SOL、TON 与 BTC。" : "Verifikasi otomatis USDT (BEP-20 / TRC-20), SOL, TON, BTC & QRIS."}
                   </p>
                 </div>
 

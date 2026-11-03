@@ -8,13 +8,13 @@ import { syncFromSupabase } from "@/lib/data-cache";
 import { getServerTranslation } from "@/lib/i18n";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://tokono.cc.cd"),
+  metadataBase: new URL("https://texasai.site"),
   title: {
-    default: "Texas AI — Marketplace Aplikasi & Lisensi Digital Premium",
+    default: "Texas AI — Instant AI Workspaces & Developer Licenses",
     template: "%s · Texas AI",
   },
   description:
-    "Temukan aplikasi dan lisensi digital premium untuk berbagai perangkat. Pembelian satu kali, tanpa biaya langganan.",
+    "Official digital licensing platform with automated on-chain crypto settlement. Instant access to ChatGPT, Claude, Gemini, Cursor, and 40+ flagship tools.",
   icons: {
     icon: [
       { url: "/icon.svg", type: "image/svg+xml" },
@@ -23,11 +23,11 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "Texas AI — Marketplace Aplikasi & Lisensi Digital Premium",
+    title: "Texas AI — Instant AI Workspaces & Developer Licenses",
     description:
-      "Temukan aplikasi dan lisensi digital premium untuk berbagai perangkat. Pembelian satu kali, tanpa biaya langganan.",
+      "Automated on-chain crypto settlement & 1-click wallet checkout for flagship AI workspaces and developer subscriptions.",
     type: "website",
-    locale: "id_ID",
+    locale: "en_US",
   },
 };
 

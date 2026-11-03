@@ -174,11 +174,22 @@ export function ProductVariantSelector({ app }: { app: App }) {
         : `${app.name} (${selectedVariant.name})`;
     const customItemName = quantity > 1 ? `${baseName} (${quantity}x)` : baseName;
 
-    const success = deduct(totalPrice, `Beli ${customItemName}`, orderCode);
+    const deductLabel =
+      lang === "en"
+        ? `Purchase ${localizeVariantName(customItemName, "en")}`
+        : lang === "zh"
+        ? `购买 ${localizeVariantName(customItemName, "zh")}`
+        : `Beli ${customItemName}`;
+    const success = deduct(totalPrice, deductLabel, orderCode);
     if (!success) {
       toast.push({
-        title: "Saldo Tidak Mencukupi",
-        description: "Silakan isi saldo Anda terlebih dahulu.",
+        title: lang === "en" ? "Insufficient Balance" : lang === "zh" ? "余额不足" : "Saldo Tidak Mencukupi",
+        description:
+          lang === "en"
+            ? "Please top up your wallet balance first."
+            : lang === "zh"
+            ? "请先为您的钱包余额充值。"
+            : "Silakan isi saldo Anda terlebih dahulu.",
         tone: "error",
       });
       setIsPayingWithBalance(false);
@@ -217,8 +228,13 @@ export function ProductVariantSelector({ app }: { app: App }) {
     }
 
     toast.push({
-      title: "Pembayaran Berhasil",
-      description: `Berhasil membeli ${customItemName} menggunakan Saldo Akun.`,
+      title: lang === "en" ? "Payment Confirmed" : lang === "zh" ? "支付成功" : "Pembayaran Berhasil",
+      description:
+        lang === "en"
+          ? `Successfully purchased ${localizeVariantName(customItemName, "en")} via Wallet Balance.`
+          : lang === "zh"
+          ? `已使用账户余额成功购买 ${localizeVariantName(customItemName, "zh")}。`
+          : `Berhasil membeli ${customItemName} menggunakan Saldo Akun.`,
       tone: "success",
     });
 
@@ -287,18 +303,31 @@ export function ProductVariantSelector({ app }: { app: App }) {
                         </span>
                       )}
                     </div>
-                    <p className="text-[11.5px] font-normal text-fg-muted mt-0.5">
+                    <p className={`text-[11.5px] font-medium mt-0.5 ${
+                      isOutOfStock
+                        ? "text-fg-muted"
+                        : (v.stock ?? app.stock) <= 10
+                        ? "text-amber-600 dark:text-amber-400"
+                        : "text-fg-muted"
+                    }`}>
                       {isOutOfStock
                         ? (lang === "en" ? "Out of Stock" : lang === "zh" ? "暂无库存" : "Stok Habis")
+                        : (v.stock ?? app.stock) <= 10
+                        ? (lang === "en" ? `Low stock · ${v.stock ?? app.stock} slots left` : lang === "zh" ? `仅剩 ${v.stock ?? app.stock} 个名额` : `Sisa ${v.stock ?? app.stock} slot`)
                         : `${t.product.stock || "Stok:"} ${v.stock ?? app.stock}`}
                     </p>
                   </div>
                 </div>
 
-                <div className="shrink-0 text-right">
+                <div className="shrink-0 text-right flex flex-col items-end">
                   <span className={`text-[14.5px] font-bold tabular-nums ${active ? (isOutOfStock ? "text-red-500" : "text-accent") : (isOutOfStock ? "text-fg-muted line-through" : "text-fg")}`}>
                     {formatPrice(v.price, lang)}
                   </span>
+                  {v.originalPrice && v.originalPrice > v.price && !isOutOfStock && (
+                    <span className="text-[10.5px] font-medium text-fg-muted line-through tabular-nums">
+                      {formatPrice(v.originalPrice, lang)}
+                    </span>
+                  )}
                 </div>
               </button>
             );
@@ -306,8 +335,16 @@ export function ProductVariantSelector({ app }: { app: App }) {
         </div>
       ) : (
         <div className="mt-4 rounded-xl bg-surface-2/70 p-4 border border-border/70">
-          <p className="text-xs font-medium text-fg-muted">{t.product.totalPayment || "Harga Produk"}</p>
-          <p className="mt-1 text-2xl font-bold text-fg tabular-nums">{formatPrice(currentPrice, lang)}</p>
+          <p className="text-xs font-medium text-fg-muted">{t.product.totalPayment || "Product Price"}</p>
+          <div className="mt-1 flex items-baseline gap-2">
+            <p className="text-2xl font-bold text-fg tabular-nums">{formatPrice(currentPrice, lang)}</p>
+            {(selectedVariant.originalPrice || app.originalPrice) &&
+              (selectedVariant.originalPrice || app.originalPrice)! > currentPrice && (
+                <span className="text-xs font-medium text-fg-muted line-through tabular-nums">
+                  {formatPrice((selectedVariant.originalPrice || app.originalPrice)!, lang)}
+                </span>
+              )}
+          </div>
         </div>
       )}
 
@@ -330,7 +367,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             disabled={quantity <= 1 || isSoldOut}
             className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface text-fg font-bold shadow-2xs hover:bg-surface-3 transition-colors disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 cursor-pointer"
-            aria-label="Kurangi kuantitas"
+            aria-label="Decrease quantity"
           >
             <Minus size={14} strokeWidth={2.5} />
           </button>
@@ -355,7 +392,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
             onClick={() => setQuantity((q) => Math.min(maxStock, q + 1))}
             disabled={quantity >= maxStock || isSoldOut}
             className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface text-fg font-bold shadow-2xs hover:bg-surface-3 transition-colors disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 cursor-pointer"
-            aria-label="Tambah kuantitas"
+            aria-label="Increase quantity"
           >
             <Plus size={14} strokeWidth={2.5} />
           </button>
@@ -374,7 +411,15 @@ export function ProductVariantSelector({ app }: { app: App }) {
                   {lang === "en" ? "Your Account Balance" : lang === "zh" ? "您的账户余额" : "Saldo Akun Anda"}
                 </span>
                 <span className="text-xs sm:text-sm font-bold text-fg tabular-nums">
-                  {formatPrice(balance, lang)} <span className="text-[11px] text-fg-muted">(${balanceUsd.toFixed(2)} USD)</span>
+                  {lang === "id" ? (
+                    <>
+                      {formatPrice(balance, lang)} <span className="text-[11px] text-fg-muted">(${balanceUsd.toFixed(2)} USD)</span>
+                    </>
+                  ) : (
+                    <>
+                      {formatPrice(balance, lang)} <span className="text-[11px] text-fg-muted">USD</span>
+                    </>
+                  )}
                 </span>
               </div>
             </div>
@@ -390,21 +435,27 @@ export function ProductVariantSelector({ app }: { app: App }) {
           <div className="mb-3.5 flex items-center justify-between rounded-xl bg-surface-2 px-3.5 py-2.5 border border-border text-fg">
             <div className="flex items-center gap-2 text-xs font-semibold">
               <LogIn size={15} />
-              <span>Wajib Masuk Akun untuk Berbelanja</span>
+              <span>
+                {lang === "en"
+                  ? "Sign in required to purchase"
+                  : lang === "zh"
+                  ? "请先登录账户以购买"
+                  : "Wajib Masuk Akun untuk Berbelanja"}
+              </span>
             </div>
             <button
               type="button"
               onClick={() => router.push(`/masuk?next=${encodeURIComponent(pathname)}`)}
               className="rounded-lg bg-accent px-2.5 py-1 text-[11px] font-bold text-accent-fg hover:opacity-90 transition-opacity cursor-pointer"
             >
-              Masuk
+              {lang === "en" ? "Sign In" : lang === "zh" ? "登录" : "Masuk"}
             </button>
           </div>
         )}
 
         <div className="flex items-baseline justify-between mb-4">
           <div>
-            <p className="text-xs font-medium text-fg-muted">{t.product.totalPayment || "Total Harga Produk"}</p>
+            <p className="text-xs font-medium text-fg-muted">{t.product.totalPayment || "Total Payment"}</p>
             <div className="flex items-baseline gap-2 mt-0.5">
               <p className={`text-2xl sm:text-3xl font-bold tracking-tight tabular-nums ${isSoldOut ? "text-fg-muted line-through" : "text-accent"}`}>
                 {formatPrice(totalPrice, lang)}
@@ -423,7 +474,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
           ) : (
             <span className="rounded-full bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 text-xs font-medium text-amber-600 dark:text-amber-400">
               <Zap size={12} className="inline mr-1" />
-              {t.product.instantActivation || "Aktivasi Instan"}
+              {t.product.instantActivation || "Instant Activation"}
             </span>
           )}
         </div>
@@ -468,7 +519,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
                 disabled={isAdding}
               >
                 <ShoppingBag size={17} strokeWidth={2} />
-                {isAdding ? (t.product.adding || "Menambahkan…") : (t.product.addToCart || "Tambah ke Keranjang")}
+                {isAdding ? (t.product.adding || "Adding…") : (t.product.addToCart || "Add to Cart")}
               </Button>
             </>
           ) : hasEnoughBalance ? (
@@ -484,7 +535,13 @@ export function ProductVariantSelector({ app }: { app: App }) {
                 {purchasedSuccess ? (
                   <span className="inline-flex items-center gap-2">
                     <CheckCircle2 size={18} />
-                    <span>Pembayaran Berhasil! Mengalihkan…</span>
+                    <span>
+                      {lang === "en"
+                        ? "Payment Confirmed! Redirecting…"
+                        : lang === "zh"
+                        ? "支付成功！正在跳转…"
+                        : "Pembayaran Berhasil! Mengalihkan…"}
+                    </span>
                   </span>
                 ) : (
                   <span className="inline-flex items-center justify-center gap-2">
@@ -504,7 +561,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
                 loading={isAdding}
               >
                 {!isAdding && <ShoppingBag size={17} strokeWidth={2} />}
-                {!isAdding && (t.product.addToCart || "Tambah ke Keranjang")}
+                {!isAdding && (t.product.addToCart || "Add to Cart")}
               </Button>
             </>
           ) : (
@@ -524,6 +581,13 @@ export function ProductVariantSelector({ app }: { app: App }) {
                     : `Isi Saldo (Kurang ${formatPrice(balanceDeficit, lang)})`}
                 </span>
               </Button>
+              <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 px-3 py-2 text-center text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
+                {lang === "en"
+                  ? "Deposit $50+ to receive +8% to +15% extra store credit automatically."
+                  : lang === "zh"
+                  ? "充值 $50+ 自动赠送 +8% 至 +15% 额外账户额度。"
+                  : "Deposit $50+ otomatis mendapat bonus saldo +8% hingga +15%."}
+              </div>
               <Button
                 size="lg"
                 variant="secondary"
@@ -533,7 +597,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
                 loading={isAdding}
               >
                 {!isAdding && <ShoppingBag size={17} strokeWidth={2} />}
-                {!isAdding && (t.product.addToCart || "Tambah ke Keranjang")}
+                {!isAdding && (t.product.addToCart || "Add to Cart")}
               </Button>
             </>
           )}

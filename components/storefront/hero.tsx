@@ -12,17 +12,10 @@ import {
 import { api } from "@/lib/api";
 import { AppIcon } from "@/components/ui/app-icon";
 import { Button, ButtonLink } from "@/components/ui/button";
-import { formatPrice, USDT_RATE } from "@/lib/utils";
+import { formatPrice, USDT_RATE, DEPOSIT_TIERS } from "@/lib/utils";
 import { useTranslation } from "./i18n-provider";
 import { useAuth } from "./providers";
 import { getLocalizedApp } from "@/lib/i18n/product-translations";
-
-const PRESET_TOPUPS = [
-  { usd: 5, idr: 5 * USDT_RATE },
-  { usd: 10, idr: 10 * USDT_RATE },
-  { usd: 25, idr: 25 * USDT_RATE },
-  { usd: 50, idr: 50 * USDT_RATE },
-];
 
 export function Hero() {
   const { lang } = useTranslation();
@@ -33,7 +26,7 @@ export function Hero() {
   const [activeTab, setActiveTab] = useState(0);
   const [direction, setDirection] = useState(1);
   const [isPaused, setIsPaused] = useState(false);
-  const [selectedTopup] = useState(10);
+  const [selectedTopup] = useState(50);
 
   // Auto rotate showcase item every 4.5 seconds with pause support
   useEffect(() => {
@@ -127,10 +120,10 @@ export function Hero() {
               className="max-w-xl text-[14.5px] sm:text-base font-normal leading-relaxed text-fg-muted"
             >
               {lang === "en"
-                ? "Smart digital licensing platform with integrated wallet system. Top up via QRIS & Multi-Crypto for instant access to ChatGPT (GPT-6 Astra & Sol), Claude (Opus & Sonnet 5.5), Gemini 4 Argon, Grok 4.7, Cursor, and 40+ latest-generation premium AI applications."
+                ? "Verified digital licensing platform with automated on-chain crypto settlement. Fund your wallet via USDT, SOL, TON, or BTC (with up to +15% volume credit) for instant access to ChatGPT, Claude, Gemini, Cursor, and 40+ flagship AI workspaces."
                 : lang === "zh"
-                ? "智能数字授权平台，集成一体化充值钱包。支持 QRIS 与多币种加密货币即时结算，秒级开通 ChatGPT (GPT-6 Astra/Sol)、Claude (Opus/Sonnet 5.5)、Gemini 4 Argon、Grok 4.7、Cursor 及 40+ 款 2026 最新前沿 AI 应用。"
-                : "Platform lisensi digital pintar dengan sistem dompet terpadu. Cukup isi saldo akun via QRIS & Multi-Crypto untuk belanja instan ChatGPT (GPT-6 Astra & Sol), Claude (Opus & Sonnet 5.5), Gemini 4 Argon, Grok 4.7, Cursor, dan 40+ aplikasi AI premium generasi terbaru."}
+                ? "官方验证数字授权平台，集成链上加密货币自动结算钱包。支持 USDT、SOL、TON、BTC 即时入账（享最高 +15% 阶梯赠送额度），秒级开通 ChatGPT、Claude、Gemini、Cursor 等 40+ 款旗舰 AI 工具。"
+                : "Platform lisensi digital pintar dengan sistem dompet terpadu. Isi saldo via Multi-Crypto & QRIS (bonus hingga +15%) untuk akses instan ChatGPT, Claude, Gemini, Cursor, dan 40+ aplikasi AI unggulan."}
             </motion.p>
 
             {/* Primary Action Buttons */}
@@ -283,13 +276,22 @@ export function Hero() {
                           <span className="text-[9.5px] sm:text-[10px] font-bold tracking-wider text-fg-muted uppercase block">
                             {lang === "en" ? "OFFICIAL LICENSE PRICE" : lang === "zh" ? "官方授权价格" : "HARGA LISENSI RESMI"}
                           </span>
-                          <div className="flex flex-wrap items-baseline gap-x-1.5 mt-0.5">
+                          <div className="flex flex-wrap items-baseline gap-x-2 mt-0.5">
                             <span className="text-lg sm:text-2xl font-black text-fg tabular-nums tracking-tight">
                               {formatPrice(currentShowcaseApp.price, lang)}
                             </span>
-                            <span className="text-[11px] font-semibold text-fg-muted shrink-0">
-                              (≈ ${(currentShowcaseApp.price / USDT_RATE).toFixed(2)})
-                            </span>
+                            {lang === "id" ? (
+                              <span className="text-[11px] font-semibold text-fg-muted shrink-0">
+                                (≈ ${(currentShowcaseApp.price / USDT_RATE).toFixed(2)})
+                              </span>
+                            ) : (() => {
+                              const orig = currentShowcaseApp.originalPrice || currentShowcaseApp.variants?.[0]?.originalPrice;
+                              return orig && orig > currentShowcaseApp.price ? (
+                                <span className="text-xs font-medium text-fg-muted line-through tabular-nums shrink-0">
+                                  {formatPrice(orig, lang)}
+                                </span>
+                              ) : null;
+                            })()}
                           </div>
                         </div>
 
@@ -363,33 +365,43 @@ export function Hero() {
                 <div className="flex items-center justify-between mb-2.5">
                   <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-fg">
                     <Wallet size={13} className="text-fg" />
-                    {lang === "en" ? "Fast Top Up" : lang === "zh" ? "快速充值" : "Isi Saldo Cepat"}
+                    {lang === "en" ? "Volume Credit Top Up" : lang === "zh" ? "阶梯充值赠送" : "Isi Saldo Cepat"}
                   </span>
                   <button
                     type="button"
                     onClick={() => openTopUp()}
                     className="text-[11px] font-bold text-fg hover:underline flex items-center gap-0.5 cursor-pointer"
                   >
-                    <span>{lang === "en" ? "Full Menu" : lang === "zh" ? "完整菜单" : "Menu Lengkap"}</span>
+                    <span>{lang === "en" ? "All Tiers" : lang === "zh" ? "全部档位" : "Menu Lengkap"}</span>
                     <ChevronRight size={12} />
                   </button>
                 </div>
 
                 <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-                  {PRESET_TOPUPS.map((p) => (
+                  {DEPOSIT_TIERS.map((p) => (
                     <button
                       key={p.usd}
                       type="button"
-                      onClick={() => openTopUp(p.idr)}
+                      onClick={() => openTopUp(p.usd * USDT_RATE)}
                       className={`flex flex-col items-center justify-center p-1.5 sm:p-2 rounded-xl border transition-all active:scale-95 cursor-pointer ${
                         selectedTopup === p.usd
                           ? "border-fg bg-fg text-surface font-bold shadow-sm"
                           : "bg-surface text-fg-muted hover:text-fg border-border hover:border-border-strong"
                       }`}
                     >
-                      <span className={`text-[11px] sm:text-xs font-black ${selectedTopup === p.usd ? "text-surface" : "text-fg"}`}>${p.usd}</span>
-                      <span className={`text-[9px] sm:text-[9.5px] tabular-nums mt-0.5 ${selectedTopup === p.usd ? "text-surface/80" : "text-fg-muted"}`}>
-                        {lang === "en" ? `≈ ${(p.usd * 16.5).toFixed(1).replace('.0', '')}k IDR` : lang === "zh" ? `约 ¥${(p.usd * 7.2).toFixed(1).replace('.0', '')}` : `Rp ${(p.usd * 16.5).toFixed(1).replace('.0', '')}k`}
+                      <span className={`text-[11px] sm:text-xs font-black tabular-nums ${selectedTopup === p.usd ? "text-surface" : "text-fg"}`}>
+                        ${p.usd}
+                      </span>
+                      <span className={`text-[9px] sm:text-[9.5px] font-semibold tabular-nums mt-0.5 ${
+                        selectedTopup === p.usd
+                          ? "text-surface/85"
+                          : p.bonusPercent > 0
+                          ? "text-accent"
+                          : "text-fg-muted"
+                      }`}>
+                        {p.bonusPercent > 0
+                          ? (lang === "en" ? `+${p.bonusPercent}% Credit` : lang === "zh" ? `赠 +${p.bonusPercent}%` : `Bonus +${p.bonusPercent}%`)
+                          : (lang === "en" ? "Standard" : lang === "zh" ? "标准" : "Standar")}
                       </span>
                     </button>
                   ))}

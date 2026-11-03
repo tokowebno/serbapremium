@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/components/storefront/providers";
 import { useTranslation } from "@/components/storefront/i18n-provider";
-import { formatRupiah, formatPrice, USDT_RATE } from "@/lib/utils";
+import { formatRupiah, formatPrice, USDT_RATE, DEPOSIT_TIERS, calculateDepositCredit } from "@/lib/utils";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { RequireAuth } from "@/components/storefront/require-auth";
 import { supabase, supabaseReady } from "@/lib/supabase";
@@ -33,7 +33,7 @@ const USD_RATE = USDT_RATE; // 17904 IDR sesuai kurs pasar real-time
 const MIN_DEPOSIT_USD = 5;
 const MIN_DEPOSIT_IDR = MIN_DEPOSIT_USD * USD_RATE; // 89,520
 
-type DepositPaymentMethod = "qris" | "usdt_bnb" | "usdt_tron" | "solana" | "ton" | "btc";
+type DepositPaymentMethod = "usdt_bnb" | "usdt_tron" | "solana" | "ton" | "btc" | "qris";
 
 const PAYMENT_METHODS: {
   id: DepositPaymentMethod;
@@ -44,20 +44,6 @@ const PAYMENT_METHODS: {
   address?: string;
 }[] = [
   {
-    id: "qris",
-    name: {
-      id: "QRIS (Semua Bank & E-Wallet)",
-      en: "QRIS (Banks & E-Wallets)",
-      zh: "QRIS 极速扫码（所有银行/钱包）",
-    },
-    desc: {
-      id: "BCA, Mandiri, BRI, GoPay, OVO, Dana",
-      en: "Instant Automated Verification",
-      zh: "秒级全自动入账",
-    },
-    icon: "/logos/qris-icon.svg",
-  },
-  {
     id: "usdt_bnb",
     name: {
       id: "USDT / BNB (BEP-20)",
@@ -66,8 +52,8 @@ const PAYMENT_METHODS: {
     },
     desc: {
       id: "BNB Smart Chain · Fee Rendah",
-      en: "BNB Smart Chain Network",
-      zh: "币安智能链低 Gas 费",
+      en: "BNB Smart Chain · Low Fee & Instant",
+      zh: "币安智能链 · 低手续费秒级入账",
     },
     icon: "/logos/bnb.svg",
     network: "BNB Smart Chain (BEP-20)",
@@ -82,8 +68,8 @@ const PAYMENT_METHODS: {
     },
     desc: {
       id: "Tron Network · Transfer Cepat",
-      en: "Tron Network · Fast Transfer",
-      zh: "波场网络极速转账",
+      en: "Tron Network · Automated Settlement",
+      zh: "波场网络 · 全自动核验",
     },
     icon: "/logos/tron.svg",
     network: "Tron (TRC-20)",
@@ -98,7 +84,7 @@ const PAYMENT_METHODS: {
     },
     desc: {
       id: "Solana Network · Instan",
-      en: "Solana Network · Instant",
+      en: "Solana Mainnet · Sub-Second Finality",
       zh: "Solana 极速主网",
     },
     icon: "/logos/solana.svg",
@@ -109,13 +95,13 @@ const PAYMENT_METHODS: {
     id: "ton",
     name: {
       id: "TON (Telegram Wallet)",
-      en: "TON (Telegram Wallet)",
-      zh: "TON (Telegram 钱包)",
+      en: "TON (The Open Network)",
+      zh: "TON (Telegram 开放网络)",
     },
     desc: {
       id: "The Open Network · Telegram",
-      en: "The Open Network",
-      zh: "Telegram 开放网络",
+      en: "Telegram Wallet & TON Mainnet",
+      zh: "支持 Telegram Wallet 转账",
     },
     icon: "/logos/ton.svg",
     network: "The Open Network (TON)",
@@ -130,19 +116,27 @@ const PAYMENT_METHODS: {
     },
     desc: {
       id: "Bitcoin Network",
-      en: "Bitcoin Network",
-      zh: "比特币网络",
+      en: "Bitcoin Mainnet Settlement",
+      zh: "比特币主网结算",
     },
     icon: "/logos/btc.svg",
     network: "Bitcoin",
     address: "14YEFfBwFJ7F5h8rPY7ZjCm18NWGeYcANk",
   },
-];
-
-const PRESETS = [
-  { usd: 5, idr: 5 * USD_RATE, popular: false },
-  { usd: 10, idr: 10 * USD_RATE, popular: true },
-  { usd: 50, idr: 50 * USD_RATE, popular: false },
+  {
+    id: "qris",
+    name: {
+      id: "QRIS (Semua Bank & E-Wallet)",
+      en: "QRIS (Indonesian Local Payment)",
+      zh: "QRIS 印尼本地扫码",
+    },
+    desc: {
+      id: "BCA, Mandiri, BRI, GoPay, OVO, Dana",
+      en: "Indonesian Banks & E-Wallets Only",
+      zh: "仅限印尼银行与电子钱包",
+    },
+    icon: "/logos/qris-icon.svg",
+  },
 ];
 
 function IsiSaldoContent() {
@@ -155,16 +149,26 @@ function IsiSaldoContent() {
   const returnApp = searchParams.get("app");
   const initialNeededIdr = neededParam ? Number(neededParam) : null;
 
-  // Amount state
+  // Amount state (Anchor at $50 Recommended Volume Tier)
   const [selectedUsd, setSelectedUsd] = useState<number>(() => {
     if (initialNeededIdr && initialNeededIdr > 0) {
       const calcUsd = Math.ceil(initialNeededIdr / USD_RATE);
       return Math.max(MIN_DEPOSIT_USD, calcUsd);
     }
-    return 10;
+    return 50;
   });
   const [customInput, setCustomInput] = useState<string>("");
-  const [paymentMethod, setPaymentMethod] = useState<DepositPaymentMethod>("qris");
+  const [paymentMethod, setPaymentMethod] = useState<DepositPaymentMethod>("usdt_bnb");
+
+  const visiblePaymentMethods = PAYMENT_METHODS.filter(
+    (pm) => lang === "id" || pm.id !== "qris"
+  );
+
+  useEffect(() => {
+    if (lang !== "id" && paymentMethod === "qris") {
+      setPaymentMethod("usdt_bnb");
+    }
+  }, [lang, paymentMethod]);
 
   // Step state
   const [step, setStep] = useState<1 | 2>(1);
@@ -188,6 +192,7 @@ function IsiSaldoContent() {
 
   const [uniqueCode] = useState(() => Math.floor(Math.random() * 800 + 100));
 
+  const creditInfo = calculateDepositCredit(selectedUsd);
   const amountIdr = selectedUsd * USD_RATE;
   const usdtDecimalUnique = Number(((uniqueCode % 800 + 101) / 10000).toFixed(4));
   const totalUsdt = Number((selectedUsd + usdtDecimalUnique).toFixed(4));
@@ -346,21 +351,25 @@ function IsiSaldoContent() {
         claimedList.push(cleanTx.toLowerCase());
         localStorage.setItem("texasai:claimed_tx_ids", JSON.stringify(claimedList));
 
-        // VERIFIKASI BERHASIL! DANA BENAR-BENAR MASUK ON-CHAIN
+        // VERIFIKASI BERHASIL! DANA BENAR-BENAR MASUK ON-CHAIN + VOLUME CREDIT BONUS
         const actualUsd = json.amount_usd || selectedUsd;
-        const creditedIdr = actualUsd * USD_RATE;
+        const tierBase = actualUsd >= selectedUsd * 0.98 ? selectedUsd : actualUsd;
+        const verifiedCredit = calculateDepositCredit(tierBase);
+        const finalCreditedUsd = Number((actualUsd + verifiedCredit.bonusUsd).toFixed(2));
+        const creditedIdr = Math.round(finalCreditedUsd * USD_RATE);
+        const bonusNote = verifiedCredit.bonusUsd > 0 ? ` (+$${verifiedCredit.bonusUsd.toFixed(2)} Volume Bonus)` : "";
 
         // Auto credit saldo ke user
         deposit(
           creditedIdr,
-          `Deposit $${actualUsd} USD via ${paymentMethod.toUpperCase()} (Tx: ${cleanTx.slice(0, 10)}...)`,
+          `Deposit $${finalCreditedUsd.toFixed(2)} USD${bonusNote} via ${paymentMethod.toUpperCase()} (Tx: ${cleanTx.slice(0, 10)}...)`,
           orderCode
         );
 
         const orderData = {
           id: orderCode,
           user_name: user?.name || "Member",
-          items: [{ name: `Isi Saldo $${actualUsd} USD`, price: creditedIdr, platform: "Wallet" }],
+          items: [{ name: `Wallet Top-Up $${finalCreditedUsd.toFixed(2)} USD${bonusNote}`, price: creditedIdr, platform: "Wallet" }],
           subtotal: creditedIdr,
           discount: 0,
           total: creditedIdr,
@@ -392,7 +401,7 @@ function IsiSaldoContent() {
           // ignore
         }
 
-        setVerifiedAmountUsd(actualUsd);
+        setVerifiedAmountUsd(finalCreditedUsd);
         setIsCryptoVerified(true);
         setIsSuccess(true);
         setIsProcessing(false);
@@ -499,10 +508,10 @@ function IsiSaldoContent() {
               </h1>
               <p className="mt-1 text-xs sm:text-sm text-fg-muted max-w-lg leading-relaxed">
                 {lang === "en"
-                  ? "Instant top up with QRIS & Crypto. Enjoy 1-click checkout for all digital apps and licenses."
+                  ? "Automated on-chain crypto settlement (USDT, SOL, TON, BTC) with up to +15% volume credit bonus."
                   : lang === "zh"
-                  ? "支持 QRIS 自动扫码与多链加密货币，秒级入账，全站软件一键秒买。"
-                  : "Isi saldo mudah & instan via QRIS Otomatis dan Multi-Crypto. Belanja lisensi favorit dalam 1 klik."}
+                  ? "支持多链加密货币全自动结算（USDT、SOL、TON、BTC），享最高 +15% 阶梯赠送额度。"
+                  : "Isi saldo instan via Multi-Crypto & QRIS dengan bonus saldo hingga +15%."}
               </p>
             </div>
 
@@ -595,7 +604,7 @@ function IsiSaldoContent() {
 
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <ButtonLink
-                  href={returnApp ? `/app/${returnApp}` : "/"}
+                  href={returnApp ? `/aplikasi/${returnApp}` : "/"}
                   size="lg"
                   className="w-full sm:w-auto rounded-full bg-fg text-surface font-bold text-sm px-8"
                 >
@@ -654,11 +663,11 @@ function IsiSaldoContent() {
 
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <ButtonLink
-                  href={returnApp ? `/app/${returnApp}` : "/"}
+                  href={returnApp ? `/aplikasi/${returnApp}` : "/"}
                   size="lg"
                   className="w-full sm:w-auto rounded-full bg-fg text-surface font-bold text-sm px-8"
                 >
-                  <span>{returnApp ? "Lanjut Pembelian" : (lang === "en" ? "Done & Return" : lang === "zh" ? "完成并返回" : "Selesai & Ke Dashboard")}</span>
+                  <span>{returnApp ? (lang === "en" ? "Continue Purchase" : lang === "zh" ? "继续购买" : "Lanjut Pembelian") : (lang === "en" ? "Done & Return" : lang === "zh" ? "完成并返回" : "Selesai & Ke Dashboard")}</span>
                 </ButtonLink>
               </div>
             </motion.div>
@@ -678,19 +687,19 @@ function IsiSaldoContent() {
               </div>
               <div className="text-xs sm:text-[13px]">
                 <p className="font-bold text-fg">
-                  {lang === "en" ? "Minimum Top Up: $5.00 USD" : lang === "zh" ? "最低充值要求：$5.00 USD" : "Minimal Isi Saldo: $5.00 USD (~Rp 89.520)"}
+                  {lang === "en" ? "Volume Credit Tiers: +8% ($50) · +12% ($100) · +15% ($250+)" : lang === "zh" ? "阶梯充值赠送：+8% ($50) · +12% ($100) · +15% ($250+)" : "Bonus Saldo Otomatis: +8% ($50) · +12% ($100) · +15% ($250+)"}
                 </p>
                 <p className="text-fg-muted text-[11.5px] mt-0.5">
                   {lang === "en"
-                    ? "Automatic credit upon verified blockchain payment."
+                    ? "Minimum deposit $5.00 USD. Bonus credit is added automatically upon on-chain confirmation."
                     : lang === "zh"
-                    ? "付款链上核对后秒级自动存入账户。"
-                    : "Kurs acuan 1 USD = Rp 17.904. Saldo langsung masuk otomatis setelah pembayaran terverifikasi on-chain."}
+                    ? "最低充值 $5.00 USD。付款链上确认后，赠送额度将自动存入账户余额。"
+                    : "Minimal deposit $5.00 USD. Bonus saldo otomatis masuk setelah pembayaran terverifikasi on-chain."}
                 </p>
               </div>
             </motion.div>
 
-            {/* Presets Grid */}
+            {/* Volume Credit Tiers Grid */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -700,16 +709,17 @@ function IsiSaldoContent() {
               <div className="flex items-center justify-between mb-4">
                 <label className="text-xs font-bold uppercase tracking-wider text-fg flex items-center gap-2">
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-fg text-[10px] font-black text-surface">1</span>
-                  <span>{lang === "en" ? "Select Amount (USD)" : lang === "zh" ? "选择充值金额 (USD)" : "Pilih Nominal Isi Saldo (USD)"}</span>
+                  <span>{lang === "en" ? "Select Deposit Tier (USD)" : lang === "zh" ? "选择充值档位 (USD)" : "Pilih Nominal Isi Saldo (USD)"}</span>
                 </label>
-                <span className="text-[11px] font-semibold text-fg-muted font-mono">
+                <span className="text-[11px] font-semibold text-accent font-mono">
                   {lang === "en" || lang === "zh" ? "1 USDT ≈ 1 USD" : "Kurs 1 USDT = Rp 17.904"}
                 </span>
               </div>
 
-              <div className="grid grid-cols-3 gap-3 sm:gap-4">
-                {PRESETS.map((p) => {
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                {DEPOSIT_TIERS.map((p) => {
                   const active = selectedUsd === p.usd && !customInput;
+                  const tierCalc = calculateDepositCredit(p.usd);
                   return (
                     <motion.button
                       key={p.usd}
@@ -717,19 +727,30 @@ function IsiSaldoContent() {
                       whileHover={{ y: -2, scale: 1.02 }}
                       whileTap={{ scale: 0.96 }}
                       onClick={() => handleSelectPreset(p.usd)}
-                      className={`flex flex-col items-center justify-between p-3 rounded-2xl cursor-pointer select-none transition-all duration-200 min-h-[82px] ${
+                      className={`flex flex-col items-center justify-between p-3.5 rounded-2xl cursor-pointer select-none transition-all duration-200 min-h-[96px] ${
                         active
                           ? "liquid-tile-active ring-2 ring-accent/30 shadow-xs"
                           : "liquid-tile hover:border-border-strong"
                       }`}
                     >
-                      <div className="flex items-center justify-center h-4 w-full">
-                      </div>
-                      <span className={`text-lg sm:text-xl font-black tracking-tight leading-none ${active ? "text-accent" : "text-fg"}`}>
+                      <span
+                        className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                          p.bonusPercent > 0
+                            ? "bg-accent-soft text-accent"
+                            : "bg-surface-2 text-fg-muted"
+                        }`}
+                      >
+                        {p.bonusPercent > 0
+                          ? `+${p.bonusPercent}% Credit`
+                          : (lang === "id" ? p.tagId : lang === "zh" ? p.tagZh : p.tagEn)}
+                      </span>
+                      <span className={`text-xl sm:text-2xl font-black tracking-tight leading-none my-1.5 tabular-nums ${active ? "text-accent" : "text-fg"}`}>
                         ${p.usd}
                       </span>
-                      <span className={`text-[11px] font-semibold mt-1 tabular-nums ${active ? "text-accent" : "text-fg-muted"}`}>
-                        {formatRupiah(p.idr)}
+                      <span className={`text-[11px] font-semibold tabular-nums ${active ? "text-accent" : "text-fg-muted"}`}>
+                        {p.bonusPercent > 0
+                          ? (lang === "en" ? `Receive $${tierCalc.totalUsd}` : lang === "zh" ? `实得 $${tierCalc.totalUsd}` : `Dapat $${tierCalc.totalUsd}`)
+                          : (lang === "id" ? formatRupiah(p.usd * USD_RATE) : "Standard Credit")}
                       </span>
                     </motion.button>
                   );
@@ -751,20 +772,29 @@ function IsiSaldoContent() {
                       type="number"
                       min={5}
                       step={1}
-                      placeholder="0"
+                      placeholder="50"
                       value={customInput}
                       onChange={handleCustomChange}
                       className="w-full h-full bg-transparent px-5 sm:px-6 py-4 text-xl sm:text-3xl font-black text-fg focus:outline-hidden placeholder:text-fg-faint"
                     />
                   </div>
 
-                  <div className="liquid-glass-pill flex flex-col justify-center rounded-2xl px-6 py-4 text-right shrink-0 min-w-[160px] sm:min-w-[200px]">
+                  <div className="liquid-glass-pill flex flex-col justify-center rounded-2xl px-6 py-4 text-right shrink-0 min-w-[180px] sm:min-w-[220px]">
                     <span className="text-xs uppercase font-bold text-fg-muted block mb-1">
-                      {lang === "en" ? "IDR Equivalent" : lang === "zh" ? "折合印尼盾" : "Estimasi Rupiah"}
+                      {lang === "en" ? "Total Credit Received" : lang === "zh" ? "实际到账总额" : "Saldo Diterima"}
                     </span>
                     <span className="text-lg sm:text-xl font-black text-accent tabular-nums">
-                      {formatRupiah(amountIdr)}
+                      ${creditInfo.totalUsd.toFixed(2)} USD
                     </span>
+                    {creditInfo.bonusUsd > 0 ? (
+                      <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 tabular-nums mt-0.5">
+                        +${creditInfo.bonusUsd.toFixed(2)} (+{creditInfo.bonusPercent}% Bonus)
+                      </span>
+                    ) : lang === "id" ? (
+                      <span className="text-[11px] font-medium text-fg-muted tabular-nums mt-0.5">
+                        {formatRupiah(amountIdr)}
+                      </span>
+                    ) : null}
                   </div>
                 </div>
 
@@ -787,15 +817,15 @@ function IsiSaldoContent() {
               <div className="flex items-center justify-between mb-4">
                 <label className="text-xs font-bold uppercase tracking-wider text-fg flex items-center gap-2">
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-fg text-[10px] font-black text-surface">2</span>
-                  <span>{lang === "en" ? "Select Payment Method" : lang === "zh" ? "选择支付方式" : "Pilih Metode Pembayaran"}</span>
+                  <span>{lang === "en" ? "Select Settlement Network" : lang === "zh" ? "选择结算网络" : "Pilih Metode Pembayaran"}</span>
                 </label>
                 <span className="text-[11px] font-semibold text-fg-muted">
-                  {lang === "en" ? "Instant Automated Verification" : lang === "zh" ? "秒级全自动核验" : "Verifikasi Otomatis"}
+                  {lang === "en" ? "Automated On-Chain Verification" : lang === "zh" ? "秒级全自动核验" : "Verifikasi Otomatis"}
                 </span>
               </div>
 
               <div className="space-y-2.5">
-                {PAYMENT_METHODS.map((pm) => {
+                {visiblePaymentMethods.map((pm) => {
                   const active = paymentMethod === pm.id;
                   return (
                     <motion.button
@@ -889,13 +919,20 @@ function IsiSaldoContent() {
               {/* Total Display */}
               <div className="my-5 rounded-2xl liquid-tile p-5 flex items-center justify-between">
                 <div>
-                  <span className="text-xs text-fg-muted font-medium block">{lang === "en" ? "Deposit Amount" : lang === "zh" ? "充值金额" : "Nominal Deposit"}</span>
-                  <span className="text-xl font-black text-fg mt-0.5 block">${selectedUsd} USD</span>
+                  <span className="text-xs text-fg-muted font-medium block">{lang === "en" ? "Wallet Credit Received" : lang === "zh" ? "到账余额" : "Saldo Diterima"}</span>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-xl font-black text-fg tabular-nums">${creditInfo.totalUsd.toFixed(2)} USD</span>
+                    {creditInfo.bonusUsd > 0 && (
+                      <span className="rounded-md bg-emerald-500/15 px-2 py-0.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                        +{creditInfo.bonusPercent}% Bonus
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs text-fg-muted font-medium block">{lang === "en" ? "Total Payable" : lang === "zh" ? "应付总额" : "Total Yang Harus Dibayar"}</span>
+                  <span className="text-xs text-fg-muted font-medium block">{lang === "en" ? "Exact Transfer Amount" : lang === "zh" ? "应付总额" : "Total Yang Harus Dibayar"}</span>
                   <span className="text-xl sm:text-2xl font-black text-accent tabular-nums mt-0.5 block">
-                    {paymentMethod === "qris" ? formatRupiah(totalPayIdr) : `${totalUsdt} ${paymentMethod === "solana" ? "SOL" : paymentMethod === "ton" ? "TON" : "USDT"}`}
+                    {paymentMethod === "qris" ? formatRupiah(totalPayIdr) : `${totalUsdt} ${paymentMethod === "solana" ? "SOL" : paymentMethod === "ton" ? "TON" : paymentMethod === "btc" ? "BTC" : "USDT"}`}
                   </span>
                 </div>
               </div>
@@ -1076,7 +1113,7 @@ function IsiSaldoContent() {
 export default function IsiSaldoPage() {
   return (
     <RequireAuth>
-      <Suspense fallback={<div className="tk-container pt-32 pb-20 text-center text-fg-muted">Memuat menu isi saldo...</div>}>
+      <Suspense fallback={<div className="tk-container pt-32 pb-20 text-center text-fg-muted">Loading wallet top-up...</div>}>
         <IsiSaldoContent />
       </Suspense>
     </RequireAuth>

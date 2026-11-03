@@ -25,10 +25,10 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const app = api.apps.getBySlug(slug);
-  if (!app) return { title: "Aplikasi tidak ditemukan" };
+  if (!app) return { title: "Product Not Found" };
   return {
     title: `${app.name} · Texas AI`,
-    description: `${app.tagline} Aktivasi instan, pembayaran aman otomatis bergaransi di Texas AI.`,
+    description: `${app.tagline} Instant automated crypto settlement and full active-period warranty on Texas AI.`,
   };
 }
 

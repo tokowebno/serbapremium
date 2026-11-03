@@ -184,7 +184,13 @@ export function CheckoutForm({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("qris");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("usdt_bnb");
+
+  useEffect(() => {
+    if (lang !== "id" && paymentMethod === "qris") {
+      setPaymentMethod("usdt_bnb");
+    }
+  }, [lang, paymentMethod]);
 
   const [orderId, setOrderId] = useState<string>(
     () => `TK-${Date.now().toString().slice(-6)}`
@@ -668,11 +674,12 @@ export function CheckoutForm({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   {(
                     [
-                      "qris",
                       "usdt_bnb",
                       "usdt_tron",
                       "solana",
                       "ton",
+                      "btc",
+                      ...(lang === "id" ? (["qris"] as PaymentMethod[]) : []),
                     ] as PaymentMethod[]
                   ).map((method) => {
                     const info = PAYMENT_INFO[method];

@@ -10,7 +10,7 @@ import { PlatformBadge } from "@/components/ui/platform-badge";
 import { useWishlist } from "./providers";
 import { useTranslation } from "./i18n-provider";
 import { getLocalizedApp } from "@/lib/i18n/product-translations";
-import { formatPrice, USDT_RATE } from "@/lib/utils";
+import { formatPrice, USDT_RATE, discountPercent } from "@/lib/utils";
 
 export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
   const { has, toggle } = useWishlist();
@@ -18,13 +18,18 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
   const wished = has(app.id);
   const localized = getLocalizedApp(app, lang);
 
-  // Cari harga termurah dari variasi
-  const minPrice =
-    app.variants && app.variants.length > 0
-      ? Math.min(...app.variants.map((v) => v.price))
-      : app.price;
+  // Cari variasi termurah yang ready (atau variasi termurah)
+  const sortedVariants = app.variants && app.variants.length > 0
+    ? [...app.variants].sort((a, b) => a.price - b.price)
+    : [];
+  const minVariant = sortedVariants.find((v) => v.stock !== 0) || sortedVariants[0];
+  const minPrice = minVariant ? minVariant.price : app.price;
+  const origPrice = minVariant?.originalPrice || app.originalPrice;
+  const hasSavings = Boolean(origPrice && origPrice > minPrice);
+  const savePct = hasSavings && origPrice ? discountPercent(origPrice, minPrice) : 0;
 
   const approxUsd = (minPrice / USDT_RATE).toFixed(2);
+  const isLowStock = app.stock > 0 && app.stock <= 10;
 
   return (
     <motion.div
@@ -78,15 +83,24 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
             <Rating value={app.rating} showValue={true} size={11} />
             <span
               className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                app.stock > 0
-                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                  : "bg-surface-3 text-fg-faint"
+                app.stock === 0
+                  ? "bg-surface-3 text-fg-faint"
+                  : isLowStock
+                  ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/25"
+                  : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
               }`}
             >
-              {app.stock > 0
-                ? `${t.product.stock} ${app.stock.toLocaleString(lang === "en" ? "en-US" : "id-ID")}`
-                : t.product.outOfStock}
+              {app.stock === 0
+                ? t.product.outOfStock
+                : isLowStock
+                ? (lang === "en" ? `Only ${app.stock} left` : lang === "zh" ? `仅剩 ${app.stock} 件` : `Sisa ${app.stock} slot`)
+                : `${t.product.stock} ${app.stock.toLocaleString(lang === "en" ? "en-US" : "id-ID")}`}
             </span>
+            {hasSavings && savePct >= 10 && (
+              <span className="rounded-full bg-surface-2 border border-border px-1.5 py-0.5 text-[9.5px] font-mono font-bold text-fg">
+                -{savePct}%
+              </span>
+            )}
           </div>
 
           {/* Platform badges */}
@@ -108,13 +122,19 @@ export function ProductCard({ app, index = 0 }: { app: App; index?: number }) {
             <span className="text-[10px] font-semibold text-fg-muted uppercase">
               {lang === "en" ? "Starts from" : lang === "zh" ? "起价" : "Mulai dari"}
             </span>
-            <div className="flex items-baseline gap-1 truncate">
+            <div className="flex items-baseline gap-1.5 truncate">
               <span className="text-[14px] sm:text-[16px] font-black tracking-tight tabular-nums text-fg truncate">
                 {formatPrice(minPrice, lang)}
               </span>
-              <span className="text-[10px] sm:text-[10.5px] font-medium text-fg-muted shrink-0">
-                (${approxUsd})
-              </span>
+              {lang === "id" ? (
+                <span className="text-[10px] sm:text-[10.5px] font-medium text-fg-muted shrink-0">
+                  (${approxUsd})
+                </span>
+              ) : hasSavings && origPrice ? (
+                <span className="text-[10.5px] sm:text-[11px] font-medium text-fg-muted line-through tabular-nums shrink-0">
+                  {formatPrice(origPrice, lang)}
+                </span>
+              ) : null}
             </div>
           </div>
 

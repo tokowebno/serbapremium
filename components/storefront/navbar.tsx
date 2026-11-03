@@ -169,7 +169,7 @@ export function Navbar() {
                 ) : (
                   <EnglishFlag className="w-4.5 h-3" />
                 )}
-                <span className="font-bold">{langFlags[lang] || "ID"}</span>
+                <span className="font-bold">{langFlags[lang] || "EN"}</span>
               </button>
 
               {/* Theme toggle */}

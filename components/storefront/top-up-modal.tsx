@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/components/storefront/providers";
 import { useTranslation } from "@/components/storefront/i18n-provider";
-import { formatRupiah, formatPrice, cn, USDT_RATE } from "@/lib/utils";
+import { formatRupiah, formatPrice, cn, USDT_RATE, DEPOSIT_TIERS, calculateDepositCredit } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
 import { supabase, supabaseReady } from "@/lib/supabase";
@@ -30,7 +30,7 @@ const USD_RATE = USDT_RATE; // 17904 IDR sesuai kurs pasar real-time
 const MIN_DEPOSIT_USD = 5;
 const MIN_DEPOSIT_IDR = MIN_DEPOSIT_USD * USD_RATE; // 89,520
 
-type DepositPaymentMethod = "qris" | "usdt_bnb" | "usdt_tron" | "solana" | "ton" | "btc";
+type DepositPaymentMethod = "usdt_bnb" | "usdt_tron" | "solana" | "ton" | "btc" | "qris";
 
 const PAYMENT_METHODS: {
   id: DepositPaymentMethod;
@@ -41,20 +41,6 @@ const PAYMENT_METHODS: {
   address?: string;
 }[] = [
   {
-    id: "qris",
-    name: {
-      id: "QRIS (Semua Bank & E-Wallet)",
-      en: "QRIS (Banks & E-Wallets)",
-      zh: "QRIS 极速扫码（所有银行/钱包）",
-    },
-    desc: {
-      id: "BCA, Mandiri, BRI, GoPay, OVO, Dana",
-      en: "Instant Automated Verification",
-      zh: "秒级全自动入账",
-    },
-    icon: "/logos/qris-icon.svg",
-  },
-  {
     id: "usdt_bnb",
     name: {
       id: "USDT / BNB (BEP-20)",
@@ -63,8 +49,8 @@ const PAYMENT_METHODS: {
     },
     desc: {
       id: "BNB Smart Chain · Fee Rendah",
-      en: "BNB Smart Chain Network",
-      zh: "币安智能链低 Gas 费",
+      en: "BNB Smart Chain · Low Fee & Instant",
+      zh: "币安智能链 · 低手续费秒级入账",
     },
     icon: "/logos/bnb.svg",
     network: "BNB Smart Chain (BEP-20)",
@@ -79,8 +65,8 @@ const PAYMENT_METHODS: {
     },
     desc: {
       id: "Tron Network · Transfer Cepat",
-      en: "Tron Network · Fast Transfer",
-      zh: "波场网络极速转账",
+      en: "Tron Network · Automated Settlement",
+      zh: "波场网络 · 全自动核验",
     },
     icon: "/logos/tron.svg",
     network: "Tron (TRC-20)",
@@ -95,7 +81,7 @@ const PAYMENT_METHODS: {
     },
     desc: {
       id: "Solana Network · Instan",
-      en: "Solana Network · Instant",
+      en: "Solana Mainnet · Sub-Second Finality",
       zh: "Solana 极速主网",
     },
     icon: "/logos/solana.svg",
@@ -106,13 +92,13 @@ const PAYMENT_METHODS: {
     id: "ton",
     name: {
       id: "TON (Telegram Wallet)",
-      en: "TON (Telegram Wallet)",
-      zh: "TON (Telegram 钱包)",
+      en: "TON (The Open Network)",
+      zh: "TON (Telegram 开放网络)",
     },
     desc: {
       id: "The Open Network · Telegram",
-      en: "The Open Network",
-      zh: "Telegram 开放网络",
+      en: "Telegram Wallet & TON Mainnet",
+      zh: "支持 Telegram Wallet 转账",
     },
     icon: "/logos/ton.svg",
     network: "The Open Network (TON)",
@@ -127,29 +113,41 @@ const PAYMENT_METHODS: {
     },
     desc: {
       id: "Bitcoin Network",
-      en: "Bitcoin Network",
-      zh: "比特币网络",
+      en: "Bitcoin Mainnet Settlement",
+      zh: "比特币主网结算",
     },
     icon: "/logos/btc.svg",
     network: "Bitcoin",
     address: "14YEFfBwFJ7F5h8rPY7ZjCm18NWGeYcANk",
   },
-];
-
-const PRESETS = [
-  { usd: 5, idr: 5 * USD_RATE, popular: false },
-  { usd: 10, idr: 10 * USD_RATE, popular: true },
-  { usd: 50, idr: 50 * USD_RATE, popular: false },
+  {
+    id: "qris",
+    name: {
+      id: "QRIS (Semua Bank & E-Wallet)",
+      en: "QRIS (Indonesian Local Payment)",
+      zh: "QRIS 印尼本地扫码",
+    },
+    desc: {
+      id: "BCA, Mandiri, BRI, GoPay, OVO, Dana",
+      en: "Indonesian Banks & E-Wallets Only",
+      zh: "仅限印尼银行与电子钱包",
+    },
+    icon: "/logos/qris-icon.svg",
+  },
 ];
 
 export function TopUpModal() {
   const { user, balance, balanceUsd, deposit, isTopUpOpen, closeTopUp, topUpNeeded } = useAuth();
   const { lang } = useTranslation();
 
-  // Amount state
-  const [selectedUsd, setSelectedUsd] = useState<number>(10);
+  // Amount state (Anchor at $50 Recommended Volume Tier)
+  const [selectedUsd, setSelectedUsd] = useState<number>(50);
   const [customInput, setCustomInput] = useState<string>("");
-  const [paymentMethod, setPaymentMethod] = useState<DepositPaymentMethod>("qris");
+  const [paymentMethod, setPaymentMethod] = useState<DepositPaymentMethod>("usdt_bnb");
+
+  const visiblePaymentMethods = PAYMENT_METHODS.filter(
+    (pm) => lang === "id" || pm.id !== "qris"
+  );
 
   // Step state
   const [step, setStep] = useState<1 | 2>(1);
@@ -173,15 +171,16 @@ export function TopUpModal() {
 
   const [uniqueCode] = useState(() => Math.floor(Math.random() * 800 + 100));
 
-  // Initialize amount based on topUpNeeded if provided
+  // Initialize amount & payment method based on topUpNeeded and language
   useEffect(() => {
     if (isTopUpOpen) {
       if (topUpNeeded && topUpNeeded > 0) {
         const calcUsd = Math.ceil(topUpNeeded / USD_RATE);
         setSelectedUsd(Math.max(MIN_DEPOSIT_USD, calcUsd));
       } else {
-        setSelectedUsd(10);
+        setSelectedUsd(50);
       }
+      setPaymentMethod((prev) => (lang !== "id" && prev === "qris" ? "usdt_bnb" : prev));
       setStep(1);
       setIsSuccess(false);
       setIsCryptoVerified(false);
@@ -192,7 +191,7 @@ export function TopUpModal() {
       setErrorMessage("");
       setOrderCode(`DEP-${Date.now().toString().slice(-6)}`);
     }
-  }, [isTopUpOpen, topUpNeeded]);
+  }, [isTopUpOpen, topUpNeeded, lang]);
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -209,6 +208,7 @@ export function TopUpModal() {
     };
   }, [isTopUpOpen, closeTopUp]);
 
+  const creditInfo = calculateDepositCredit(selectedUsd);
   const amountIdr = selectedUsd * USD_RATE;
   const usdtDecimalUnique = Number(((uniqueCode % 800 + 101) / 10000).toFixed(4));
   const totalUsdt = Number((selectedUsd + usdtDecimalUnique).toFixed(4));
@@ -376,21 +376,25 @@ export function TopUpModal() {
         claimedList.push(cleanTx.toLowerCase());
         localStorage.setItem("texasai:claimed_tx_ids", JSON.stringify(claimedList));
 
-        // VERIFIKASI BERHASIL! DANA BENAR-BENAR MASUK ON-CHAIN
+        // VERIFIKASI BERHASIL! DANA BENAR-BENAR MASUK ON-CHAIN + VOLUME CREDIT BONUS
         const actualUsd = json.amount_usd || selectedUsd;
-        const creditedIdr = actualUsd * USD_RATE;
+        const tierBase = actualUsd >= selectedUsd * 0.98 ? selectedUsd : actualUsd;
+        const verifiedCredit = calculateDepositCredit(tierBase);
+        const finalCreditedUsd = Number((actualUsd + verifiedCredit.bonusUsd).toFixed(2));
+        const creditedIdr = Math.round(finalCreditedUsd * USD_RATE);
+        const bonusNote = verifiedCredit.bonusUsd > 0 ? ` (+$${verifiedCredit.bonusUsd.toFixed(2)} Volume Bonus)` : "";
 
         // Auto credit saldo ke user
         deposit(
           creditedIdr,
-          `Deposit $${actualUsd} USD via ${paymentMethod.toUpperCase()} (Tx: ${cleanTx.slice(0, 10)}...)`,
+          `Deposit $${finalCreditedUsd.toFixed(2)} USD${bonusNote} via ${paymentMethod.toUpperCase()} (Tx: ${cleanTx.slice(0, 10)}...)`,
           orderCode
         );
 
         const orderData = {
           id: orderCode,
           user_name: user?.name || "Member",
-          items: [{ name: `Isi Saldo $${actualUsd} USD`, price: creditedIdr, platform: "Wallet" }],
+          items: [{ name: `Wallet Top-Up $${finalCreditedUsd.toFixed(2)} USD${bonusNote}`, price: creditedIdr, platform: "Wallet" }],
           subtotal: creditedIdr,
           discount: 0,
           total: creditedIdr,
@@ -422,7 +426,7 @@ export function TopUpModal() {
           // ignore
         }
 
-        setVerifiedAmountUsd(actualUsd);
+        setVerifiedAmountUsd(finalCreditedUsd);
         setIsCryptoVerified(true);
         setIsSuccess(true);
         setIsProcessing(false);
@@ -719,44 +723,63 @@ export function TopUpModal() {
                   </span>
                 </div>
 
-                {/* Section 1: Presets Grid */}
+                {/* Section 1: Volume Credit Tiers Grid */}
                 <div>
                   <div className="flex items-center justify-between mb-2 px-0.5">
                     <label className="text-xs font-bold text-fg flex items-center gap-1.5">
                       <span className="flex h-4 w-4 items-center justify-center rounded-full bg-fg text-[9px] font-black text-surface">1</span>
-                      <span>{lang === "en" ? "Select Amount" : lang === "zh" ? "选择充值金额" : "Pilih Nominal Saldo"}</span>
+                      <span>{lang === "en" ? "Select Deposit Tier" : lang === "zh" ? "选择充值档位" : "Pilih Nominal Saldo"}</span>
                     </label>
-                    <span className="text-[11px] text-fg-muted">Min. $5 USDT</span>
+                    <span className="text-[10.5px] font-mono font-bold text-accent">
+                      {lang === "en" ? "Up to +15% Bonus Credit" : lang === "zh" ? "最高赠送 +15% 额度" : "Bonus s/d +15%"}
+                    </span>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3 sm:gap-3 mt-4">
-                    {PRESETS.map((p) => {
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-3">
+                    {DEPOSIT_TIERS.map((p) => {
                       const active = selectedUsd === p.usd && !customInput;
+                      const tierCalc = calculateDepositCredit(p.usd);
                       return (
                         <button
                           key={p.usd}
                           type="button"
                           onClick={() => handleSelectPreset(p.usd)}
                           className={cn(
-                            "relative flex flex-col items-center justify-center p-3 rounded-2xl border text-center transition-all duration-150 cursor-pointer select-none active:scale-95",
+                            "relative flex flex-col items-center justify-between p-3 rounded-2xl border-2 text-center transition-all duration-150 cursor-pointer select-none active:scale-95",
                             active
-                              ? "bg-fg border-fg text-surface shadow-md"
+                              ? "bg-fg border-fg text-surface shadow-[3px_3px_0_0_var(--color-border-strong)]"
                               : "bg-surface hover:bg-surface-2 border-border text-fg hover:border-border-strong"
                           )}
                         >
-                          <span className={cn("text-lg sm:text-xl font-black tracking-tight leading-none", active ? "text-surface" : "text-fg")}>
+                          <span
+                            className={cn(
+                              "text-[9.5px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mb-1.5",
+                              p.bonusPercent > 0
+                                ? active
+                                  ? "bg-surface/20 text-surface"
+                                  : "bg-accent-soft text-accent"
+                                : active
+                                ? "bg-surface/15 text-surface/80"
+                                : "bg-surface-2 text-fg-muted"
+                            )}
+                          >
+                            {p.bonusPercent > 0 ? `+${p.bonusPercent}% Credit` : (lang === "id" ? p.tagId : lang === "zh" ? p.tagZh : p.tagEn)}
+                          </span>
+                          <span className={cn("text-lg sm:text-xl font-black tracking-tight leading-none tabular-nums", active ? "text-surface" : "text-fg")}>
                             ${p.usd}
                           </span>
-                          <span className={cn("text-[11px] font-semibold mt-1 tabular-nums", active ? "text-surface/80" : "text-fg-muted")}>
-                            {formatRupiah(p.idr)}
+                          <span className={cn("text-[10.5px] font-semibold mt-1.5 tabular-nums", active ? "text-surface/85" : "text-fg-muted")}>
+                            {p.bonusPercent > 0
+                              ? (lang === "en" ? `Get $${tierCalc.totalUsd}` : lang === "zh" ? `实得 $${tierCalc.totalUsd}` : `Dapat $${tierCalc.totalUsd}`)
+                              : (lang === "id" ? formatRupiah(p.usd * USD_RATE) : "Standard")}
                           </span>
                         </button>
                       );
                     })}
                   </div>
 
-                  {/* Custom Input */}
-                  <div className="mt-3">
+                  {/* Custom Input + Volume Credit Summary */}
+                  <div className="mt-3 space-y-2">
                     <div className="relative flex items-center rounded-xl border border-border bg-surface shadow-inner overflow-hidden focus-within:ring-2 focus-within:ring-border-strong">
                       <span className="flex h-10 items-center px-3 bg-surface-2 border-r border-border text-xs font-bold text-fg select-none">
                         USD $
@@ -767,15 +790,32 @@ export function TopUpModal() {
                         step={1}
                         placeholder={
                           lang === "en"
-                            ? "Custom USD (min $5)"
+                            ? "Or enter custom USD amount (min $5)"
                             : lang === "zh"
-                            ? "自定义金额（最低 $5）"
-                            : "Ketik nominal custom (min $5)"
+                            ? "或输入自定义金额（最低 $5）"
+                            : "Atau ketik nominal custom USD (min $5)"
                         }
                         value={customInput}
                         onChange={handleCustomChange}
                         className="w-full bg-transparent px-3 py-2 text-xs sm:text-sm font-bold text-fg focus:outline-hidden placeholder:text-fg-faint placeholder:font-normal"
                       />
+                    </div>
+
+                    {/* Clean Volume Credit Summary Strip */}
+                    <div className="flex items-center justify-between rounded-xl border border-border bg-surface-2 px-3 py-2 text-xs">
+                      <span className="text-fg-muted font-medium">
+                        {lang === "en" ? "Wallet Credit Received:" : lang === "zh" ? "实际到账余额：" : "Saldo Diterima:"}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-mono font-black text-fg tabular-nums">
+                          ${creditInfo.totalUsd.toFixed(2)} USD
+                        </span>
+                        {creditInfo.bonusUsd > 0 && (
+                          <span className="rounded-md bg-emerald-500/15 border border-emerald-500/25 px-1.5 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                            +${creditInfo.bonusUsd.toFixed(2)} (+{creditInfo.bonusPercent}%)
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -785,12 +825,12 @@ export function TopUpModal() {
                   <div className="flex items-center justify-between mb-2 px-0.5">
                     <label className="text-xs font-bold text-fg flex items-center gap-1.5">
                       <span className="flex h-4 w-4 items-center justify-center rounded-full bg-fg text-[9px] font-black text-surface">2</span>
-                      <span>{lang === "en" ? "Select Payment Method" : lang === "zh" ? "选择支付方式" : "Pilih Metode Pembayaran"}</span>
+                      <span>{lang === "en" ? "Select Network" : lang === "zh" ? "选择支付网络" : "Pilih Metode Pembayaran"}</span>
                     </label>
                   </div>
 
                   <div className="space-y-1.5 max-h-[190px] overflow-y-auto no-scrollbar pr-0.5">
-                    {PAYMENT_METHODS.map((pm) => {
+                    {visiblePaymentMethods.map((pm) => {
                       const active = paymentMethod === pm.id;
                       return (
                         <button
@@ -845,7 +885,7 @@ export function TopUpModal() {
                 <div className="pt-3 border-t border-border flex items-center justify-between gap-3">
                   <div>
                     <span className="text-[10px] uppercase font-bold text-fg-muted block">
-                      {lang === "en" ? "Total Payment" : lang === "zh" ? "总付款金额" : "Total Bayar"}
+                      {lang === "en" ? "Total Payment" : lang === "zh" ? "应付金额" : "Total Bayar"}
                     </span>
                     <div className="flex items-baseline gap-1.5">
                       {lang === "id" ? (
@@ -858,9 +898,16 @@ export function TopUpModal() {
                           </span>
                         </>
                       ) : (
-                        <span className="text-lg sm:text-xl font-black text-fg tabular-nums tracking-tight">
-                          ${selectedUsd} USD
-                        </span>
+                        <>
+                          <span className="text-lg sm:text-xl font-black text-fg tabular-nums tracking-tight">
+                            ${selectedUsd} USD
+                          </span>
+                          {creditInfo.bonusUsd > 0 && (
+                            <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                              → ${creditInfo.totalUsd.toFixed(2)} Credit
+                            </span>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
@@ -903,18 +950,25 @@ export function TopUpModal() {
                 <div className="bg-surface-2 border-2 border-border rounded-xl p-4 flex items-center justify-between">
                   <div>
                     <span className="text-[10px] font-bold text-fg-muted uppercase tracking-wider block">
-                      {lang === "en" ? "Deposit Amount" : lang === "zh" ? "充值金额" : "Nominal Deposit"}
+                      {lang === "en" ? "Wallet Credit Received" : lang === "zh" ? "到账余额" : "Saldo Diterima"}
                     </span>
-                    <span className="text-sm font-black text-fg">${selectedUsd} USD</span>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className="text-sm font-black text-fg tabular-nums">${creditInfo.totalUsd.toFixed(2)} USD</span>
+                      {creditInfo.bonusUsd > 0 && (
+                        <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9.5px] font-bold text-emerald-600 dark:text-emerald-400">
+                          +{creditInfo.bonusPercent}% Bonus
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="text-right">
                     <span className="text-[10px] font-bold text-fg-muted uppercase tracking-wider block">
-                      {lang === "en" ? "Total Payable" : lang === "zh" ? "总付款金额" : "Total Ditransfer"}
+                      {lang === "en" ? "Exact Transfer Amount" : lang === "zh" ? "请准确转入" : "Total Ditransfer"}
                     </span>
                     <span className="text-base font-black text-accent tabular-nums">
                       {paymentMethod === "qris" 
                         ? formatRupiah(totalPayIdr) 
-                        : `${totalUsdt} ${paymentMethod === "solana" ? "SOL" : paymentMethod === "ton" ? "TON" : "USDT"}`}
+                        : `${totalUsdt} ${paymentMethod === "solana" ? "SOL" : paymentMethod === "ton" ? "TON" : paymentMethod === "btc" ? "BTC" : "USDT"}`}
                     </span>
                   </div>
                 </div>

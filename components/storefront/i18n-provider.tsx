@@ -10,14 +10,14 @@ interface I18nContextType {
 }
 
 const I18nContext = createContext<I18nContextType>({
-  lang: "id",
-  t: dictionaries.id,
+  lang: "en",
+  t: dictionaries.en,
   setLang: () => {},
 });
 
 export function I18nProvider({
   children,
-  lang: initialLang = "id",
+  lang: initialLang = "en",
 }: {
   children: ReactNode;
   lang?: LanguageCode;
@@ -33,7 +33,7 @@ export function I18nProvider({
   }, []);
 
   const setLang = (code: LanguageCode) => {
-    const valid = dictionaries[code] ? code : "id";
+    const valid = dictionaries[code] ? code : "en";
     setLangState(valid);
     const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
     document.cookie = `serbapremium-lang=${valid}; path=/; expires=${expires}; SameSite=Lax;`;
@@ -42,7 +42,7 @@ export function I18nProvider({
     window.location.reload();
   };
 
-  const t = dictionaries[lang] ?? dictionaries.id;
+  const t = dictionaries[lang] ?? dictionaries.en;
 
   return (
     <I18nContext.Provider value={{ lang, t, setLang }}>

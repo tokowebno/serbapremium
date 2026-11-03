@@ -312,17 +312,17 @@ export const dictionaries = {
       viewNew: "View New"
     },
     footer: {
-      about: "Premium app marketplace for all devices. Buy once, no subscriptions.",
+      about: "Global AI & developer license store with instant delivery and automated crypto settlement.",
       explore: "Explore",
       allApps: "All Apps",
       myCollection: "My Collection",
       support: "Support",
-      secureTransaction: "Secure and verified transactions with official guarantee.",
+      secureTransaction: "Automated on-chain settlement & full active-period replacement warranty.",
       instantActivation: "Instant Activation",
       warranty: "Official Texas AI Warranty",
       buyNow: "Buy Now",
       addToCart: "Add to Cart",
-      madeIn: "Made with love in Indonesia.",
+      madeIn: "24/7 Automated On-Chain Settlement • USDT · SOL · TON · BTC",
       categories: "Categories",
       rights: "Texas AI. All rights reserved."
     },
@@ -398,9 +398,9 @@ export const dictionaries = {
         rating: "Highest Rating"
       },
       prices: {
-        under50k: "Under Rp50,000",
-        between50k150k: "Rp50,000 – Rp150,000",
-        above150k: "Above Rp150,000"
+        under50k: "Under $3.00",
+        between50k150k: "$3.00 – $8.50",
+        above150k: "Above $8.50"
       },
       appsCount: "apps",
       resultsFor: "Results for",
@@ -485,7 +485,7 @@ export const dictionaries = {
       networkNotice: "Send ONLY USDT via the selected network.",
       cryptoTransferEnsure: "Ensure your wallet/exchange transfers",
       cryptoTransferToAddress: "to the destination address above.",
-      cryptoExchangeRate: "Rate 1 USDT = Rp16,000",
+      cryptoExchangeRate: "1 USDT = $1.00 USD (On-Chain Verified)",
       amountToPay: "Exact Payment Amount Including Unique Code",
       exactTransferNotice: "Please transfer the EXACT amount (including unique code) so the admin can verify your payment promptly.",
       qrisScanNotice: "Scan the QRIS above with your banking app / e-wallet, pay the amount of",
@@ -595,7 +595,7 @@ export const dictionaries = {
       warranty: "Texas AI 官方质保",
       buyNow: "立即购买",
       addToCart: "加入购物车",
-      madeIn: "在印尼用爱制作。",
+      madeIn: "24/7 链上自动结算 • USDT · SOL · TON · BTC",
       categories: "分类",
       rights: "Texas AI。保留所有权利。"
     },
@@ -671,9 +671,9 @@ export const dictionaries = {
         rating: "最高评价"
       },
       prices: {
-        under50k: "Rp50,000 以下",
-        between50k150k: "Rp50,000 – Rp150,000",
-        above150k: "Rp150,000 以上"
+        under50k: "$3.00 以下",
+        between50k150k: "$3.00 – $8.50",
+        above150k: "$8.50 以上"
       },
       appsCount: "应用",
       resultsFor: "结果关于",
