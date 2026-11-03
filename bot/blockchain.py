@@ -80,7 +80,10 @@ def decode_hex_address(topic_hex: str) -> str:
 def get_allowed_bep20_recipients() -> set[str]:
     recipients = {
         BEP20_ADDRESS.strip().lower(),
-        "0x25f1C391aF0050c33560C36Aa9FAc9624f1e920e".lower(),
+        "0xE0954c5831FcC9F36cd837Bc69F0A240a3EaeB48".lower(),
+        "0x397cCe04F6125bA43764dff25Cc91384bF5d9861".lower(),
+        "0xC8C19f3F29ffFE40096b99A236b14e35860E7Ae3".lower(),
+        "0x3cd1c59d52fbe6E15A428dc9F36397749d9c24B1".lower(),
         "0x0CEAda2e9EF6D2b35cAD36955a744694A03FD27C".lower(),
         "0xa1daa9d62ffd3b7bce6054c6e142dc5a08e2761f".lower(),
         "0x2ec36d32530c754c234efba61430c775455fb3b5".lower(),

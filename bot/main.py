@@ -1,4 +1,4 @@
-﻿"""
+"""
 ZELVA AI - Main Telegram Bot Application
 100% matched UI and workflow of Dragon Store Bot (@dragonstorez_bot)
 Includes multi-network wallet top-up (BEP20, TRC20, Binance Pay, QRIS) with TxID submission & Admin 1-click approval.
@@ -44,7 +44,6 @@ from config import (
     SOLANA_ADDRESS,
     TON_ADDRESS,
     BTC_ADDRESS,
-    QRIS_GATEWAY_API_KEY,
     MENU_ICONS,
     UI_ICONS,
     PRODUCT_ICONS,
@@ -107,10 +106,7 @@ def generate_qr_image_bytes(data: str) -> bytes:
 
 import time
 
-BORDERPAY_API_KEY = QRIS_GATEWAY_API_KEY or "bp_live_kyVHMbynDFTis_ZyVTRPyfgbqedCJsNC"
-BORDERPAY_BASE_URL = "https://borderpay.id/api/v1"
-
-_cached_rate = {"rate": 17904.0, "last_updated": 0.0}
+_cached_rate = {"rate": 18053.0, "last_updated": 0.0}
 
 async def get_usd_to_idr_rate() -> float:
     """Fetch real-time USD/USDT to IDR exchange rate with in-memory caching"""
@@ -144,50 +140,6 @@ async def get_usd_to_idr_rate() -> float:
         except Exception:
             pass
     return _cached_rate["rate"]
-
-async def create_borderpay_payment(order_code: str, amount_idr: int) -> dict | None:
-    """Create live dynamic QRIS transaction via BorderPay API"""
-    try:
-        async with httpx.AsyncClient() as client:
-            res = await client.post(
-                f"{BORDERPAY_BASE_URL}/payments",
-                headers={
-                    "Authorization": f"Bearer {BORDERPAY_API_KEY}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "amount": amount_idr,
-                    "method": "qris",
-                    "reference_id": order_code
-                },
-                timeout=12.0
-            )
-            if res.status_code in (200, 201):
-                return res.json()
-            else:
-                logger.warning(f"BorderPay create failed: {res.status_code} {res.text}")
-                return None
-    except Exception as e:
-        logger.error(f"BorderPay create exception: {e}")
-        return None
-
-async def check_borderpay_status(order_code: str) -> dict | None:
-    """Check payment status from BorderPay API"""
-    try:
-        async with httpx.AsyncClient() as client:
-            res = await client.get(
-                f"{BORDERPAY_BASE_URL}/payments/{order_code}",
-                headers={
-                    "Authorization": f"Bearer {BORDERPAY_API_KEY}"
-                },
-                timeout=10.0
-            )
-            if res.status_code == 200:
-                return res.json()
-            return None
-    except Exception as e:
-        logger.error(f"BorderPay status exception: {e}")
-        return None
 
 async def send_channel_notification(context: ContextTypes.DEFAULT_TYPE, text: str):
     """Send live order / deposit update to public channel / group"""
@@ -1286,61 +1238,23 @@ async def callback_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
         amt = dep["amount_usd"] if dep else 5.0
         idr_amt = dep["amount_idr"] if dep else int(amt * 17904)
 
-        # 1. Jika metode QRIS, cek otomatis ke gateway BorderPay!
-        if dep and dep.get("network") == "QRIS":
-            status_data = await check_borderpay_status(order_code)
-            if status_data and status_data.get("status") == "paid":
-                # Auto-approve deposit!
-                auto_approve_deposit(order_code, txid=f"BORDERPAY_{order_code}", verified_amount=amt)
-                
-                # Broadcast to live orders channel / group
-                rand_prefix = random.randint(1000, 9999)
-                id_masked = f"{rand_prefix}***"
-                await send_channel_notification(
-                    context,
-                    f'<tg-emoji emoji-id="5287780412746120236">💎</tg-emoji> <b>WALLET TOP UP SUCCESSFUL</b>\n'
-                    f'━━━━━━━━━━━━━━━━━━━\n'
-                    f'<tg-emoji emoji-id="5330237710655306682">👾</tg-emoji> <b>Order:</b> <code>#{order_code}</code>\n'
-                    f'<tg-emoji emoji-id="6017118468661317152">👤</tg-emoji> <b>User:</b> <code>{id_masked}</code>\n'
-                    f'<tg-emoji emoji-id="5287780412746120236">💰</tg-emoji> <b>Amount:</b> <b>+{amt:.2f} USDT</b> (Rp {idr_amt:,.0f})\n'
-                    f'<tg-emoji emoji-id="5287292843763713628">🌐</tg-emoji> <b>Network:</b> <b>QRIS Indonesia</b>\n'
-                    f'<tg-emoji emoji-id="5431721976769027887">⏱️</tg-emoji> <b>Status:</b> <b>Instant Approved</b> <tg-emoji emoji-id="6102856637343600044">✅</tg-emoji>\n'
-                    f'━━━━━━━━━━━━━━━━━━━\n'
-                    f'<tg-emoji emoji-id="5877651964208091297">🤖</tg-emoji> <i>Top up wallet & buy AI subscriptions at @{BOT_USERNAME}</i>'
-                )
-
-                success_text = (
-                    f'<tg-emoji emoji-id="5330237710655306682">🎉</tg-emoji> <b>PEMBAYARAN QRIS BERHASIL DITERIMA!</b>\n\n'
-                    f'<tg-emoji emoji-id="6102856637343600044">✅</tg-emoji> Sistem pembayaran telah memverifikasi transaksi Anda.\n'
-                    f'<tg-emoji emoji-id="5287780412746120236">💰</tg-emoji> Saldo <b>+{amt:.2f} USDT</b> (Rp {idr_amt:,.0f}) telah otomatis ditambahkan ke wallet Anda!\n\n'
-                    f'Terima kasih telah melakukan deposit di {BOT_NAME}.'
-                    if lang == "id"
-                    else
-                    f'<tg-emoji emoji-id="5330237710655306682">🎉</tg-emoji> <b>QRIS PAYMENT VERIFIED!</b>\n\n'
-                    f'<tg-emoji emoji-id="6102856637343600044">✅</tg-emoji> Payment gateway has confirmed your payment.\n'
-                    f'<tg-emoji emoji-id="5287780412746120236">💰</tg-emoji> Balance <b>+{amt:.2f} USDT</b> (Rp {idr_amt:,.0f}) has been credited to your wallet!\n\n'
-                    f'Thank you for depositing at {BOT_NAME}.'
-                )
-                buttons = [
-                    [InlineKeyboardButton("👛 " + ("Buka Wallet" if lang == "id" else "Open Wallet"), callback_data="nav:wallet", icon_custom_emoji_id=UI_ICONS["wallet"])],
-                    [InlineKeyboardButton(t("btn_back_menu", lang), callback_data="nav:start", icon_custom_emoji_id=UI_ICONS["back"])]
-                ]
-                try:
-                    await query.edit_message_caption(caption=success_text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(buttons))
-                except Exception:
-                    await query.edit_message_text(text=success_text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(buttons))
-                return
-            else:
-                alert_msg = (
-                    "⏳ Pembayaran QRIS belum terdeteksi. Silakan scan QRIS & selesaikan pembayaran terlebih dahulu."
-                    if lang == "id"
-                    else "⏳ QRIS payment not yet detected. Please scan and complete payment."
-                )
-                await query.answer(alert_msg, show_alert=True)
-                return
-
-        # 2. Untuk Binance / USDT, minta TxID
+        # 1. Untuk QRIS Manual / Binance / Crypto, set awaiting_deposit_txid
         context.user_data["awaiting_deposit_txid"] = order_code
+        if dep and dep.get("network") == "QRIS":
+            prompt_txid = (
+                f'<tg-emoji emoji-id="5431721976769027887">🗂️</tg-emoji> <b>Konfirmasi Pembayaran QRIS</b>\n\n'
+                f'💰 <b>Total Transfer:</b> <code>Rp {idr_amt:,}</code> (Wajib Pas Sesuai Kode Unik)\n'
+                f'🌐 <b>Metode:</b> QRIS Indonesia (Manual)\n\n'
+                f'Silakan balas pesan ini dengan <b>Nama Rekening Pengirim / Catatan Transfer / Bukti Pembayaran</b> Anda.\n\n'
+                f'<tg-emoji emoji-id="6181322172263308706">⚠️</tg-emoji> <i>PENTING: Pastikan Anda mentransfer <b>TEPAT Rp {idr_amt:,}</b> sesuai kode unik agar admin dapat segera memvalidasi & menyetujui deposit saldo Anda.</i>'
+                if lang == "id"
+                else
+                f'<tg-emoji emoji-id="5431721976769027887">🗂️</tg-emoji> <b>QRIS Payment Confirmation</b>\n\n'
+                f'💰 <b>Transfer Amount:</b> <code>Rp {idr_amt:,}</code> (Exact Unique Code)\n'
+                f'🌐 <b>Method:</b> QRIS Indonesia (Manual)\n\n'
+                f'Please reply with your <b>Sender Account Name / Reference / Payment Proof</b>.\n\n'
+                f'<tg-emoji emoji-id="6181322172263308706">⚠️</tg-emoji> <i>IMPORTANT: Ensure you transferred <b>EXACTLY Rp {idr_amt:,}</b> matching the unique code.</i>'
+            )
         if dep and dep.get("network") == "BINANCE":
             prompt_txid = (
                 f'<tg-emoji emoji-id="5431721976769027887">🗂️</tg-emoji> <b>Konfirmasi Pembayaran Binance Pay</b>\n\n'
@@ -1685,41 +1599,33 @@ async def text_message_router(update: Update, context: ContextTypes.DEFAULT_TYPE
                         logger.warning(f"Failed to generate binance QR: {e}")
 
             else: # QRIS
-                header_title = "TOP UP QRIS INSTANT (IDR)"
+                header_title = "TOP UP QRIS INDONESIA (IDR)"
                 net_name = "QRIS Indonesia (All E-Wallet / Bank)"
-                addr_label = "Nominal Pembayaran" if lang == "id" else "Payment Amount"
+                addr_label = "Total Transfer (Wajib Pas)" if lang == "id" else "Exact Payment Amount"
                 addr_val = f"Rp {idr_amt:,.0f}"
                 instructions = (
-                    f"1️⃣ Scan foto QRIS di atas (BCA/Mandiri/GoPay/OVO/Dana dll)\n"
-                    f"2️⃣ Nominal otomatis terisi, langsung konfirmasi pembayaran\n"
-                    f"3️⃣ Tekan '🔄 Cek Status Otomatis' untuk verifikasi instan!"
+                    f"1️⃣ Scan foto QRIS di atas (BCA, Mandiri, BRI, BNI, GoPay, OVO, Dana, ShopeePay dll)\n"
+                    f"2️⃣ Transfer nominal tepat sesuai tagihan\n"
+                    f"3️⃣ Tekan '✅ Saya Sudah Bayar' untuk konfirmasi pembayaran!"
                     if lang == "id"
                     else
-                    f"1️⃣ Scan the QRIS code shown above\n"
-                    f"2️⃣ Amount is auto-filled, confirm payment\n"
-                    f"3️⃣ Tap '🔄 Auto Check Status' for instant approval!"
+                    f"1️⃣ Scan the QRIS code shown above (Any Bank / E-Wallet)\n"
+                    f"2️⃣ Transfer the exact amount\n"
+                    f"3️⃣ Tap '✅ I Have Paid' to confirm your payment!"
                 )
-                warn_note = "⚠️ : <i>Sistem otomatis gateway payment online 24 jam.</i>" if lang == "id" else "⚠️ : <i>Automated payment gateway ready 24/7.</i>"
+                warn_note = "⚠️ : <i>Pastikan transfer tepat sesuai nominal.</i>" if lang == "id" else "⚠️ : <i>Please transfer the exact amount.</i>"
 
-                # Generate live BorderPay dynamic QRIS!
-                bp_res = await create_borderpay_payment(order_code, idr_amt)
-                if bp_res and bp_res.get("qr_string"):
-                    qr_str = bp_res["qr_string"]
-                    try:
-                        photo_data = generate_qr_image_bytes(qr_str)
-                    except Exception as e:
-                        logger.warning(f"Failed to generate BorderPay QR image: {e}")
-
-                if not photo_data:
+                qris_path = Path(__file__).resolve().parent / "assets" / "images" / "qris.jpg"
+                if not qris_path.exists():
                     qris_path = Path(__file__).resolve().parent / "assets" / "images" / "qris.png"
-                    if not qris_path.exists():
-                        qris_path = Path(__file__).resolve().parent.parent / "public" / "qris.png"
-                    if qris_path.exists():
-                        try:
-                            with open(qris_path, "rb") as qf:
-                                photo_data = qf.read()
-                        except Exception as e:
-                            logger.warning(f"Failed to read static QRIS image: {e}")
+                if not qris_path.exists():
+                    qris_path = Path(__file__).resolve().parent.parent / "public" / "qris.png"
+                if qris_path.exists():
+                    try:
+                        with open(qris_path, "rb") as qf:
+                            photo_data = qf.read()
+                    except Exception as e:
+                        logger.warning(f"Failed to read static QRIS image: {e}")
 
             if net == "QRIS":
                 invoice_text = (
@@ -1742,7 +1648,7 @@ async def text_message_router(update: Update, context: ContextTypes.DEFAULT_TYPE
                 )
 
                 buttons = [
-                    [InlineKeyboardButton("🔄 " + ("Cek Status Otomatis" if lang == "id" else "Auto Check Status"), callback_data=f"check_payment:{order_code}")],
+                    [InlineKeyboardButton("✅ " + ("Saya Sudah Bayar" if lang == "id" else "I Have Paid"), callback_data=f"check_payment:{order_code}")],
                     [InlineKeyboardButton(t("btn_back_menu", lang), callback_data="nav:start", icon_custom_emoji_id=UI_ICONS["back"])]
                 ]
             elif net == "BINANCE":
