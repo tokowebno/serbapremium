@@ -4,23 +4,26 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BookOpen, Heart, History, LayoutDashboard, Settings, Star, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/components/storefront/i18n-provider";
 
 const menu = [
-  { label: "Ringkasan", href: "/akun", icon: LayoutDashboard },
-  { label: "Dompet & Isi Saldo", href: "/isi-saldo", icon: Wallet },
-  { label: "Koleksi Saya", href: "/akun/koleksi", icon: BookOpen },
-  { label: "Riwayat Pembelian", href: "/akun/pesanan", icon: History },
-  { label: "Daftar Keinginan", href: "/akun/keinginan", icon: Heart },
-  { label: "Ulasan Saya", href: "/akun/ulasan", icon: Star },
-  { label: "Pengaturan", href: "/akun/pengaturan", icon: Settings },
+  { label: { en: "Overview", id: "Ringkasan", zh: "概览" }, href: "/akun", icon: LayoutDashboard },
+  { label: { en: "Wallet & Top Up", id: "Dompet & Isi Saldo", zh: "钱包与充值" }, href: "/isi-saldo", icon: Wallet },
+  { label: { en: "My Collection", id: "Koleksi Saya", zh: "我的收藏" }, href: "/akun/koleksi", icon: BookOpen },
+  { label: { en: "Purchase History", id: "Riwayat Pembelian", zh: "购买记录" }, href: "/akun/pesanan", icon: History },
+  { label: { en: "Wishlist", id: "Daftar Keinginan", zh: "心愿单" }, href: "/akun/keinginan", icon: Heart },
+  { label: { en: "My Reviews", id: "Ulasan Saya", zh: "我的评价" }, href: "/akun/ulasan", icon: Star },
+  { label: { en: "Settings", id: "Pengaturan", zh: "设置" }, href: "/akun/pengaturan", icon: Settings },
 ];
 
 export function AccountNav() {
   const pathname = usePathname();
+  const { lang } = useTranslation();
+  const key = (lang === "en" || lang === "zh" ? lang : "id") as "en" | "id" | "zh";
 
   return (
     <nav
-      aria-label="Menu akun"
+      aria-label={key === "en" ? "Account menu" : key === "zh" ? "账户菜单" : "Menu akun"}
       className="no-scrollbar -mx-5 flex gap-1.5 overflow-x-auto px-5 lg:mx-0 lg:flex-col lg:px-0"
     >
       {menu.map((item) => {
@@ -38,7 +41,7 @@ export function AccountNav() {
             aria-current={active ? "page" : undefined}
           >
             <item.icon size={16} strokeWidth={2} />
-            {item.label}
+            {item.label[key]}
           </Link>
         );
       })}

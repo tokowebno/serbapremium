@@ -81,18 +81,18 @@ const UI_TEXT = {
     dialogAria: "Pilih Bahasa",
     languages: [
       {
-        code: "id" as LanguageCode,
-        name: "Bahasa Indonesia",
-        desc: "Mata Uang Rupiah (IDR Rp)",
-        currencyTag: "IDR (Rp)",
-        Flag: IndonesiaFlag,
-      },
-      {
         code: "en" as LanguageCode,
         name: "English",
         desc: "Mata Uang Dolar AS (USD $)",
         currencyTag: "USD ($)",
         Flag: EnglishFlag,
+      },
+      {
+        code: "id" as LanguageCode,
+        name: "Bahasa Indonesia",
+        desc: "Mata Uang Rupiah (IDR Rp)",
+        currencyTag: "IDR (Rp)",
+        Flag: IndonesiaFlag,
       },
       {
         code: "zh" as LanguageCode,
@@ -111,18 +111,18 @@ const UI_TEXT = {
     dialogAria: "Select Language",
     languages: [
       {
-        code: "id" as LanguageCode,
-        name: "Bahasa Indonesia",
-        desc: "Indonesian Rupiah Currency (IDR Rp)",
-        currencyTag: "IDR (Rp)",
-        Flag: IndonesiaFlag,
-      },
-      {
         code: "en" as LanguageCode,
         name: "English",
         desc: "US Dollar Currency (USD $)",
         currencyTag: "USD ($)",
         Flag: EnglishFlag,
+      },
+      {
+        code: "id" as LanguageCode,
+        name: "Bahasa Indonesia",
+        desc: "Indonesian Rupiah Currency (IDR Rp)",
+        currencyTag: "IDR (Rp)",
+        Flag: IndonesiaFlag,
       },
       {
         code: "zh" as LanguageCode,
@@ -141,18 +141,18 @@ const UI_TEXT = {
     dialogAria: "选择语言",
     languages: [
       {
-        code: "id" as LanguageCode,
-        name: "印度尼西亚语 (Bahasa Indonesia)",
-        desc: "印尼盾结算 (IDR Rp)",
-        currencyTag: "IDR (Rp)",
-        Flag: IndonesiaFlag,
-      },
-      {
         code: "en" as LanguageCode,
         name: "英语 (English)",
         desc: "美元结算 (USD $)",
         currencyTag: "USD ($)",
         Flag: EnglishFlag,
+      },
+      {
+        code: "id" as LanguageCode,
+        name: "印度尼西亚语 (Bahasa Indonesia)",
+        desc: "印尼盾结算 (IDR Rp)",
+        currencyTag: "IDR (Rp)",
+        Flag: IndonesiaFlag,
       },
       {
         code: "zh" as LanguageCode,
@@ -167,8 +167,8 @@ const UI_TEXT = {
 
 export function LanguageSelector() {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeLang, setActiveLang] = useState<LanguageCode>("id");
-  const [selectedLang, setSelectedLang] = useState<LanguageCode>("id");
+  const [activeLang, setActiveLang] = useState<LanguageCode>("en");
+  const [selectedLang, setSelectedLang] = useState<LanguageCode>("en");
 
   useEffect(() => {
     const cookieMatch = document.cookie.match(/(?:serbapremium-lang|tokono-lang)=([^;]+)/);
@@ -207,10 +207,16 @@ export function LanguageSelector() {
 
   const handleClose = () => {
     localStorage.setItem("serbapremium:lang-chosen", "true");
+    // Belum pernah pilih bahasa -> kunci default ke English
+    if (!document.cookie.match(/(?:serbapremium-lang|tokono-lang)=([^;]+)/)) {
+      const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
+      document.cookie = `serbapremium-lang=en; path=/; expires=${expires}; SameSite=Lax;`;
+      document.cookie = `tokono-lang=en; path=/; expires=${expires}; SameSite=Lax;`;
+    }
     setIsOpen(false);
   };
 
-  const currentUi = UI_TEXT[selectedLang] || UI_TEXT.id;
+  const currentUi = UI_TEXT[selectedLang] || UI_TEXT.en;
 
   return (
     <AnimatePresence>

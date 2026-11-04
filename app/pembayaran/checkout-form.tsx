@@ -187,12 +187,6 @@ export function CheckoutForm({
   const [phone, setPhone] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("usdt_bnb");
 
-  useEffect(() => {
-    if (lang !== "id" && paymentMethod === "qris") {
-      setPaymentMethod("usdt_bnb");
-    }
-  }, [lang, paymentMethod]);
-
   const [orderId, setOrderId] = useState<string>(
     () => `TK-${Date.now().toString().slice(-6)}`
   );
@@ -720,7 +714,7 @@ export function CheckoutForm({
                   </p>
                   <p className="text-sm sm:text-base font-bold text-accent tabular-nums">
                     {paymentMethod === "qris"
-                      ? formatPrice(subtotal, lang)
+                      ? formatRupiah(subtotal)
                       : `$${baseUsd.toFixed(2)}`}
                   </p>
                 </div>
@@ -743,7 +737,7 @@ export function CheckoutForm({
                       "solana",
                       "ton",
                       "btc",
-                      ...(lang === "id" ? (["qris"] as PaymentMethod[]) : []),
+                      "qris",
                     ] as PaymentMethod[]
                   ).map((method) => {
                     const info = PAYMENT_INFO[method];

@@ -145,9 +145,8 @@ export function TopUpModal() {
   const [customInput, setCustomInput] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<DepositPaymentMethod>("usdt_bnb");
 
-  const visiblePaymentMethods = PAYMENT_METHODS.filter(
-    (pm) => lang === "id" || pm.id !== "qris"
-  );
+  // QRIS tersedia di semua bahasa (selalu di urutan paling bawah)
+  const visiblePaymentMethods = PAYMENT_METHODS;
 
   // Step state
   const [step, setStep] = useState<1 | 2>(1);
@@ -181,7 +180,6 @@ export function TopUpModal() {
       } else {
         setSelectedUsd(10);
       }
-      setPaymentMethod((prev) => (lang !== "id" && prev === "qris" ? "usdt_bnb" : prev));
       setStep(1);
       setLoading(false);
       setIsSuccess(false);

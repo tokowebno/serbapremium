@@ -160,15 +160,8 @@ function IsiSaldoContent() {
   const [customInput, setCustomInput] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<DepositPaymentMethod>("usdt_bnb");
 
-  const visiblePaymentMethods = PAYMENT_METHODS.filter(
-    (pm) => lang === "id" || pm.id !== "qris"
-  );
-
-  useEffect(() => {
-    if (lang !== "id" && paymentMethod === "qris") {
-      setPaymentMethod("usdt_bnb");
-    }
-  }, [lang, paymentMethod]);
+  // QRIS tersedia di semua bahasa (selalu di urutan paling bawah)
+  const visiblePaymentMethods = PAYMENT_METHODS;
 
   // Step state
   const [step, setStep] = useState<1 | 2>(1);

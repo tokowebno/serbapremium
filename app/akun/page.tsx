@@ -7,19 +7,32 @@ import { AppIcon } from "@/components/ui/app-icon";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useAuth, useLibrary, useWishlist } from "@/components/storefront/providers";
-import { formatDate, formatRupiah } from "@/lib/utils";
+import { useTranslation } from "@/components/storefront/i18n-provider";
+import { getLocalizedApp } from "@/lib/i18n/product-translations";
+import { formatDate, formatPrice, formatRupiah } from "@/lib/utils";
 
 export default function RingkasanPage() {
   const { user, balance, balanceUsd, transactions, openTopUp } = useAuth();
   const { entries } = useLibrary();
   const { ids } = useWishlist();
+  const { lang } = useTranslation();
+  const L = (en: string, id: string, zh: string) => (lang === "en" ? en : lang === "zh" ? zh : id);
+  const isId = lang === "id";
+  const dateLocale = lang === "en" ? "en-US" : lang === "zh" ? "zh-CN" : "id-ID";
 
   const koleksi = entries.filter((e) => api.apps.getBySlug(e.appId)).length;
 
+  // Bahasa Indonesia -> Rupiah (+ USD kecil). English / Chinese -> USD saja.
+  const mainBalance = isId ? formatRupiah(balance) : `$${balanceUsd.toFixed(2)}`;
+
   const stats = [
-    { label: "Saldo Akun", value: formatRupiah(balance), sub: `$${balanceUsd.toFixed(2)} USD` },
-    { label: "Aplikasi di Koleksi", value: koleksi.toString() },
-    { label: "Daftar Keinginan", value: ids.length.toString() },
+    {
+      label: L("Wallet Balance", "Saldo Akun", "账户余额"),
+      value: mainBalance,
+      sub: isId ? `$${balanceUsd.toFixed(2)} USD` : "USD",
+    },
+    { label: L("Apps in Collection", "Aplikasi di Koleksi", "已收藏应用"), value: koleksi.toString() },
+    { label: L("Wishlist", "Daftar Keinginan", "心愿单"), value: ids.length.toString() },
   ];
 
   const userSubtitle = user?.telegramId
@@ -47,10 +60,10 @@ export default function RingkasanPage() {
           )}
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-xl font-black tracking-tight text-fg">{user?.name ?? "Pengguna"}</p>
+              <p className="text-xl font-black tracking-tight text-fg">{user?.name ?? L("User", "Pengguna", "用户")}</p>
               {user?.telegramId && (
                 <span className="rounded-full bg-sky-500/15 px-2.5 py-0.5 text-[10.5px] font-bold text-sky-500">
-                  Telegram Connected
+                  {L("Telegram Connected", "Terhubung Telegram", "已连接 Telegram")}
                 </span>
               )}
             </div>
@@ -61,10 +74,10 @@ export default function RingkasanPage() {
         <div className="flex items-center gap-2.5">
           <ButtonLink href="/isi-saldo" size="sm" className="rounded-full shadow-xs font-bold px-4">
             <PlusCircle size={14} />
-            + Isi Saldo
+            {L("Top Up", "Isi Saldo", "充值")}
           </ButtonLink>
           <ButtonLink href="/akun/pengaturan" variant="secondary" size="sm" className="rounded-full font-semibold px-4">
-            Pengaturan Akun
+            {L("Account Settings", "Pengaturan Akun", "账户设置")}
           </ButtonLink>
         </div>
       </div>
@@ -77,10 +90,14 @@ export default function RingkasanPage() {
             <Wallet size={26} strokeWidth={2.4} />
           </div>
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-fg-muted">Saldo Dompet Tersedia</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-fg-muted">
+              {L("Available Wallet Balance", "Saldo Dompet Tersedia", "可用钱包余额")}
+            </span>
             <div className="flex items-baseline gap-2.5 mt-0.5">
-              <span className="text-2xl sm:text-3xl font-black text-fg tabular-nums">{formatRupiah(balance)}</span>
-              <span className="text-sm font-bold text-fg-muted">≈ ${balanceUsd.toFixed(2)} USD</span>
+              <span className="text-2xl sm:text-3xl font-black text-fg tabular-nums">{mainBalance}</span>
+              <span className="text-sm font-bold text-fg-muted">
+                {isId ? `≈ $${balanceUsd.toFixed(2)} USD` : "USD"}
+              </span>
             </div>
           </div>
         </div>
@@ -91,7 +108,7 @@ export default function RingkasanPage() {
           className="relative z-10 w-full sm:w-auto rounded-full bg-fg hover:bg-fg/90 text-surface font-bold px-7 py-3 shadow-md cursor-pointer active:scale-95 transition-all"
         >
           <PlusCircle size={16} />
-          <span>Tambah Dana Sekarang</span>
+          <span>{L("Add Funds Now", "Tambah Dana Sekarang", "立即充值")}</span>
         </Button>
       </div>
 
@@ -110,13 +127,15 @@ export default function RingkasanPage() {
       {transactions && transactions.length > 0 && (
         <div className="liquid-glass-slab rounded-2xl border border-border bg-surface p-6 shadow-sm">
           <div className="flex items-center justify-between border-b border-border pb-3">
-            <h2 className="text-base font-bold tracking-tight text-fg">Riwayat Transaksi Saldo</h2>
+            <h2 className="text-base font-bold tracking-tight text-fg">
+              {L("Wallet Transaction History", "Riwayat Transaksi Saldo", "钱包交易记录")}
+            </h2>
             <button
               type="button"
               onClick={() => openTopUp()}
               className="text-xs font-semibold text-accent hover:underline cursor-pointer"
             >
-              + Top Up Saldo →
+              {L("+ Top Up →", "+ Top Up Saldo →", "+ 充值 →")}
             </button>
           </div>
           <div className="mt-4 space-y-2.5">
@@ -128,11 +147,11 @@ export default function RingkasanPage() {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-fg">{t.title}</p>
-                    <p className="text-[10.5px] text-fg-muted">{new Date(t.date).toLocaleString("id-ID")}</p>
+                    <p className="text-[10.5px] text-fg-muted">{new Date(t.date).toLocaleString(dateLocale)}</p>
                   </div>
                 </div>
                 <span className={`text-sm font-black tabular-nums ${t.type === "deposit" ? "text-success" : "text-fg"}`}>
-                  {t.type === "deposit" ? "+" : "-"}{formatRupiah(t.amount)}
+                  {t.type === "deposit" ? "+" : "-"}{formatPrice(t.amount, lang)}
                 </span>
               </div>
             ))}
@@ -144,9 +163,11 @@ export default function RingkasanPage() {
       {koleksi > 0 ? (
         <div className="liquid-glass-slab rounded-2xl border border-border bg-surface p-6 shadow-sm">
           <div className="flex items-center justify-between border-b border-border pb-3">
-            <h2 className="text-base font-bold tracking-tight text-fg">Koleksi Terakhir</h2>
+            <h2 className="text-base font-bold tracking-tight text-fg">
+              {L("Recent Collection", "Koleksi Terakhir", "最近收藏")}
+            </h2>
             <Link href="/akun/koleksi" className="text-xs font-semibold text-accent hover:underline">
-              Lihat semua →
+              {L("View all →", "Lihat semua →", "查看全部 →")}
             </Link>
           </div>
           <div className="mt-4 space-y-3">
@@ -154,16 +175,19 @@ export default function RingkasanPage() {
               .slice(-3)
               .reverse()
               .map((e) => {
-                const app = api.apps.getBySlug(e.appId);
-                if (!app) return null;
+                const raw = api.apps.getBySlug(e.appId);
+                if (!raw) return null;
+                const app = getLocalizedApp(raw, lang);
                 return (
                   <div key={e.appId} className="flex items-center gap-3 rounded-xl border border-border bg-surface-2 p-3">
                     <AppIcon icon={app.icon} size="sm" />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold text-fg">{app.name}</p>
-                      <p className="text-xs font-normal text-fg-muted">Dibeli {formatDate(e.purchasedAt)}</p>
+                      <p className="text-xs font-normal text-fg-muted">
+                        {L("Purchased", "Dibeli", "购买于")} {formatDate(e.purchasedAt, lang)}
+                      </p>
                     </div>
-                    <span className="text-sm font-bold tabular-nums text-fg">{formatRupiah(app.price)}</span>
+                    <span className="text-sm font-bold tabular-nums text-fg">{formatPrice(app.price, lang)}</span>
                   </div>
                 );
               })}
@@ -172,9 +196,13 @@ export default function RingkasanPage() {
       ) : (
         <EmptyState
           icon={History}
-          title="Belum ada lisensi di koleksi"
-          description="Aplikasi yang Anda beli akan langsung muncul di sini dan siap diunduh."
-          action={{ label: "Jelajahi Katalog", href: "/aplikasi" }}
+          title={L("No licenses in your collection yet", "Belum ada lisensi di koleksi", "收藏中暂无授权")}
+          description={L(
+            "Apps you purchase will appear here instantly, ready to access.",
+            "Aplikasi yang Anda beli akan langsung muncul di sini dan siap diunduh.",
+            "您购买的应用将立即显示在这里，随时可用。",
+          )}
+          action={{ label: L("Explore Catalog", "Jelajahi Katalog", "浏览目录"), href: "/aplikasi" }}
         />
       )}
     </div>
