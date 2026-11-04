@@ -3,13 +3,11 @@
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  Globe,
   Heart,
   Moon,
   Search,
   ShoppingBag,
   Sun,
-  Zap,
   Wallet,
   User,
   LogIn,
@@ -26,7 +24,7 @@ import { useTranslation } from "./i18n-provider";
 import { SearchDialog } from "./search-dialog";
 import { TexasAiLogo } from "@/components/ui/logo";
 import { IndonesiaFlag, EnglishFlag, ChinaFlag } from "@/components/ui/language-selector";
-import { cn, formatRupiah, formatPrice } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 
 const langFlags: Record<string, string> = {
   id: "ID",
@@ -44,7 +42,7 @@ export function Navbar() {
   const { lang, t } = useTranslation();
   const { count } = useCart();
   const { ids } = useWishlist();
-  const { user, isAuthenticated, balance, balanceUsd, logout, openTopUp } = useAuth();
+  const { user, isAuthenticated, isTelegramMiniApp, balance, logout, openTopUp } = useAuth();
   const pathname = usePathname();
 
   const navLinks = [
@@ -77,6 +75,12 @@ export function Navbar() {
   const openLanguageSelector = () => {
     window.dispatchEvent(new CustomEvent("open-language-selector"));
   };
+
+  const userSubtitle = user?.telegramId
+    ? user.telegramUsername
+      ? `@${user.telegramUsername}`
+      : `TG ID: ${user.telegramId}`
+    : user?.email;
 
   return (
     <>
@@ -215,9 +219,18 @@ export function Navbar() {
                     className="flex h-8 sm:h-9 items-center gap-1.5 rounded-full bg-surface/80 border border-border px-2 sm:px-2.5 text-xs font-semibold text-fg hover:bg-surface transition-all active:scale-95 cursor-pointer"
                     aria-label="Menu Akun"
                   >
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-[11px] font-black text-accent-fg">
-                      {user?.name?.charAt(0).toUpperCase() || "U"}
-                    </span>
+                    {user?.photoUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={user.photoUrl}
+                        alt={user.name}
+                        className="h-6 w-6 rounded-full object-cover ring-1 ring-accent/40"
+                      />
+                    ) : (
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-[11px] font-black text-accent-fg">
+                        {user?.name?.charAt(0).toUpperCase() || "U"}
+                      </span>
+                    )}
                     <span className="hidden md:inline max-w-[80px] truncate text-xs font-bold">
                       {user?.name || "Akun"}
                     </span>
@@ -236,8 +249,15 @@ export function Navbar() {
                       >
                         {/* User info */}
                         <div className="border-b border-border/70 p-2.5">
-                          <p className="text-xs font-bold text-fg truncate">{user?.name}</p>
-                          <p className="text-[11px] text-fg-muted truncate">{user?.email}</p>
+                          <div className="flex items-center justify-between gap-1.5">
+                            <p className="text-xs font-bold text-fg truncate">{user?.name}</p>
+                            {user?.telegramId && (
+                              <span className="shrink-0 rounded-full bg-sky-500/15 px-1.5 py-0.5 text-[9.5px] font-bold text-sky-500">
+                                Telegram
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-fg-muted truncate">{userSubtitle}</p>
                           <div className="mt-2 flex items-center justify-between rounded-xl bg-accent-soft p-2 border border-accent/20">
                             <div>
                               <span className="text-[10px] uppercase font-semibold text-fg-muted block">{lang === "en" ? "Wallet Balance" : lang === "zh" ? "钱包余额" : "Saldo Akun"}</span>
@@ -295,24 +315,37 @@ export function Navbar() {
                           </Link>
                         </div>
 
-                        {/* Logout */}
-                        <div className="border-t border-border/70 pt-1">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setUserDropdownOpen(false);
-                              logout();
-                            }}
-                            className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
-                          >
-                            <LogOut size={14} />
-                            <span>{lang === "en" ? "Sign Out" : lang === "zh" ? "退出登录" : "Keluar dari Akun"}</span>
-                          </button>
-                        </div>
+                        {/* Logout (Hidden inside Telegram Mini App where account is auto-connected) */}
+                        {!isTelegramMiniApp && (
+                          <div className="border-t border-border/70 pt-1">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setUserDropdownOpen(false);
+                                logout();
+                              }}
+                              className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
+                            >
+                              <LogOut size={14} />
+                              <span>{lang === "en" ? "Sign Out" : lang === "zh" ? "退出登录" : "Keluar dari Akun"}</span>
+                            </button>
+                          </div>
+                        )}
                       </motion.div>
                     )}
                   </AnimatePresence>
                 </div>
+              )}
+
+              {/* Wishlist */}
+              {ids.length > 0 && (
+                <Link
+                  href="/akun/keinginan"
+                  aria-label="Wishlist"
+                  className="relative hidden xl:flex h-9 w-9 items-center justify-center rounded-full text-fg-muted transition-all duration-200 hover:bg-surface/80 hover:text-fg hover:shadow-[var(--elev-1)] active:scale-95"
+                >
+                  <Heart size={16} />
+                </Link>
               )}
 
               {/* Cart (Desktop) */}

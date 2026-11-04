@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Eye, EyeOff, Zap } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/form";
 import { useToast } from "@/components/ui/toast";
@@ -14,12 +14,20 @@ export default function SignInPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const toast = useToast();
-  const { login } = useAuth();
+  const { isAuthenticated, login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Auto-redirect if already connected (e.g. inside Telegram Mini App)
+  useEffect(() => {
+    if (isAuthenticated) {
+      const next = searchParams.get("next");
+      router.replace(next ?? "/akun");
+    }
+  }, [isAuthenticated, router, searchParams]);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();

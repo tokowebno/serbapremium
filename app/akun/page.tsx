@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { History, Zap, Wallet, PlusCircle, ArrowUpRight, ArrowDownLeft } from "lucide-react";
+import { History, Wallet, PlusCircle, ArrowUpRight, ArrowDownLeft } from "lucide-react";
 import { api } from "@/lib/api";
 import { AppIcon } from "@/components/ui/app-icon";
 import { Button, ButtonLink } from "@/components/ui/button";
@@ -15,10 +15,6 @@ export default function RingkasanPage() {
   const { ids } = useWishlist();
 
   const koleksi = entries.filter((e) => api.apps.getBySlug(e.appId)).length;
-  const totalBelanja = entries.reduce((sum, e) => {
-    const app = api.apps.getBySlug(e.appId);
-    return sum + (app ? app.price : 0);
-  }, 0);
 
   const stats = [
     { label: "Saldo Akun", value: formatRupiah(balance), sub: `$${balanceUsd.toFixed(2)} USD` },
@@ -26,17 +22,39 @@ export default function RingkasanPage() {
     { label: "Daftar Keinginan", value: ids.length.toString() },
   ];
 
+  const userSubtitle = user?.telegramId
+    ? user.telegramUsername
+      ? `@${user.telegramUsername} · Telegram ID: ${user.telegramId}`
+      : `Telegram ID: ${user.telegramId}`
+    : (user?.email ?? "-");
+
   return (
     <div className="space-y-6">
       {/* Profil & Saldo Card */}
       <div className="liquid-glass-slab flex flex-wrap items-center justify-between gap-4 rounded-[28px] p-6 shadow-sm">
         <div className="flex items-center gap-4">
-          <span className="apple-squircle flex h-14 w-14 items-center justify-center text-xl font-black text-fg bg-surface-2 shadow-xs">
-            {user?.name?.charAt(0) ?? "U"}
-          </span>
+          {user?.photoUrl ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={user.photoUrl}
+              alt={user.name}
+              className="apple-squircle h-14 w-14 object-cover shadow-xs ring-1 ring-border"
+            />
+          ) : (
+            <span className="apple-squircle flex h-14 w-14 items-center justify-center text-xl font-black text-fg bg-surface-2 shadow-xs">
+              {user?.name?.charAt(0) ?? "U"}
+            </span>
+          )}
           <div>
-            <p className="text-xl font-black tracking-tight text-fg">{user?.name ?? "Pengguna"}</p>
-            <p className="text-xs font-medium text-fg-muted">{user?.email ?? "-"}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-xl font-black tracking-tight text-fg">{user?.name ?? "Pengguna"}</p>
+              {user?.telegramId && (
+                <span className="rounded-full bg-sky-500/15 px-2.5 py-0.5 text-[10.5px] font-bold text-sky-500">
+                  Telegram Connected
+                </span>
+              )}
+            </div>
+            <p className="text-xs font-medium text-fg-muted">{userSubtitle}</p>
           </div>
         </div>
 

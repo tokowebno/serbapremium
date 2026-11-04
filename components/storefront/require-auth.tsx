@@ -1,17 +1,17 @@
 "use client";
 
 import { type ReactNode, useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { LogIn, Lock, Zap } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { LogIn, Lock } from "lucide-react";
 import { useAuth } from "./providers";
 import { ButtonLink } from "@/components/ui/button";
 
 /**
  * Wrapper akses halaman: Wajib login untuk mengakses konten.
+ * Di Telegram Mini App, otomatis menunggu sesi Telegram terhubung tanpa menampilkan layar login.
  */
 export function RequireAuth({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
-  const router = useRouter();
+  const { user, isAuthReady } = useAuth();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
@@ -19,7 +19,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
+  if (!mounted || !isAuthReady) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center p-8">
         <div className="h-8 w-8 animate-spin rounded-full border-3 border-accent border-t-transparent" />

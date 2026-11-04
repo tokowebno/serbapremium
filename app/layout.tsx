@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { Providers } from "@/components/storefront/providers";
 import { StorefrontShell } from "@/components/storefront/storefront-shell";
@@ -39,9 +40,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang={lang} className="h-full antialiased">
       <head>
+        <Script
+          src="https://telegram.org/js/telegram-web-app.js"
+          strategy="beforeInteractive"
+        />
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem("serbapremium:theme")||localStorage.getItem("tokono:theme");if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}`,
+            __html: `try{var t=localStorage.getItem("texasai:theme")||localStorage.getItem("serbapremium:theme")||localStorage.getItem("tokono:theme");if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}`,
           }}
         />
       </head>
