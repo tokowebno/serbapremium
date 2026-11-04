@@ -18,16 +18,16 @@ export function formatPrice(n: number, lang: string = "en"): string {
 }
 
 export const DEPOSIT_TIERS = [
-  { usd: 15, bonusPercent: 0, tagEn: "Standard", tagZh: "标准", tagId: "Standar", popular: false },
-  { usd: 50, bonusPercent: 8, tagEn: "Recommended", tagZh: "推荐", tagId: "Populer", popular: true },
-  { usd: 100, bonusPercent: 12, tagEn: "Pro Volume", tagZh: "专业版", tagId: "Pro", popular: false },
-  { usd: 250, bonusPercent: 15, tagEn: "Wholesale", tagZh: "批发级", tagId: "Reseller", popular: false },
+  { usd: 5, bonusPercent: 0, tagEn: "Standard", tagZh: "标准", tagId: "Standar", popular: false },
+  { usd: 10, bonusPercent: 8, tagEn: "Recommended", tagZh: "推荐", tagId: "Populer", popular: true },
+  { usd: 20, bonusPercent: 12, tagEn: "Pro Volume", tagZh: "专业版", tagId: "Pro", popular: false },
+  { usd: 50, bonusPercent: 15, tagEn: "Wholesale", tagZh: "批发级", tagId: "Reseller", popular: false },
 ] as const;
 
 export function getDepositBonusRate(usd: number): number {
-  if (usd >= 250) return 0.15;
-  if (usd >= 100) return 0.12;
-  if (usd >= 50) return 0.08;
+  if (usd >= 50) return 0.15;
+  if (usd >= 20) return 0.12;
+  if (usd >= 10) return 0.08;
   return 0;
 }
 

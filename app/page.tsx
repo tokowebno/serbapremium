@@ -117,7 +117,7 @@ export default async function HomePage() {
                     {lang === "en" ? "+8% to +15% Extra Store Credit" : lang === "zh" ? "+8% 至 +15% 额外赠送额度" : "Bonus Saldo Otomatis +8% s/d +15%"}
                   </h4>
                   <p className="text-xs text-fg-muted mt-0.5 font-medium">
-                    {lang === "en" ? "$50 (+8%) · $100 (+12%) · $250+ (+15%) credited instantly." : lang === "zh" ? "$50 (+8%) · $100 (+12%) · $250+ (+15%) 自动计入账户。" : "Deposit $50 (+8%) · $100 (+12%) · $250+ (+15%) masuk otomatis."}
+                    {lang === "en" ? "$10 (+8%) · $20 (+12%) · $50+ (+15%) credited instantly." : lang === "zh" ? "$10 (+8%) · $20 (+12%) · $50+ (+15%) 自动计入账户。" : "Deposit $10 (+8%) · $20 (+12%) · $50+ (+15%) masuk otomatis."}
                   </p>
                 </div>
 

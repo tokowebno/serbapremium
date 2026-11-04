@@ -603,10 +603,10 @@ export function ProductVariantSelector({ app }: { app: App }) {
               </Button>
               <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 px-3 py-2 text-center text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
                 {lang === "en"
-                  ? "Deposit $50+ to receive +8% to +15% extra store credit automatically."
+                  ? "Deposit $10+ to receive +8% to +15% extra store credit automatically."
                   : lang === "zh"
-                  ? "充值 $50+ 自动赠送 +8% 至 +15% 额外账户额度。"
-                  : "Deposit $50+ otomatis mendapat bonus saldo +8% hingga +15%."}
+                  ? "充值 $10+ 自动赠送 +8% 至 +15% 额外账户额度。"
+                  : "Deposit $10+ otomatis mendapat bonus saldo +8% hingga +15%."}
               </div>
               <Button
                 size="lg"

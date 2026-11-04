@@ -149,13 +149,13 @@ function IsiSaldoContent() {
   const returnApp = searchParams.get("app");
   const initialNeededIdr = neededParam ? Number(neededParam) : null;
 
-  // Amount state (Anchor at $50 Recommended Volume Tier)
+  // Amount state (Anchor at $10 Recommended Volume Tier)
   const [selectedUsd, setSelectedUsd] = useState<number>(() => {
     if (initialNeededIdr && initialNeededIdr > 0) {
       const calcUsd = Math.ceil(initialNeededIdr / USD_RATE);
       return Math.max(MIN_DEPOSIT_USD, calcUsd);
     }
-    return 50;
+    return 10;
   });
   const [customInput, setCustomInput] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<DepositPaymentMethod>("usdt_bnb");
@@ -745,7 +745,7 @@ function IsiSaldoContent() {
               </div>
               <div className="text-xs sm:text-[13px]">
                 <p className="font-bold text-fg">
-                  {lang === "en" ? "Volume Credit Tiers: +8% ($50) · +12% ($100) · +15% ($250+)" : lang === "zh" ? "阶梯充值赠送：+8% ($50) · +12% ($100) · +15% ($250+)" : "Bonus Saldo Otomatis: +8% ($50) · +12% ($100) · +15% ($250+)"}
+                  {lang === "en" ? "Volume Credit Tiers: +8% ($10) · +12% ($20) · +15% ($50+)" : lang === "zh" ? "阶梯充值赠送：+8% ($10) · +12% ($20) · +15% ($50+)" : "Bonus Saldo Otomatis: +8% ($10) · +12% ($20) · +15% ($50+)"}
                 </p>
                 <p className="text-fg-muted text-[11.5px] mt-0.5">
                   {lang === "en"
@@ -807,7 +807,7 @@ function IsiSaldoContent() {
                       </span>
                       <span className={`text-[11px] font-semibold tabular-nums ${active ? "text-accent" : "text-fg-muted"}`}>
                         {p.bonusPercent > 0
-                          ? (lang === "en" ? `Receive $${tierCalc.totalUsd}` : lang === "zh" ? `实得 $${tierCalc.totalUsd}` : `Dapat $${tierCalc.totalUsd}`)
+                          ? (lang === "en" ? `Receive $${tierCalc.totalUsd.toFixed(2)}` : lang === "zh" ? `实得 $${tierCalc.totalUsd.toFixed(2)}` : `Dapat $${tierCalc.totalUsd.toFixed(2)}`)
                           : (lang === "id" ? formatRupiah(p.usd * USD_RATE) : "Standard Credit")}
                       </span>
                     </motion.button>
@@ -830,7 +830,7 @@ function IsiSaldoContent() {
                       type="number"
                       min={5}
                       step={1}
-                      placeholder="50"
+                      placeholder="10"
                       value={customInput}
                       onChange={handleCustomChange}
                       className="w-full h-full bg-transparent px-5 sm:px-6 py-4 text-xl sm:text-3xl font-black text-fg focus:outline-hidden placeholder:text-fg-faint"

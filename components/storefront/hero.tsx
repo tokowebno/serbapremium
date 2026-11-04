@@ -26,7 +26,7 @@ export function Hero() {
   const [activeTab, setActiveTab] = useState(0);
   const [direction, setDirection] = useState(1);
   const [isPaused, setIsPaused] = useState(false);
-  const [selectedTopup] = useState(50);
+  const [selectedTopup] = useState(10);
 
   // Auto rotate showcase item every 4.5 seconds with pause support
   useEffect(() => {

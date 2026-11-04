@@ -140,8 +140,8 @@ export function TopUpModal() {
   const { user, balance, balanceUsd, deposit, isTopUpOpen, closeTopUp, topUpNeeded } = useAuth();
   const { lang } = useTranslation();
 
-  // Amount state (Anchor at $50 Recommended Volume Tier)
-  const [selectedUsd, setSelectedUsd] = useState<number>(50);
+  // Amount state (Anchor at $10 Recommended Volume Tier)
+  const [selectedUsd, setSelectedUsd] = useState<number>(10);
   const [customInput, setCustomInput] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<DepositPaymentMethod>("usdt_bnb");
 
@@ -179,7 +179,7 @@ export function TopUpModal() {
         const calcUsd = Math.ceil(topUpNeeded / USD_RATE);
         setSelectedUsd(Math.max(MIN_DEPOSIT_USD, calcUsd));
       } else {
-        setSelectedUsd(50);
+        setSelectedUsd(10);
       }
       setPaymentMethod((prev) => (lang !== "id" && prev === "qris" ? "usdt_bnb" : prev));
       setStep(1);
@@ -871,7 +871,7 @@ export function TopUpModal() {
                           </span>
                           <span className={cn("text-[10.5px] font-semibold mt-1.5 tabular-nums", active ? "text-surface/85" : "text-fg-muted")}>
                             {p.bonusPercent > 0
-                              ? (lang === "en" ? `Get $${tierCalc.totalUsd}` : lang === "zh" ? `实得 $${tierCalc.totalUsd}` : `Dapat $${tierCalc.totalUsd}`)
+                              ? (lang === "en" ? `Get $${tierCalc.totalUsd.toFixed(2)}` : lang === "zh" ? `实得 $${tierCalc.totalUsd.toFixed(2)}` : `Dapat $${tierCalc.totalUsd.toFixed(2)}`)
                               : (lang === "id" ? formatRupiah(p.usd * USD_RATE) : "Standard")}
                           </span>
                         </button>
