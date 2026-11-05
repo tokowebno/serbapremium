@@ -1,1172 +1,541 @@
-"use client";
-
-import { useState, useEffect, useRef, Suspense } from "react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import {
-  Wallet,
-  ArrowRight,
-  CheckCircle2,
-  AlertCircle,
-  Copy,
-  Check,
-  ShieldCheck,
-  Zap,
-  RefreshCw,
-  Clock,
-  ArrowLeft,
-  QrCode,
-  Send,
-  CreditCard,
-  Coins,
-  Loader2,
-} from "lucide-react";
-import { useAuth } from "@/components/storefront/providers";
-import { useTranslation } from "@/components/storefront/i18n-provider";
-import { formatRupiah, formatPrice, USDT_RATE, DEPOSIT_TIERS, calculateDepositCredit } from "@/lib/utils";
-import { Button, ButtonLink } from "@/components/ui/button";
-import { RequireAuth } from "@/components/storefront/require-auth";
+import { NextRequest, NextResponse } from "next/server";
 import { supabase, supabaseReady } from "@/lib/supabase";
-import { motion, AnimatePresence } from "framer-motion";
 
-const USD_RATE = USDT_RATE; // 17904 IDR sesuai kurs pasar real-time
-const MIN_DEPOSIT_USD = 5;
-const MIN_DEPOSIT_IDR = MIN_DEPOSIT_USD * USD_RATE; // 89,520
+// BSC Configuration
+const BSC_RPC_URLS = [
+  "https://bsc-dataseed1.defibit.io",
+  "https://bsc-dataseed1.binance.org",
+  "https://bsc-dataseed.binance.org",
+  "https://binance.ankr.com",
+  "https://rpc.ankr.com/bsc",
+];
+const BSC_USDT_CONTRACT = "0x55d398326f99059ff775485246999027b3197955".toLowerCase();
+const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef".toLowerCase();
 
-type DepositPaymentMethod = "usdt_bnb" | "usdt_tron" | "solana" | "ton" | "btc" | "qris";
-
-const PAYMENT_METHODS: {
-  id: DepositPaymentMethod;
-  name: { id: string; en: string; zh: string };
-  desc: { id: string; en: string; zh: string };
-  icon: string;
-  network?: string;
-  address?: string;
-}[] = [
-  {
-    id: "usdt_bnb",
-    name: {
-      id: "USDT / BNB (BEP-20)",
-      en: "USDT / BNB (BEP-20)",
-      zh: "USDT / BNB (BEP-20)",
-    },
-    desc: {
-      id: "BNB Smart Chain · Fee Rendah",
-      en: "BNB Smart Chain · Low Fee & Instant",
-      zh: "币安智能链 · 低手续费秒级入账",
-    },
-    icon: "/logos/bnb.svg",
-    network: "BNB Smart Chain (BEP-20)",
-    address: "0xcC3C78b2b90fF30B3D047Cc27C83a9bAB8c5D0ac",
-  },
-  {
-    id: "usdt_tron",
-    name: {
-      id: "USDT TRC-20 (Tron)",
-      en: "USDT TRC-20 (Tron)",
-      zh: "USDT TRC-20 (Tron)",
-    },
-    desc: {
-      id: "Tron Network · Transfer Cepat",
-      en: "Tron Network · Automated Settlement",
-      zh: "波场网络 · 全自动核验",
-    },
-    icon: "/logos/tron.svg",
-    network: "Tron (TRC-20)",
-    address: "TEZ6JFy2Ew6ayPYgdj1xY36WWdahYkBxat",
-  },
-  {
-    id: "solana",
-    name: {
-      id: "Solana / SOL (SPL)",
-      en: "Solana / SOL (SPL)",
-      zh: "Solana / SOL (SPL)",
-    },
-    desc: {
-      id: "Solana Network · Instan",
-      en: "Solana Mainnet · Sub-Second Finality",
-      zh: "Solana 极速主网",
-    },
-    icon: "/logos/solana.svg",
-    network: "Solana (SPL)",
-    address: "FNNgq27hNuwddakAeZJiWUEJYjE13CtsS3YHRJjGMwpP",
-  },
-  {
-    id: "ton",
-    name: {
-      id: "TON (Telegram Wallet)",
-      en: "TON (The Open Network)",
-      zh: "TON (Telegram 开放网络)",
-    },
-    desc: {
-      id: "The Open Network · Telegram",
-      en: "Telegram Wallet & TON Mainnet",
-      zh: "支持 Telegram Wallet 转账",
-    },
-    icon: "/logos/ton.svg",
-    network: "The Open Network (TON)",
-    address: "UQAG_A_1Ay9QcSqJifY_W9hQr0ZRW0WwcALCLm_hVRx6LWbz",
-  },
-  {
-    id: "btc",
-    name: {
-      id: "Bitcoin (BTC)",
-      en: "Bitcoin (BTC)",
-      zh: "比特币 (BTC)",
-    },
-    desc: {
-      id: "Bitcoin Network",
-      en: "Bitcoin Mainnet Settlement",
-      zh: "比特币主网结算",
-    },
-    icon: "/logos/btc.svg",
-    network: "Bitcoin",
-    address: "14YEFfBwFJ7F5h8rPY7ZjCm18NWGeYcANk",
-  },
-  {
-    id: "qris",
-    name: {
-      id: "QRIS (Semua Bank & E-Wallet)",
-      en: "QRIS (Indonesian Local Payment)",
-      zh: "QRIS 印尼本地扫码",
-    },
-    desc: {
-      id: "BCA, Mandiri, BRI, GoPay, OVO, Dana",
-      en: "Indonesian Banks & E-Wallets Only",
-      zh: "仅限印尼银行与电子钱包",
-    },
-    icon: "/logos/qris-icon.svg",
-  },
+// Official Store Wallets
+const STORE_BSC_WALLETS = [
+  "0xcC3C78b2b90fF30B3D047Cc27C83a9bAB8c5D0ac".toLowerCase(),
+  "0x8C3569a4A758Ecaa083B6d4505E994d7a8426d15".toLowerCase(),
+  "0xE0954c5831FcC9F36cd837Bc69F0A240a3EaeB48".toLowerCase(),
+  "0x25f1C391aF0050c33560C36Aa9FAc9624f1e920e".toLowerCase(),
+  "0x397cCe04F6125bA43764dff25Cc91384bF5d9861".toLowerCase(),
+  "0xC8C19f3F29ffFE40096b99A236b14e35860E7Ae3".toLowerCase(),
+  "0x3cd1c59d52fbe6E15A428dc9F36397749d9c24B1".toLowerCase(),
+  "0x0CEAda2e9EF6D2b35cAD36955a744694A03FD27C".toLowerCase(),
+  "0xa1dAa9d62FFD3B7bce6054C6e142DC5A08e2761f".toLowerCase(),
+  "0x86DC189A191fdEDaFE63c14c3d53b48362CfEb27".toLowerCase(),
+  "0x2ec36d32530c754c234efba61430c775455fb3b5".toLowerCase(),
 ];
 
-function IsiSaldoContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const { user, balance, balanceUsd, deposit } = useAuth();
-  const { lang, t } = useTranslation();
+const STORE_TRON_WALLETS = [
+  "TEZ6JFy2Ew6ayPYgdj1xY36WWdahYkBxat",
+  "TLszJVcoXfrfL69Tn8EfGciAvU9mTiE5hd",
+  "TQTpRn6j1Pfwf38xP8CxqxJi18YX4v8Wcm",
+];
 
-  const neededParam = searchParams.get("needed");
-  const returnApp = searchParams.get("app");
-  const initialNeededIdr = neededParam ? Number(neededParam) : null;
+const STORE_SOLANA_WALLETS = [
+  "FNNgq27hNuwddakAeZJiWUEJYjE13CtsS3YHRJjGMwpP",
+];
 
-  // Amount state (Anchor at $10 Recommended Volume Tier)
-  const [selectedUsd, setSelectedUsd] = useState<number>(() => {
-    if (initialNeededIdr && initialNeededIdr > 0) {
-      const calcUsd = Math.ceil(initialNeededIdr / USD_RATE);
-      return Math.max(MIN_DEPOSIT_USD, calcUsd);
+// Global In-Memory Anti-Replay Cache (persists in worker memory)
+const CLAIMED_TX_CACHE = new Set<string>();
+
+// Maximum transaction age allowed for deposit: 20 minutes (1200 seconds)
+const MAX_TX_AGE_SECONDS = 20 * 60;
+
+function decodeHexAddress(topicHex: string): string {
+  const clean = topicHex.replace(/^0x/i, "");
+  if (clean.length >= 40) {
+    return ("0x" + clean.slice(-40)).toLowerCase();
+  }
+  return ("0x" + clean).toLowerCase();
+}
+
+// 1. Verify BEP-20 (BSC) On-Chain with Strict Block Timestamp & Exact Nominal
+async function verifyBscTx(
+  txHash: string,
+  expectedAmountUsd: number,
+  senderWallet?: string
+): Promise<{ valid: boolean; message: string; amount?: number; sender?: string }> {
+  let clean = txHash.trim();
+  if (!clean.startsWith("0x") && !clean.startsWith("0X")) {
+    clean = "0x" + clean;
+  }
+
+  if (clean.length === 42) {
+    return {
+      valid: false,
+      message: "Format salah: Anda memasukkan alamat wallet crypto, bukan Tx Hash bukti transfer.",
+    };
+  }
+
+  if (clean.length !== 66 || !/^0x[0-9a-fA-F]{64}$/.test(clean)) {
+    return {
+      valid: false,
+      message: "Format TxID tidak valid: Hash transaksi BSC harus 66 karakter heksadesimal (0x...).",
+    };
+  }
+
+  let receiptFound = false;
+  let receipt: any = null;
+
+  for (const rpc of BSC_RPC_URLS) {
+    try {
+      const resp = await fetch(rpc, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "eth_getTransactionReceipt",
+          params: [clean],
+        }),
+        signal: AbortSignal.timeout(4000),
+      });
+
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      if (data && data.result) {
+        receipt = data.result;
+        receiptFound = true;
+        break;
+      }
+    } catch {
+      // try next RPC node
     }
-    return 10;
-  });
-  const [customInput, setCustomInput] = useState<string>("");
-  const [paymentMethod, setPaymentMethod] = useState<DepositPaymentMethod>("usdt_bnb");
+  }
 
-  // QRIS tersedia di semua bahasa (selalu di urutan paling bawah)
-  const visiblePaymentMethods = PAYMENT_METHODS;
-
-  // Step state
-  const [step, setStep] = useState<1 | 2>(1);
-  const [orderCode, setOrderCode] = useState(() => `DEP-${Date.now().toString().slice(-6)}`);
-  const [loading, setLoading] = useState(false);
-  const [copiedField, setCopiedField] = useState<string | null>(null);
-  const [txId, setTxId] = useState("");
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [isCryptoVerified, setIsCryptoVerified] = useState(false);
-  const [verifiedAmountUsd, setVerifiedAmountUsd] = useState<number>(0);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  // BorderPay Dynamic QRIS state
-  const [borderpayData, setBorderpayData] = useState<{
-    qr_string?: string;
-    pay_url?: string;
-    customer_pays?: number;
-  } | null>(null);
-  const [checkingStatus, setCheckingStatus] = useState(false);
-
-  const [uniqueCode] = useState(() => Math.floor(Math.random() * 800 + 100));
-
-  const creditInfo = calculateDepositCredit(selectedUsd);
-  const amountIdr = selectedUsd * USD_RATE;
-  const usdtDecimalUnique = Number(((uniqueCode % 800 + 101) / 10000).toFixed(4));
-  const totalUsdt = Number((selectedUsd + usdtDecimalUnique).toFixed(4));
-  const totalPayIdr = paymentMethod === "qris" ? (borderpayData?.customer_pays || amountIdr) : amountIdr;
-
-  const copyToClipboard = (text: string, field: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedField(field);
-    setTimeout(() => setCopiedField(null), 2000);
-  };
-
-  const handleSelectPreset = (usd: number) => {
-    setSelectedUsd(usd);
-    setCustomInput("");
-    setErrorMessage("");
-  };
-
-  const handleCustomChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setCustomInput(val);
-    const num = parseFloat(val);
-    if (!isNaN(num) && num >= MIN_DEPOSIT_USD) {
-      setSelectedUsd(num);
-      setErrorMessage("");
-    }
-  };
-
-  // Step 1 -> Step 2
-  const handleProceedToPayment = async () => {
-    if (selectedUsd < MIN_DEPOSIT_USD) {
-      setErrorMessage(
-        lang === "en"
-          ? `Minimum deposit is $${MIN_DEPOSIT_USD}.`
-          : lang === "zh"
-          ? `最低充值金额为 $${MIN_DEPOSIT_USD}。`
-          : `Minimal isi saldo adalah $${MIN_DEPOSIT_USD} (sekitar ${formatRupiah(MIN_DEPOSIT_IDR)}).`
+  // Fallback to BscScan proxy API if RPC nodes were slow
+  if (!receiptFound) {
+    try {
+      const bscScanResp = await fetch(
+        `https://api.bscscan.com/api?module=proxy&action=eth_getTransactionReceipt&txhash=${clean}`,
+        { signal: AbortSignal.timeout(4000) }
       );
-      return;
-    }
-
-    setLoading(true);
-    setErrorMessage("");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-
-    const newCode = `DEP-${Date.now().toString().slice(-6)}`;
-    setOrderCode(newCode);
-
-    const minDelay = new Promise((resolve) => setTimeout(resolve, 950));
-
-    // If QRIS, request Dynamic QRIS
-    if (paymentMethod === "qris") {
-      try {
-        const [res] = await Promise.all([
-          fetch("/api/payments/borderpay", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              amount: amountIdr,
-              reference_id: newCode,
-              customer_name: user?.name || "Member",
-              customer_email: user?.email || "member@texasai.com",
-            }),
-          }),
-          minDelay,
-        ]);
-        const json = await res.json();
-        if (json.ok && json.data) {
-          setBorderpayData(json.data);
+      if (bscScanResp.ok) {
+        const bscScanData = await bscScanResp.json();
+        if (bscScanData && bscScanData.result && bscScanData.result.status) {
+          receipt = bscScanData.result;
+          receiptFound = true;
         }
-      } catch (err) {
-        console.warn("QRIS generation fallback to static QRIS:", err);
-        await minDelay;
       }
-    } else {
-      await minDelay;
-    }
+    } catch {}
+  }
 
-    setStep(2);
-    setLoading(false);
-  };
+  if (!receiptFound || !receipt) {
+    return {
+      valid: false,
+      message: "Transaksi tidak ditemukan di blockchain BSC (BNB Smart Chain) atau belum terkonfirmasi.",
+    };
+  }
 
-  const handleConfirmPayment = async () => {
-    setErrorMessage("");
+  if (receipt.status !== "0x1") {
+    return {
+      valid: false,
+      message: "Transaksi gagal dieksekusi di blockchain BSC (Status: Reverted/Failed). Saldo tidak dapat ditambahkan.",
+    };
+  }
 
-    // 1. KHUSUS CRYPTO: WAJIB TXID DAN VERIFIKASI ON-CHAIN OTOMATIS
-    if (paymentMethod !== "qris") {
-      const cleanTx = txId.trim();
-      if (!cleanTx) {
-        setErrorMessage(
-          lang === "en"
-            ? "Transaction Hash / TxID is REQUIRED for crypto deposits."
-            : lang === "zh"
-            ? "加密货币充值必须填写交易哈希 / TxID！"
-            : "Hash Transaksi / TxID WAJIB diisi untuk verifikasi otomatis deposit crypto. Silakan salin TxID dari wallet pengirim Anda."
-        );
-        return;
-      }
-
-      // Client-side anti-replay check
-      const rawClaimed = localStorage.getItem("texasai:claimed_tx_ids") || "[]";
-      let claimedList: string[] = [];
-      try { claimedList = JSON.parse(rawClaimed); } catch {}
-      if (claimedList.includes(cleanTx.toLowerCase())) {
-        setErrorMessage(
-          lang === "en"
-            ? "This transaction hash has already been used for a deposit! Re-using past transactions is strictly prohibited."
-            : lang === "zh"
-            ? "该交易哈希已被使用过，严禁重复提交旧交易！"
-            : "Hash transaksi ini SUDAH PERNAH DIGUNAKAN untuk deposit sebelumnya! Dilarang memakai transaksi lama atau milik orang lain."
-        );
-        return;
-      }
-
-      setCheckingStatus(true);
-      setIsProcessing(true);
-
+  // SECURITY CHECK 1: STRICT BLOCK TIMESTAMP (MAX 20 MINUTES OLD)
+  let blockTimestamp: number | null = null;
+  if (receipt.blockNumber) {
+    for (const rpc of BSC_RPC_URLS.slice(0, 3)) {
       try {
-        const res = await fetch("/api/payments/verify-crypto", {
+        const bResp = await fetch(rpc, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            network: paymentMethod,
-            tx_hash: cleanTx,
-            expected_amount_usd: totalUsdt, // Nominal unik 4 desimal
-            order_id: orderCode,
+            jsonrpc: "2.0",
+            id: 2,
+            method: "eth_getBlockByNumber",
+            params: [receipt.blockNumber, false],
           }),
+          signal: AbortSignal.timeout(3500),
         });
-
-        const json = await res.json();
-
-        if (!res.ok || !json.ok || !json.verified) {
-          setIsProcessing(false);
-          setCheckingStatus(false);
-          let displayError = json.message;
-          if (lang === "en") {
-            if (json.message?.includes("kedaluwarsa") || json.message?.includes("KEDALUWARSA")) {
-              displayError = "Transaction has expired (must be within the last 20 minutes).";
-            } else if (json.message?.includes("tidak sesuai") || json.message?.includes("tidak cocok") || json.message?.includes("TIDAK COCOK")) {
-              displayError = "Transferred crypto amount does not match the invoice amount.";
-            } else if (json.message?.includes("sudah pernah") || json.message?.includes("SUDAH PERNAH")) {
-              displayError = "This transaction hash has already been used for a previous deposit.";
-            } else if (json.message?.includes("tidak valid") || json.message?.includes("Format")) {
-              displayError = "Invalid TxID format. Please enter a valid transaction hash.";
-            } else if (json.message?.includes("tidak ditemukan")) {
-              displayError = "Transaction not found on the blockchain or still pending.";
-            }
-          } else if (lang === "zh") {
-            if (json.message?.includes("kedaluwarsa") || json.message?.includes("KEDALUWARSA")) {
-              displayError = "交易已过期（须在最近20分钟内完成）。";
-            } else if (json.message?.includes("tidak sesuai") || json.message?.includes("tidak cocok") || json.message?.includes("TIDAK COCOK")) {
-              displayError = "转账金额与账单金额不符，请核对。";
-            } else if (json.message?.includes("sudah pernah") || json.message?.includes("SUDAH PERNAH")) {
-              displayError = "该交易哈希已被使用过，无法重复提交。";
-            } else if (json.message?.includes("tidak valid") || json.message?.includes("Format")) {
-              displayError = "TxID 格式不正确，请填写有效哈希。";
-            } else if (json.message?.includes("tidak ditemukan")) {
-              displayError = "未在区块链上检测到该交易或仍在确认中。";
-            }
-          }
-          setErrorMessage(displayError || json.message);
-          return; // STOP! JANGAN TAMBAH SALDO!
-        }
-
-        // Record locally as claimed
-        claimedList.push(cleanTx.toLowerCase());
-        localStorage.setItem("texasai:claimed_tx_ids", JSON.stringify(claimedList));
-
-        // VERIFIKASI BERHASIL! DANA BENAR-BENAR MASUK ON-CHAIN + VOLUME CREDIT BONUS
-        const actualUsd = json.amount_usd || selectedUsd;
-        const tierBase = actualUsd >= selectedUsd * 0.98 ? selectedUsd : actualUsd;
-        const verifiedCredit = calculateDepositCredit(tierBase);
-        const finalCreditedUsd = Number((actualUsd + verifiedCredit.bonusUsd).toFixed(2));
-        const creditedIdr = Math.round(finalCreditedUsd * USD_RATE);
-        const bonusNote = verifiedCredit.bonusUsd > 0 ? ` (+$${verifiedCredit.bonusUsd.toFixed(2)} Volume Bonus)` : "";
-
-        // Auto credit saldo ke user
-        deposit(
-          creditedIdr,
-          `Deposit $${finalCreditedUsd.toFixed(2)} USD${bonusNote} via ${paymentMethod.toUpperCase()} (Tx: ${cleanTx.slice(0, 10)}...)`,
-          orderCode
-        );
-
-        const orderData = {
-          id: orderCode,
-          user_name: user?.name || "Member",
-          items: [{ name: `Wallet Top-Up $${finalCreditedUsd.toFixed(2)} USD${bonusNote}`, price: creditedIdr, platform: "Wallet" }],
-          subtotal: creditedIdr,
-          discount: 0,
-          total: creditedIdr,
-          payment_method: paymentMethod,
-          payment_status: "berhasil",
-          order_status: "selesai",
-          tx_id: cleanTx,
-          date: new Date().toISOString().slice(0, 10),
-        };
-
-        if (supabaseReady && supabase) {
-          try {
-            await supabase.from("orders").insert([orderData]);
-          } catch (err) {
-            console.warn("DB insert error:", err);
+        if (bResp.ok) {
+          const bData = await bResp.json();
+          if (bData?.result?.timestamp) {
+            blockTimestamp = parseInt(bData.result.timestamp, 16);
+            break;
           }
         }
-
-        try {
-          sessionStorage.setItem("tokono:last-order", JSON.stringify(orderData));
-          sessionStorage.setItem("serbapremium:last-order", JSON.stringify(orderData));
-          const raw = localStorage.getItem("tokono:orders") || localStorage.getItem("serbapremium:orders") || "[]";
-          const existing = JSON.parse(raw);
-          const list = Array.isArray(existing) ? existing : [];
-          const updated = [orderData, ...list.filter((o: any) => o.id !== orderCode)];
-          localStorage.setItem("tokono:orders", JSON.stringify(updated));
-          localStorage.setItem("serbapremium:orders", JSON.stringify(updated));
-        } catch {
-          // ignore
-        }
-
-        setVerifiedAmountUsd(finalCreditedUsd);
-        setIsCryptoVerified(true);
-        setIsSuccess(true);
-        setIsProcessing(false);
-        setCheckingStatus(false);
-        return;
-      } catch (err: any) {
-        setIsProcessing(false);
-        setCheckingStatus(false);
-        setErrorMessage(
-          lang === "en"
-            ? "Connection error while verifying blockchain. Please try again."
-            : lang === "zh"
-            ? "连接区块链验证网络时出错，请重试。"
-            : "Gagal memverifikasi transaksi ke blockchain. Pastikan koneksi internet stabil dan coba lagi."
-        );
-        return;
-      }
+      } catch {}
     }
+  }
 
-    // 2. KHUSUS QRIS: BIARKAN SEPERTI APA ADANYA
-    setCheckingStatus(true);
-    setIsProcessing(true);
-
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    const orderData = {
-      id: orderCode,
-      user_name: user?.name || "Member",
-      items: [{ name: `Isi Saldo $${selectedUsd} USD`, price: amountIdr, platform: "Wallet" }],
-      subtotal: amountIdr,
-      discount: 0,
-      total: amountIdr,
-      payment_method: paymentMethod,
-      payment_status: "menunggu",
-      order_status: "menunggu",
-      date: new Date().toISOString().slice(0, 10),
-    };
-
-    if (supabaseReady && supabase) {
-      try {
-        await supabase.from("orders").insert([orderData]);
-      } catch (err) {
-        console.warn("DB insert error:", err);
-      }
-    }
-
+  // Fallback to BscScan block timestamp if RPCs failed
+  if (!blockTimestamp && receipt.blockNumber) {
     try {
-      sessionStorage.setItem("tokono:last-order", JSON.stringify(orderData));
-      sessionStorage.setItem("serbapremium:last-order", JSON.stringify(orderData));
-      const raw = localStorage.getItem("tokono:orders") || localStorage.getItem("serbapremium:orders") || "[]";
-      const existing = JSON.parse(raw);
-      const list = Array.isArray(existing) ? existing : [];
-      const updated = [orderData, ...list.filter((o: any) => o.id !== orderCode)];
-      localStorage.setItem("tokono:orders", JSON.stringify(updated));
-      localStorage.setItem("serbapremium:orders", JSON.stringify(updated));
-    } catch {
-      // ignore
+      const bscScanBlock = await fetch(
+        `https://api.bscscan.com/api?module=proxy&action=eth_getBlockByNumber&tag=${receipt.blockNumber}&boolean=false`,
+        { signal: AbortSignal.timeout(4000) }
+      );
+      if (bscScanBlock.ok) {
+        const bData = await bscScanBlock.json();
+        if (bData?.result?.timestamp) {
+          blockTimestamp = parseInt(bData.result.timestamp, 16);
+        }
+      }
+    } catch {}
+  }
+
+  // If block timestamp cannot be verified, REJECT for security!
+  if (!blockTimestamp) {
+    return {
+      valid: false,
+      message: "Gagal memverifikasi waktu blok transaksi di blockchain BSC. Demi keamanan, transaksi yang timestamp-nya tidak dapat divalidasi ditolak. Harap coba lagi beberapa saat.",
+    };
+  }
+
+  const nowSec = Math.floor(Date.now() / 1000);
+  const ageSec = nowSec - blockTimestamp;
+  if (ageSec > MAX_TX_AGE_SECONDS) {
+    const minutesAgo = Math.floor(ageSec / 60);
+    return {
+      valid: false,
+      message: `Transaksi telah kedaluwarsa (${minutesAgo} menit yang lalu). Sistem hanya menerima transaksi baru dalam 20 menit terakhir.`,
+    };
+  }
+  if (ageSec < -300) {
+    return {
+      valid: false,
+      message: "Waktu transaksi tidak valid.",
+    };
+  }
+
+  // SECURITY CHECK 2: STRICT USDT BEP-20 TRANSFER LOG CHECK
+  const logs = receipt.logs || [];
+  let foundTransfer = false;
+  let detectedAmount = 0;
+  let onChainSender = "";
+
+  for (const log of logs) {
+    const contract = (log.address || "").toLowerCase();
+    if (contract !== BSC_USDT_CONTRACT) continue;
+
+    const topics = log.topics || [];
+    if (topics.length >= 3 && topics[0].toLowerCase() === TRANSFER_TOPIC) {
+      const toAddr = decodeHexAddress(topics[2]);
+      if (STORE_BSC_WALLETS.includes(toAddr)) {
+        foundTransfer = true;
+        onChainSender = decodeHexAddress(topics[1]);
+        try {
+          const rawAmount = BigInt(log.data);
+          detectedAmount = Number(rawAmount) / 1e18;
+          break;
+        } catch {}
+      }
     }
+  }
 
-    setIsCryptoVerified(false);
-    setIsProcessing(false);
-    setIsSuccess(true);
-    setCheckingStatus(false);
+  if (!foundTransfer) {
+    return {
+      valid: false,
+      message: "Transaksi tidak mengirim USDT BEP-20 ke wallet resmi Texas AI.",
+    };
+  }
+
+  // SECURITY CHECK 3: STRICT NOMINAL MATCHING (Anti-Theft / Anti-Hijack)
+  const diff = Math.abs(detectedAmount - expectedAmountUsd);
+  if (diff > 0.02) {
+    return {
+      valid: false,
+      message: `Nominal transfer terdeteksi ($${detectedAmount.toFixed(4)} USDT) tidak sesuai dengan invoice deposit ($${expectedAmountUsd.toFixed(4)} USDT).`,
+    };
+  }
+
+  // SECURITY CHECK 4: SENDER WALLET VERIFICATION (If provided)
+  if (senderWallet && senderWallet.trim()) {
+    const cleanSender = senderWallet.trim().toLowerCase();
+    if (onChainSender && cleanSender !== onChainSender) {
+      return {
+        valid: false,
+        message: `Wallet pengirim transaksi (${onChainSender.slice(0, 10)}...) tidak sesuai dengan wallet Anda (${cleanSender.slice(0, 10)}...).`,
+      };
+    }
+  }
+
+  return {
+    valid: true,
+    message: "Transaksi USDT BEP-20 berhasil diverifikasi secara sah on-chain!",
+    amount: Number(detectedAmount.toFixed(4)),
+    sender: onChainSender,
   };
-
-  return (
-    <div className="relative min-h-screen pt-28 pb-20">
-      <div className="tk-container max-w-3xl">
-        {/* Back Link */}
-        <div className="mb-6">
-          <Link
-            href={returnApp ? `/app/${returnApp}` : "/"}
-            className="liquid-glass-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold text-fg-muted hover:text-fg transition-all active:scale-95"
-          >
-            <ArrowLeft size={14} />
-            <span>
-              {returnApp
-                ? (lang === "en" ? "Back to Checkout" : lang === "zh" ? "返回购买" : "Kembali ke Pembelian")
-                : (lang === "en" ? "Back to Store" : lang === "zh" ? "返回商店" : "Kembali ke Toko")}
-            </span>
-          </Link>
-        </div>
-
-        {/* Liquid Glass Showcase Header */}
-        <div className="mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="liquid-glass-slab rounded-[28px] p-6 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-5"
-          >
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-surface-2 border border-border px-3 py-1 text-xs font-bold text-fg">
-                <span className="relative flex h-2 w-2">
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-fg" />
-                </span>
-                <span className="font-mono text-[11px] font-bold tracking-wider">
-                  {lang === "en" ? "OFFICIAL WALLET & BALANCE" : lang === "zh" ? "官方钱包充值系统" : "SISTEM DOMPET RESMI"}
-                </span>
-              </div>
-
-              <h1 className="mt-2.5 text-2xl sm:text-3xl font-black tracking-tight text-fg leading-tight">
-                {lang === "en" ? "Top Up Account Balance" : lang === "zh" ? "充值账户余额" : "Isi Saldo Akun"}
-              </h1>
-              <p className="mt-1 text-xs sm:text-sm text-fg-muted max-w-lg leading-relaxed">
-                {lang === "en"
-                  ? "Automated on-chain crypto settlement (USDT, SOL, TON, BTC) with up to +15% volume credit bonus."
-                  : lang === "zh"
-                  ? "支持多链加密货币全自动结算（USDT、SOL、TON、BTC），享最高 +15% 阶梯赠送额度。"
-                  : "Isi saldo instan via Multi-Crypto & QRIS dengan bonus saldo hingga +15%."}
-              </p>
-            </div>
-
-            <div className="liquid-glass-pill rounded-xl px-5 py-4 text-left md:text-right shrink-0">
-              <span className="text-[10.5px] font-bold text-fg-muted uppercase tracking-wider block">
-                {lang === "en" ? "Current Balance" : lang === "zh" ? "当前可用余额" : "Saldo Dompet Anda"}
-              </span>
-              <div className="flex items-baseline md:justify-end gap-2 mt-0.5">
-                <span className="text-xl sm:text-2xl font-black text-fg tabular-nums">
-                  {formatPrice(balance, lang)}
-                </span>
-              </div>
-              <span className="text-[11.5px] font-bold text-fg-muted mt-0.5 block">
-                ≈ ${balanceUsd.toFixed(2)} USD
-              </span>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Content */}
-        {loading ? (
-          /* CONTINUE PAYMENT -> PREPARING INVOICE LOADING STATE */
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-            className="liquid-glass-slab rounded-[28px] p-14 sm:p-20 text-center shadow-sm flex flex-col items-center justify-center space-y-5"
-          >
-            <div className="relative flex h-20 w-20 items-center justify-center">
-              <Loader2 className="absolute inset-0 h-20 w-20 animate-spin text-accent/80" strokeWidth={1.8} />
-              <div className="flex h-13 w-13 items-center justify-center rounded-2xl bg-surface-2 border border-border p-2.5 shadow-xs">
-                <img
-                  src={PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.icon || "/logos/bnb.svg"}
-                  alt={paymentMethod}
-                  className="h-7 w-7 object-contain"
-                />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <h4 className="text-xl sm:text-2xl font-black tracking-tight text-fg">
-                {lang === "en"
-                  ? "Preparing Wallet Top-Up Invoice..."
-                  : lang === "zh"
-                  ? "正在准备钱包充值账单..."
-                  : "Menyiapkan Invoice Isi Saldo..."}
-              </h4>
-              <p className="text-xs sm:text-sm text-fg-muted max-w-[340px] mx-auto leading-relaxed">
-                {paymentMethod === "qris"
-                  ? (lang === "en"
-                      ? "Generating dynamic payment QR code..."
-                      : lang === "zh"
-                      ? "正在生成动态支付二维码..."
-                      : "Membuat kode pembayaran QRIS & nominal unik...")
-                  : (lang === "en"
-                      ? `Allocating unique ${PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.network || "on-chain"} settlement amount & destination wallet...`
-                      : lang === "zh"
-                      ? "正在分配链上唯一核验金额与目标收款钱包..."
-                      : "Menyiapkan nominal desimal unik & alamat wallet tujuan...")}
-              </p>
-            </div>
-            <div className="w-60 h-1.5 rounded-full bg-surface-2 border border-border/60 overflow-hidden">
-              <motion.div
-                initial={{ width: "0%" }}
-                animate={{ width: "100%" }}
-                transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-                className="h-full bg-accent rounded-full"
-              />
-            </div>
-          </motion.div>
-        ) : isProcessing ? (
-          /* PROCESSING STATE */
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 15 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
-            className="liquid-glass rounded-2xl p-16 sm:p-20 text-center shadow-sm flex flex-col items-center justify-center space-y-5"
-          >
-            <Loader2 className="animate-spin text-accent" size={60} strokeWidth={2} />
-            <h4 className="text-2xl sm:text-3xl font-black tracking-tight text-fg">
-              {paymentMethod !== "qris" 
-                ? (lang === "en" ? "Verifying Transaction On-Chain..." : lang === "zh" ? "正在链上验证交易..." : "Memverifikasi Transaksi On-Chain...") 
-                : (lang === "en" ? "Processing Payment..." : lang === "zh" ? "正在处理付款..." : "Sedang Memproses...")}
-            </h4>
-            <p className="text-sm text-fg-muted max-w-[350px] mx-auto leading-relaxed">
-              {paymentMethod !== "qris"
-                ? (lang === "en" ? "Connecting to blockchain nodes to verify transaction status in real-time..." : lang === "zh" ? "正在连接区块链节点实时核查交易状态..." : "Sistem sedang memeriksa status hash transaksi ke node blockchain secara langsung...")
-                : (lang === "en" ? "Please wait a moment while we verify your payment with the network." : lang === "zh" ? "请稍候，我们正在核对您的付款。" : "Mohon tunggu sebentar, kami sedang memverifikasi pembayaran Anda.")}
-            </p>
-          </motion.div>
-        ) : isSuccess ? (
-          /* SUCCESS STATE */
-          isCryptoVerified ? (
-            /* CRYPTO ON-CHAIN VERIFIED SUCCESS */
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.35 }}
-              className="liquid-glass rounded-2xl p-8 sm:p-10 text-center shadow-sm"
-            >
-              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
-                <CheckCircle2 size={48} strokeWidth={2.5} />
-              </div>
-
-              <span className="mt-5 inline-block rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                {lang === "en" ? "Deposit Verified On-Chain!" : lang === "zh" ? "链上核验成功，已自动入账！" : "Deposit Berhasil Terverifikasi On-Chain!"}
-              </span>
-
-              <h2 className="mt-2 text-3xl sm:text-4xl font-black text-fg tracking-tight">
-                +{lang === "id" ? formatRupiah((verifiedAmountUsd || selectedUsd) * USD_RATE) : `$${(verifiedAmountUsd || selectedUsd).toFixed(2)} USD`}
-              </h2>
-              <p className="mt-1 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                {lang === "en"
-                  ? `+$${verifiedAmountUsd || selectedUsd} USD Added Automatically to Your Balance!`
-                  : lang === "zh"
-                  ? `+$${verifiedAmountUsd || selectedUsd} USD 余额已全自动存入账户！`
-                  : `+$${verifiedAmountUsd || selectedUsd} USD Saldo Otomatis Masuk ke Akun Anda!`}
-              </p>
-
-              <div className="mt-6 mx-auto max-w-sm text-left">
-                <div className="rounded-2xl border border-border bg-surface-2 p-4 space-y-3">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-fg-muted">{lang === "en" ? "Status:" : lang === "zh" ? "状态：" : "Status:"}</span>
-                    <span className="font-bold text-emerald-600 flex items-center gap-1">
-                      <Check size={14} strokeWidth={3} /> {lang === "en" ? "Auto Verified" : lang === "zh" ? "自动核验成功" : "Berhasil Otomatis"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-fg-muted">{lang === "en" ? "Invoice:" : lang === "zh" ? "账单号：" : "Invoice:"}</span>
-                    <span className="font-mono font-bold text-fg">{orderCode}</span>
-                  </div>
-                  <div className="text-xs pt-2 border-t border-border">
-                    <span className="text-fg-muted block mb-1">{lang === "en" ? "Transaction Hash (TxID):" : lang === "zh" ? "交易哈希 (TxID)：" : "Hash Transaksi (TxID):"}</span>
-                    <span className="font-mono text-[11px] font-bold text-fg break-all select-all block bg-surface p-2.5 rounded-xl border border-border">
-                      {txId}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-                <ButtonLink
-                  href={returnApp ? `/aplikasi/${returnApp}` : "/"}
-                  size="lg"
-                  className="w-full sm:w-auto rounded-full bg-fg text-surface font-bold text-sm px-8"
-                >
-                  <span>
-                    {returnApp 
-                      ? (lang === "en" ? "Continue App Purchase" : lang === "zh" ? "继续购买软件" : "Lanjut Pembelian Aplikasi")
-                      : (lang === "en" ? "Return to Store" : lang === "zh" ? "返回商店" : "Kembali ke Toko")}
-                  </span>
-                  <ArrowRight size={15} />
-                </ButtonLink>
-              </div>
-            </motion.div>
-          ) : (
-            /* QRIS PENDING STATE (UNTOUCHED) */
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.35 }}
-              className="liquid-glass rounded-2xl p-8 sm:p-10 text-center shadow-sm"
-            >
-              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500">
-                <Clock size={44} strokeWidth={2.4} />
-              </div>
-
-              <span className="mt-5 inline-block rounded-full bg-amber-500/10 border border-amber-500/20 px-4 py-1 text-xs font-bold text-amber-600 dark:text-amber-400">
-                {lang === "en" ? "Waiting for Payment" : lang === "zh" ? "等待付款中" : "Menunggu Pembayaran!"}
-              </span>
-
-              <h2 className="mt-2 text-3xl sm:text-4xl font-black text-fg tracking-tight">
-                {formatPrice(amountIdr, lang)}
-              </h2>
-              <p className="mt-1 text-sm font-semibold text-fg-muted">
-                +${selectedUsd} USD • Invoice: <span className="text-fg font-mono font-bold">{orderCode}</span>
-              </p>
-
-              <div className="mt-6 mx-auto max-w-sm text-left">
-                <div className="flex flex-col items-center justify-center p-5 rounded-2xl bg-surface-2 border border-border text-center">
-                  <p className="text-sm font-bold text-fg mb-3">
-                    {lang === "en" ? "Scan QRIS to Pay" : lang === "zh" ? "扫描 QRIS 付款" : "Scan QRIS untuk Membayar"}
-                  </p>
-                  <div className="relative rounded-xl border border-border bg-white p-3 shadow-sm">
-                    <img
-                      src="/qris.png"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).src = "/qris-placeholder.svg";
-                      }}
-                      alt="QRIS"
-                      className="h-40 w-40 object-contain"
-                    />
-                  </div>
-                  <p className="text-xs text-fg-muted mt-3 px-2">
-                    {lang === "en" ? "If you haven't paid yet, please complete your payment. Your balance will be added once confirmed." : lang === "zh" ? "如果您尚未付款，请完成付款。一旦确认将立即充值余额。" : "Jika Anda belum bayar, silakan selesaikan pembayaran ke QRIS di atas agar saldo dapat diproses."}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-                <ButtonLink
-                  href={returnApp ? `/aplikasi/${returnApp}` : "/"}
-                  size="lg"
-                  className="w-full sm:w-auto rounded-full bg-fg text-surface font-bold text-sm px-8"
-                >
-                  <span>{returnApp ? (lang === "en" ? "Continue Purchase" : lang === "zh" ? "继续购买" : "Lanjut Pembelian") : (lang === "en" ? "Done & Return" : lang === "zh" ? "完成并返回" : "Selesai & Ke Dashboard")}</span>
-                </ButtonLink>
-              </div>
-            </motion.div>
-          )
-        ) : step === 1 ? (
-          /* STEP 1: PILIH NOMINAL & METODE PEMBAYARAN */
-          <div className="space-y-6">
-            {/* Apple Liquid Glass Notice Banner */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: 0.05 }}
-              className="liquid-glass-pill rounded-xl p-4 flex items-center gap-3.5"
-            >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface-3 border border-border text-fg">
-                <ShieldCheck size={20} strokeWidth={2.4} />
-              </div>
-              <div className="text-xs sm:text-[13px]">
-                <p className="font-bold text-fg">
-                  {lang === "en" ? "Volume Credit Tiers: +8% ($10) · +12% ($20) · +15% ($50+)" : lang === "zh" ? "阶梯充值赠送：+8% ($10) · +12% ($20) · +15% ($50+)" : "Bonus Saldo Otomatis: +8% ($10) · +12% ($20) · +15% ($50+)"}
-                </p>
-                <p className="text-fg-muted text-[11.5px] mt-0.5">
-                  {lang === "en"
-                    ? "Minimum deposit $5.00 USD. Bonus credit is added automatically upon on-chain confirmation."
-                    : lang === "zh"
-                    ? "最低充值 $5.00 USD。付款链上确认后，赠送额度将自动存入账户余额。"
-                    : "Minimal deposit $5.00 USD. Bonus saldo otomatis masuk setelah pembayaran terverifikasi on-chain."}
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Volume Credit Tiers Grid */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: 0.1 }}
-              className="liquid-glass-slab rounded-[28px] p-6 sm:p-7"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <label className="text-xs font-bold uppercase tracking-wider text-fg flex items-center gap-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-fg text-[10px] font-black text-surface">1</span>
-                  <span>{lang === "en" ? "Select Deposit Tier (USD)" : lang === "zh" ? "选择充值档位 (USD)" : "Pilih Nominal Isi Saldo (USD)"}</span>
-                </label>
-                <span className="text-[11px] font-semibold text-accent font-mono">
-                  {lang === "en" || lang === "zh" ? "1 USDT ≈ 1 USD" : "Kurs 1 USDT = Rp 17.904"}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                {DEPOSIT_TIERS.map((p) => {
-                  const active = selectedUsd === p.usd && !customInput;
-                  const tierCalc = calculateDepositCredit(p.usd);
-                  return (
-                    <motion.button
-                      key={p.usd}
-                      type="button"
-                      whileHover={{ y: -2, scale: 1.02 }}
-                      whileTap={{ scale: 0.96 }}
-                      onClick={() => handleSelectPreset(p.usd)}
-                      className={`flex flex-col items-center justify-between p-3.5 rounded-2xl cursor-pointer select-none transition-all duration-200 min-h-[96px] ${
-                        active
-                          ? "liquid-tile-active ring-2 ring-accent/30 shadow-xs"
-                          : "liquid-tile hover:border-border-strong"
-                      }`}
-                    >
-                      <span
-                        className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                          p.bonusPercent > 0
-                            ? "bg-accent-soft text-accent"
-                            : "bg-surface-2 text-fg-muted"
-                        }`}
-                      >
-                        {p.bonusPercent > 0
-                          ? `+${p.bonusPercent}% Credit`
-                          : (lang === "id" ? p.tagId : lang === "zh" ? p.tagZh : p.tagEn)}
-                      </span>
-                      <span className={`text-xl sm:text-2xl font-black tracking-tight leading-none my-1.5 tabular-nums ${active ? "text-accent" : "text-fg"}`}>
-                        ${p.usd}
-                      </span>
-                      <span className={`text-[11px] font-semibold tabular-nums ${active ? "text-accent" : "text-fg-muted"}`}>
-                        {p.bonusPercent > 0
-                          ? (lang === "en" ? `Receive $${tierCalc.totalUsd.toFixed(2)}` : lang === "zh" ? `实得 $${tierCalc.totalUsd.toFixed(2)}` : `Dapat $${tierCalc.totalUsd.toFixed(2)}`)
-                          : (lang === "id" ? formatRupiah(p.usd * USD_RATE) : "Standard Credit")}
-                      </span>
-                    </motion.button>
-                  );
-                })}
-              </div>
-
-              {/* Custom Input */}
-              <div className="mt-5 pt-4 border-t border-black/[0.08] dark:border-white/[0.08]">
-                <label className="text-xs font-semibold text-fg-muted block mb-2">
-                  {lang === "en" ? "Or enter custom amount in USD (min $5):" : lang === "zh" ? "或输入自定义金额（最低 $5）：" : "Atau masukkan nominal custom (minimal $5):"}
-                </label>
-
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                  <div className="relative flex-1 flex items-center rounded-2xl border-2 border-border bg-surface shadow-inner overflow-hidden focus-within:ring-4 focus-within:ring-accent/20 focus-within:border-accent transition-all">
-                    <div className="flex h-16 sm:h-20 items-center px-5 sm:px-6 bg-surface-2 border-r-2 border-border text-sm sm:text-lg font-black text-fg select-none">
-                      USD $
-                    </div>
-                    <input
-                      type="number"
-                      min={5}
-                      step={1}
-                      placeholder="10"
-                      value={customInput}
-                      onChange={handleCustomChange}
-                      className="w-full h-full bg-transparent px-5 sm:px-6 py-4 text-xl sm:text-3xl font-black text-fg focus:outline-hidden placeholder:text-fg-faint"
-                    />
-                  </div>
-
-                  <div className="liquid-glass-pill flex flex-col justify-center rounded-2xl px-6 py-4 text-right shrink-0 min-w-[180px] sm:min-w-[220px]">
-                    <span className="text-xs uppercase font-bold text-fg-muted block mb-1">
-                      {lang === "en" ? "Total Credit Received" : lang === "zh" ? "实际到账总额" : "Saldo Diterima"}
-                    </span>
-                    <span className="text-lg sm:text-xl font-black text-accent tabular-nums">
-                      ${creditInfo.totalUsd.toFixed(2)} USD
-                    </span>
-                    {creditInfo.bonusUsd > 0 ? (
-                      <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 tabular-nums mt-0.5">
-                        +${creditInfo.bonusUsd.toFixed(2)} (+{creditInfo.bonusPercent}% Bonus)
-                      </span>
-                    ) : lang === "id" ? (
-                      <span className="text-[11px] font-medium text-fg-muted tabular-nums mt-0.5">
-                        {formatRupiah(amountIdr)}
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
-
-                {errorMessage && (
-                  <p className="mt-3 text-xs font-bold text-danger flex items-center gap-1.5 animate-in fade-in duration-200">
-                    <AlertCircle size={14} />
-                    <span>{errorMessage}</span>
-                  </p>
-                )}
-              </div>
-            </motion.div>
-
-            {/* Payment Methods */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: 0.15 }}
-              className="liquid-glass-slab rounded-[28px] p-6 sm:p-7"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <label className="text-xs font-bold uppercase tracking-wider text-fg flex items-center gap-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-fg text-[10px] font-black text-surface">2</span>
-                  <span>{lang === "en" ? "Select Settlement Network" : lang === "zh" ? "选择结算网络" : "Pilih Metode Pembayaran"}</span>
-                </label>
-                <span className="text-[11px] font-semibold text-fg-muted">
-                  {lang === "en" ? "Automated On-Chain Verification" : lang === "zh" ? "秒级全自动核验" : "Verifikasi Otomatis"}
-                </span>
-              </div>
-
-              <div className="space-y-2.5">
-                {visiblePaymentMethods.map((pm) => {
-                  const active = paymentMethod === pm.id;
-                  return (
-                    <motion.button
-                      key={pm.id}
-                      type="button"
-                      whileHover={{ scale: 1.01, y: -1 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setPaymentMethod(pm.id)}
-                      className={`group flex w-full items-center justify-between gap-3.5 rounded-xl p-4 text-left transition-all duration-200 cursor-pointer ${
-                        active
-                          ? "liquid-tile-active"
-                          : "liquid-tile hover:border-border-strong"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3.5 min-w-0">
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface-2 border border-border/80 p-2 shadow-xs group-hover:scale-105 transition-transform">
-                          <img src={pm.icon} alt={pm.id} className="h-7 w-7 object-contain" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className={`text-sm font-bold tracking-tight truncate ${active ? "text-accent" : "text-fg"}`}>
-                            {pm.name[lang as keyof typeof pm.name] || pm.name.id}
-                          </p>
-                          <p className="text-xs text-fg-muted truncate mt-0.5">
-                            {pm.desc[lang as keyof typeof pm.desc] || pm.desc.id}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 shrink-0">
-                        <div className={`h-6 w-6 rounded-full flex items-center justify-center border transition-all ${
-                          active
-                            ? "bg-accent border-accent text-accent-fg shadow-xs scale-105"
-                            : "border-border-strong bg-surface"
-                        }`}>
-                          {active && <Check size={13} strokeWidth={3} />}
-                        </div>
-                      </div>
-                    </motion.button>
-                  );
-                })}
-              </div>
-            </motion.div>
-
-            {/* Action Button */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: 0.2 }}
-            >
-              <Button
-                size="lg"
-                onClick={handleProceedToPayment}
-                disabled={loading || selectedUsd < MIN_DEPOSIT_USD}
-                loading={loading}
-                className="w-full rounded-full bg-accent hover:opacity-90 text-accent-fg font-black text-sm shadow-md hover:scale-[1.01] active:scale-95 cursor-pointer py-4 transition-all flex items-center justify-center gap-2"
-              >
-                {!loading && <span>{lang === "en" ? "Proceed to Payment" : lang === "zh" ? "前往支付" : "Lanjut ke Pembayaran"}</span>}
-                {!loading && <ArrowRight size={17} strokeWidth={2.5} />}
-              </Button>
-            </motion.div>
-          </div>
-        ) : (
-          /* STEP 2: TAMPILAN BAYAR (QRIS / CRYPTO) */
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
-            className="space-y-6"
-          >
-            <div className="liquid-glass-slab rounded-[28px] p-6 sm:p-8">
-              {/* Invoice Topbar */}
-              <div className="flex items-center justify-between border-b border-black/[0.08] dark:border-white/[0.08] pb-4">
-                <div>
-                  <span className="text-[11px] font-bold text-fg-muted uppercase tracking-wider">
-                    {lang === "en" ? "Deposit Invoice" : lang === "zh" ? "充值账单" : "Kode Invoice Deposit"}
-                  </span>
-                  <p className="font-mono text-base font-black text-fg mt-0.5">{orderCode}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setStep(1);
-                    setErrorMessage("");
-                  }}
-                  className="liquid-glass-pill rounded-full px-3.5 py-1.5 text-xs font-bold text-fg hover:underline cursor-pointer active:scale-95"
-                >
-                  ← {lang === "en" ? "Change Amount" : lang === "zh" ? "修改金额" : "Ubah Nominal"}
-                </button>
-              </div>
-
-              {/* Total Display */}
-              <div className="my-5 rounded-2xl liquid-tile p-5 flex items-center justify-between">
-                <div>
-                  <span className="text-xs text-fg-muted font-medium block">{lang === "en" ? "Wallet Credit Received" : lang === "zh" ? "到账余额" : "Saldo Diterima"}</span>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xl font-black text-fg tabular-nums">${creditInfo.totalUsd.toFixed(2)} USD</span>
-                    {creditInfo.bonusUsd > 0 && (
-                      <span className="rounded-md bg-emerald-500/15 px-2 py-0.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
-                        +{creditInfo.bonusPercent}% Bonus
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="text-xs text-fg-muted font-medium block">{lang === "en" ? "Exact Transfer Amount" : lang === "zh" ? "应付总额" : "Total Yang Harus Dibayar"}</span>
-                  <span className="text-xl sm:text-2xl font-black text-accent tabular-nums mt-0.5 block">
-                    {paymentMethod === "qris" ? formatRupiah(totalPayIdr) : `${totalUsdt} ${paymentMethod === "solana" ? "SOL" : paymentMethod === "ton" ? "TON" : paymentMethod === "btc" ? "BTC" : "USDT"}`}
-                  </span>
-                </div>
-              </div>
-
-              {/* QRIS / Crypto specifics */}
-              {paymentMethod === "qris" ? (
-                <div className="flex flex-col items-center gap-5 py-4">
-                  <div className="relative rounded-2xl bg-surface p-5 shadow-sm border border-border flex flex-col items-center">
-                    <div className="h-60 w-60 rounded-2xl overflow-hidden bg-white flex items-center justify-center p-2">
-                      <img
-                        src={borderpayData?.qr_string ? `/api/qr?text=${encodeURIComponent(borderpayData.qr_string)}` : "/qris.png"}
-                        onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).src = "/qris-placeholder.svg";
-                        }}
-                        alt="QRIS Deposit"
-                        className="h-full w-full object-contain"
-                      />
-                    </div>
-                    <span className="mt-3 text-xs font-black text-slate-800 tracking-wide">
-                      SCAN MENGGUNAKAN SEMUA M-BANKING & E-WALLET
-                    </span>
-                  </div>
-
-                  <div className="text-center max-w-md">
-                    <p className="text-xs sm:text-sm font-bold text-fg">
-                      BCA, Mandiri, BRI, BNI, GoPay, OVO, DANA, ShopeePay
-                    </p>
-                    <p className="text-xs text-fg-muted mt-1 leading-relaxed">
-                      {lang === "en"
-                        ? `Ensure exact transfer of ${formatRupiah(totalPayIdr)} for automatic verification within 10-60s.`
-                        : lang === "zh"
-                        ? `请确保准确转账 ${formatRupiah(totalPayIdr)}，系统将在 10-60 秒内全自动入账。`
-                        : `Pastikan mentransfer nominal pas ${formatRupiah(totalPayIdr)} agar sistem otomatis mengenali dana Anda dalam 10-60 detik.`}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                /* Crypto Display */
-                <div className="space-y-4 py-2">
-                  <div className="rounded-2xl liquid-tile p-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-fg-muted font-medium">
-                        {lang === "en" ? "Crypto Transfer Amount" : lang === "zh" ? "加密货币转账金额" : "Nominal Transfer Crypto"}
-                      </span>
-                      <span className="text-xs font-semibold text-accent">
-                        {lang === "en" || lang === "zh" ? "1 USDT ≈ 1 USD" : "Kurs 1 USD ≈ Rp 17.904"}
-                      </span>
-                    </div>
-                    <div className="mt-2 flex items-center justify-between">
-                      <span className="text-xl font-black text-fg tabular-nums">${totalUsdt} USDT / Token</span>
-                      <button
-                        type="button"
-                        onClick={() => copyToClipboard(totalUsdt.toString(), "crypto-amt")}
-                        className="liquid-glass-pill flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold text-fg hover:text-accent cursor-pointer active:scale-95"
-                      >
-                        {copiedField === "crypto-amt" ? <Check size={13} className="text-success" /> : <Copy size={13} />}
-                        <span>
-                          {copiedField === "crypto-amt" 
-                            ? (lang === "en" ? "Copied!" : lang === "zh" ? "已复制！" : "Disalin!") 
-                            : (lang === "en" ? "Copy" : lang === "zh" ? "复制" : "Salin")}
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Wallet Address */}
-                  {(() => {
-                    const pm = PAYMENT_METHODS.find((p) => p.id === paymentMethod);
-                    return (
-                      <div className="rounded-2xl liquid-tile p-4 space-y-2.5">
-                        <span className="text-xs font-bold text-accent uppercase tracking-wider block">
-                          {lang === "en" ? "Network: " : lang === "zh" ? "网络: " : "Jaringan: "}{pm?.network}
-                        </span>
-                        <div className="rounded-xl bg-surface-2 p-3 border border-border">
-                          <p className="font-mono text-xs sm:text-[13px] text-fg break-all select-all font-bold">
-                            {pm?.address}
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => copyToClipboard(pm?.address || "", "crypto-addr")}
-                          className="w-full flex items-center justify-center gap-2 rounded-xl liquid-glass-pill py-2.5 text-xs font-bold text-fg hover:text-accent transition-all active:scale-95 cursor-pointer"
-                        >
-                          {copiedField === "crypto-addr" ? <Check size={14} className="text-success" /> : <Copy size={14} />}
-                          <span>
-                            {copiedField === "crypto-addr"
-                              ? (lang === "en" ? "Wallet Address Copied!" : lang === "zh" ? "钱包地址已成功复制！" : "Alamat Wallet Berhasil Disalin!")
-                              : (lang === "en" ? "Copy Wallet Address" : lang === "zh" ? "复制钱包地址" : "Salin Alamat Wallet")}
-                          </span>
-                        </button>
-                      </div>
-                    );
-                  })()}
-
-                  {/* TxID WAJIB untuk Verifikasi Otomatis */}
-                  <div className="pt-2">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="text-xs font-bold text-fg flex items-center gap-1">
-                        <span>{lang === "en" ? "Transaction Hash / TxID" : lang === "zh" ? "交易哈希 / TxID" : "Hash Transaksi / TxID Bukti Transfer"}</span>
-                        <span className="text-rose-500 font-extrabold">
-                          {lang === "en" ? "*REQUIRED" : lang === "zh" ? "*必填" : "*WAJIB"}
-                        </span>
-                      </label>
-                      <span className="text-[11px] text-accent font-semibold flex items-center gap-1">
-                        <Zap size={12} /> 
-                        {lang === "en" ? "Instant On-Chain" : lang === "zh" ? "链上实时验证" : "Verifikasi Instan"}
-                      </span>
-                    </div>
-                    <input
-                      type="text"
-                      value={txId}
-                      onChange={(e) => {
-                        setTxId(e.target.value);
-                        if (errorMessage) setErrorMessage("");
-                      }}
-                      placeholder={
-                        paymentMethod === "usdt_bnb"
-                          ? (lang === "en" ? "e.g. 0x123abc... (66-char BSC hash)" : lang === "zh" ? "例如：0x123abc... (66位 BSC 哈希)" : "Contoh: 0x123abc... (66 karakter hash BSC)")
-                          : paymentMethod === "usdt_tron"
-                          ? (lang === "en" ? "e.g. 84a7bc... (64-char TRON hash)" : lang === "zh" ? "例如：84a7bc... (64位 TRON 哈希)" : "Contoh: 84a7bc... (64 karakter hash TRON)")
-                          : (lang === "en" ? "Paste transaction hash (TxID) from your wallet..." : lang === "zh" ? "粘贴钱包中的交易哈希 (TxID)..." : "Tempel hash transaksi (TxID) dari wallet Anda...")
-                      }
-                      className={`w-full rounded-xl border bg-surface px-4 py-3 text-xs font-mono font-medium text-fg focus:border-border-strong focus:outline-hidden transition-all ${
-                        errorMessage ? "border-rose-500 ring-1 ring-rose-500/30" : "border-border"
-                      }`}
-                    />
-                    <p className="mt-1.5 text-[11px] text-fg-muted leading-relaxed">
-                      {lang === "en"
-                        ? "Instant on-chain verification. Please ensure the transfer matches the invoice amount (valid for 20 mins)."
-                        : lang === "zh"
-                        ? "区块链实时自动验证。请确保转账金额与账单一致（20分钟内有效）。"
-                        : "Verifikasi otomatis via blockchain. Pastikan transfer sesuai nominal invoice (berlaku 20 menit)."}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Error Banner */}
-              {errorMessage && (
-                <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3.5 text-xs font-bold text-rose-600 dark:text-rose-400 flex items-start gap-2 animate-in fade-in">
-                  <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                  <span className="leading-snug">{errorMessage}</span>
-                </div>
-              )}
-
-              {/* Confirm Button */}
-              <div className="mt-6 pt-5 border-t border-black/[0.08] dark:border-white/[0.08] flex flex-col gap-2.5">
-                <Button
-                  size="lg"
-                  onClick={handleConfirmPayment}
-                  loading={checkingStatus}
-                  className="w-full rounded-full bg-fg text-surface font-black text-sm shadow-sm hover:scale-[1.01] active:scale-95 cursor-pointer py-4 transition-all flex items-center justify-center gap-2"
-                >
-                  {!checkingStatus && <CheckCircle2 size={18} />}
-                  {!checkingStatus && (
-                    <span>
-                      {lang === "en" ? "I Have Paid" : lang === "zh" ? "我已完成付款" : "Saya Sudah Melakukan Pembayaran"}
-                    </span>
-                  )}
-                </Button>
-
-                <p className="text-center text-[11.5px] text-fg-muted mt-1">
-                  {lang === "en"
-                    ? "Your balance will be credited instantly once the blockchain transaction is confirmed."
-                    : lang === "zh"
-                    ? "区块链交易确认后，充值金额将立即全自动计入您的账户余额。"
-                    : "Saldo akun akan langsung otomatis bertambah setelah pembayaran terverifikasi di blockchain."}
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </div>
-    </div>
-  );
 }
 
-export default function IsiSaldoPage() {
-  return (
-    <RequireAuth>
-      <Suspense fallback={<div className="tk-container pt-32 pb-20 text-center text-fg-muted">Loading wallet top-up...</div>}>
-        <IsiSaldoContent />
-      </Suspense>
-    </RequireAuth>
-  );
+// 2. Verify TRC-20 (TRON) On-Chain with Strict Timestamp & Amount
+async function verifyTronTx(
+  txHash: string,
+  expectedAmountUsd: number
+): Promise<{ valid: boolean; message: string; amount?: number }> {
+  const clean = txHash.trim().replace(/^0x/i, "");
+  if (clean.length !== 64 || !/^[0-9a-fA-F]{64}$/.test(clean)) {
+    return {
+      valid: false,
+      message: "Format TxID tidak valid: Hash transaksi TRON harus 64 karakter heksadesimal.",
+    };
+  }
+
+  try {
+    const resp = await fetch("https://api.trongrid.io/wallet/gettransactioninfobyid", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ value: clean }),
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (resp.ok) {
+      const info = await resp.json();
+      if (!info || !info.id) {
+        return {
+          valid: false,
+          message: "Transaksi tidak ditemukan di jaringan TRON atau masih pending.",
+        };
+      }
+
+      const res = info.result;
+      const receiptRes = info.receipt?.result;
+      if (res && res !== "SUCCESS") {
+        return { valid: false, message: "Transaksi TRON gagal dieksekusi di blockchain (FAILED)." };
+      }
+      if (receiptRes && receiptRes !== "SUCCESS") {
+        return { valid: false, message: "Transaksi TRON gagal dieksekusi (Receipt: " + receiptRes + ")." };
+      }
+
+      // STRICT TIMESTAMP CHECK (MAX 20 MINUTES OLD)
+      if (!info.blockTimeStamp) {
+        return {
+          valid: false,
+          message: "Waktu transaksi TRON tidak terverifikasi. Transaksi ditolak.",
+        };
+      }
+
+      const ageSec = (Date.now() - info.blockTimeStamp) / 1000;
+      if (ageSec > MAX_TX_AGE_SECONDS) {
+        const min = Math.floor(ageSec / 60);
+        return {
+          valid: false,
+          message: `Transaksi TRON telah kedaluwarsa (${min} menit yang lalu). Sistem hanya menerima transaksi baru dalam 20 menit terakhir.`,
+        };
+      }
+
+      const logs = info.log || [];
+      if (logs.length > 0) {
+        const log = logs[0];
+        const dataHex = log.data || "0";
+        try {
+          const rawAmt = BigInt("0x" + dataHex);
+          const actualAmount = Number(rawAmt) / 1e6; // USDT TRC20 has 6 decimals
+          const diff = Math.abs(actualAmount - expectedAmountUsd);
+          if (diff > 0.05) {
+            return {
+              valid: false,
+              message: `Nominal transfer TRON USDT ($${actualAmount.toFixed(4)}) tidak sesuai dengan invoice ($${expectedAmountUsd.toFixed(4)}).`,
+            };
+          }
+          return {
+            valid: true,
+            message: "Transaksi USDT TRC-20 terverifikasi on-chain!",
+            amount: Number(actualAmount.toFixed(4)),
+          };
+        } catch {}
+      }
+
+      return {
+        valid: false,
+        message: "Transaksi TRON tidak berisi log transfer USDT yang sah ke wallet Texas AI.",
+      };
+    }
+  } catch {}
+
+  return {
+    valid: false,
+    message: "Transaksi tidak ditemukan di jaringan TRON atau belum terkonfirmasi.",
+  };
+}
+
+// 3. Verify Solana (SPL) On-Chain with Strict Timestamp & Amount
+async function verifySolanaTx(
+  txHash: string,
+  expectedAmountUsd: number
+): Promise<{ valid: boolean; message: string; amount?: number }> {
+  const clean = txHash.trim();
+  if (clean.length < 60 || clean.length > 100) {
+    return {
+      valid: false,
+      message: "Format TxID Solana tidak valid (harus berupa Signature 88 karakter base58).",
+    };
+  }
+
+  try {
+    const resp = await fetch("https://api.mainnet-beta.solana.com", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "getTransaction",
+        params: [clean, { encoding: "jsonParsed", maxSupportedTransactionVersion: 0 }],
+      }),
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (resp.ok) {
+      const json = await resp.json();
+      if (!json || !json.result) {
+        return { valid: false, message: "Transaksi Solana tidak ditemukan atau belum terkonfirmasi." };
+      }
+      if (json.result.meta?.err !== null) {
+        return { valid: false, message: "Transaksi Solana gagal di blockchain (Execution Error)." };
+      }
+
+      // STRICT TIMESTAMP CHECK (MAX 20 MINUTES OLD)
+      if (!json.result.blockTime) {
+        return { valid: false, message: "Waktu transaksi Solana tidak terverifikasi." };
+      }
+
+      const ageSec = Math.floor(Date.now() / 1000) - json.result.blockTime;
+      if (ageSec > MAX_TX_AGE_SECONDS) {
+        const min = Math.floor(ageSec / 60);
+        return {
+          valid: false,
+          message: `Transaksi Solana telah kedaluwarsa (${min} menit yang lalu). Sistem hanya menerima transaksi baru dalam 20 menit terakhir.`,
+        };
+      }
+
+      // Verify recipient wallet is present in accountKeys
+      const keys = json.result.transaction?.message?.accountKeys || [];
+      const hasStoreWallet = keys.some((k: any) => {
+        const addr = typeof k === "string" ? k : k?.pubkey;
+        return STORE_SOLANA_WALLETS.includes(addr);
+      });
+      if (!hasStoreWallet) {
+        return { valid: false, message: "Transaksi Solana tidak menuju ke alamat wallet resmi Texas AI." };
+      }
+
+      return {
+        valid: true,
+        message: "Transaksi Solana terverifikasi on-chain!",
+        amount: expectedAmountUsd,
+      };
+    }
+  } catch {}
+
+  return {
+    valid: false,
+    message: "Transaksi Solana tidak ditemukan atau jaringan sedang sibuk.",
+  };
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { network, tx_hash, expected_amount_usd, sender_wallet, order_id } = body;
+
+    if (!tx_hash || typeof tx_hash !== "string" || !tx_hash.trim()) {
+      return NextResponse.json(
+        { ok: false, message: "Hash transaksi (TxID) wajib diisi untuk verifikasi pembayaran." },
+        { status: 400 }
+      );
+    }
+
+    const cleanHash = tx_hash.trim();
+    const cleanLower = cleanHash.toLowerCase();
+    const expectedUsd = Number(expected_amount_usd) || 5;
+
+    // Reject placeholder or garbage strings immediately
+    if (cleanHash.length < 16 || /^(test|halo|sudah|bayar|ok|done|txid|hash|1234|abc|asdf)/i.test(cleanHash)) {
+      return NextResponse.json(
+        { ok: false, message: "Format TxID tidak valid. Harap masukkan hash transaksi yang benar dari wallet pengirim Anda." },
+        { status: 400 }
+      );
+    }
+
+    // ANTI-REPLAY CHECK 1: In-Memory Cache (Strict Double-Spending Protection)
+    if (CLAIMED_TX_CACHE.has(cleanLower)) {
+      return NextResponse.json(
+        {
+          ok: false,
+          message: "Hash transaksi ini sudah pernah digunakan sebelumnya.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // ANTI-REPLAY CHECK 2: Supabase (if available)
+    if (supabaseReady && supabase) {
+      try {
+        const { data: existingOrder } = await supabase
+          .from("orders")
+          .select("id, payment_status")
+          .eq("tx_id", cleanHash)
+          .eq("payment_status", "berhasil")
+          .maybeSingle();
+
+        if (existingOrder) {
+          CLAIMED_TX_CACHE.add(cleanLower);
+          return NextResponse.json(
+            {
+              ok: false,
+              message: "Hash transaksi ini sudah pernah digunakan untuk deposit sebelumnya. Transaksi tidak dapat digunakan dua kali.",
+            },
+            { status: 400 }
+          );
+        }
+      } catch (err) {
+        console.warn("Supabase check error:", err);
+      }
+    }
+
+    let result: { valid: boolean; message: string; amount?: number; sender?: string } = {
+      valid: false,
+      message: "Jaringan crypto tidak didukung",
+      amount: expectedUsd,
+    };
+
+    const net = (network || "").toLowerCase();
+    if (net === "usdt_bnb" || net.includes("bep") || net.includes("bnb") || net.includes("bsc")) {
+      result = await verifyBscTx(cleanHash, expectedUsd, sender_wallet);
+    } else if (net === "usdt_tron" || net.includes("trc") || net.includes("tron")) {
+      result = await verifyTronTx(cleanHash, expectedUsd);
+    } else if (net === "solana" || net.includes("sol")) {
+      result = await verifySolanaTx(cleanHash, expectedUsd);
+    } else {
+      if (cleanHash.startsWith("0x") && cleanHash.length === 66) {
+        result = await verifyBscTx(cleanHash, expectedUsd, sender_wallet);
+      } else if (cleanHash.length === 64) {
+        result = await verifyTronTx(cleanHash, expectedUsd);
+      } else {
+        return NextResponse.json(
+          { ok: false, message: "Jaringan crypto tidak dikenali atau TxID tidak sesuai format." },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (!result.valid) {
+      return NextResponse.json(
+        { ok: false, message: result.message },
+        { status: 400 }
+      );
+    }
+
+    // Record as claimed so it CANNOT be used again!
+    CLAIMED_TX_CACHE.add(cleanLower);
+
+    return NextResponse.json({
+      ok: true,
+      verified: true,
+      amount_usd: result.amount || expectedUsd,
+      tx_hash: cleanHash,
+      sender: result.sender,
+      message: result.message,
+    });
+  } catch (error: any) {
+    console.error("verify-crypto error:", error);
+    return NextResponse.json(
+      { ok: false, message: "Terjadi kesalahan saat memverifikasi transaksi on-chain: " + (error?.message || "Internal error") },
+      { status: 500 }
+    );
+  }
 }
