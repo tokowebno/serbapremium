@@ -14,7 +14,7 @@ const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a
 
 // Official Store Wallets
 const STORE_BSC_WALLETS = [
-  "0xcC3C78b2b90fF30B3D047Cc27C83a9bAB8c5D0ac".toLowerCase(),
+  "0xC94175a83b182F7b1aBb9059CD751965f54bd00A".toLowerCase(),
   "0x8C3569a4A758Ecaa083B6d4505E994d7a8426d15".toLowerCase(),
   "0xE0954c5831FcC9F36cd837Bc69F0A240a3EaeB48".toLowerCase(),
   "0x25f1C391aF0050c33560C36Aa9FAc9624f1e920e".toLowerCase(),
@@ -28,7 +28,7 @@ const STORE_BSC_WALLETS = [
 ];
 
 const STORE_TRON_WALLETS = [
-  "TEZ6JFy2Ew6ayPYgdj1xY36WWdahYkBxat",
+  "TTcjF78tTsDFNmuJzzBgTdT9GaWHmmmnVV",
   "TLszJVcoXfrfL69Tn8EfGciAvU9mTiE5hd",
   "TQTpRn6j1Pfwf38xP8CxqxJi18YX4v8Wcm",
 ];

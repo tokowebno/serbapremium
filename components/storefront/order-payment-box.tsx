@@ -44,7 +44,7 @@ export function OrderPaymentBox({
     paymentMethod?.toLowerCase().includes("tron");
 
   let cryptoNetwork = "Tron (TRC-20)";
-  let cryptoAddress = "TEZ6JFy2Ew6ayPYgdj1xY36WWdahYkBxat";
+  let cryptoAddress = "TTcjF78tTsDFNmuJzzBgTdT9GaWHmmmnVV";
   let cryptoSymbol = "USDT";
 
   if (isSolana) {
@@ -53,11 +53,11 @@ export function OrderPaymentBox({
     cryptoSymbol = "SOL / USDT";
   } else if (isTon) {
     cryptoNetwork = "The Open Network (TON)";
-    cryptoAddress = "UQAG_A_1Ay9QcSqJifY_W9hQr0ZRW0WwcALCLm_hVRx6LWbz";
+    cryptoAddress = "UQCBzYw12ka6Y7m-skI_W5NL1uv5LSXGI1Hb6s-AvImK6BUe";
     cryptoSymbol = "TON / GRAM";
   } else if (isBep20) {
     cryptoNetwork = "BNB Smart Chain (BEP-20)";
-    cryptoAddress = "0xcC3C78b2b90fF30B3D047Cc27C83a9bAB8c5D0ac";
+    cryptoAddress = "0xC94175a83b182F7b1aBb9059CD751965f54bd00A";
     cryptoSymbol = "BNB / USDT";
   } else if (isBtc) {
     cryptoNetwork = "Bitcoin";

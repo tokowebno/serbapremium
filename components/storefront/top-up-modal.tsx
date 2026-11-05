@@ -54,7 +54,7 @@ const PAYMENT_METHODS: {
     },
     icon: "/logos/bnb.svg",
     network: "BNB Smart Chain (BEP-20)",
-    address: "0xcC3C78b2b90fF30B3D047Cc27C83a9bAB8c5D0ac",
+    address: "0xC94175a83b182F7b1aBb9059CD751965f54bd00A",
   },
   {
     id: "usdt_tron",
@@ -70,7 +70,7 @@ const PAYMENT_METHODS: {
     },
     icon: "/logos/tron.svg",
     network: "Tron (TRC-20)",
-    address: "TEZ6JFy2Ew6ayPYgdj1xY36WWdahYkBxat",
+    address: "TTcjF78tTsDFNmuJzzBgTdT9GaWHmmmnVV",
   },
   {
     id: "solana",
@@ -102,7 +102,7 @@ const PAYMENT_METHODS: {
     },
     icon: "/logos/ton.svg",
     network: "The Open Network (TON)",
-    address: "UQAG_A_1Ay9QcSqJifY_W9hQr0ZRW0WwcALCLm_hVRx6LWbz",
+    address: "UQCBzYw12ka6Y7m-skI_W5NL1uv5LSXGI1Hb6s-AvImK6BUe",
   },
   {
     id: "btc",
