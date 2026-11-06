@@ -54,7 +54,7 @@ const PAYMENT_METHODS: {
     },
     icon: "/logos/bnb.svg",
     network: "BNB Smart Chain (BEP-20)",
-    address: "0xC94175a83b182F7b1aBb9059CD751965f54bd00A",
+    address: "0x4D6f43b6Cbe977b599fA544442ecAE49C02072D2",
   },
   {
     id: "usdt_tron",
@@ -143,10 +143,22 @@ export function TopUpModal() {
   // Amount state (Anchor at $10 Recommended Volume Tier)
   const [selectedUsd, setSelectedUsd] = useState<number>(10);
   const [customInput, setCustomInput] = useState<string>("");
-  const [paymentMethod, setPaymentMethod] = useState<DepositPaymentMethod>("usdt_bnb");
+  const [paymentMethod, setPaymentMethod] = useState<DepositPaymentMethod>(() =>
+    lang === "id" ? "qris" : "usdt_bnb"
+  );
 
-  // QRIS tersedia di semua bahasa (selalu di urutan paling bawah)
-  const visiblePaymentMethods = PAYMENT_METHODS;
+  useEffect(() => {
+    setPaymentMethod(lang === "id" ? "qris" : "usdt_bnb");
+  }, [lang]);
+
+  // Jika Bahasa Indonesia (id), QRIS berada di urutan paling atas; jika bahasa lain (en/zh), QRIS di urutan paling bawah
+  const visiblePaymentMethods =
+    lang === "id"
+      ? [
+          ...PAYMENT_METHODS.filter((m) => m.id === "qris"),
+          ...PAYMENT_METHODS.filter((m) => m.id !== "qris"),
+        ]
+      : PAYMENT_METHODS;
 
   // Step state
   const [step, setStep] = useState<1 | 2>(1);

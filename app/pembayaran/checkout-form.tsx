@@ -90,7 +90,7 @@ const PAYMENT_INFO: Record<
     },
     icon: "/logos/bnb.svg",
     network: "BNB Smart Chain (BEP-20)",
-    address: "0xD9dcb9D086Ce30e9AcbB93A109946cB3a2AE0e96",
+    address: "0x4D6f43b6Cbe977b599fA544442ecAE49C02072D2",
   },
   usdt_tron: {
     name: {
