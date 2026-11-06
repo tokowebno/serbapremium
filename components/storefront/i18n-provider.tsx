@@ -25,10 +25,23 @@ export function I18nProvider({
   const [lang, setLangState] = useState<LanguageCode>(initialLang);
 
   useEffect(() => {
-    // Membaca cookie atau localStorage jika ada di client
+    // Membaca cookie atau localStorage jika ada di client, atau auto-detect dari Telegram WebApp / Browser
     const cookieMatch = document.cookie.match(/(?:serbapremium-lang|tokono-lang)=([^;]+)/);
     if (cookieMatch && cookieMatch[1] && dictionaries[cookieMatch[1] as LanguageCode]) {
       setLangState(cookieMatch[1] as LanguageCode);
+      return;
+    }
+    const tgLang = (
+      (window as any)?.Telegram?.WebApp?.initDataUnsafe?.user?.language_code ||
+      navigator.language ||
+      "en"
+    ).toLowerCase();
+    if (tgLang.startsWith("id") || tgLang.startsWith("ms")) {
+      setLangState("id");
+    } else if (tgLang.startsWith("zh")) {
+      setLangState("zh");
+    } else {
+      setLangState("en");
     }
   }, []);
 
