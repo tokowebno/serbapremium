@@ -158,10 +158,22 @@ function IsiSaldoContent() {
     return 10;
   });
   const [customInput, setCustomInput] = useState<string>("");
-  const [paymentMethod, setPaymentMethod] = useState<DepositPaymentMethod>("usdt_bnb");
+  const [paymentMethod, setPaymentMethod] = useState<DepositPaymentMethod>(() =>
+    lang === "id" ? "qris" : "usdt_bnb"
+  );
 
-  // QRIS tersedia di semua bahasa (selalu di urutan paling bawah)
-  const visiblePaymentMethods = PAYMENT_METHODS;
+  useEffect(() => {
+    setPaymentMethod(lang === "id" ? "qris" : "usdt_bnb");
+  }, [lang]);
+
+  // Jika Bahasa Indonesia (id), QRIS berada di urutan paling atas; jika bahasa lain (en/zh), QRIS di urutan paling bawah
+  const visiblePaymentMethods =
+    lang === "id"
+      ? [
+          ...PAYMENT_METHODS.filter((m) => m.id === "qris"),
+          ...PAYMENT_METHODS.filter((m) => m.id !== "qris"),
+        ]
+      : PAYMENT_METHODS;
 
   // Step state
   const [step, setStep] = useState<1 | 2>(1);
