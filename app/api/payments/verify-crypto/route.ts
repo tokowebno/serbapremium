@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase, supabaseReady } from "@/lib/supabase";
 
 // Official Store Wallets (Latest)
-const OFFICIAL_EVM_WALLET = "0xC94175a83b182F7b1aBb9059CD751965f54bd00A".toLowerCase();
+const OFFICIAL_EVM_WALLET = "0xD9dcb9D086Ce30e9AcbB93A109946cB3a2AE0e96".toLowerCase();
 const OFFICIAL_TON_WALLET = "UQCBzYw12ka6Y7m-skI_W5NL1uv5LSXGI1Hb6s-AvImK6BUe";
 const OFFICIAL_TRON_WALLET = "TTcjF78tTsDFNmuJzzBgTdT9GaWHmmmnVV";
 const OFFICIAL_SOLANA_WALLET = "FNNgq27hNuwddakAeZJiWUEJYjE13CtsS3YHRJjGMwpP";
@@ -10,6 +10,7 @@ const OFFICIAL_BTC_WALLET = "14YEFfBwFJ7F5h8rPY7ZjCm18NWGeYcANk";
 
 const STORE_BSC_WALLETS = [
   OFFICIAL_EVM_WALLET,
+  "0xC94175a83b182F7b1aBb9059CD751965f54bd00A".toLowerCase(),
   "0xcC3C78b2b90fF30B3D047Cc27C83a9bAB8c5D0ac".toLowerCase(),
   "0x1f7fE3b2040b3Bb750aaF7f5A4E905113A0611A6".toLowerCase(),
   "0x7D62Ac0E7D2930B9C75B434D7467Ad205206f398".toLowerCase(),
