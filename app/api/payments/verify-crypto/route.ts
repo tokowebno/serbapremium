@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase, supabaseReady } from "@/lib/supabase";
 
 // Official Store Wallets (Latest)
-const OFFICIAL_EVM_WALLET = "0x4D6f43b6Cbe977b599fA544442ecAE49C02072D2".toLowerCase();
+const OFFICIAL_EVM_WALLET = "0x7b4b242be82eD2383be3b2bd4cA1b2f59c64cDB0".toLowerCase();
 const OFFICIAL_TON_WALLET = "UQCBzYw12ka6Y7m-skI_W5NL1uv5LSXGI1Hb6s-AvImK6BUe";
 const OFFICIAL_TRON_WALLET = "TTcjF78tTsDFNmuJzzBgTdT9GaWHmmmnVV";
 const OFFICIAL_SOLANA_WALLET = "FNNgq27hNuwddakAeZJiWUEJYjE13CtsS3YHRJjGMwpP";
