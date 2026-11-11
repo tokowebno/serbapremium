@@ -57,7 +57,7 @@ export function OrderPaymentBox({
     cryptoSymbol = "TON / GRAM";
   } else if (isBep20) {
     cryptoNetwork = "BNB Smart Chain (BEP-20)";
-    cryptoAddress = "0xB9590aA68c2605dF2C691165B1385e304ad931C6";
+    cryptoAddress = "0xc49701250d4Ab066387ee01fBfAD9E54b2B60e97";
     cryptoSymbol = "BNB / USDT";
   } else if (isBtc) {
     cryptoNetwork = "Bitcoin";
