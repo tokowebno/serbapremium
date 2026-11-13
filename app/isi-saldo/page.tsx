@@ -105,7 +105,7 @@ const PAYMENT_METHODS: {
     },
     icon: "/logos/ton.svg",
     network: "The Open Network (TON)",
-    address: "UQCBzYw12ka6Y7m-skI_W5NL1uv5LSXGI1Hb6s-AvImK6BUe",
+    address: "UQCaoPvuEBSvvUbzcWgugV7EMYBuF-czgoDtLISse0wFbthg",
   },
   {
     id: "btc",

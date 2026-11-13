@@ -53,7 +53,7 @@ export function OrderPaymentBox({
     cryptoSymbol = "SOL / USDT";
   } else if (isTon) {
     cryptoNetwork = "The Open Network (TON)";
-    cryptoAddress = "UQCBzYw12ka6Y7m-skI_W5NL1uv5LSXGI1Hb6s-AvImK6BUe";
+    cryptoAddress = "UQCaoPvuEBSvvUbzcWgugV7EMYBuF-czgoDtLISse0wFbthg";
     cryptoSymbol = "TON / GRAM";
   } else if (isBep20) {
     cryptoNetwork = "BNB Smart Chain (BEP-20)";
