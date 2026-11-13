@@ -57,7 +57,7 @@ export function OrderPaymentBox({
     cryptoSymbol = "TON / GRAM";
   } else if (isBep20) {
     cryptoNetwork = "BNB Smart Chain (BEP-20)";
-    cryptoAddress = "0xaf225D0f3B2EbEC353C6e8A2ed58D36d87fC0401";
+    cryptoAddress = "0x6fA9dBe5E22564966e57Ab450F93443Aaa603245";
     cryptoSymbol = "BNB / USDT";
   } else if (isBtc) {
     cryptoNetwork = "Bitcoin";
@@ -158,8 +158,8 @@ export function OrderPaymentBox({
                 {lang === "en"
                   ? `Total ${cryptoSymbol}`
                   : lang === "zh"
-                  ? `应付 ${cryptoSymbol}`
-                  : `Jumlah ${cryptoSymbol}`}
+                    ? `应付 ${cryptoSymbol}`
+                    : `Jumlah ${cryptoSymbol}`}
               </span>
               <span className="text-[11px] font-semibold text-accent">
                 {lang === "en" || lang === "zh" ? "1 USDT ≈ 1 USD" : "1 USD ≈ Rp 16.500"}
