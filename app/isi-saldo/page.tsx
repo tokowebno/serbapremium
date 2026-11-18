@@ -43,96 +43,101 @@ const PAYMENT_METHODS: {
   network?: string;
   address?: string;
 }[] = [
-    {
-      id: "usdt_bnb",
-      name: {
-        id: "USDT / BNB (BEP-20)",
-        en: "USDT / BNB (BEP-20)",
-        zh: "USDT / BNB (BEP-20)",
-      },
-      desc: {
-        id: "BNB Smart Chain · Fee Rendah",
-        en: "BNB Smart Chain · Low Fee & Instant",
-        zh: "币安智能链 · 低手续费秒级入账",
-      },
-      icon: "/logos/bnb.svg",
-      network: "BNB Smart Chain (BEP-20)",
-      address: "0x049bBC28834E432deDDb4C61D79bF1204f3e9bCa",
+  {
+    id: "usdt_bnb",
+    name: {
+      id: "USDT / BNB (BEP-20)",
+      en: "USDT / BNB (BEP-20)",
+      zh: "USDT / BNB (BEP-20)",
     },
-    {
-      id: "usdt_tron",
-      name: {
-        id: "USDT TRC-20 (Tron)",
-        en: "USDT TRC-20 (Tron)",
-        zh: "USDT TRC-20 (Tron)",
-      },
-      desc: {
-        id: "Tron Network · Transfer Cepat",
-        en: "Tron Network · Automated Settlement",
-        zh: "波场网络 · 全自动核验",
-      },
-      icon: "/logos/tron.svg",
-      network: "Tron (TRC-20)",
-      address: "TTcjF78tTsDFNmuJzzBgTdT9GaWHmmmnVV",
+    desc: {
+      id: "BNB Smart Chain · Fee Rendah",
+      en: "BNB Smart Chain · Low Fee & Instant",
+      zh: "币安智能链 · 低手续费秒级入账",
     },
     icon: "/logos/bnb.svg",
     network: "BNB Smart Chain (BEP-20)",
     address: "0x049bBC28834E432deDDb4C61D79bF1204f3e9bCa",
   },
-{
-  id: "usdt_tron",
+  {
+    id: "usdt_tron",
     name: {
-    id: "USDT TRC-20 (Tron)",
+      id: "USDT TRC-20 (Tron)",
       en: "USDT TRC-20 (Tron)",
-        zh: "USDT TRC-20 (Tron)",
+      zh: "USDT TRC-20 (Tron)",
     },
+    desc: {
+      id: "Tron Network · Transfer Cepat",
+      en: "Tron Network · Automated Settlement",
+      zh: "波场网络 · 全自动核验",
+    },
+    icon: "/logos/tron.svg",
+    network: "Tron (TRC-20)",
+    address: "TTcjF78tTsDFNmuJzzBgTdT9GaWHmmmnVV",
+  },
+  {
+    id: "solana",
+    name: {
+      id: "Solana / SOL (SPL)",
+      en: "Solana / SOL (SPL)",
+      zh: "Solana / SOL (SPL)",
+    },
+    desc: {
+      id: "Solana Network · Instan",
+      en: "Solana Mainnet · Sub-Second Finality",
+      zh: "Solana 极速主网",
+    },
+    icon: "/logos/solana.svg",
+    network: "Solana (SPL)",
+    address: "FNNgq27hNuwddakAeZJiWUEJYjE13CtsS3YHRJjGMwpP",
+  },
   {
     id: "ton",
-      name: {
+    name: {
       id: "TON (Telegram Wallet)",
-        en: "TON (The Open Network)",
-          zh: "TON (Telegram 开放网络)",
-      },
+      en: "TON (The Open Network)",
+      zh: "TON (Telegram 开放网络)",
+    },
     desc: {
       id: "The Open Network · Telegram",
-        en: "Telegram Wallet & TON Mainnet",
-          zh: "支持 Telegram Wallet 转账",
-      },
-    icon: "/logos/ton.svg",
-      network: "The Open Network (TON)",
-        address: "UQCaoPvuEBSvvUbzcWgugV7EMYBuF-czgoDtLISse0wFbthg",
+      en: "Telegram Wallet & TON Mainnet",
+      zh: "支持 Telegram Wallet 转账",
     },
+    icon: "/logos/ton.svg",
+    network: "The Open Network (TON)",
+    address: "UQCaoPvuEBSvvUbzcWgugV7EMYBuF-czgoDtLISse0wFbthg",
+  },
   {
     id: "btc",
-      name: {
+    name: {
       id: "Bitcoin (BTC)",
-        en: "Bitcoin (BTC)",
-          zh: "比特币 (BTC)",
-      },
+      en: "Bitcoin (BTC)",
+      zh: "比特币 (BTC)",
+    },
     desc: {
       id: "Bitcoin Network",
-        en: "Bitcoin Mainnet Settlement",
-          zh: "比特币主网结算",
-      },
-    icon: "/logos/btc.svg",
-      network: "Bitcoin",
-        address: "14YEFfBwFJ7F5h8rPY7ZjCm18NWGeYcANk",
+      en: "Bitcoin Mainnet Settlement",
+      zh: "比特币主网结算",
     },
+    icon: "/logos/btc.svg",
+    network: "Bitcoin",
+    address: "14YEFfBwFJ7F5h8rPY7ZjCm18NWGeYcANk",
+  },
   {
     id: "qris",
-      name: {
+    name: {
       id: "QRIS (Semua Bank & E-Wallet)",
-        en: "QRIS (Indonesian Local Payment)",
-          zh: "QRIS 印尼本地扫码",
-      },
+      en: "QRIS (Indonesian Local Payment)",
+      zh: "QRIS 印尼本地扫码",
+    },
     desc: {
       id: "BCA, Mandiri, BRI, GoPay, OVO, Dana",
-        en: "Indonesian Banks & E-Wallets Only",
-          zh: "仅限印尼银行与电子钱包",
-      },
-    icon: "/logos/qris-icon.svg",
+      en: "Indonesian Banks & E-Wallets Only",
+      zh: "仅限印尼银行与电子钱包",
     },
-  ];
+    icon: "/logos/qris-icon.svg",
+  },
+];
 
   function IsiSaldoContent() {
     const router = useRouter();
