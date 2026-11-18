@@ -17,9 +17,9 @@ import {
 
 export const categories: Category[] = [
   { id: "ai", slug: "ai", name: "AI & Chatbot", icon: Bot, description: "Chatbot, asisten AI, dan alat berbasis AI." },
+  { id: "game", slug: "game", name: "Top-Up Game", icon: Gamepad2, description: "Diamond ML, Free Fire, Robux, Valorant & Voucher Game." },
   { id: "streaming", slug: "streaming", name: "Streaming", icon: Film, description: "Langganan premium platform streaming." },
   { id: "vpn", slug: "vpn", name: "VPN & Keamanan", icon: ShieldCheck, description: "Lindungi koneksi dan privasi Anda." },
-  { id: "game", slug: "game", name: "Top-Up Game", icon: Gamepad2, description: "Diamond ML, Free Fire, Robux, Valorant & Voucher Game." },
   { id: "akun", slug: "akun", name: "Akun & Email", icon: Mail, description: "Akun siap pakai dan layanan email." },
   { id: "sosial", slug: "sosial", name: "Sosial Media", icon: Heart, description: "Tumbuhkan follower dan engagement." },
   { id: "developer", slug: "developer", name: "Developer & Cloud", icon: Database, description: "Tools pengembangan dan layanan cloud." },

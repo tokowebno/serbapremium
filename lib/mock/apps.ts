@@ -127,12 +127,12 @@ export function brandLogo(name: string): string {
   if (has("canva")) return "canva.png";
   if (has("figma")) return "figma.svg";
   if (has("framer")) return "framer.svg";
-  if (has("robux", "roblox")) return "roblox.svg";
-  if (has("mobile legends", "mlbb", "diamond ml")) return "mlbb.svg";
-  if (has("free fire", "ff")) return "freefire.svg";
-  if (has("valorant", "vp")) return "valorant.svg";
-  if (has("pubg", "uc")) return "pubg.svg";
-  if (has("genshin", "genesis")) return "genshin.svg";
+  if (has("robux", "roblox")) return "roblox.png";
+  if (has("mobile legends", "mlbb", "diamond ml")) return "mlbb.png";
+  if (has("free fire", "ff")) return "freefire.png";
+  if (has("valorant", "vp")) return "valorant.png";
+  if (has("pubg", "uc")) return "pubg.png";
+  if (has("genshin", "genesis")) return "genshin.png";
   if (has("discord")) return "discord.svg";
   if (has("heygen")) return "heygen.svg";
   if (has("replit")) return "replit.svg";
@@ -160,6 +160,12 @@ export const popularRank = [
   "HeyGen AI Video Pro",
   "QuillBot Premium",
   "Gamma App Pro",
+  "Mobile Legends: Bang Bang",
+  "Free Fire",
+  "Roblox Robux",
+  "Valorant Points (VP)",
+  "PUBG Mobile (UC)",
+  "Genshin Impact",
   "Spotify Premium",
   "Netflix Premium 4K",
   "YouTube Premium",
