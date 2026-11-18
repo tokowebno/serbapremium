@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="pubg-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="50%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+  </defs>
+  <rect width="100" height="100" rx="22" fill="url(#pubg-bg)"/>
+  <!-- Level 3 Helmet Silhouette -->
+  <path d="M50 18 C32 18 24 28 24 45 C24 55 26 68 32 75 L38 82 L62 82 L68 75 C74 68 76 55 76 45 C76 28 68 18 50 18 Z" fill="#1c1917"/>
+  <!-- Visor -->
+  <path d="M30 46 L70 46 L67 56 L33 56 Z" fill="#030712" stroke="#d97706" stroke-width="2"/>
+  <line x1="40" y1="48" x2="40" y2="54" stroke="#d97706" stroke-width="2"/>
+  <line x1="50" y1="48" x2="50" y2="54" stroke="#d97706" stroke-width="2"/>
+  <line x1="60" y1="48" x2="60" y2="54" stroke="#d97706" stroke-width="2"/>
+  <text x="50" y="74" font-family="Impact, sans-serif" font-size="14" fill="#f59e0b" text-anchor="middle" letter-spacing="1">PUBG</text>
+</svg>

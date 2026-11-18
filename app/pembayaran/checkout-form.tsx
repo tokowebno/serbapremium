@@ -16,6 +16,7 @@ import {
   Sparkles,
   QrCode,
   Loader2,
+  Gamepad2,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { formatPrice, formatRupiah, USDT_RATE } from "@/lib/utils";
@@ -24,6 +25,7 @@ import { useTranslation } from "@/components/storefront/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { Input, Field } from "@/components/ui/form";
 import { motion } from "framer-motion";
+import { getGameConfig, type GameConfig } from "@/lib/game-fields";
 
 import { supabase, supabaseReady } from "@/lib/supabase";
 
@@ -217,6 +219,19 @@ export function CheckoutForm({
 
   const [uniqueCode] = useState(() => Math.floor(Math.random() * 800 + 100));
 
+  // Data akun game jika produk yang dibeli adalah Top-Up Game
+  const [gameAccountData, setGameAccountData] = useState<Record<string, string>>(() => {
+    const rawParam = searchParams.get("gameData");
+    if (rawParam) {
+      try {
+        return JSON.parse(decodeURIComponent(rawParam));
+      } catch {
+        return {};
+      }
+    }
+    return {};
+  });
+
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -260,6 +275,23 @@ export function CheckoutForm({
     });
   }
 
+  // Deteksi apakah item yang di-checkout merupakan Top-Up Game
+  const detectedGameConfig: GameConfig | null = (() => {
+    if (initialSlug) {
+      const cfg = getGameConfig(initialSlug);
+      if (cfg) return cfg;
+    }
+    if (customTitle) {
+      const cfg = getGameConfig(customTitle);
+      if (cfg) return cfg;
+    }
+    for (const it of itemsToCheckout) {
+      const cfg = getGameConfig(it.id || it.name);
+      if (cfg) return cfg;
+    }
+    return null;
+  })();
+
   const subtotal = itemsToCheckout.reduce((acc, item) => acc + item.price, 0);
   const baseUsd = subtotal / USDT_RATE;
   const usdtDecimalUnique = (uniqueCode % 100) / 10000;
@@ -291,6 +323,21 @@ export function CheckoutForm({
   };
 
   const validateForm = () => {
+    if (detectedGameConfig) {
+      for (const f of detectedGameConfig.fields) {
+        const val = (gameAccountData[f.id] || "").trim();
+        if (!val) {
+          setErrorMessage(
+            lang === "en"
+              ? `Please enter your ${f.label} for ${detectedGameConfig.gameName}.`
+              : lang === "zh"
+              ? `请填写 ${detectedGameConfig.gameName} 的 ${f.label}。`
+              : `Mohon isi ${f.label} untuk akun ${detectedGameConfig.gameName} Anda.`
+          );
+          return false;
+        }
+      }
+    }
     if (!name.trim()) {
       setErrorMessage(
         lang === "en"
@@ -473,10 +520,31 @@ export function CheckoutForm({
 
     const currentOrderId = borderpayData?.reference_id || orderId;
 
+    const finalItems = itemsToCheckout.map((it) => {
+      if (detectedGameConfig && (getGameConfig(it.id) || getGameConfig(it.name) || it.id === initialSlug || (customTitle && it.name === customTitle))) {
+        const gameSummary = Object.entries(gameAccountData)
+          .filter(([_, v]) => Boolean(v))
+          .map(([k, v]) => `${k}: ${v}`)
+          .join(" | ");
+        return {
+          ...it,
+          name: it.name.includes("[") ? it.name : (gameSummary ? `${it.name} [${gameSummary}]` : it.name),
+          game_account: gameAccountData,
+        };
+      }
+      return it;
+    });
+
     const orderData = {
       id: currentOrderId,
       user_name: name.trim() || "Pelanggan",
-      items: itemsToCheckout,
+      items: finalItems,
+      game_account: detectedGameConfig
+        ? {
+            game: detectedGameConfig.gameName,
+            ...gameAccountData,
+          }
+        : undefined,
       subtotal,
       discount: 0,
       total: totalBayar,
@@ -515,7 +583,7 @@ export function CheckoutForm({
           {
             id: currentOrderId,
             user_name: name.trim() || "Pelanggan",
-            items: itemsToCheckout,
+            items: finalItems,
             subtotal,
             discount: 0,
             total: totalBayar,
@@ -725,6 +793,78 @@ export function CheckoutForm({
                   </p>
                 </div>
               </div>
+
+              {/* Jika Produk Top-Up Game, Tampilkan Form Data Akun Game */}
+              {detectedGameConfig && (
+                <div className="rounded-2xl border border-accent/40 bg-accent/5 p-4 sm:p-5 space-y-3.5 shadow-xs">
+                  <div className="flex items-center justify-between border-b border-accent/20 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent text-accent-fg shadow-xs">
+                        <Gamepad2 size={18} />
+                      </span>
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-accent block">
+                          {lang === "en" ? "Top-Up Target Account" : lang === "zh" ? "充值目标账号" : "Data Akun Tujuan Top-Up"}
+                        </span>
+                        <h3 className="text-sm sm:text-base font-bold text-fg">
+                          {detectedGameConfig.gameName}
+                        </h3>
+                      </div>
+                    </div>
+                    <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                      {lang === "en" ? "Required" : lang === "zh" ? "必填" : "Wajib Diisi"}
+                    </span>
+                  </div>
+
+                  <div className={`grid gap-3 ${detectedGameConfig.fields.length > 1 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
+                    {detectedGameConfig.fields.map((field) => (
+                      <div key={field.id} className="space-y-1">
+                        <label className="block text-xs font-bold text-fg">
+                          {field.label} <span className="text-red-500">*</span>
+                        </label>
+                        {field.type === "select" ? (
+                          <select
+                            value={gameAccountData[field.id] || ""}
+                            onChange={(e) =>
+                              setGameAccountData((prev) => ({
+                                ...prev,
+                                [field.id]: e.target.value,
+                              }))
+                            }
+                            className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-xs font-medium text-fg shadow-xs focus:border-accent focus:outline-hidden focus:ring-1 focus:ring-accent"
+                          >
+                            <option value="">-- {field.placeholder} --</option>
+                            {field.options?.map((opt) => (
+                              <option key={opt} value={opt}>
+                                {opt}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <Input
+                            value={gameAccountData[field.id] || ""}
+                            onChange={(e) =>
+                              setGameAccountData((prev) => ({
+                                ...prev,
+                                [field.id]: e.target.value,
+                              }))
+                            }
+                            placeholder={field.placeholder}
+                          />
+                        )}
+                        <p className="text-[10.5px] text-fg-muted">{field.example}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {detectedGameConfig.guideText && (
+                    <div className="rounded-xl bg-surface/90 border border-border/70 p-3 text-xs text-fg-muted flex items-start gap-2">
+                      <Zap size={14} className="shrink-0 text-amber-500 mt-0.5" />
+                      <span>{detectedGameConfig.guideText}</span>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Pilihan Metode Pembayaran */}
               <div className="space-y-2">

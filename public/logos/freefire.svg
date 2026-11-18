@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="ff-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="50%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#7f1d1d"/>
+    </linearGradient>
+    <linearGradient id="ff-flame" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#fef08a"/>
+    </linearGradient>
+  </defs>
+  <rect width="100" height="100" rx="22" fill="url(#ff-grad)"/>
+  <!-- Free Fire Iconic Flame Wing -->
+  <path d="M50 15 C52 28 44 34 40 42 C35 52 38 66 48 72 C38 68 32 58 35 48 C36 44 38 40 37 36 C34 44 26 54 28 66 C30 78 42 85 54 85 C68 85 80 74 78 58 C76 44 64 36 62 26 C60 22 62 18 64 15 C58 19 54 26 55 33 C56 38 59 42 58 46 C56 52 48 56 46 50 C44 44 48 36 50 15 Z" fill="url(#ff-flame)"/>
+  <!-- FF Knife slash -->
+  <path d="M42 52 L58 48 L56 54 L44 58 Z" fill="#ffffff" opacity="0.9"/>
+</svg>

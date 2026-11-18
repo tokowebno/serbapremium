@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="val-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18181b"/>
+      <stop offset="100%" stop-color="#09090b"/>
+    </linearGradient>
+  </defs>
+  <rect width="100" height="100" rx="22" fill="url(#val-bg)"/>
+  <!-- Official Valorant V Slash Icon -->
+  <path d="M62.5 25 L82.5 45 L72.5 55 L52.5 35 Z" fill="#ff4655"/>
+  <path d="M17.5 25 L47.5 25 L37.5 75 L17.5 55 Z" fill="#ff4655"/>
+</svg>

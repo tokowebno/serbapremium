@@ -16,6 +16,7 @@ import {
   PlusCircle,
   Lock,
   Loader2,
+  Gamepad2,
 } from "lucide-react";
 import type { App, ProductVariant } from "@/types";
 import { formatPrice, formatRupiah } from "@/lib/utils";
@@ -25,6 +26,7 @@ import { AppIcon } from "@/components/ui/app-icon";
 import { useTranslation } from "@/components/storefront/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { supabase, supabaseReady } from "@/lib/supabase";
+import { getGameConfig } from "@/lib/game-fields";
 
 function localizeVariantName(name: string, lang: string): string {
   if (lang === "id") return name;
@@ -113,6 +115,53 @@ export function ProductVariantSelector({ app }: { app: App }) {
   const [isOpeningTopUp, setIsOpeningTopUp] = useState(false);
   const [purchasedSuccess, setPurchasedSuccess] = useState(false);
 
+  // Konfigurasi Khusus Akun Top-Up Game (MLBB, FF, Roblox, Valorant, PUBG, Genshin)
+  const gameConfig = getGameConfig(app.slug || app.name);
+  const [gameData, setGameData] = useState<Record<string, string>>({});
+
+  const validateGameFields = (): boolean => {
+    if (!gameConfig) return true;
+    for (const f of gameConfig.fields) {
+      const val = (gameData[f.id] || "").trim();
+      if (!val) {
+        toast.push({
+          title:
+            lang === "en"
+              ? "Game Account Data Required"
+              : lang === "zh"
+              ? "请填写游戏账号信息"
+              : "Data Akun Game Wajib Diisi",
+          description:
+            lang === "en"
+              ? `Please enter your ${f.label} before proceeding.`
+              : lang === "zh"
+              ? `请在继续前填写您的 ${f.label}。`
+              : `Mohon isi ${f.label} terlebih dahulu sebelum melanjutkan.`,
+          tone: "error",
+        });
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const getCustomItemName = () => {
+    const baseName =
+      variants.length === 1 || selectedVariant.name.toLowerCase().includes(app.name.toLowerCase())
+        ? selectedVariant.name
+        : `${app.name} (${selectedVariant.name})`;
+    let name = quantity > 1 ? `${baseName} (${quantity}x)` : baseName;
+    if (gameConfig) {
+      const details = gameConfig.fields
+        .map((f) => `${f.label}: ${gameData[f.id] || "-"}`)
+        .join(" | ");
+      if (details) {
+        name = `${name} [${details}]`;
+      }
+    }
+    return name;
+  };
+
   const handleTriggerTopUp = (neededAmount?: number) => {
     setIsOpeningTopUp(true);
     setTimeout(() => {
@@ -137,12 +186,9 @@ export function ProductVariantSelector({ app }: { app: App }) {
   };
 
   const handleAddToCart = () => {
+    if (gameConfig && !validateGameFields()) return;
     setIsAdding(true);
-    const baseName =
-      variants.length === 1 || selectedVariant.name.toLowerCase().includes(app.name.toLowerCase())
-        ? selectedVariant.name
-        : `${app.name} (${selectedVariant.name})`;
-    const customItemName = quantity > 1 ? `${baseName} (${quantity}x)` : baseName;
+    const customItemName = getCustomItemName();
 
     cart.add(
       {
@@ -161,8 +207,20 @@ export function ProductVariantSelector({ app }: { app: App }) {
     setTimeout(() => setIsAdding(false), 300);
   };
 
+  // Direct Checkout (QRIS / Crypto) tanpa harus potong saldo terlebih dahulu
+  const handleDirectCheckout = () => {
+    if (gameConfig && !validateGameFields()) return;
+    const customItemName = getCustomItemName();
+    const gameQuery = gameConfig ? `&gameData=${encodeURIComponent(JSON.stringify(gameData))}` : "";
+    router.push(
+      `/pembayaran?app=${app.slug}&price=${totalPrice}&title=${encodeURIComponent(customItemName)}&platform=${encodeURIComponent(defaultPlatform)}${gameQuery}`
+    );
+  };
+
   // 1-Click Pay with Balance
   const handlePayWithBalance = async () => {
+    if (gameConfig && !validateGameFields()) return;
+
     if (!isAuthenticated) {
       router.push(`/masuk?next=${encodeURIComponent(pathname)}`);
       return;
@@ -178,11 +236,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
     await new Promise((resolve) => setTimeout(resolve, 1500));
     
     const orderCode = `TK-${Date.now().toString().slice(-6)}`;
-    const baseName =
-      variants.length === 1 || selectedVariant.name.toLowerCase().includes(app.name.toLowerCase())
-        ? selectedVariant.name
-        : `${app.name} (${selectedVariant.name})`;
-    const customItemName = quantity > 1 ? `${baseName} (${quantity}x)` : baseName;
+    const customItemName = getCustomItemName();
 
     const deductLabel =
       lang === "en"
@@ -209,7 +263,9 @@ export function ProductVariantSelector({ app }: { app: App }) {
     // Add to user library
     library.add(app.slug, {
       accountEmail: user?.email,
-      licenseKey: `LIC-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
+      licenseKey: gameConfig
+        ? `TOPUP-${gameConfig.gameKey.toUpperCase()}-${Object.values(gameData).filter(Boolean).join("-")}`
+        : `LIC-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
     });
 
     // Record order in Supabase
@@ -229,6 +285,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
               name: customItemName,
               price: totalPrice,
               platform: defaultPlatform,
+              game_account: gameConfig ? gameData : undefined,
             },
           ],
         });
@@ -355,6 +412,70 @@ export function ProductVariantSelector({ app }: { app: App }) {
                 </span>
               )}
           </div>
+        </div>
+      )}
+
+      {/* Input Data Akun Game Khusus Top-Up Game */}
+      {gameConfig && (
+        <div className="mt-4 rounded-xl border border-accent/40 bg-accent/5 p-4 space-y-3.5 shadow-xs">
+          <div className="flex items-center justify-between border-b border-accent/20 pb-2.5">
+            <div className="flex items-center gap-2">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-accent-fg shadow-xs">
+                <Gamepad2 size={15} />
+              </span>
+              <div>
+                <h3 className="text-xs sm:text-sm font-bold text-fg">
+                  {lang === "en" ? "Game Account Target" : lang === "zh" ? "游戏充值账号信息" : "Data Akun Game (Tujuan Top-Up)"}
+                </h3>
+                <p className="text-[11px] text-fg-muted font-medium">
+                  {gameConfig.gameName}
+                </p>
+              </div>
+            </div>
+            <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+              {lang === "en" ? "Fast Delivery" : lang === "zh" ? "秒级充值" : "Proses Cepat"}
+            </span>
+          </div>
+
+          <div className={`grid gap-2.5 ${gameConfig.fields.length > 1 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
+            {gameConfig.fields.map((field) => (
+              <div key={field.id} className="space-y-1">
+                <label className="block text-xs font-semibold text-fg">
+                  {field.label} <span className="text-red-500 font-bold">*</span>
+                </label>
+                {field.type === "select" ? (
+                  <select
+                    value={gameData[field.id] || ""}
+                    onChange={(e) => setGameData((prev) => ({ ...prev, [field.id]: e.target.value }))}
+                    className="w-full rounded-xl border border-border/80 bg-surface px-3 py-2 text-xs font-medium text-fg shadow-xs focus:border-accent focus:outline-hidden focus:ring-1 focus:ring-accent"
+                  >
+                    <option value="">-- {field.placeholder} --</option>
+                    {field.options?.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    value={gameData[field.id] || ""}
+                    onChange={(e) => setGameData((prev) => ({ ...prev, [field.id]: e.target.value }))}
+                    placeholder={field.placeholder}
+                    className="w-full rounded-xl border border-border/80 bg-surface px-3 py-2 text-xs text-fg shadow-xs placeholder:text-fg-muted/60 focus:border-accent focus:outline-hidden focus:ring-1 focus:ring-accent"
+                  />
+                )}
+                <p className="text-[10.5px] text-fg-muted leading-tight">{field.example}</p>
+              </div>
+            ))}
+          </div>
+
+          {gameConfig.guideText && (
+            <div className="rounded-lg bg-surface/80 border border-border/60 p-2.5 text-[11px] text-fg-muted flex items-start gap-1.5">
+              <Zap size={13} className="shrink-0 text-amber-500 mt-0.5" />
+              <span>{gameConfig.guideText}</span>
+            </div>
+          )}
         </div>
       )}
 
@@ -513,7 +634,7 @@ export function ProductVariantSelector({ app }: { app: App }) {
               </Button>
             </>
           ) : !isAuthenticated ? (
-            /* USER BELUM LOGIN -> WAJIB LOGIN */
+            /* USER BELUM LOGIN -> BISA LOGIN ATAU LANGSUNG CHECKOUT QRIS/CRYPTO */
             <>
               <Button
                 size="lg"
@@ -522,6 +643,15 @@ export function ProductVariantSelector({ app }: { app: App }) {
               >
                 <LogIn size={17} strokeWidth={2.4} />
                 <span>{lang === "en" ? "Sign In to Purchase" : lang === "zh" ? "登录后购买" : "Wajib Masuk Akun untuk Membeli"}</span>
+              </Button>
+              <Button
+                size="lg"
+                variant="secondary"
+                className="w-full border-accent/40 hover:border-accent hover:bg-accent/10 font-bold rounded-full cursor-pointer"
+                onClick={handleDirectCheckout}
+              >
+                <ArrowRight size={16} strokeWidth={2.4} className="text-accent" />
+                <span>{lang === "en" ? "Instant Checkout (QRIS / Crypto)" : lang === "zh" ? "直接结算（QRIS / 加密货币）" : "Beli Langsung (QRIS / Crypto)"}</span>
               </Button>
               <Button
                 size="lg"
@@ -567,6 +697,15 @@ export function ProductVariantSelector({ app }: { app: App }) {
               <Button
                 size="lg"
                 variant="secondary"
+                className="w-full border-accent/40 hover:border-accent hover:bg-accent/10 font-bold rounded-full cursor-pointer"
+                onClick={handleDirectCheckout}
+              >
+                <ArrowRight size={16} strokeWidth={2.4} className="text-accent" />
+                <span>{lang === "en" ? "Instant Checkout (QRIS / Crypto)" : lang === "zh" ? "直接结算（QRIS / 加密货币）" : "Beli Langsung (QRIS / Crypto)"}</span>
+              </Button>
+              <Button
+                size="lg"
+                variant="secondary"
                 className="w-full"
                 onClick={handleAddToCart}
                 disabled={isAdding}
@@ -600,6 +739,15 @@ export function ProductVariantSelector({ app }: { app: App }) {
                     ? `余额不足，去充值（缺少 ${formatPrice(balanceDeficit, lang)}）`
                     : `Isi Saldo (Kurang ${formatPrice(balanceDeficit, lang)})`}
                 </span>
+              </Button>
+              <Button
+                size="lg"
+                variant="secondary"
+                className="w-full border-accent/40 hover:border-accent hover:bg-accent/10 font-bold rounded-full cursor-pointer"
+                onClick={handleDirectCheckout}
+              >
+                <ArrowRight size={16} strokeWidth={2.4} className="text-accent" />
+                <span>{lang === "en" ? "Instant Checkout (QRIS / Crypto)" : lang === "zh" ? "直接结算（QRIS / 加密货币）" : "Beli Langsung (QRIS / Crypto)"}</span>
               </Button>
               <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 px-3 py-2 text-center text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
                 {lang === "en"
