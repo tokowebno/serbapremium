@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -92,7 +92,7 @@ const PAYMENT_INFO: Record<
     },
     icon: "/logos/bnb.svg",
     network: "BNB Smart Chain (BEP-20)",
-    address: "0x5C244fDc91BC1e27f02EF9cA9C484bd8472cBDf6",
+    address: "0x2baec2Bdfd8D5A1D00D4eBa64FAF534151126275",
   },
   usdt_tron: {
     name: {

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Copy, Check, AlertCircle, Send } from "lucide-react";
@@ -57,7 +57,7 @@ export function OrderPaymentBox({
     cryptoSymbol = "TON / GRAM";
   } else if (isBep20) {
     cryptoNetwork = "BNB Smart Chain (BEP-20)";
-    cryptoAddress = "0x5C244fDc91BC1e27f02EF9cA9C484bd8472cBDf6";
+    cryptoAddress = "0x2baec2Bdfd8D5A1D00D4eBa64FAF534151126275";
     cryptoSymbol = "BNB / USDT";
   } else if (isBtc) {
     cryptoNetwork = "Bitcoin";
