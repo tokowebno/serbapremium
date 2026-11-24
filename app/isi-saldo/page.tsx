@@ -57,7 +57,7 @@ const PAYMENT_METHODS: {
     },
     icon: "/logos/bnb.svg",
     network: "BNB Smart Chain (BEP-20)",
-    address: "0x482677B4F7C5B69F943e3fC93A3e55354D89689B",
+    address: "0x12098B5cAA324F41e6C2EA8860a51a4f67b034E2",
   },
   {
     id: "usdt_tron",

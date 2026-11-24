@@ -52,7 +52,7 @@ MENU_ICONS = {
 
 # Payment & Deposit Configurations
 BINANCE_ID = os.getenv("BINANCE_ID", "1279190934").strip()
-BEP20_ADDRESS = os.getenv("BEP20_ADDRESS", "0x482677B4F7C5B69F943e3fC93A3e55354D89689B").strip()
+BEP20_ADDRESS = os.getenv("BEP20_ADDRESS", "0x12098B5cAA324F41e6C2EA8860a51a4f67b034E2").strip()
 TRC20_ADDRESS = os.getenv("TRC20_ADDRESS", "TTcjF78tTsDFNmuJzzBgTdT9GaWHmmmnVV").strip()
 SOLANA_ADDRESS = os.getenv("SOLANA_ADDRESS", "FNNgq27hNuwddakAeZJiWUEJYjE13CtsS3YHRJjGMwpP").strip()
 TON_ADDRESS = os.getenv("TON_ADDRESS", "UQCaoPvuEBSvvUbzcWgugV7EMYBuF-czgoDtLISse0wFbthg").strip()
